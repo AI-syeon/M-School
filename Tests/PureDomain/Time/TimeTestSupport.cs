@@ -217,7 +217,7 @@ namespace MagicCampus.Tests.Time
             registry.Seal();
 
             w.Pump = new CompletionPump();
-            w.Store = new StateStore(new StateSnapshot(revision, root), registry, new IStateInvariant[0], w.Pump, NoCompletionReplayPolicy.Instance);
+            w.Store = new StateStore(new StateSnapshot(revision, root), registry, new IStateInvariant[0], w.Pump, new PersistedCompletionReplayPolicy());
             w.Clock = new ClockService(w.Store, w.Calendar, w.Consumers);
             return w;
         }

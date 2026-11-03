@@ -94,7 +94,6 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         private static DataNode L(params DataNode[] a) { return DataNode.FromList(a); }
         private static DataNode O(params KeyValuePair<string, DataNode>[] m) { return DataNode.FromObject(m); }
         private static KeyValuePair<string, DataNode> P(string k, DataNode v) { return new KeyValuePair<string, DataNode>(k, v); }
-        private static KeyValuePair<string, string> P2(string a, string b) { return new KeyValuePair<string, string>(a, b); }
 
         private static DataNode Stack(string item, int quantity, string provenance)
         {
@@ -146,7 +145,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         {
             var d = new Dictionary<string, DataNode>(StringComparer.Ordinal);
             foreach (var kv in full.Members)
-                if (!SaveMigrationRegistry.V1AddedFields.ContainsKey(kv.Key)) d[kv.Key] = kv.Value;
+                if (!SaveMigration.V1AddedFields.ContainsKey(kv.Key)) d[kv.Key] = kv.Value;
             d["saveVersion"] = I(1);
             return DataNode.FromObject(d);
         }
@@ -257,32 +256,21 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
 
         private static void MigrationChecks()
         {
-            var reg = new SaveMigrationRegistry(SaveSubstitutionTable.Empty);
             var full = Full();
             var v1 = V1Of(full);
             Check(v1.Members.Count < 45 && v1.Members["saveVersion"].Integer == 1, "v1 fixture lacks the named fields");
-            var m = reg.Migrate(v1, 1);
+            var m = SaveMigration.Migrate(v1, 1);
             Check(m.Succeeded && m.Value.Members.Count == 45 && m.Value.Members["saveVersion"].Integer == 2, "v1 migrates to a complete v2");
-            foreach (var kv in SaveMigrationRegistry.V1AddedFields)
+            foreach (var kv in SaveMigration.V1AddedFields)
                 Check(m.Value.Members[kv.Key].Equals(kv.Value), "documented default for " + kv.Key);
             foreach (var kv in full.Members)
-                if (kv.Key != "saveVersion" && !SaveMigrationRegistry.V1AddedFields.ContainsKey(kv.Key))
+                if (kv.Key != "saveVersion" && !SaveMigration.V1AddedFields.ContainsKey(kv.Key))
                     Check(m.Value.Members[kv.Key].Equals(kv.Value), "retained v1 field " + kv.Key);
             Eq(1, v1.Members["saveVersion"].Integer, "source v1 tree untouched");
-            Check(ReferenceEquals(reg.Migrate(full, 2).Value, full), "v2 passes through");
-            Eq(ResultCodes.SaveIncompatible, reg.Migrate(full, 3).Result.Code, "newer version refused");
-            Eq(ResultCodes.SaveIncompatible, reg.Migrate(V1Of(full).With("saveVersion", I(0)), 0).Result.Code, "version zero refused");
-            Eq(ResultCodes.ContentInvalid, reg.Migrate(v1, 2).Result.Code, "declared version must match the field");
-
-            var subs = new SaveSubstitutionTable(new[] { P2("item.a", "item.z"), P2("map.a", "map.z") }, new[] { P2("reward.old", "reward.new"), P2("node.old", "node.new") });
-            var m2 = new SaveMigrationRegistry(subs).Migrate(V1Of(full), 1).Value;
-            Eq("item.z", m2.Members["stacks"].Items[0].Members["itemId"].Text, "id substitution in a row reference");
-            Eq("map.z", m2.Members["player"].Members["mapId"].Text, "id substitution in player map");
-            Eq("map.z", m2.Members["npcPositions"].Items[0].Members["mapId"].Text, "id substitution in npc position");
-            Eq("node.new", m2.Members["completed"].Items[0].Text, "completion key substitution");
-            Eq("reward.new", m2.Members["rewardLedger"].Items[0].Text, "reward key substitution");
-            Eq("item.a", m2.Members["player"].Members["name"].Text, "free text is never rewritten");
-            Throws<ArgumentException>(() => new SaveSubstitutionTable(new[] { P2("a", "b"), P2("a", "c") }, null), "duplicate substitution key");
+            Check(ReferenceEquals(SaveMigration.Migrate(full, 2).Value, full), "v2 passes through");
+            Eq(ResultCodes.SaveIncompatible, SaveMigration.Migrate(full, 3).Result.Code, "newer version refused");
+            Eq(ResultCodes.SaveIncompatible, SaveMigration.Migrate(V1Of(full).With("saveVersion", I(0)), 0).Result.Code, "version zero refused");
+            Eq(ResultCodes.ContentInvalid, SaveMigration.Migrate(v1, 2).Result.Code, "declared version must match the field");
         }
 
         // ------------------------------------------------------------------ restorer
@@ -293,7 +281,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             var schema = new FakeSchema();
             var refs = new FakeInvariant();
             var inv = new FakeInvariant();
-            var rs = new SaveRestorer(new SaveMigrationRegistry(SaveSubstitutionTable.Empty), Json, schema, O(), c => refs, new IStateInvariant[] { inv });
+            var rs = new SaveRestorer(Json, schema, O(), c => refs, new IStateInvariant[] { inv });
             var cat = new FakeCatalog(H64);
 
             var good = codec.Seal(new StateSnapshot(1, Full(3)), 3);
@@ -531,7 +519,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
                 Handles = new HandleFactory(Pump);
                 if (factory == null) { Files = new FakeFiles(Handles); FilePort = Files; }
                 else FilePort = factory(Handles);
-                var restorer = new SaveRestorer(new SaveMigrationRegistry(SaveSubstitutionTable.Empty), Json, new FakeSchema(), O(), c => new FakeInvariant(), new IStateInvariant[0]);
+                var restorer = new SaveRestorer(Json, new FakeSchema(), O(), c => new FakeInvariant(), new IStateInvariant[0]);
                 Service = new SaveService(Policy, Codec, FilePort, restorer, Store, Catalogs, Handles);
             }
         }

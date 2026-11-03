@@ -45,13 +45,7 @@ namespace MagicCampus.Content.Compilation
       var dl = loader.Load(functions.Root);
       if (!dl.Succeeded) { diags.AddRange(dl.Result.Details); return Failed(diags); }
       var dict = dl.Value;
-      var reg = (dict as FunctionDictionary)?.Registry;
-      if (reg == null)
-      {
-        var rd = new List<Diagnostic>();
-        reg = RegistryBuilder.Build(dict.Source, functions.File, rd);
-        if (reg == null) { diags.AddRange(rd); return Failed(diags); }
-      }
+      var reg = ((FunctionDictionary)dict).Registry;
       var files = new Dictionary<string, string> { { "catalog", catalog.File }, { "runner", runner.File }, { "functions", functions.File } };
       var an = new ContentAnalyzer(parser, reg, catalog.Root, runner.Root, files);
       an.Run();

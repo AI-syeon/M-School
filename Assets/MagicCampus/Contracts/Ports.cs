@@ -90,7 +90,7 @@ namespace MagicCampus.Contracts
     public static class ResultCodes
     {
         public const string Ok = "OK", ContentInvalid = "CONTENT_INVALID", ConditionFalse = "CONDITION_FALSE", ResourceBusy = "RESOURCE_BUSY", NoRoute = "NO_ROUTE", TargetBlocked = "TARGET_BLOCKED";
-        public const string MapLoadFailed = "MAP_LOAD_FAILED", Timeout = "TIMEOUT", Cancelled = "CANCELLED", InsufficientItems = "INSUFFICIENT_ITEMS", InsufficientFunds = "INSUFFICIENT_FUNDS";
+        public const string MapLoadFailed = "MAP_LOAD_FAILED", Timeout = "TIMEOUT", Cancelled = "CANCELLED";
         public const string OutOfScope = "OUT_OF_SCOPE", SaveIncompatible = "SAVE_INCOMPATIBLE", RevisionConflict = "REVISION_CONFLICT", Unregistered = "UNREGISTERED";
         public const string TransactionMismatch = "TRANSACTION_MISMATCH", InvariantViolation = "INVARIANT_VIOLATION", SliceOverlap = "SLICE_OVERLAP";
         public const string ParseError = "PARSE_ERROR", UnknownFunction = "UNKNOWN_FUNCTION", ArgCount = "ARG_COUNT", ArgType = "ARG_TYPE", RefNotFound = "REF_NOT_FOUND", RefKind = "REF_KIND";
@@ -1052,13 +1052,6 @@ namespace MagicCampus.Contracts
         IHandle<FileGeneration> Write(long generation, ReadOnlyMemory<byte> fileBytes);
         IHandle<FileGeneration> Read(long generation);
         IReadOnlyList<FileGeneration> ListCandidates();   // newest first, valid generations only
-    }
-
-    /// <summary>Explicit table, v1 to v2 and id/completionKey substitutions included. Unknown versions fail with SAVE_INCOMPATIBLE.</summary>
-    public interface ISaveMigrationRegistry
-    {
-        int CurrentVersion { get; }
-        Outcome<DataNode> Migrate(DataNode save, int fromVersion);
     }
 
     public interface ISaveRestorer
