@@ -13,3 +13,6 @@
 /Tests/Temporary/
 *.csproj.user
 .vs/
+/.claude/worktrees/
+/Tests/Results/stage4-disk-*/
+/Tests/Results/stage4-graph-*/
