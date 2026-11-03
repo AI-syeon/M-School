@@ -694,7 +694,7 @@ namespace MagicCampus.Tests.Events
     internal sealed class FakeStore : IStateStore
     {
         private readonly List<string> log;
-        public readonly List<IStatePlan> Commits = new List<IStatePlan>();
+        public readonly List<StatePlan> Commits = new List<StatePlan>();
         public readonly List<StateSnapshot> Replaces = new List<StateSnapshot>();
         public StateSnapshot Current { get; private set; }
 
@@ -704,7 +704,7 @@ namespace MagicCampus.Tests.Events
             Current = new StateSnapshot(1, DataNode.FromObject(new Dictionary<string, DataNode>()));
         }
 
-        public Outcome<StateSnapshot> Commit(IStatePlan plan)
+        public Outcome<StateSnapshot> Commit(StatePlan plan)
         {
             if (plan.ExpectedRevision != Current.Revision)
                 return Outcome<StateSnapshot>.Fail(ResultCodes.RevisionConflict, Current.Revision, new Diagnostic(ResultCodes.RevisionConflict, "stale plan", null, Current.Revision.ToString(), plan.ExpectedRevision.ToString()));

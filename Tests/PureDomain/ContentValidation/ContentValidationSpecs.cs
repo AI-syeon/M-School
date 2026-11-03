@@ -80,7 +80,7 @@ namespace MagicCampus.Tests.ContentValidation
       Check(registry.Register(new MagicCampus.World.Movement.WorldCommitParticipant(actors, geometry)).Status == OperationStatus.Succeeded, "world registration");
       registry.Seal();
       var invariant = new SaveStateValidator(cat, e.SaveSchema.Root, e.Schema);
-      var store = new MagicCampus.State.StateStore(new StateSnapshot(0, e.Save.Root), registry, new[] { invariant }, pump, new MagicCampus.Transactions.Core.PersistedCompletionReplayPolicy());
+      var store = new MagicCampus.State.StateStore(new StateSnapshot(0, e.Save.Root), registry, new[] { invariant }, pump);
       var before = store.Current;
       var clock = new MagicCampus.Timekeeping.ClockService(store, calendar);
       var eventDefinition = cat.FindEvent("event.snack");

@@ -6,29 +6,25 @@ using MagicCampus.State;
 namespace MagicCampus.Transactions.Core
 {
     /// <summary>
-    /// Registry with a frozen path-prefix ownership allowlist. Registration refuses duplicate ids, malformed pointers and any
+    /// Registry with a path-prefix ownership allowlist. Registration refuses duplicate ids, malformed pointers and any
     /// ancestor/descendant/equal ownership overlap between participants. After Seal() nothing can be registered.
-    /// Find returns a wrapper whose id and owned slices were copied at registration time.
+    /// Owned slices are parsed and copied at registration time, so later changes to the participant's list have no effect.
     /// </summary>
-    public sealed class StateParticipantRegistry : IStateParticipantRegistry
+    public sealed class StateParticipantRegistry
     {
-        private sealed class FrozenParticipant : IStateParticipant
+        public sealed class Registration
         {
-            private readonly IStateParticipant inner;
-            public string ParticipantId { get; }
-            public IReadOnlyList<string> OwnedSlices { get; }
+            public IStateParticipant Participant { get; }
+            public IReadOnlyList<JsonPointer> Owned { get; }
 
-            public FrozenParticipant(IStateParticipant inner, string id, string[] owned)
+            public Registration(IStateParticipant participant, JsonPointer[] owned)
             {
-                this.inner = inner;
-                ParticipantId = id;
-                OwnedSlices = Array.AsReadOnly(owned);
+                Participant = participant;
+                Owned = Array.AsReadOnly(owned);
             }
-
-            public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan) => inner.Prepare(basis, plan);
         }
 
-        private readonly Dictionary<string, FrozenParticipant> byId = new Dictionary<string, FrozenParticipant>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Registration> byId = new Dictionary<string, Registration>(StringComparer.Ordinal);
         private readonly List<KeyValuePair<string, JsonPointer>> claims = new List<KeyValuePair<string, JsonPointer>>();
         private bool sealedFlag;
 
@@ -48,7 +44,6 @@ namespace MagicCampus.Transactions.Core
             var slices = participant.OwnedSlices;
             if (slices == null || slices.Count == 0) return Refuse(ResultCodes.ContentInvalid, "OWNED_SLICES_EMPTY", "participant must own at least one slice", id);
 
-            var copy = new List<string>();
             var pointers = new List<JsonPointer>();
             foreach (var s in slices)
             {
@@ -57,19 +52,19 @@ namespace MagicCampus.Transactions.Core
                 foreach (var claim in claims)
                     if (claim.Value.Overlaps(pointer))
                         return Refuse(ResultCodes.SliceOverlap, "OWNERSHIP_OVERLAP", id + " overlaps " + claim.Key + " at " + claim.Value.Text, s);
-                copy.Add(s);
                 pointers.Add(pointer);
             }
 
             foreach (var p in pointers) claims.Add(new KeyValuePair<string, JsonPointer>(id, p));
-            byId.Add(id, new FrozenParticipant(participant, id, copy.ToArray()));
+            byId.Add(id, new Registration(participant, pointers.ToArray()));
             return new Result(OperationStatus.Succeeded, ResultCodes.Ok, 0, null);
         }
 
-        public IStateParticipant Find(string participantId)
+        /// <summary>Null when unregistered; the store then refuses the whole plan with ResultCodes.Unregistered.</summary>
+        public Registration Find(string participantId)
         {
             if (participantId == null) return null;
-            return byId.TryGetValue(participantId, out var p) ? p : null;
+            return byId.TryGetValue(participantId, out var r) ? r : null;
         }
 
         private static Result Refuse(string code, string diagCode, string message, string actual)

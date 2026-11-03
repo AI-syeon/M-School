@@ -31,7 +31,7 @@ namespace MagicCampus.Application.Reservations
         public string ParticipantId => Id;
         public IReadOnlyList<string> OwnedSlices => Owned;
 
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
             if (basis == null) throw new ArgumentNullException(nameof(basis));
             if (plan == null) throw new ArgumentNullException(nameof(plan));
@@ -61,7 +61,7 @@ namespace MagicCampus.Application.Reservations
             return Outcome<StateReplacement>.Ok(replacement, basis.Revision);
         }
 
-        private Outcome<StateReplacement> Apply(PlannedChange change, IStatePlan plan, StateSnapshot basis, ICatalog current, List<AppointmentRow> rows)
+        private Outcome<StateReplacement> Apply(PlannedChange change, StatePlan plan, StateSnapshot basis, ICatalog current, List<AppointmentRow> rows)
         {
             if (change.Operation != AcceptOperation && change.Operation != CompleteOperation)
                 return Reject(ResultCodes.Unregistered, basis, "reservations does not implement this operation", change.Operation, "accept|complete", change.Operation);
@@ -95,7 +95,7 @@ namespace MagicCampus.Application.Reservations
             return null;
         }
 
-        private Outcome<StateReplacement> Complete(IStatePlan plan, StateSnapshot basis, CompiledEvent ev, List<AppointmentRow> rows, int index)
+        private Outcome<StateReplacement> Complete(StatePlan plan, StateSnapshot basis, CompiledEvent ev, List<AppointmentRow> rows, int index)
         {
             CompletionKey? expected = ev.Repeat == RepeatPolicy.Once ? ReservationRules.EffectiveKey(ev) : (CompletionKey?)null;
             var matches = plan.Completion.HasValue == expected.HasValue
@@ -112,7 +112,7 @@ namespace MagicCampus.Application.Reservations
             return null;
         }
 
-        private bool HasEventCompletion(IStatePlan plan, string eventId)
+        private bool HasEventCompletion(StatePlan plan, string eventId)
         {
             foreach (var c in plan.Changes)
             {

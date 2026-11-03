@@ -280,35 +280,29 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             var codec = new SaveCodec(Json);
             var schema = new FakeSchema();
             var refs = new FakeInvariant();
-            var inv = new FakeInvariant();
-            var rs = new SaveRestorer(Json, schema, O(), c => refs, new IStateInvariant[] { inv });
+            var rs = new SaveRestorer(Json, schema, O(), c => refs);
             var cat = new FakeCatalog(H64);
 
             var good = codec.Seal(new StateSnapshot(1, Full(3)), 3);
             var ok = rs.Restore(good, cat);
-            Check(ok.Succeeded && ok.Value.Root.Members.Count == 45 && schema.Calls == 1 && refs.Calls == 1 && inv.Calls == 1, "valid save passes every stage");
+            Check(ok.Succeeded && ok.Value.Root.Members.Count == 45 && schema.Calls == 1 && refs.Calls == 1, "valid save passes every stage");
 
             Fails(rs.Restore(good, new FakeCatalog(new string('b', 64))), ResultCodes.SaveIncompatible, "CATALOG_HASH_MISMATCH", "catalog hash mismatch");
             Fails(rs.Restore(Env(Full(), 3, new string('b', 64), 1), cat), ResultCodes.SaveIncompatible, "VERSION_UNSUPPORTED", "newer version refused before the hash is considered");
-            Fails(rs.Restore(Env(Full(), 2, H64, 1, new string('0', 64)), cat), ResultCodes.ContentInvalid, "CHECKSUM_MISMATCH", "checksum fault");
             Fails(rs.Restore(Env(Full(1), 2, H64, 5), cat), ResultCodes.ContentInvalid, "ENVELOPE_PAYLOAD_MISMATCH", "envelope/payload generation mismatch");
             Fails(rs.Restore(Env(Full(1, hash: new string('c', 64)), 2, H64, 1), cat), ResultCodes.ContentInvalid, "ENVELOPE_PAYLOAD_MISMATCH", "envelope/payload hash mismatch");
             Fails(rs.Restore(Env(Full().With("extra", I(1)), 2, H64, 1), cat), ResultCodes.ContentInvalid, "SAVE_FIELD_UNKNOWN", "unknown field refused, not dropped");
             Fails(rs.Restore(Env(Without(Full(), "wallet"), 2, H64, 1), cat), ResultCodes.ContentInvalid, "SAVE_FIELD_MISSING", "missing field refused");
             Fails(rs.Restore(Env(Full().With("wallet", N(1.5)), 2, H64, 1), cat), ResultCodes.ContentInvalid, "SAVE_WALLET_NOT_INTEGER", "fractional wallet refused");
 
-            refs.Calls = 0; inv.Calls = 0;
+            refs.Calls = 0;
             schema.Next.Add(Dx("SCHEMA_FAULT"));
             Fails(rs.Restore(good, cat), ResultCodes.ContentInvalid, "SCHEMA_FAULT", "schema fault");
-            Check(refs.Calls == 0 && inv.Calls == 0, "later stages are not run after a schema fault");
+            Check(refs.Calls == 0, "later stages are not run after a schema fault");
             schema.Next.Clear();
             refs.Next.Add(Dx("REF_NOT_FOUND"));
             Fails(rs.Restore(good, cat), ResultCodes.ContentInvalid, "REF_NOT_FOUND", "reference fault");
-            Check(inv.Calls == 0, "invariants are not run after a reference fault");
             refs.Next.Clear();
-            inv.Next.Add(Dx("BAD_INVARIANT"));
-            Fails(rs.Restore(good, cat), ResultCodes.InvariantViolation, "BAD_INVARIANT", "invariant fault");
-            inv.Next.Clear();
 
             var v1 = rs.Restore(Env(V1Of(Full()), 1, H64, 1), cat);
             Check(v1.Succeeded && v1.Value.Root.Members.Count == 45 && v1.Value.Root.Members["saveVersion"].Integer == 2, "v1 envelope restores as v2");
@@ -519,7 +513,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
                 Handles = new HandleFactory(Pump);
                 if (factory == null) { Files = new FakeFiles(Handles); FilePort = Files; }
                 else FilePort = factory(Handles);
-                var restorer = new SaveRestorer(Json, new FakeSchema(), O(), c => new FakeInvariant(), new IStateInvariant[0]);
+                var restorer = new SaveRestorer(Json, new FakeSchema(), O(), c => new FakeInvariant());
                 Service = new SaveService(Policy, Codec, FilePort, restorer, Store, Catalogs, Handles);
             }
         }
@@ -648,7 +642,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             public int ReplaceCalls;
             public string FailCode;
 
-            public Outcome<StateSnapshot> Commit(IStatePlan plan) { throw new NotSupportedException(); }
+            public Outcome<StateSnapshot> Commit(StatePlan plan) { throw new NotSupportedException(); }
 
             public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
             {

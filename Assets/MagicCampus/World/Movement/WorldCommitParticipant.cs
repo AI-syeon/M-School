@@ -45,7 +45,7 @@ namespace MagicCampus.World.Movement
 
         public IReadOnlyList<string> OwnedSlices => Owned;
 
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
             if (basis == null) throw new ArgumentNullException(nameof(basis));
             if (plan == null) throw new ArgumentNullException(nameof(plan));

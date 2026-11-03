@@ -188,17 +188,6 @@ namespace MagicCampus.Tests.State
 
             var self = new FakeParticipant("p", new[] { "/player" }, Set(P("/player", Obj()), P("/player/hp", I(1))));
             ExpectFail(Build(null, self), Plan("t1", 0, "p"), ResultCodes.SliceOverlap, "overlap inside one participant");
-
-            var a = new FakeParticipant("a", new[] { "/player" }, Set(P("/player/focus", I(1))));
-            var b = new FakeParticipant("b", new[] { "/player/focus" }, Set(P("/player/focus", I(2))));
-            var reg = new LooseRegistry();
-            reg.Add(a);
-            reg.Add(b);
-            var store = new StateStore(Initial(), reg, null, new FakeQueue(), new PersistedCompletionReplayPolicy());
-            var before = store.Current;
-            var o = store.Commit(Plan("t1", 0, "a", "b"));
-            Check.Equal(ResultCodes.SliceOverlap, o.Result.Code, "cross participant overlap");
-            Check.True(ReferenceEquals(before, store.Current), "state untouched");
         }
 
         private static void MalformedAndArrayPaths()
@@ -250,7 +239,7 @@ namespace MagicCampus.Tests.State
             Check.True(reg.Register(new FakeParticipant("p6", new[] { "/wallet" }, Set())).Status == OperationStatus.Succeeded, "disjoint participant");
 
             ownedList.Add("/wallet");
-            Check.Equal(1, reg.Find("p1").OwnedSlices.Count, "ownership frozen at registration");
+            Check.Equal(1, reg.Find("p1").Owned.Count, "ownership frozen at registration");
 
             reg.Seal();
             Check.Equal(ResultCodes.ContentInvalid, reg.Register(new FakeParticipant("p7", new[] { "/late" }, Set())).Code, "sealed registry");
@@ -436,12 +425,12 @@ namespace MagicCampus.Tests.State
                 Check.True(r.Status == OperationStatus.Succeeded, "register " + p.ParticipantId);
             }
             f.Registry.Seal();
-            f.Store = new StateStore(Initial(), f.Registry, invariants, f.Queue, new PersistedCompletionReplayPolicy());
+            f.Store = new StateStore(Initial(), f.Registry, invariants, f.Queue);
             f.Store.OnCommitted(c => f.Seen.Add(c));
             return f;
         }
 
-        private static Outcome<StateSnapshot> ExpectFail(Fixture f, IStatePlan plan, string code, string what)
+        private static Outcome<StateSnapshot> ExpectFail(Fixture f, StatePlan plan, string code, string what)
         {
             var before = f.Store.Current;
             var o = f.Store.Commit(plan);
@@ -475,19 +464,12 @@ namespace MagicCampus.Tests.State
                 this.behavior = behavior;
             }
 
-            public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+            public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
             {
                 Calls++;
                 Bases.Add(basis);
                 return behavior(basis);
             }
-        }
-
-        private sealed class LooseRegistry : IStateParticipantRegistry
-        {
-            private readonly Dictionary<string, IStateParticipant> map = new Dictionary<string, IStateParticipant>();
-            public void Add(IStateParticipant p) { map[p.ParticipantId] = p; }
-            public IStateParticipant Find(string participantId) => participantId != null && map.TryGetValue(participantId, out var p) ? p : null;
         }
 
         private sealed class FakeQueue : ICompletionQueue

@@ -229,7 +229,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         registry.Register(new Tk.ClockParticipant(calendar));
         registry.Register(new ReservationParticipant(Provider, ledger));
         registry.Seal();
-        Store = new StateStore(initial, registry, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump, new PersistedCompletionReplayPolicy());
+        Store = new StateStore(initial, registry, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump);
         Store.OnCommitted(c => { if (!c.TransactionId.Value.StartsWith("clock.advance", StringComparison.Ordinal)) Emit("commit txn=" + c.TransactionId.Value + " " + c.PreviousRevision + "->" + c.Revision); });
         Clock = new Tk.ClockService(Store, calendar);
         Projector = new WorldStateProjector(Actors);
@@ -238,7 +238,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
         Disk = new FileGenerationStore(config.SaveDirectory, Handles, 0, ctx => { if (FailDisk && ctx.Phase == StorageFaultPhase.CreateTemp) throw new IOException("injected disk failure"); });
         Policy = new SafeBoundaryPolicy();
-        var restorer = new SaveRestorer(Codec, Schema, saveSchema, c => new SaveStateValidator(c, saveSchema, Schema), null);
+        var restorer = new SaveRestorer(Codec, Schema, saveSchema, c => new SaveStateValidator(c, saveSchema, Schema));
         Saves = new SaveService(Policy, new SaveCodec(Codec), Disk, restorer, Store, Provider, Handles);
 
         var lookup = Compiled as ICompiledContentLookup;

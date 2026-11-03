@@ -12,9 +12,9 @@ namespace MagicCampus.Persistence
     {
         private readonly object gate = new object();
         private readonly ISafeBoundaryRenewal policy;
-        private readonly ISaveCodec codec;
+        private readonly SaveCodec codec;
         private readonly IFileGenerationStore files;
-        private readonly ISaveRestorer restorer;
+        private readonly SaveRestorer restorer;
         private readonly IStateStore store;
         private readonly ICatalogProvider catalogs;
         private readonly IHandleFactory handles;
@@ -25,7 +25,7 @@ namespace MagicCampus.Persistence
         private Result lastSave;
         private Result lastLoad;
 
-        public SaveService(ISafeBoundaryRenewal policy, ISaveCodec codec, IFileGenerationStore files, ISaveRestorer restorer,
+        public SaveService(ISafeBoundaryRenewal policy, SaveCodec codec, IFileGenerationStore files, SaveRestorer restorer,
             IStateStore store, ICatalogProvider catalogs, IHandleFactory handles)
         {
             this.policy = policy ?? throw new ArgumentNullException(nameof(policy));

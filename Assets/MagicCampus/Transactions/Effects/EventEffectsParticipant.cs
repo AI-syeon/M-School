@@ -30,7 +30,7 @@ namespace MagicCampus.Transactions.Effects
         public string ParticipantId => EffectOperations.ParticipantId;
         public IReadOnlyList<string> OwnedSlices => Owned;
 
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
             if (basis == null) throw new ArgumentNullException(nameof(basis));
             if (plan == null) throw new ArgumentNullException(nameof(plan));
@@ -52,7 +52,7 @@ namespace MagicCampus.Transactions.Effects
         private sealed class Session
         {
             private readonly StateSnapshot basis;
-            private readonly IStatePlan plan;
+            private readonly StatePlan plan;
             private readonly ICatalog catalog;
             private HashSet<string> reservedKeys;
             private string claimedKey;
@@ -71,7 +71,7 @@ namespace MagicCampus.Transactions.Effects
             private bool walletLoaded;
             private bool walletDirty;
 
-            public Session(StateSnapshot basis, IStatePlan plan, ICatalog catalog)
+            public Session(StateSnapshot basis, StatePlan plan, ICatalog catalog)
             {
                 this.basis = basis;
                 this.plan = plan;

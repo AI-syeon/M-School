@@ -69,7 +69,7 @@ namespace MagicCampus.Tests.Time
         public string ParticipantId { get { return "fake-event"; } }
         public IReadOnlyList<string> OwnedSlices { get; } = new[] { "/flags" };
 
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
             var flags = basis.Slice("flags");
             foreach (var change in plan.Changes)
@@ -94,7 +94,7 @@ namespace MagicCampus.Tests.Time
 
         public StateSnapshot Current { get { return inner.Current; } }
 
-        public Outcome<StateSnapshot> Commit(IStatePlan plan)
+        public Outcome<StateSnapshot> Commit(StatePlan plan)
         {
             if (hook != null)
             {
@@ -157,7 +157,7 @@ namespace MagicCampus.Tests.Time
             registry.Seal();
 
             w.Pump = new CompletionPump();
-            w.Store = new StateStore(new StateSnapshot(revision, root), registry, new IStateInvariant[0], w.Pump, new PersistedCompletionReplayPolicy());
+            w.Store = new StateStore(new StateSnapshot(revision, root), registry, new IStateInvariant[0], w.Pump);
             w.Clock = new ClockService(w.Store, w.Calendar);
             return w;
         }

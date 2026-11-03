@@ -7,9 +7,9 @@ using MagicCampus.Transactions.Core;
 namespace MagicCampus.State
 {
     /// <summary>
-    /// The only commit authority. Order: expected revision, completion replay policy, every participant prepares against the same basis,
+    /// The only commit authority. Order: expected revision, completed-key replay check, every participant prepares against the same basis,
     /// pointer ownership and overlap checks, candidate construction, invariants, one replacement, notifications through the completion queue.
-    /// Participant ownership is read from IStateParticipant.OwnedSlices; the store contains no domain branches.
+    /// Participant ownership comes from the registry (parsed at registration); the store contains no domain branches.
     /// Single-threaded by contract; a lock only guards visibility.
     /// </summary>
     public sealed class StateStore : IStateStore
@@ -22,31 +22,23 @@ namespace MagicCampus.State
             public Entry(string participantId, JsonPointer path, DataNode value) { ParticipantId = participantId; Path = path; Value = value; }
         }
 
-        private sealed class Resolved
-        {
-            public readonly string Id;
-            public readonly IStateParticipant Participant;
-            public readonly List<JsonPointer> Owned;
-            public Resolved(string id, IStateParticipant participant, List<JsonPointer> owned) { Id = id; Participant = participant; Owned = owned; }
-        }
+        private static readonly string[] CompletionLedgers = { "completed", "rewardLedger" };
 
         private readonly object gate = new object();
-        private readonly IStateParticipantRegistry registry;
+        private readonly StateParticipantRegistry registry;
         private readonly IStateInvariant[] invariants;
         private readonly ICompletionQueue queue;
-        private readonly ICompletionReplayPolicy replayPolicy;
         private readonly Dictionary<string, Outcome<StateSnapshot>> outcomes = new Dictionary<string, Outcome<StateSnapshot>>(StringComparer.Ordinal);
         private readonly List<Action<StateCommitted>> listeners = new List<Action<StateCommitted>>();
         private StateSnapshot current;
         private bool busy;
 
         /// <param name="initial">Starting state; it is not run through invariants (load goes through ReplaceAll).</param>
-        public StateStore(StateSnapshot initial, IStateParticipantRegistry registry, IEnumerable<IStateInvariant> invariants, ICompletionQueue queue, ICompletionReplayPolicy replayPolicy)
+        public StateStore(StateSnapshot initial, StateParticipantRegistry registry, IEnumerable<IStateInvariant> invariants, ICompletionQueue queue)
         {
             current = initial ?? throw new ArgumentNullException(nameof(initial));
             this.registry = registry ?? throw new ArgumentNullException(nameof(registry));
             this.queue = queue ?? throw new ArgumentNullException(nameof(queue));
-            this.replayPolicy = replayPolicy ?? throw new ArgumentNullException(nameof(replayPolicy));
             var list = new List<IStateInvariant>();
             if (invariants != null)
                 foreach (var inv in invariants)
@@ -71,13 +63,10 @@ namespace MagicCampus.State
             lock (gate) listeners.Add(listener);
         }
 
-        public Outcome<StateSnapshot> Commit(IStatePlan plan)
+        public Outcome<StateSnapshot> Commit(StatePlan plan)
         {
             if (plan == null) throw new ArgumentNullException(nameof(plan));
-            TransactionId id;
-            try { id = plan.TransactionId; }
-            catch (Exception ex) { lock (gate) return Fail(ResultCodes.TransactionMismatch, Diag("PLAN_EXCEPTION", Describe(ex), null, "", "")); }
-            return Run(id, false, () => CommitCore(plan));
+            return Run(plan.TransactionId, false, () => CommitCore(plan));
         }
 
         public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
@@ -108,75 +97,47 @@ namespace MagicCampus.State
             }
         }
 
-        private Outcome<StateSnapshot> CommitCore(IStatePlan plan)
+        private Outcome<StateSnapshot> CommitCore(StatePlan plan)
         {
             var basis = current;
             if (plan.ExpectedRevision != basis.Revision)
                 return Fail(ResultCodes.RevisionConflict, Diag("REVISION_CONFLICT", "plan was built on a different revision", null, L(plan.ExpectedRevision), L(basis.Revision)));
 
-            if (plan.Completion.HasValue)
-            {
-                var key = plan.Completion.Value;
-                if (key.Value == null)
-                    return Fail(ResultCodes.ContentInvalid, Diag("COMPLETION_KEY_MISSING", "default completion key", null, "", ""));
-                bool done;
-                try { done = replayPolicy.IsCompleted(basis, key); }
-                catch (Exception ex) { return Fail(ResultCodes.InvariantViolation, Diag("REPLAY_POLICY_EXCEPTION", Describe(ex), null, "", key.Value)); }
-                if (done)
-                    return Fail(ResultCodes.ConditionFalse, Diag("COMPLETION_ALREADY_RECORDED", "completion key is already persisted", null, "", key.Value));
-            }
+            if (plan.Completion.HasValue && IsCompleted(basis, plan.Completion.Value.Value))
+                return Fail(ResultCodes.ConditionFalse, Diag("COMPLETION_ALREADY_RECORDED", "completion key is already persisted", null, "", plan.Completion.Value.Value));
 
             var ids = new List<string>();
             var seen = new HashSet<string>(StringComparer.Ordinal);
-            var changes = plan.Changes;
-            if (changes != null)
-                foreach (var change in changes)
-                {
-                    if (change == null) return Fail(ResultCodes.ContentInvalid, Diag("CHANGE_NULL", "null planned change", null, "", ""));
-                    if (seen.Add(change.ParticipantId)) ids.Add(change.ParticipantId);
-                }
+            foreach (var change in plan.Changes)
+                if (seen.Add(change.ParticipantId)) ids.Add(change.ParticipantId);
 
-            var resolved = new List<Resolved>();
+            var resolved = new List<KeyValuePair<string, StateParticipantRegistry.Registration>>();
             foreach (var id in ids)
             {
-                IStateParticipant participant;
-                try { participant = registry.Find(id); }
-                catch (Exception ex) { return Fail(ResultCodes.Unregistered, Diag("REGISTRY_EXCEPTION", Describe(ex), null, id, "")); }
-                if (participant == null)
+                var registration = registry.Find(id);
+                if (registration == null)
                     return Fail(ResultCodes.Unregistered, Diag("PARTICIPANT_UNREGISTERED", "no participant registered for this id", null, id, ""));
-                if (!string.Equals(participant.ParticipantId, id, StringComparison.Ordinal))
-                    return Fail(ResultCodes.Unregistered, Diag("PARTICIPANT_ID_MISMATCH", "registry returned a participant with another id", null, id, participant.ParticipantId ?? ""));
-
-                var slices = participant.OwnedSlices;
-                if (slices == null || slices.Count == 0)
-                    return Fail(ResultCodes.ContentInvalid, Diag("OWNED_SLICES_EMPTY", "participant owns no slices", null, id, ""));
-                var owned = new List<JsonPointer>();
-                foreach (var s in slices)
-                {
-                    if (!JsonPointer.TryParse(s, out var ownedPointer, out var ownedError))
-                        return Fail(ResultCodes.ContentInvalid, Diag("OWNED_SLICE_INVALID", ownedError, s, id, s ?? ""));
-                    owned.Add(ownedPointer);
-                }
-                resolved.Add(new Resolved(id, participant, owned));
+                resolved.Add(new KeyValuePair<string, StateParticipantRegistry.Registration>(id, registration));
             }
 
             var entries = new List<Entry>();
             foreach (var r in resolved)
             {
+                var id = r.Key;
                 Outcome<StateReplacement> prepared;
-                try { prepared = r.Participant.Prepare(basis, plan); }
-                catch (Exception ex) { return Fail(ResultCodes.InvariantViolation, Diag("PARTICIPANT_EXCEPTION", r.Id + ": " + Describe(ex), null, "", "")); }
+                try { prepared = r.Value.Participant.Prepare(basis, plan); }
+                catch (Exception ex) { return Fail(ResultCodes.InvariantViolation, Diag("PARTICIPANT_EXCEPTION", id + ": " + Describe(ex), null, "", "")); }
                 if (prepared == null)
-                    return Fail(ResultCodes.InvariantViolation, Diag("PARTICIPANT_NULL_OUTCOME", r.Id + " returned no outcome", null, "", ""));
-                if (!prepared.Succeeded) return Reject(prepared.Result, r.Id);
+                    return Fail(ResultCodes.InvariantViolation, Diag("PARTICIPANT_NULL_OUTCOME", id + " returned no outcome", null, "", ""));
+                if (!prepared.Succeeded) return Reject(prepared.Result, id);
 
                 foreach (var kv in prepared.Value.Slices)
                 {
                     if (!JsonPointer.TryParse(kv.Key, out var path, out var pathError))
                         return Fail(ResultCodes.ParseError, Diag("POINTER_MALFORMED", pathError, kv.Key, "canonical JSON pointer", kv.Key));
-                    if (!Owns(r.Owned, path))
-                        return Fail(ResultCodes.OutOfScope, Diag("SLICE_NOT_OWNED", r.Id + " does not own this path", kv.Key, OwnedText(r.Owned), kv.Key));
-                    entries.Add(new Entry(r.Id, path, kv.Value));
+                    if (!Owns(r.Value.Owned, path))
+                        return Fail(ResultCodes.OutOfScope, Diag("SLICE_NOT_OWNED", id + " does not own this path", kv.Key, OwnedText(r.Value.Owned), kv.Key));
+                    entries.Add(new Entry(id, path, kv.Value));
                 }
             }
 
@@ -278,14 +239,31 @@ namespace MagicCampus.State
         private static Diagnostic Diag(string code, string message, string pointer, string expected, string actual)
             => new Diagnostic(code, message, pointer == null ? null : new SourceLocation("", pointer, "", "", 0), expected, actual);
 
-        private static bool Owns(List<JsonPointer> owned, JsonPointer path)
+        /// <summary>True when the key is listed in a persisted top-level ledger: a list holding it as a string, or an object having it as a member name.</summary>
+        private static bool IsCompleted(StateSnapshot snapshot, string key)
+        {
+            foreach (var field in CompletionLedgers)
+            {
+                var node = snapshot.Slice(field);
+                if (node == null) continue;
+                if (node.Kind == DataKind.List)
+                {
+                    foreach (var item in node.Items)
+                        if (item.Kind == DataKind.String && string.Equals(item.Text, key, StringComparison.Ordinal)) return true;
+                }
+                else if (node.Kind == DataKind.Object && node.Members.ContainsKey(key)) return true;
+            }
+            return false;
+        }
+
+        private static bool Owns(IReadOnlyList<JsonPointer> owned, JsonPointer path)
         {
             foreach (var o in owned)
                 if (o.IsPrefixOf(path)) return true;
             return false;
         }
 
-        private static string OwnedText(List<JsonPointer> owned)
+        private static string OwnedText(IReadOnlyList<JsonPointer> owned)
         {
             var parts = new string[owned.Count];
             for (var i = 0; i < parts.Length; i++) parts[i] = owned[i].Text;

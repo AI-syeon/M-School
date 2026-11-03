@@ -55,12 +55,12 @@ namespace MagicCampus.Tests.FirstConnectionData
             Check(service.CurrentDestination("npc.serin",new GameTime(1440+10,0)).Value.DestinationId=="dest.serin_home","midnight uses current day schedule");
             var initial=new StateSnapshot(0,Read(Root+"base/save-offered.json").Root);
             var registry=new StateParticipantRegistry(); registry.Register(new ReservationParticipant(provider,new StateCompletionLedger())); registry.Seal();
-            var pump=new CompletionPump(); var store=new StateStore(initial,registry,new[]{new SaveStateValidator(compiled,SchemaRoot,Schema)},pump,new PersistedCompletionReplayPolicy());
+            var pump=new CompletionPump(); var store=new StateStore(initial,registry,new[]{new SaveStateValidator(compiled,SchemaRoot,Schema)},pump);
             var reservations=new ReservationService(provider,new MagicCampus.Timekeeping.Calendar(),new StateCompletionLedger());
             var accepted=reservations.PlanAccept("event.snack",store.Current); Check(accepted.Succeeded,"accept plan");
             Check(store.Commit(new StatePlan(new TransactionId("fixture.accept"),null,store.Current.Revision,new[]{accepted.Value})).Succeeded,"actual accept full-schema commit");
             Check(reservations.Candidates(store.Current).Any(c=>c.EventId=="event.snack"),"actual accepted candidate");
-            var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema),null);
+            var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema));
             var saveCodec=new SaveCodec(Codec); var sealedSave=saveCodec.Seal(store.Current,1);
             Check(restorer.Restore(sealedSave,compiled).Succeeded,"real entire v2 seal/restore with schema and references");
             var old=DataNode.FromObject(store.Current.Root.Members.Where(p=>!SaveMigration.V1AddedFields.ContainsKey(p.Key))).With("saveVersion",DataNode.FromInteger(1)).With("generation",DataNode.FromInteger(1));
@@ -76,12 +76,12 @@ namespace MagicCampus.Tests.FirstConnectionData
             var pump=new CompletionPump(); var handles=new HandleFactory(pump); var policy=new SafeBoundaryPolicy();
             var registry=new StateParticipantRegistry();registry.Seal();
             var invariant=new SaveStateValidator(compiled,SchemaRoot,Schema);
-            var store=new StateStore(new StateSnapshot(0,Read(Root+"base/save-accepted.json").Root),registry,new[]{invariant},pump,new PersistedCompletionReplayPolicy());
+            var store=new StateStore(new StateSnapshot(0,Read(Root+"base/save-accepted.json").Root),registry,new[]{invariant},pump);
             var dir=Path.GetFullPath("Tests/Results/stage4-disk-"+Guid.NewGuid().ToString("N"));
             bool fail=false;
             var disk=new FileGenerationStore(dir,handles,0,ctx=>{if(fail && ctx.Phase==StorageFaultPhase.CreateTemp)throw new IOException("injected actual disk failure");});
             var codec=new SaveCodec(Codec);
-            var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema),null);
+            var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema));
             var saves=new SaveService(policy,codec,disk,restorer,store,provider,handles);
             void Wait(IHandle h) {for(int i=0;i<200 && h.Terminal==null;i++){pump.AdvanceTick();disk.Tick(.01,.01);}pump.AdvanceTick();Check(h.Terminal!=null,"bounded disk terminal");}
             policy.Notify(SafeBoundary.SceneEntry,store.Current);

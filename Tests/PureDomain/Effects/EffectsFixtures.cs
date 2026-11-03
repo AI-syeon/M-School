@@ -196,7 +196,7 @@ namespace MagicCampus.Tests.Effects
         public string ParticipantId { get { return "clock"; } }
         public IReadOnlyList<string> OwnedSlices { get; } = new[] { "/clock" };
 
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
             long add = 0;
             foreach (var change in plan.Changes)
@@ -227,7 +227,7 @@ namespace MagicCampus.Tests.Effects
             Fx.Require(registry.Register(new EventEffectsParticipant(catalog)).Status == OperationStatus.Succeeded, "register event-effects");
             Fx.Require(registry.Register(new FakeClockParticipant()).Status == OperationStatus.Succeeded, "register fake clock");
             registry.Seal();
-            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), registry, new IStateInvariant[0], new CompletionPump(), new PersistedCompletionReplayPolicy());
+            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), registry, new IStateInvariant[0], new CompletionPump());
             Effects = EffectPlanner.CreateMinimal(catalog);
             Planner = new EventCommitPlanner(Effects, Clock, World, catalog);
             Conditions = new ConditionEvaluator(catalog);

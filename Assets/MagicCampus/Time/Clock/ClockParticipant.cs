@@ -41,7 +41,7 @@ namespace MagicCampus.Timekeeping
             return new PlannedChange(Id, AdvanceOperation, payload);
         }
 
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
+        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
             if (basis == null) throw new ArgumentNullException(nameof(basis));
             if (plan == null) throw new ArgumentNullException(nameof(plan));

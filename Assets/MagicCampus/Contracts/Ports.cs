@@ -234,16 +234,8 @@ namespace MagicCampus.Contracts
         public StateReplacement(IEnumerable<KeyValuePair<string, DataNode>> slices) { Slices = PortGuard.Map(slices, nameof(slices)); }
     }
 
-    public interface IStatePlan
-    {
-        TransactionId TransactionId { get; }
-        CompletionKey? Completion { get; }
-        long ExpectedRevision { get; }
-        IReadOnlyList<PlannedChange> Changes { get; }
-    }
-
     /// <summary>A plan that failed is never reused; build a new plan with a new expected revision.</summary>
-    public sealed class StatePlan : IStatePlan
+    public sealed class StatePlan
     {
         public TransactionId TransactionId { get; }
         public CompletionKey? Completion { get; }
@@ -282,13 +274,7 @@ namespace MagicCampus.Contracts
     {
         string ParticipantId { get; }
         IReadOnlyList<string> OwnedSlices { get; }
-        Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan);
-    }
-
-    public interface IStateParticipantRegistry
-    {
-        /// <summary>Null when unregistered; the store then refuses the whole plan with ResultCodes.Unregistered.</summary>
-        IStateParticipant Find(string participantId);
+        Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan);
     }
 
     public interface IStateReader { StateSnapshot Current { get; } }
@@ -297,7 +283,7 @@ namespace MagicCampus.Contracts
     public interface IStateStore : IStateReader
     {
         /// <summary>All-or-nothing. A repeated TransactionId returns the first result without applying again. Success Result.Revision is the new revision.</summary>
-        Outcome<StateSnapshot> Commit(IStatePlan plan);
+        Outcome<StateSnapshot> Commit(StatePlan plan);
 
         /// <summary>Full replacement for load/restore. The store assigns the new revision as Current.Revision + 1.</summary>
         Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId);
@@ -1000,14 +986,6 @@ namespace MagicCampus.Contracts
         }
     }
 
-    public interface ISaveCodec
-    {
-        SaveEnvelope Seal(StateSnapshot snapshot, long generation);
-        ReadOnlyMemory<byte> Encode(SaveEnvelope envelope);
-        /// <summary>Checks framing and checksum only; version, hash and schema are checked by restore.</summary>
-        Outcome<SaveEnvelope> Decode(ReadOnlyMemory<byte> fileBytes);
-    }
-
     public sealed class FileGeneration
     {
         public long Generation { get; }
@@ -1030,12 +1008,6 @@ namespace MagicCampus.Contracts
         IHandle<FileGeneration> Write(long generation, ReadOnlyMemory<byte> fileBytes);
         IHandle<FileGeneration> Read(long generation);
         IReadOnlyList<FileGeneration> ListCandidates();   // newest first, valid generations only
-    }
-
-    public interface ISaveRestorer
-    {
-        /// <summary>Order: checksum, version, catalog hash, migration, strict schema, references, invariants. Nothing is applied here; the caller uses IStateStore.ReplaceAll.</summary>
-        Outcome<StateSnapshot> Restore(SaveEnvelope envelope, ICatalog catalog);
     }
 
     public interface ISaveService

@@ -81,7 +81,7 @@ namespace MagicCampus.Persistence
     /// format, saveVersion, catalogHash, generation, checksum (lowercase SHA-256 hex of the payload bytes), payload (strict canonical base64
     /// of the UTF-8 JSON of the full save v2 object). Decode checks framing and checksum only.
     /// </summary>
-    public sealed class SaveCodec : ISaveCodec
+    public sealed class SaveCodec
     {
         public const string Format = "magic-campus.save-envelope.v1";
 

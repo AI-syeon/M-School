@@ -5,33 +5,25 @@ using MagicCampus.Contracts;
 namespace MagicCampus.Persistence
 {
     /// <summary>
-    /// Order: checksum, version, catalog hash, payload parse + envelope/payload consistency, migration, root shape (45 fields, integer wallet),
-    /// strict schema (injected port), references (injected validator factory, e.g. the catalog save validator), invariants.
+    /// Order: version, catalog hash, payload parse + envelope/payload consistency, migration, root shape (45 fields, integer wallet),
+    /// strict schema (injected port), references (injected validator factory, e.g. the catalog save validator).
+    /// The envelope checksum is verified once, by SaveCodec.Decode, and is not repeated here.
     /// The first failing stage ends the restore. Nothing is applied here; the caller uses IStateStore.ReplaceAll.
     /// </summary>
-    public sealed class SaveRestorer : ISaveRestorer
+    public sealed class SaveRestorer
     {
         private readonly IDataCodec codec;
         private readonly ISchemaValidationPort schemaPort;
         private readonly DataNode saveSchema;
         private readonly Func<ICatalog, IStateInvariant> referenceValidatorFactory;
-        private readonly IReadOnlyList<IStateInvariant> invariants;
 
         public SaveRestorer(IDataCodec codec, ISchemaValidationPort schemaPort, DataNode saveSchema,
-            Func<ICatalog, IStateInvariant> referenceValidatorFactory, IEnumerable<IStateInvariant> invariants)
+            Func<ICatalog, IStateInvariant> referenceValidatorFactory)
         {
             this.codec = codec ?? throw new ArgumentNullException(nameof(codec));
             this.schemaPort = schemaPort ?? throw new ArgumentNullException(nameof(schemaPort));
             this.saveSchema = saveSchema ?? throw new ArgumentNullException(nameof(saveSchema));
             this.referenceValidatorFactory = referenceValidatorFactory ?? throw new ArgumentNullException(nameof(referenceValidatorFactory));
-            var list = new List<IStateInvariant>();
-            if (invariants != null)
-                foreach (var i in invariants)
-                {
-                    if (i == null) throw new ArgumentException("null invariant", nameof(invariants));
-                    list.Add(i);
-                }
-            this.invariants = list.ToArray();
         }
 
         public Outcome<StateSnapshot> Restore(SaveEnvelope envelope, ICatalog catalog)
@@ -39,16 +31,12 @@ namespace MagicCampus.Persistence
             if (envelope == null) throw new ArgumentNullException(nameof(envelope));
             if (catalog == null) throw new ArgumentNullException(nameof(catalog));
 
-            var payload = envelope.Payload.ToArray();
-            var sum = SaveHash.Sha256Hex(payload);
-            if (!string.Equals(sum, envelope.Checksum, StringComparison.Ordinal))
-                return Bad(ResultCodes.ContentInvalid, D("CHECKSUM_MISMATCH", "payload checksum does not match", envelope.Checksum, sum));
             if (envelope.SaveVersion < 1 || envelope.SaveVersion > SaveFields.CurrentVersion)
                 return Bad(ResultCodes.SaveIncompatible, D("VERSION_UNSUPPORTED", "save version is not supported by this build", "1.." + SaveFields.CurrentVersion, envelope.SaveVersion.ToString()));
             if (!string.Equals(envelope.CatalogHash, catalog.CatalogHash, StringComparison.Ordinal))
                 return Bad(ResultCodes.SaveIncompatible, D("CATALOG_HASH_MISMATCH", "save was written against a different catalog", catalog.CatalogHash, envelope.CatalogHash));
 
-            var parsed = codec.Parse("save-payload", payload);
+            var parsed = codec.Parse("save-payload", envelope.Payload);
             if (!parsed.Succeeded)
             {
                 var d = new List<Diagnostic>(parsed.Result.Details);
@@ -67,9 +55,6 @@ namespace MagicCampus.Persistence
                 return Outcome<StateSnapshot>.Fail(migrated.Result.Code, 0, d.ToArray());
             }
             var m = migrated.Value;
-            DataNode ver;
-            if (!m.TryGet("saveVersion", out ver) || ver.Kind != DataKind.Integer || ver.Integer != SaveFields.CurrentVersion)
-                return Bad(ResultCodes.SaveIncompatible, D("MIGRATION_INCOMPLETE", "migration did not produce the current version", SaveFields.CurrentVersion.ToString(), ver == null ? "absent" : ver.Kind.ToString()));
 
             var shape = SaveFields.CheckRoot(m);
             if (shape.Count > 0) return Bad(ResultCodes.ContentInvalid, new List<Diagnostic>(shape).ToArray());
@@ -83,13 +68,6 @@ namespace MagicCampus.Persistence
             if (refDiagnostics != null && refDiagnostics.Count > 0)
                 return Bad(ResultCodes.ContentInvalid, new List<Diagnostic>(refDiagnostics).ToArray());
 
-            var violations = new List<Diagnostic>();
-            foreach (var inv in invariants)
-            {
-                var found = inv.Validate(candidate);
-                if (found != null) violations.AddRange(found);
-            }
-            if (violations.Count > 0) return Bad(ResultCodes.InvariantViolation, violations.ToArray());
             return Outcome<StateSnapshot>.Ok(candidate, 0);
         }
 
