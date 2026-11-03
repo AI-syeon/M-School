@@ -80,7 +80,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
                 World = new FakeWorld(Log, Kit.Actor("npc.a", "map.t", 0.5, 0.5));
                 Move = new FakeMove(Rt.Handles);
                 Controller = new ScheduleController(BuildService(new FakeResolver()), Clock, Pause, World, Move, Rt.Handles,
-                    new[] { "npc.a" }, id => Leased.Contains(id), ScheduleControllerOptions.Default);
+                    new[] { "npc.a" }, id => Leased.Contains(id));
             }
         }
 

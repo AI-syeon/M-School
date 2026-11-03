@@ -39,7 +39,7 @@ namespace MagicCampus.Tests.Movement
         {
             Frame(rig, svc, 0.0);
             Frame(rig, svc, 0.0);
-            Expect.True(svc.ActiveMoves.Count == 0, "offscreen: no active moves remain");
+            Expect.True(svc.ActiveMoveCount == 0, "offscreen: no active moves remain");
             Expect.True(rig.Handles.LiveCount == 0, "offscreen: no live handles remain");
         }
 
@@ -75,9 +75,6 @@ namespace MagicCampus.Tests.Movement
             Expect.Succeeded(h, "offscreen cross map");
             Expect.True(h.Value.Arrived && h.Value.Actual.MapId == "yard", "offscreen cross map: arrived on the destination map");
             Expect.Near(h.Value.Actual.X, 5.5, 0.11, "offscreen cross map: arrival x");
-            var crossed = false;
-            foreach (var e in svc.Trace) if (e.Kind == "portal-crossed") crossed = true;
-            Expect.True(crossed, "offscreen cross map: portal crossing recorded");
             Expect.True(rig.Actors.Find("player").Position.MapId == "hall", "offscreen cross map: player stays on the displayed map");
             Clean(rig, svc);
         }

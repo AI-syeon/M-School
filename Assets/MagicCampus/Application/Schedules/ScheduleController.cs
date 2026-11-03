@@ -5,33 +5,6 @@ using MagicCampus.Contracts;
 
 namespace MagicCampus.Application.Schedules
 {
-    public sealed class ScheduleControllerOptions
-    {
-        public static readonly ScheduleControllerOptions Default = new ScheduleControllerOptions(120, 0.5, 1, 30, "ambient:");
-
-        public double MoveTimeoutSeconds { get; }
-        public double ReevaluateSeconds { get; }
-        public double BackoffBaseSeconds { get; }
-        public double BackoffMaxSeconds { get; }
-        public string OwnerTokenPrefix { get; }
-
-        public ScheduleControllerOptions(double moveTimeoutSeconds, double reevaluateSeconds, double backoffBaseSeconds, double backoffMaxSeconds, string ownerTokenPrefix)
-        {
-            MoveTimeoutSeconds = Positive(moveTimeoutSeconds, nameof(moveTimeoutSeconds));
-            ReevaluateSeconds = Positive(reevaluateSeconds, nameof(reevaluateSeconds));
-            BackoffBaseSeconds = Positive(backoffBaseSeconds, nameof(backoffBaseSeconds));
-            BackoffMaxSeconds = Positive(backoffMaxSeconds, nameof(backoffMaxSeconds));
-            if (backoffMaxSeconds < backoffBaseSeconds) throw new ArgumentOutOfRangeException(nameof(backoffMaxSeconds));
-            OwnerTokenPrefix = IdGuard.Require(ownerTokenPrefix, nameof(ownerTokenPrefix));
-        }
-
-        private static double Positive(double v, string name)
-        {
-            if (double.IsNaN(v) || double.IsInfinity(v) || v <= 0) throw new ArgumentOutOfRangeException(name);
-            return v;
-        }
-    }
-
     /// <summary>
     /// Drives ambient NPC movement from the current schedule destination through the common move service.
     /// It never preempts a foreground lease: a leased NPC's ambient move is cancelled and the controller waits for the
@@ -42,6 +15,11 @@ namespace MagicCampus.Application.Schedules
     {
         private const string YieldReason = "foreground-lease";
         private const string TakeoverReason = "foreground-takeover";
+        private const double MoveTimeoutSeconds = 120;
+        private const double ReevaluateSeconds = 0.5;
+        private const double BackoffBaseSeconds = 1;
+        private const double BackoffMaxSeconds = 30;
+        private const string OwnerTokenPrefix = "ambient:";
 
         private sealed class NpcState
         {
@@ -69,13 +47,12 @@ namespace MagicCampus.Application.Schedules
         private readonly IMoveService move;
         private readonly IHandleFactory handles;
         private readonly Func<string, bool> foregroundLeased;
-        private readonly ScheduleControllerOptions options;
         private readonly string[] npcIds;
         private readonly Dictionary<string, NpcState> states = new Dictionary<string, NpcState>(StringComparer.Ordinal);
         private double now;
 
         public ScheduleController(IScheduleService schedule, IClockService clock, IPauseService pause, IActorWorld world, IMoveService move,
-            IHandleFactory handles, IEnumerable<string> npcIds, Func<string, bool> foregroundLeased, ScheduleControllerOptions options = null)
+            IHandleFactory handles, IEnumerable<string> npcIds, Func<string, bool> foregroundLeased)
         {
             this.schedule = schedule ?? throw new ArgumentNullException(nameof(schedule));
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -84,7 +61,6 @@ namespace MagicCampus.Application.Schedules
             this.move = move ?? throw new ArgumentNullException(nameof(move));
             this.handles = handles ?? throw new ArgumentNullException(nameof(handles));
             this.foregroundLeased = foregroundLeased ?? throw new ArgumentNullException(nameof(foregroundLeased));
-            this.options = options ?? ScheduleControllerOptions.Default;
             if (npcIds == null) throw new ArgumentNullException(nameof(npcIds));
 
             var sorted = new SortedSet<string>(StringComparer.Ordinal);
@@ -196,14 +172,14 @@ namespace MagicCampus.Application.Schedules
         {
             if (st.FailedKey == key) st.FailCount++;
             else { st.FailedKey = key; st.FailCount = 1; }
-            var delay = options.BackoffBaseSeconds * Math.Pow(2, st.FailCount - 1);
-            st.NextAttemptAt = now + Math.Min(delay, options.BackoffMaxSeconds);
+            var delay = BackoffBaseSeconds * Math.Pow(2, st.FailCount - 1);
+            st.NextAttemptAt = now + Math.Min(delay, BackoffMaxSeconds);
         }
 
         private void Plan(string npc, NpcState st)
         {
             if (now < st.NextEvalAt) return;
-            st.NextEvalAt = now + options.ReevaluateSeconds;
+            st.NextEvalAt = now + ReevaluateSeconds;
 
             var actor = world.Find(npc);
             if (actor == null)
@@ -231,7 +207,7 @@ namespace MagicCampus.Application.Schedules
             var key = KeyOf(destination);
             if (key == st.FailedKey && now < st.NextAttemptAt) return;
 
-            var handle = move.Move(new MoveRequest(npc, destination, options.OwnerTokenPrefix + npc, options.MoveTimeoutSeconds, true));
+            var handle = move.Move(new MoveRequest(npc, destination, OwnerTokenPrefix + npc, MoveTimeoutSeconds, true));
             if (handle == null) throw new InvalidOperationException("move service returned no handle");
             st.Target = destination;
             st.Yielding = false;

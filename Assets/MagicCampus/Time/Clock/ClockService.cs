@@ -17,14 +17,12 @@ namespace MagicCampus.Timekeeping
     {
         private readonly IStateStore store;
         private readonly ICalendar calendar;
-        private readonly DayBoundaryConsumerRegistry consumers;
         private long sequence;
 
-        public ClockService(IStateStore store, ICalendar calendar, DayBoundaryConsumerRegistry consumers)
+        public ClockService(IStateStore store, ICalendar calendar)
         {
             this.store = store ?? throw new ArgumentNullException(nameof(store));
             this.calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
-            this.consumers = consumers ?? throw new ArgumentNullException(nameof(consumers));
         }
 
         public ClockAdvanceStatus LastStatus { get; private set; }
@@ -50,7 +48,7 @@ namespace MagicCampus.Timekeeping
                 return Reject(now, basis.Revision, ResultCodes.ContentInvalid, new[] { minutesProblem });
             if (minutes == 0) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
 
-            if (!TryBuild(basis, state, minutes, out var advance, out var changes, out var problems))
+            if (!TryBuild(state, minutes, out var advance, out var changes, out var problems))
                 return Reject(now, basis.Revision, ResultCodes.ContentInvalid, problems);
             if (changes.Count == 0) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
 
@@ -80,7 +78,7 @@ namespace MagicCampus.Timekeeping
         }
 
         /// <summary>
-        /// Plans the clock change plus every registered consumer's change for each newly crossed midnight.
+        /// Plans the clock change for the minutes of an event time cost.
         /// Nothing is applied; a plan that is never committed advances nothing.
         /// </summary>
         public Outcome<ChangeSet> PlanCost(StateSnapshot basis, double minutes)
@@ -90,12 +88,12 @@ namespace MagicCampus.Timekeeping
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, TimeDiagnostics.ToArray(readProblems));
             if (!Calendar.TryCheckMinutes(minutes, out var minutesProblem))
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, minutesProblem);
-            if (!TryBuild(basis, state, minutes, out _, out var changes, out var problems))
+            if (!TryBuild(state, minutes, out _, out var changes, out var problems))
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, problems);
             return Outcome<ChangeSet>.Ok(new ChangeSet(changes), basis.Revision);
         }
 
-        private bool TryBuild(StateSnapshot basis, ClockState state, double minutes, out ClockAdvance advance, out List<PlannedChange> changes, out Diagnostic[] problems)
+        private bool TryBuild(ClockState state, double minutes, out ClockAdvance advance, out List<PlannedChange> changes, out Diagnostic[] problems)
         {
             changes = new List<PlannedChange>();
             problems = new Diagnostic[0];
@@ -112,15 +110,7 @@ namespace MagicCampus.Timekeeping
 
             if (advance.To.Equals(advance.From)) return true;
 
-            var done = new HashSet<string>(state.DayJobs, StringComparer.Ordinal);
-            if (!BoundaryJobs.TryCollect(consumers, basis, done, advance.Boundaries, out var work, out var workProblems))
-            {
-                problems = workProblems.ToArray();
-                return false;
-            }
-
             changes.Add(ClockParticipant.CreateAdvanceChange(minutes));
-            foreach (var item in work) changes.Add(item.Change);
             return true;
         }
 

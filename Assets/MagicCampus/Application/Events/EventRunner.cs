@@ -149,7 +149,7 @@ namespace MagicCampus.Events
                 return Refuse(request, HasCode(report.Reasons, ResultCodes.Unregistered) ? ResultCodes.Unregistered : ResultCodes.ConditionFalse, report.Reasons);
 
             string domain;
-            if (FindUnregistered(def, out domain))
+            if (FindPerformDomain(def, out domain))
                 return Refuse(request, ResultCodes.Unregistered, "no operation registered for domain", "registered domain", domain);
 
             IPausePolicy pause;
@@ -164,7 +164,7 @@ namespace MagicCampus.Events
                     if (d.RepeatBlocked(def, snapshot))
                         return Refuse(request, ResultCodes.ConditionFalse, "once event already completed", "not completed", def.Id);
                 }
-                else if (!HasPerform(def))
+                else
                 {
                     var probe = d.CommitPlanner.PlanCommit(def, new EffectContext(snapshot, request.TransactionId, def.Completion, null));
                     if (!probe.Succeeded) return Refuse(request, probe.Result.Code, probe.Result.Details);
@@ -246,15 +246,7 @@ namespace MagicCampus.Events
             return c.Function.Role == FunctionRole.Command && c.Function.Name == "perform";
         }
 
-        private static bool HasPerform(CompiledEvent def)
-        {
-            foreach (var list in Lists(def))
-                foreach (var c in list)
-                    if (IsPerform(c)) return true;
-            return false;
-        }
-
-        private bool FindUnregistered(CompiledEvent def, out string domain)
+        private static bool FindPerformDomain(CompiledEvent def, out string domain)
         {
             domain = null;
             foreach (var list in Lists(def))
@@ -262,7 +254,8 @@ namespace MagicCampus.Events
                 {
                     DataNode n;
                     if (!IsPerform(c) || !c.Args.TryGetValue("domain", out n) || n.Kind != DataKind.String) continue;
-                    if (d.Operations.Find(n.Text) == null) { domain = n.Text; return true; }
+                    domain = n.Text;
+                    return true;
                 }
             return false;
         }
@@ -431,7 +424,6 @@ namespace MagicCampus.Events
                 case "camera": ExecCamera(run, frame, call); break;
                 case "animate": ExecAnimate(run, frame, call); break;
                 case "await": ExecAwait(run, frame, call); break;
-                case "perform": ExecPerform(run, frame, call); break;
                 default:
                     Abort(run, Fail(ResultCodes.UnknownFunction, "command has no runtime implementation", call.Source, "registered command", call.Function.Name));
                     break;
@@ -610,37 +602,6 @@ namespace MagicCampus.Events
                     else Drive(run);
                 });
             }
-        }
-
-        private void ExecPerform(Run run, Frame frame, CompiledCall call)
-        {
-            string domain, definition;
-            if (!ReqText(run, call, "domain", out domain) || !ReqText(run, call, "definition", out definition)) return;
-            var mode = "normal";
-            DataNode modeNode;
-            if (call.Args.TryGetValue("mode", out modeNode))
-            {
-                if (modeNode.Kind != DataKind.String || (modeNode.Text != "normal" && modeNode.Text != "practice")) { BadArg(run, call, "mode", "normal|practice"); return; }
-                mode = modeNode.Text;
-            }
-            if (!RequireClosed(run, frame, call)) return;
-            var port = d.Operations.Find(domain);
-            if (port == null)
-            {
-                Abort(run, Fail(ResultCodes.Unregistered, "no operation registered for domain", call.Source, "registered domain", domain));
-                return;
-            }
-            OperationRequest request;
-            try { request = new OperationRequest(domain, definition, run.Def.Id, run.Owner, mode == "practice"); }
-            catch (ArgumentException e) { Abort(run, Fail(ResultCodes.ContentInvalid, e.Message, call.Source, "valid operation request", "rejected")); return; }
-            var h = port.Perform(request);
-            if (h == null) { PortNull(run, call, "Perform"); return; }
-            Launch(run, frame, call, h, null, null, null, r =>
-            {
-                var staged = h.Value;
-                if (staged == null) { Abort(run, Fail(PortFailure, "operation succeeded without a result", call.Source, "OperationResult", "null")); return; }
-                run.Staged.Add(staged);
-            });
         }
 
         private void PushFork(Run run, CompiledCall call, string name)

@@ -141,11 +141,6 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         public ClockAdvance Plan(GameTime from, double minutes) { throw new NotSupportedException(); }
     }
 
-    internal sealed class FakeState : IStateReader
-    {
-        public StateSnapshot Current { get; set; }
-    }
-
     internal sealed class ReservationRig
     {
         internal readonly FakeProvider Catalog;
@@ -290,25 +285,5 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         internal Func<Position, bool> Passable = p => true;
         public SweepResult Sweep(Position from, Position to, double radius) { throw new NotSupportedException(); }
         public bool IsPassable(Position at, double radius) { return Passable(at); }
-    }
-
-    internal sealed class FakeRunner : IEventRunner
-    {
-        private readonly IHandleFactory handles;
-        internal readonly List<EventStartRequest> Starts = new List<EventStartRequest>();
-        internal readonly List<IHandleController<EventCompletion>> Handles = new List<IHandleController<EventCompletion>>();
-        internal bool AutoFail;
-
-        internal FakeRunner(IHandleFactory handles) { this.handles = handles; }
-
-        public IHandle<EventCompletion> Start(EventStartRequest request)
-        {
-            Starts.Add(request);
-            var c = handles.Create<EventCompletion>("run." + Starts.Count);
-            c.Start();
-            Handles.Add(c);
-            if (AutoFail) c.Fail(ResultCodes.ResourceBusy, 0, new Diagnostic[0]);
-            return c;
-        }
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Events;
-using MagicCampus.Operations;
 using MagicCampus.Runtime;
 
 namespace MagicCampus.Tests.Events
@@ -11,7 +10,6 @@ namespace MagicCampus.Tests.Events
     {
         public static void Run()
         {
-            RegistryIsClosedAndHonest();
             BusyRefusalTouchesNothing();
             ReentrantStartIsBusy();
             IntroFalseRefusesWithoutSideEffects();
@@ -24,7 +22,7 @@ namespace MagicCampus.Tests.Events
             BranchPicksThenElseAndBoundsRecursion();
             AsyncFailureWaitsForSiblings();
             ImmediateInstructionsYieldAt64();
-            PerformUnsupportedAndStagedOnly();
+            PerformIsRefusedAsUnregistered();
             OnceGuardRefusesBeforeLeasing();
             SingleCommitWithLatestConditionRecheck();
             SuccessKeepsMemoryWhenSaveFails();
@@ -38,19 +36,6 @@ namespace MagicCampus.Tests.Events
         }
 
         // ------------------------------------------------------------------ specs
-
-        private static void RegistryIsClosedAndHonest()
-        {
-            var log = new List<string>();
-            var handles = new HandleFactory(new CompletionPump());
-            Check(DomainOperationRegistry.Empty.Find("class") == null, "empty registry finds nothing");
-            var op = new FakeOperation("class", handles, log);
-            var registry = new DomainOperationRegistry(new IDomainOperationPort[] { op });
-            Check(ReferenceEquals(registry.Find("class"), op), "registered port found");
-            Check(registry.Find("puzzle") == null && registry.Find(null) == null, "unregistered domain is null");
-            Throws(() => new DomainOperationRegistry(new IDomainOperationPort[] { new FakeOperation("fake", handles, log) }), "unknown domain rejected");
-            Throws(() => new DomainOperationRegistry(new IDomainOperationPort[] { op, new FakeOperation("class", handles, log) }), "duplicate domain rejected");
-        }
 
         private static void BusyRefusalTouchesNothing()
         {
@@ -284,9 +269,9 @@ namespace MagicCampus.Tests.Events
             rig.AssertClean();
         }
 
-        private static void PerformUnsupportedAndStagedOnly()
+        private static void PerformIsRefusedAsUnregistered()
         {
-            var none = new Rig(false);
+            var none = new Rig();
             none.Catalog.Add(Ev("ev.p", ExecutionMode.Scene, new string[0], new[] { Perform("ev.p", 1, "class", "class.alpha") }));
             none.Catalog.Add(Ev("ev.r", ExecutionMode.RoomActivity, new[] { "room.r" }, new[] { Perform("ev.r", 1, "class", "class.alpha") }));
             var refused = none.Start("ev.p");
@@ -294,27 +279,7 @@ namespace MagicCampus.Tests.Events
             var refusedRoom = none.Start("ev.r", "owner.r", 1, null);
             Check(refusedRoom.Terminal.Code == ResultCodes.Unregistered, "unregistered room domain refused");
             Check(none.Leases.ActiveLeaseCount == 0 && none.Recovery.Captures == 0 && none.Pauses.Acquired == 0, "refusal before any mutation");
-
-            var rig = new Rig();
-            rig.Catalog.Add(Ev("ev.p", ExecutionMode.Scene, new string[0], new[] { Perform("ev.p", 1, "class", "class.alpha") }));
-            var h = rig.Start("ev.p");
-            rig.Until(() => rig.Class.Pending.Count == 1, "perform");
-            Check(rig.Planner.Contexts.Count == 0 && rig.Store.Commits.Count == 0, "nothing planned or persisted while perform runs");
-            Check(rig.Class.Pending[0].Request.EventId == "ev.p" && !rig.Class.Pending[0].Request.Practice, "request carries event and mode");
-            rig.Class.Pending[0].Handle.Succeed(new OperationResult("class", "class.alpha", DataNode.FromInteger(5)), 0);
-            rig.Until(() => h.Terminal != null, "run");
-            Check(h.Terminal.Status == OperationStatus.Succeeded, "run succeeds");
-            Check(rig.Planner.Contexts[0].Staged.Count == 1 && h.Value.Operations.Count == 1, "staged result reaches planner and completion");
-            rig.AssertClean();
-
-            var failing = new Rig();
-            failing.Catalog.Add(Ev("ev.p", ExecutionMode.Scene, new string[0], new[] { Perform("ev.p", 1, "class", "class.alpha") }));
-            var f = failing.Start("ev.p");
-            failing.Until(() => failing.Class.Pending.Count == 1, "perform");
-            failing.Class.Pending[0].Handle.Fail("CRAFT_FAILED", 0, new Diagnostic[0]);
-            failing.Until(() => f.Terminal != null, "abort");
-            Check(f.Terminal.Code == "CRAFT_FAILED" && failing.Planner.Contexts.Count == 0 && failing.Recovery.Restores == 1, "failed operation aborts with no staged commit");
-            failing.AssertClean();
+            none.AssertClean();
         }
 
         private static void OnceGuardRefusesBeforeLeasing()
@@ -453,7 +418,7 @@ namespace MagicCampus.Tests.Events
 
         private static void TimeoutCancelsAndRecovers()
         {
-            var rig = new Rig(true, 5);
+            var rig = new Rig(5);
             rig.Catalog.Add(Ev("ev.t", ExecutionMode.Scene, new string[0], new[] { Move("ev.t", 1, null) }));
             var h = rig.Start("ev.t");
             rig.Until(() => rig.Moves.Pending.Count == 1, "move");
@@ -623,7 +588,6 @@ namespace MagicCampus.Tests.Events
         public readonly FakePresentation Presentation;
         public readonly FakeLifetime Lifetime;
         public readonly FakeClock Clock;
-        public readonly FakeOperation Class;
         public readonly FakePlanner Planner = new FakePlanner();
         public readonly FakeProjector Projector;
         public readonly FakeRecovery Recovery;
@@ -635,27 +599,24 @@ namespace MagicCampus.Tests.Events
         public readonly EventRunner Runner;
         private int txn;
 
-        public Rig() : this(true, 3600) { }
-        public Rig(bool registerClass) : this(registerClass, 3600) { }
+        public Rig() : this(3600) { }
 
-        public Rig(bool registerClass, double timeoutSeconds)
+        public Rig(double timeoutSeconds)
         {
             Handles = new HandleFactory(Pump);
-            Leases = new LoggingLeases(new LeaseService(Handles), Log);
+            Leases = new LoggingLeases(new LeaseService(), Log);
             Store = new FakeStore(Log);
             Pauses = new FakePauses(Log);
             Moves = new FakeMoves(Handles, Log);
             Presentation = new FakePresentation(Handles, Log);
             Lifetime = new FakeLifetime(Log);
             Clock = new FakeClock(Handles);
-            Class = new FakeOperation("class", Handles, Log);
             Projector = new FakeProjector(Log);
             Recovery = new FakeRecovery(Log);
             Boundaries = new FakeBoundaries(Log);
             Saves = new FakeSaves(Handles, Log);
             Staging = new FakeStaging(Handles, Log);
             Maps = new FakeMaps(Handles, Log);
-            var registry = registerClass ? new DomainOperationRegistry(new IDomainOperationPort[] { Class }) : DomainOperationRegistry.Empty;
             Runner = new EventRunner(new EventRunnerDependencies
             {
                 Catalog = new FakeCatalogProvider(Catalog),
@@ -667,7 +628,6 @@ namespace MagicCampus.Tests.Events
                 Presentation = Presentation,
                 PresentationLifetime = Lifetime,
                 Clock = Clock,
-                Operations = registry,
                 CommitPlanner = Planner,
                 Store = Store,
                 Projector = Projector,
@@ -728,7 +688,6 @@ namespace MagicCampus.Tests.Events
         public int ActiveLeaseCount { get { return inner.ActiveLeaseCount; } }
         public int HeldResourceCount { get { return inner.HeldResourceCount; } }
         public Outcome<Lease> TryAcquire(LeaseRequest request) { return inner.TryAcquire(request); }
-        public IHandle<Lease> Enqueue(LeaseRequest request) { return inner.Enqueue(request); }
         public Result Release(string leaseId) { log.Add("lease.release"); return inner.Release(leaseId); }
     }
 
@@ -932,31 +891,6 @@ namespace MagicCampus.Tests.Events
             var h = factory.Create<object>("delay." + (++n));
             h.Start();
             h.SetCancellationHandler(reason => h.Cancelled(reason, 0));
-            return h;
-        }
-    }
-
-    internal sealed class PendingPerform
-    {
-        public OperationRequest Request;
-        public IHandleController<OperationResult> Handle;
-    }
-
-    internal sealed class FakeOperation : IDomainOperationPort
-    {
-        private readonly IHandleFactory factory;
-        private readonly List<string> log;
-        public readonly List<PendingPerform> Pending = new List<PendingPerform>();
-        public string Domain { get; }
-        public FakeOperation(string domain, IHandleFactory factory, List<string> log) { Domain = domain; this.factory = factory; this.log = log; }
-
-        public IHandle<OperationResult> Perform(OperationRequest request)
-        {
-            var h = factory.Create<OperationResult>("perform." + (Pending.Count + 1));
-            h.Start();
-            h.SetCancellationHandler(reason => h.Cancelled(reason, 0));
-            Pending.Add(new PendingPerform { Request = request, Handle = h });
-            log.Add("perform:" + request.DefinitionId);
             return h;
         }
     }

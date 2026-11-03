@@ -12,7 +12,6 @@ using MagicCampus.Content.Compilation;
 using MagicCampus.Content.Parsing;
 using MagicCampus.Contracts;
 using MagicCampus.Events;
-using MagicCampus.Operations;
 using MagicCampus.Persistence;
 using MagicCampus.Presentation.Cutscene;
 using MagicCampus.Presentation.Dialogue;
@@ -146,7 +145,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
     public int LiveHandleCount { get { return Handles.LiveCount; } }
     public int PresentationLocks { get { return config.DialogueUi.OutstandingLocks; } }
     public int PendingDiskOperations { get { return Disk.PendingOperations; } }
-    public int ActiveMoveCount { get { return Moves.ActiveMoves.Count; } }
+    public int ActiveMoveCount { get { return Moves.ActiveMoveCount; } }
     public int ActiveEventCount { get { return Runner.ActiveCount; } }
     public int PendingSaveCount { get { return Runner.PendingSaveCount; } }
 
@@ -210,7 +209,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Pump = new CompletionPump();
         Handles = new HandleFactory(Pump);
         Pause = new PauseService();
-        Leases = new LeaseService(Handles);
+        Leases = new LeaseService();
         Ticks = new TickClock(Handles);
         var userMap = config.MapConfig;
         Maps = new MapAdapter(Layout, Handles, new MapAdapterConfig(userMap == null ? null : userMap.TileFactory, (mapId, go) =>
@@ -223,17 +222,16 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Moves = new MoveService(Actors, CollisionPort, Maps, Maps, Handles, Pause, isSceneOwner: IsSceneOwner, revisionSource: () => Store.Current.Revision, requiresVisibleMap: NeedsVisibleMap);
 
         var calendar = new Tk.Calendar();
-        var consumers = new Tk.DayBoundaryConsumerRegistry();
         var ledger = new StateCompletionLedger();
         var registry = new StateParticipantRegistry();
         registry.Register(new EventEffectsParticipant(Compiled));
         registry.Register(new WorldCommitParticipant(Actors, Maps));
-        registry.Register(new Tk.ClockParticipant(calendar, consumers));
+        registry.Register(new Tk.ClockParticipant(calendar));
         registry.Register(new ReservationParticipant(Provider, ledger));
         registry.Seal();
         Store = new StateStore(initial, registry, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump, new PersistedCompletionReplayPolicy());
         Store.OnCommitted(c => { if (!c.TransactionId.Value.StartsWith("clock.advance", StringComparison.Ordinal)) Emit("commit txn=" + c.TransactionId.Value + " " + c.PreviousRevision + "->" + c.Revision); });
-        Clock = new Tk.ClockService(Store, calendar, consumers);
+        Clock = new Tk.ClockService(Store, calendar);
         Projector = new WorldStateProjector(Actors);
         Destinations = new CatalogDestinationResolver(Provider);
         Reservations = new ReservationService(Provider, calendar, ledger);
@@ -274,7 +272,6 @@ namespace MagicCampus.Bootstrap.FirstConnection
           Presentation = config.DialogueUi,
           PresentationLifetime = config.DialogueUi,
           Clock = Ticks,
-          Operations = DomainOperationRegistry.Empty,
           CommitPlanner = planner,
           Store = Store,
           Projector = Projector,

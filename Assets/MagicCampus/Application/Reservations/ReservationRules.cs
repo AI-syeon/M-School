@@ -10,23 +10,6 @@ namespace MagicCampus.Application.Reservations
         bool IsCompleted(StateSnapshot snapshot, CompletionKey key);
     }
 
-    /// <summary>Names of the fixed plan protocol entry that marks a successful event commit.</summary>
-    public sealed class ReservationOptions
-    {
-        public static readonly ReservationOptions Default = new ReservationOptions("event-effects", "event.complete");
-
-        public string EventCompletionParticipantId { get; }
-        public string EventCompletionOperation { get; }
-
-        public ReservationOptions(string eventCompletionParticipantId, string eventCompletionOperation)
-        {
-            if (string.IsNullOrEmpty(eventCompletionParticipantId)) throw new ArgumentException("required", nameof(eventCompletionParticipantId));
-            if (string.IsNullOrEmpty(eventCompletionOperation)) throw new ArgumentException("required", nameof(eventCompletionOperation));
-            EventCompletionParticipantId = eventCompletionParticipantId;
-            EventCompletionOperation = eventCompletionOperation;
-        }
-    }
-
     internal static class ReservationRules
     {
         /// <summary>Shared completion key of an event; events without an explicit key complete under their own id.</summary>

@@ -331,9 +331,6 @@ namespace MagicCampus.Contracts
         /// <summary>Acquires every resource or none. Failure is RESOURCE_BUSY with one diagnostic per busy resource.</summary>
         Outcome<Lease> TryAcquire(LeaseRequest request);
 
-        /// <summary>Queued acquisition; completes when the whole set is held. Never preempts a running holder.</summary>
-        IHandle<Lease> Enqueue(LeaseRequest request);
-
         /// <summary>Idempotent; unknown or already released ids succeed.</summary>
         Result Release(string leaseId);
     }
@@ -800,18 +797,6 @@ namespace MagicCampus.Contracts
         { Domain = Ids.Require(domain, nameof(domain)); DefinitionId = Ids.Require(definitionId, nameof(definitionId)); Staged = staged ?? DataNode.Null; }
     }
 
-    public interface IDomainOperationPort
-    {
-        string Domain { get; }
-        IHandle<OperationResult> Perform(OperationRequest request);
-    }
-
-    public interface IDomainOperationRegistry
-    {
-        /// <summary>Null when the domain is not registered; the runner then aborts the event with UNREGISTERED.</summary>
-        IDomainOperationPort Find(string domain);
-    }
-
     public sealed class EffectContext
     {
         public StateSnapshot Basis { get; }
@@ -933,13 +918,6 @@ namespace MagicCampus.Contracts
         GameTime Now { get; }
         /// <summary>1 simulation-second = 1 game-minute. No advance when pause.Calendar is true.</summary>
         ClockAdvance Advance(double simulationSeconds, IPausePolicy pause);
-    }
-
-    public interface IDayBoundaryConsumer
-    {
-        string ConsumerId { get; }
-        /// <summary>Change for one boundary, or null when the consumer has nothing to do. Planned, never applied here.</summary>
-        PlannedChange Plan(StateSnapshot basis, DayBoundary boundary);
     }
 
     // ---------------------------------------------------------------- event runner

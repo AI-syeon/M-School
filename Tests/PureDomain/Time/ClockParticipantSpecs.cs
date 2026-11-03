@@ -9,13 +9,11 @@ namespace MagicCampus.Tests.Time
         public static void Run()
         {
             FrozenAdvanceAggregates();
-            MultiDayOrderAndCoupling();
-            MissingCoupledChange();
+            MultiDayOrder();
             UnknownOperation();
             BadPayloads();
             MalformedBasis();
             ReplacementShape();
-            ConsumerRegistry();
         }
 
         private static StatePlan PlanOf(TimeWorld w, params PlannedChange[] changes)
@@ -26,54 +24,21 @@ namespace MagicCampus.Tests.Time
         private static void FrozenAdvanceAggregates()
         {
             var w = TimeWorld.Create(1400, 0, new[] { "legacy" });
-            var result = w.Commit("agg.1", Nodes.Advance(30), Nodes.Advance(45.5), Nodes.Grow(1));
+            var result = w.Commit("agg.1", Nodes.Advance(30), Nodes.Advance(45.5));
             Check.True(result.Succeeded, "aggregated advances commit");
             Check.Equal(1475L, w.Minute, "30 + 45.5 minutes");
             Check.Equal(0.5, w.Fraction, "aggregated fraction");
-            Check.Equal("legacy|boundary.day_d1|consumer.growth.day_d1", string.Join("|", w.Jobs), "single boundary recorded once");
+            Check.Equal("legacy|boundary.day_d1", string.Join("|", w.Jobs), "single boundary recorded once");
             Check.True(w.Pending, "return pending after aggregated midnight");
-            Check.Equal(1, w.CropCount, "coupled consumer change applied");
         }
 
-        private static void MultiDayOrderAndCoupling()
+        private static void MultiDayOrder()
         {
             var w = TimeWorld.Create(420, 0, new string[0]);
-            var before = w.Store.Current;
-
-            var onlyFirst = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(1440), Nodes.Advance(1440), Nodes.Grow(1)));
-            Check.True(!onlyFirst.Succeeded, "missing day 2 coupled change refused");
-            Check.Equal(ResultCodes.TransactionMismatch, onlyFirst.Result.Code, "mismatch code");
-            Check.Equal("COUPLED_CHANGE_MISSING", onlyFirst.Result.Details[0].Code, "mismatch diagnostic");
-
-            var failedCommit = w.Commit("multi.0", Nodes.Advance(1440), Nodes.Advance(1440), Nodes.Grow(1));
-            Check.True(!failedCommit.Succeeded, "store refuses the incomplete plan");
-            w.AssertUnchanged(before, "incomplete coupling");
-
-            var ok = w.Commit("multi.1", Nodes.Advance(1440), Nodes.Advance(1440), Nodes.Grow(1), Nodes.Grow(2));
-            Check.True(ok.Succeeded, "complete coupling commits");
-            Check.Equal("boundary.day_d1|consumer.growth.day_d1|boundary.day_d2|consumer.growth.day_d2", string.Join("|", w.Jobs), "date order of recorded jobs");
+            var ok = w.Commit("multi.1", Nodes.Advance(1440), Nodes.Advance(1440));
+            Check.True(ok.Succeeded, "two day advance commits");
+            Check.Equal("boundary.day_d1|boundary.day_d2", string.Join("|", w.Jobs), "date order of recorded jobs");
             Check.Equal(420L + 2880, w.Minute, "two days advanced");
-            Check.Equal(2, w.CropCount, "one effect per day");
-        }
-
-        private static void MissingCoupledChange()
-        {
-            var w = TimeWorld.Create(1430, 0, new string[0]);
-            var before = w.Store.Current;
-            var outcome = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(20)));
-            Check.True(!outcome.Succeeded, "jobs are not marked without the coupled change");
-            Check.Equal(ResultCodes.TransactionMismatch, outcome.Result.Code, "coupling failure code");
-
-            var wrongPayload = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(20), Nodes.Grow(99)));
-            Check.True(!wrongPayload.Succeeded, "a different consumer payload does not satisfy the coupling");
-
-            var commit = w.Commit("coupling.1", Nodes.Advance(20));
-            Check.True(!commit.Succeeded, "store refuses time without its consumer change");
-            w.AssertUnchanged(before, "missing coupled change");
-
-            w.Growth.Mode = ConsumerMode.ReturnNull;
-            var nothingToDo = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(20)));
-            Check.True(nothingToDo.Succeeded, "a consumer with nothing to do needs no coupled change");
         }
 
         private static void UnknownOperation()
@@ -140,7 +105,7 @@ namespace MagicCampus.Tests.Time
         {
             var w = TimeWorld.Create(1430, 0.25, new[] { "legacy" });
             var before = w.Store.Current;
-            var outcome = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(40), Nodes.Grow(1)));
+            var outcome = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(40)));
             Check.True(outcome.Succeeded, "prepare succeeds");
             var slices = outcome.Value.Slices;
             Check.Equal(3, slices.Count, "exactly the owned slices");
@@ -150,7 +115,7 @@ namespace MagicCampus.Tests.Time
             Check.Equal(0.25, slices["/clock"].Members["fraction"].Number, "replacement fraction");
             Check.Equal("preserved", slices["/clock"].Members["note"].Text, "unknown clock member preserved");
             Check.Equal(DataKind.List, slices["/dayJobs"].Kind, "dayJobs list");
-            Check.Equal(3, slices["/dayJobs"].Items.Count, "dayJobs entries");
+            Check.Equal(2, slices["/dayJobs"].Items.Count, "dayJobs entries");
             Check.True(slices["/returnPending"].Bool, "returnPending derived");
             w.AssertUnchanged(before, "Prepare never writes");
 
@@ -160,22 +125,6 @@ namespace MagicCampus.Tests.Time
             var owned = new List<string>(w.Participant.OwnedSlices);
             Check.Equal("clock", w.Participant.ParticipantId, "participant id");
             Check.Equal("/clock|/dayJobs|/returnPending", string.Join("|", owned), "owned slices");
-        }
-
-        private static void ConsumerRegistry()
-        {
-            var registry = new DayBoundaryConsumerRegistry();
-            Check.True(registry.Register(null).Status == OperationStatus.Failed, "null consumer refused");
-            Check.True(registry.Register(new FakeConsumer("bad id")).Status == OperationStatus.Failed, "whitespace id refused");
-            Check.True(registry.Register(new FakeConsumer("")).Status == OperationStatus.Failed, "empty id refused");
-            Check.True(registry.Register(new FakeConsumer("zeta")).Status == OperationStatus.Succeeded, "zeta registers");
-            Check.True(registry.Register(new FakeConsumer("alpha")).Status == OperationStatus.Succeeded, "alpha registers");
-            var duplicate = registry.Register(new FakeConsumer("alpha"));
-            Check.True(duplicate.Status == OperationStatus.Failed, "duplicate refused");
-            Check.Equal("CONSUMER_DUPLICATE", duplicate.Details[0].Code, "duplicate diagnostic");
-            Check.Equal(2, registry.Count, "count");
-            Check.Equal("alpha", registry.Consumers[0].ConsumerId, "ordinal order");
-            Check.True(registry.Find("zeta") != null && registry.Find("missing") == null, "find");
         }
     }
 }

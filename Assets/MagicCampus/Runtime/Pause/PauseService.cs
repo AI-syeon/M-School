@@ -4,35 +4,18 @@ using MagicCampus.Contracts;
 
 namespace MagicCampus.Runtime
 {
-    /// <summary>Supplied pause policy configuration. Default: scene pauses Calendar/Ambient/Player/World but not Scene; menu pauses everything.</summary>
-    public sealed class PausePolicyConfig
-    {
-        public static readonly PausePolicyConfig Default = new PausePolicyConfig(new PauseSet(true, true, true, true, false), PauseSet.All);
-
-        public PauseSet Scene { get; }
-        public PauseSet Menu { get; }
-
-        public PausePolicyConfig(IPausePolicy scene, IPausePolicy menu)
-        {
-            Scene = PauseSet.Copy(scene);
-            Menu = PauseSet.Copy(menu);
-        }
-    }
-
-    /// <summary>Effective policy is the per-channel union of all live tokens. Tokens are never saved.</summary>
+    /// <summary>
+    /// Effective policy is the per-channel union of all live tokens. Tokens are never saved.
+    /// A scene pauses Calendar/Ambient/Player/World but not Scene; a menu pauses everything.
+    /// </summary>
     public sealed class PauseService : IPauseService
     {
+        private static readonly PauseSet ScenePolicy = new PauseSet(true, true, true, true, false);
+        private static readonly PauseSet MenuPolicy = PauseSet.All;
+
         private readonly Dictionary<string, PauseToken> tokens = new Dictionary<string, PauseToken>(StringComparer.Ordinal);
-        private readonly PausePolicyConfig config;
         private PauseSet effective = PauseSet.None;
         private long nextToken;
-
-        public PauseService() : this(PausePolicyConfig.Default) { }
-
-        public PauseService(PausePolicyConfig config)
-        {
-            this.config = RuntimeGuard.Required(config, nameof(config));
-        }
 
         public IPausePolicy Effective => effective;
         public int LiveTokenCount => tokens.Count;
@@ -56,12 +39,12 @@ namespace MagicCampus.Runtime
 
         public PauseToken AcquireScene(string owner)
         {
-            return Acquire(owner, config.Scene);
+            return Acquire(owner, ScenePolicy);
         }
 
         public PauseToken AcquireMenu(string owner)
         {
-            return Acquire(owner, config.Menu);
+            return Acquire(owner, MenuPolicy);
         }
 
         public void Release(PauseToken token)

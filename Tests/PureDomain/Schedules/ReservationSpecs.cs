@@ -14,7 +14,6 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             PlansAndAppliesAccept();
             CompleteRemovesOnlyTheMatchingReservation();
             RefusesUnknownOperations();
-            CoordinatorKeepsAcceptedAndBoundsRetries();
         }
 
         private static Outcome<StateReplacement> Prepare(ReservationRig rig, StateSnapshot snapshot, CompletionKey? completion, params PlannedChange[] changes)
@@ -125,59 +124,5 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             var bogus = new PlannedChange(ReservationParticipant.Id, "expire", DataNode.Null);
             Spec.Equal(ResultCodes.Unregistered, Prepare(rig, Kit.Snapshot(1), null, bogus).Result.Code, "no expiry or other operation exists");
         }
-
-        private static void CoordinatorKeepsAcceptedAndBoundsRetries()
-        {
-            var rig = new ReservationRig(Kit.Event("event.one"), Kit.Event("event.two"));
-            var snapshot = Kit.Snapshot(1, Kit.Row("event.one", "Accepted", 10), Kit.Row("event.two", "Accepted", 20));
-            var state = new FakeState { Current = snapshot };
-            var rt = new Rt();
-            var runner = new FakeRunner(rt.Handles);
-            var coordinator = new ReservationCoordinator(state, rig.Service, runner, null, ReservationCoordinatorOptions.Default);
-
-            coordinator.Tick(0, 0.1);
-            Spec.Equal(1, runner.Starts.Count, "first candidate starts");
-            Spec.Equal("event.one", runner.Starts[0].EventId, "earlier acceptance goes first");
-            var automaticOwner = runner.Starts[0].OwnerToken;
-            coordinator.Tick(0, 0.1);
-            Spec.Equal(1, runner.Starts.Count, "same-npc invitation waits while one start is in flight");
-
-            runner.Handles[0].Fail(ResultCodes.ResourceBusy, 0, new Diagnostic[0]);
-            coordinator.Tick(0, 0.1);
-            Spec.Equal(ResultCodes.ResourceBusy, coordinator.LastResult.Code, "failure observed on a later tick");
-            Spec.Equal(1, runner.Starts.Count, "nothing starts in the observing tick");
-            Spec.Equal(2, rig.Service.Candidates(state.Current).Count, "failed reservation stays an accepted candidate");
-
-            coordinator.Tick(0, 0.1);
-            Spec.Equal(2, runner.Starts.Count, "next candidate starts while the first backs off");
-            Spec.Equal("event.two", runner.Starts[1].EventId, "second invitation");
-
-            runner.Handles[1].Fail(ResultCodes.ResourceBusy, 0, new Diagnostic[0]);
-            runner.AutoFail = true;
-            for (var i = 0; i < 200; i++) coordinator.Tick(0, 0.1);
-            var one = 0;
-            var two = 0;
-            foreach (var start in runner.Starts)
-            {
-                if (start.EventId == "event.one") one++;
-                else two++;
-            }
-            Spec.True(one <= 3 && two <= 3, "automatic retries are bounded, saw " + one + "/" + two);
-            Spec.Equal(2, rig.Service.Candidates(state.Current).Count, "still candidates after exhausting retries");
-
-            var before = runner.Starts.Count;
-            var retried = coordinator.Retry("event.one", 5);
-            Spec.Equal(OperationStatus.Succeeded, retried.Status, "explicit retry starts the reservation");
-            Spec.Equal(before + 1, runner.Starts.Count, "retry reached the runner");
-            Spec.Equal(5L, runner.Starts[runner.Starts.Count - 1].InputSequence, "explicit retry carries its input sequence");
-            Spec.True(runner.Starts[runner.Starts.Count - 1].OwnerToken != automaticOwner, "automatic counters cannot collide with explicit input replay keys");
-            Spec.Equal(ResultCodes.ConditionFalse, coordinator.Retry("event.one", 5).Result(), "duplicate input sequence is ignored");
-            Spec.Equal(ResultCodes.ResourceBusy, coordinator.Retry("event.two", 6).Code, "no second start while one is in flight");
-            coordinator.Tick(0, 0.1);
-            coordinator.Tick(0, 0.1);
-            Spec.Equal(ResultCodes.ConditionFalse, coordinator.Retry("event.zzz", 7).Code, "only accepted reservations can be retried");
-        }
-
-        private static string Result(this Result r) { return r.Code; }
     }
 }
