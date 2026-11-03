@@ -332,8 +332,8 @@ namespace MagicCampus.Tests.Movement
             var rig = new Rig("hall", new[] { Rig.Actor("player", "hall", 1.5, 2.5) });
             Expect.Throws<ArgumentNullException>(() => new MoveService(null, rig.World, rig.Maps, rig.World, rig.Handles, rig.Pause), "actors required");
             Expect.Throws<ArgumentNullException>(() => rig.Moves.Move(null), "request required");
-            Expect.Throws<ArgumentOutOfRangeException>(() => rig.Moves.Tick(-1, 0), "negative simulation delta");
-            Expect.Throws<ArgumentOutOfRangeException>(() => rig.Moves.Tick(0, double.NaN), "NaN watchdog delta");
+            Expect.Throws<ArgumentOutOfRangeException>(() => rig.Moves.Tick(-1), "negative delta");
+            Expect.Throws<ArgumentOutOfRangeException>(() => rig.Moves.Tick(double.NaN), "NaN delta");
             rig.AssertClean();
         }
     }

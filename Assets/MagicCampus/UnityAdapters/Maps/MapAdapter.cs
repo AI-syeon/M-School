@@ -27,12 +27,12 @@ namespace MagicCampus.UnityAdapters.Maps
     }
 
     /// <summary>
-    /// IMapPort over MapLayout. Load builds a temporary inactive Grid/Tilemap root immediately and commits it on the next Tick (IRuntimeTick),
+    /// IMapPort over MapLayout. Load builds a temporary inactive Grid/Tilemap root immediately and commits it on the next Tick,
     /// which is the window in which cancellation is possible. Failure, missing map and cancellation destroy the temporary root and keep the
     /// previous valid map and root. A new Load supersedes (cancels) a still pending one. No GameObject reference leaves this class.
     /// Colliders: a TilemapCollider2D over a Collision tilemap that holds one Grid-collider tile per logically blocked cell (static blocked and closed doors).
     /// </summary>
-    public sealed class MapAdapter : IMapPort, IMapGeometry, IRuntimeTick, IDisposable
+    public sealed class MapAdapter : IMapPort, IMapGeometry, IDisposable
     {
         public const string ActiveRootPrefix = "MagicCampus.Map.Active:";
         public const string LoadingRootPrefix = "MagicCampus.Map.Loading:";
@@ -124,7 +124,7 @@ namespace MagicCampus.UnityAdapters.Maps
         }
 
         /// <summary>Commits the pending load, if any. Terminal state is published only after the scene objects are settled.</summary>
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        public void Tick()
         {
             if (disposed || pending == null) return;
             var load = pending;

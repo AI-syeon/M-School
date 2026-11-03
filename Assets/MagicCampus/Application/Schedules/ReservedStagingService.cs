@@ -11,7 +11,7 @@ namespace MagicCampus.Application.Schedules
     /// replaces the complete actor list in one Restore call, then shows the view again.
     /// Failure and cancellation always unhide and never leave partial actor writes.
     /// </summary>
-    public sealed class ReservedStagingService : IEventStagingPort, IRuntimeTick
+    public sealed class ReservedStagingService : IEventStagingPort
     {
         public const string StagingField = "staging";
         public const string CurrentStaging = "current";
@@ -86,11 +86,10 @@ namespace MagicCampus.Application.Schedules
             }
         }
 
-        /// <summary>Watchdog on the unpaused clock: a stage that runs too long is cancelled and ends with TIMEOUT.</summary>
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        /// <summary>Watchdog on unpaused seconds: a stage that runs too long is cancelled and ends with TIMEOUT.</summary>
+        public void Tick(double seconds)
         {
-            if (double.IsNaN(unpausedSeconds) || double.IsInfinity(unpausedSeconds) || unpausedSeconds < 0) throw new ArgumentOutOfRangeException(nameof(unpausedSeconds));
-            elapsed += unpausedSeconds;
+            elapsed += PortGuard.NonNegative(seconds, nameof(seconds));
             foreach (var op in ops.ToArray())
                 if (op.Abort == AbortKind.None && elapsed - op.StartedAt >= TimeoutSeconds)
                     Abort(op, AbortKind.Timeout, "stage watchdog expired");

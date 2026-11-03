@@ -59,9 +59,9 @@ namespace MagicCampus.Tests.CrossModule
             }
         }
 
-        static void Drive(IRuntimeTick store, IHandle handle)
+        static void Drive(FileGenerationStore store, IHandle handle)
         {
-            for (var i = 0; i < 32 && !handle.Status.IsTerminal(); i++) store.Tick(0.1, 0.1);
+            for (var i = 0; i < 32 && !handle.Status.IsTerminal(); i++) store.Tick();
             Check(handle.Status.IsTerminal(), "bounded storage termination");
         }
 

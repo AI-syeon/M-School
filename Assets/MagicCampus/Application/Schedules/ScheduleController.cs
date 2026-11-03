@@ -11,7 +11,7 @@ namespace MagicCampus.Application.Schedules
     /// move to become terminal before anything else may take over. It never teleports. Repeated failures toward the
     /// same target back off exponentially (bounded); a different target is tried immediately.
     /// </summary>
-    public sealed class ScheduleController : IRuntimeTick
+    public sealed class ScheduleController
     {
         private const string YieldReason = "foreground-lease";
         private const string TakeoverReason = "foreground-takeover";
@@ -40,7 +40,7 @@ namespace MagicCampus.Application.Schedules
             public IHandleController<bool> Handle;
         }
 
-        private readonly IScheduleService schedule;
+        private readonly ScheduleService schedule;
         private readonly IClockService clock;
         private readonly IPauseService pause;
         private readonly IActorWorld world;
@@ -51,7 +51,7 @@ namespace MagicCampus.Application.Schedules
         private readonly Dictionary<string, NpcState> states = new Dictionary<string, NpcState>(StringComparer.Ordinal);
         private double now;
 
-        public ScheduleController(IScheduleService schedule, IClockService clock, IPauseService pause, IActorWorld world, IMoveService move,
+        public ScheduleController(ScheduleService schedule, IClockService clock, IPauseService pause, IActorWorld world, IMoveService move,
             IHandleFactory handles, IEnumerable<string> npcIds, Func<string, bool> foregroundLeased)
         {
             this.schedule = schedule ?? throw new ArgumentNullException(nameof(schedule));
@@ -64,7 +64,7 @@ namespace MagicCampus.Application.Schedules
             if (npcIds == null) throw new ArgumentNullException(nameof(npcIds));
 
             var sorted = new SortedSet<string>(StringComparer.Ordinal);
-            foreach (var id in npcIds) sorted.Add(IdGuard.Require(id, nameof(npcIds)));
+            foreach (var id in npcIds) sorted.Add(Ids.Require(id, nameof(npcIds)));
             this.npcIds = new List<string>(sorted).ToArray();
             foreach (var id in this.npcIds) states[id] = new NpcState();
         }
@@ -80,10 +80,9 @@ namespace MagicCampus.Application.Schedules
             return states.TryGetValue(npcId, out var st) ? st.Last : null;
         }
 
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        public void Tick(double seconds)
         {
-            if (double.IsNaN(unpausedSeconds) || double.IsInfinity(unpausedSeconds) || unpausedSeconds < 0) throw new ArgumentOutOfRangeException(nameof(unpausedSeconds));
-            now += unpausedSeconds;
+            now += PortGuard.NonNegative(seconds, nameof(seconds));
             var ambientOpen = !pause.Effective.Ambient;
 
             foreach (var npc in npcIds)

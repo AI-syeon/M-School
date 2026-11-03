@@ -14,7 +14,7 @@ namespace MagicCampus.UnityAdapters.Storage
     /// Single-threaded: Write/Read/ListCandidates/Tick/Shutdown must be called from the same thread (Cancel may come from anywhere).
     /// Only files this class names (gen-*.mcgen, its .bak and its own .tmp) are ever created, replaced or deleted; no recursive deletes.
     /// </summary>
-    public sealed class FileGenerationStore : IFileGenerationStore, IRuntimeTick
+    public sealed class FileGenerationStore : IFileGenerationStore
     {
         private const string FilePrefix = "gen-";
         private const string FileExtension = ".mcgen";
@@ -110,7 +110,7 @@ namespace MagicCampus.UnityAdapters.Storage
         }
 
         /// <summary>Advances every active operation by exactly one phase. Operations started during this tick wait for the next one.</summary>
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        public void Tick()
         {
             if (active.Count == 0) return;
             var snapshot = active.ToArray();

@@ -27,7 +27,7 @@ namespace MagicCampus.Tests.Movement
         private static void Frame(Rig rig, MoveService svc, double dt)
         {
             rig.Pump.AdvanceTick();
-            svc.Tick(dt, dt);
+            svc.Tick(dt);
         }
 
         private static void RunUntil(Rig rig, MoveService svc, IHandle handle, double dt, int max)

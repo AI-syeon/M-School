@@ -20,18 +20,6 @@ namespace MagicCampus.Contracts
         IHandleController<T> Create<T>(string operationId);
     }
 
-    public interface IRuntimeTick
-    {
-        void Tick(double simulationSeconds, double unpausedSeconds);
-    }
-
-    public interface ICompletionPump : ICompletionQueue
-    {
-        // Drains a snapshot of the queue taken at entry, in deterministic order.
-        // Items posted while draining are deferred to the next AdvanceTick.
-        void AdvanceTick();
-    }
-
     public sealed class ActorState
     {
         public ActorState(string actorId, Position position, double radius, double speed)

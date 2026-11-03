@@ -19,7 +19,7 @@ namespace MagicCampus.Presentation.Dialogue
     /// CloseOwner or player cancel on Say finalizes it as Cancelled after the window is released.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class DialoguePresentation : MonoBehaviour, IPresentationPort, IPresentationLifetime, IRuntimeTick, IDialogueUiCommands
+    public sealed class DialoguePresentation : MonoBehaviour, IPresentationPort, IPresentationLifetime, IDialogueUiCommands
     {
         static readonly PauseSet WindowPause = new PauseSet(true, false, true, false, false);
 
@@ -196,12 +196,12 @@ namespace MagicCampus.Presentation.Dialogue
             if (director != null) director.CloseAll(reason);
         }
 
-        // ------------------------------------------------------------------ IRuntimeTick
+        // ------------------------------------------------------------------ tick
 
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        public void Tick(double seconds)
         {
             if (handles == null) return;
-            var dt = (unpausedSeconds > 0.0 && !double.IsNaN(unpausedSeconds) && !double.IsInfinity(unpausedSeconds)) ? (float)unpausedSeconds : 0f;
+            var dt = (seconds > 0.0 && !double.IsNaN(seconds) && !double.IsInfinity(seconds)) ? (float)seconds : 0f;
             var w = window;
             if (w != null && pollHardwareInput) poller.Poll(this, dt, Time.frameCount > w.OpenFrame);
             if (!pause.Effective.Scene) director.Advance(dt);

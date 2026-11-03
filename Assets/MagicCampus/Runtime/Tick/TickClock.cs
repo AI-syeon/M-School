@@ -1,15 +1,13 @@
-using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Runtime
 {
     /// <summary>
-    /// Tick clock. Advance(simulationDelta, unpausedDelta): UnpausedSeconds always accumulates the second delta (watchdog clock),
-    /// SimulationSeconds only the first. Delays complete only from simulation time, ordered by due time then creation order.
-    /// ITickClock.Tick and IRuntimeTick.Tick share a name, so both are explicit interface members; use TickCount / Advance directly.
+    /// Frame counter and the clock behind the event `wait` command. Advance(seconds) counts one tick and moves the delay clock;
+    /// the caller passes 0 while the Scene channel is paused, so waits stall with it. Delays complete in due-time order, then creation order.
     /// </summary>
-    public sealed class TickClock : ITickClock, IRuntimeTick
+    public sealed class TickClock
     {
         private const double Epsilon = 1e-9;
 
@@ -21,35 +19,22 @@ namespace MagicCampus.Runtime
 
         private readonly IHandleFactory factory;
         private readonly List<Delayed> delays = new List<Delayed>();
-        private long tick;
-        private double simulation;
-        private double unpaused;
+        private double now;
         private long seq;
 
         public TickClock(IHandleFactory factory)
         {
-            this.factory = RuntimeGuard.Required(factory, nameof(factory));
+            this.factory = PortGuard.Required(factory, nameof(factory));
         }
 
-        public long TickCount => tick;
-        public double SimulationSeconds => simulation;
-        public double UnpausedSeconds => unpaused;
+        public long TickCount { get; private set; }
 
-        long ITickClock.Tick => tick;
-
-        void IRuntimeTick.Tick(double simulationSeconds, double unpausedSeconds)
+        public void Advance(double seconds)
         {
-            Advance(simulationSeconds, unpausedSeconds);
-        }
-
-        public void Advance(double simulationSeconds, double unpausedSeconds)
-        {
-            RuntimeGuard.NonNegative(simulationSeconds, nameof(simulationSeconds));
-            RuntimeGuard.NonNegative(unpausedSeconds, nameof(unpausedSeconds));
-            tick++;
-            simulation += simulationSeconds;
-            unpaused += unpausedSeconds;
-            while (delays.Count > 0 && delays[0].Due <= simulation + Epsilon)
+            PortGuard.NonNegative(seconds, nameof(seconds));
+            TickCount++;
+            now += seconds;
+            while (delays.Count > 0 && delays[0].Due <= now + Epsilon)
             {
                 var d = delays[0];
                 delays.RemoveAt(0);
@@ -57,10 +42,9 @@ namespace MagicCampus.Runtime
             }
         }
 
-        public IHandle Delay(double seconds, string ownerToken)
+        public IHandle Delay(double seconds)
         {
-            RuntimeGuard.NonNegative(seconds, nameof(seconds));
-            RuntimeGuard.Id(ownerToken, nameof(ownerToken));
+            PortGuard.NonNegative(seconds, nameof(seconds));
             seq++;
             var handle = factory.Create<object>("delay." + seq);
             handle.Start();
@@ -69,7 +53,7 @@ namespace MagicCampus.Runtime
                 handle.Succeed(null, 0);
                 return handle;
             }
-            var entry = new Delayed { Due = simulation + seconds, Handle = handle };
+            var entry = new Delayed { Due = now + seconds, Handle = handle };
             handle.SetCancellationHandler(reason =>
             {
                 delays.Remove(entry);

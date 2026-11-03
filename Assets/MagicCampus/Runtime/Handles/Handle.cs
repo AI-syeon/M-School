@@ -24,8 +24,8 @@ namespace MagicCampus.Runtime
 
         public Handle(string operationId, ICompletionQueue queue, Action terminalNotify)
         {
-            OperationId = RuntimeGuard.Id(operationId, nameof(operationId));
-            this.queue = RuntimeGuard.Required(queue, nameof(queue));
+            OperationId = Ids.Require(operationId, nameof(operationId));
+            this.queue = PortGuard.Required(queue, nameof(queue));
             this.terminalNotify = terminalNotify;
         }
 
@@ -46,7 +46,7 @@ namespace MagicCampus.Runtime
 
         public void OnTerminal(Action<Result> callback)
         {
-            RuntimeGuard.Required(callback, nameof(callback));
+            PortGuard.Required(callback, nameof(callback));
             if (terminal != null)
             {
                 Deliver(callback, terminal);

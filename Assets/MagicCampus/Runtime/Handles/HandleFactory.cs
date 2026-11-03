@@ -11,7 +11,7 @@ namespace MagicCampus.Runtime
 
         public HandleFactory(ICompletionQueue queue)
         {
-            this.queue = RuntimeGuard.Required(queue, nameof(queue));
+            this.queue = PortGuard.Required(queue, nameof(queue));
         }
 
         // Debug counters: handles created, and handles not yet terminal.

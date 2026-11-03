@@ -17,7 +17,7 @@ namespace MagicCampus.Application.Reservations
         }
     }
 
-    public sealed class ReservationService : IReservationService
+    public sealed class ReservationService
     {
         private readonly ICatalogProvider catalog;
         private readonly ICalendar calendar;
@@ -30,6 +30,7 @@ namespace MagicCampus.Application.Reservations
             this.ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
         }
 
+        /// <summary>Ordered by priority descending, ReservedAt, Sequence, EventId (ordinal). Accepted reservations stay candidates after a failed start, a missing lease or a failed move; only a successful completion commit removes them.</summary>
         public IReadOnlyList<StartCandidate> Candidates(StateSnapshot snapshot)
         {
             return Inspect(snapshot).Candidates;
