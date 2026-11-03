@@ -318,7 +318,7 @@ namespace MagicCampus.Tests.Movement
         {
             Frame(0.0);
             Frame(0.0);
-            Expect.True(Moves.ActiveMoves.Count == 0, "no active moves remain");
+            Expect.True(Moves.ActiveMoveCount == 0, "no active moves remain");
             Expect.True(Handles.LiveCount == 0, "no live handles remain");
         }
     }

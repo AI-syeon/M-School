@@ -65,8 +65,6 @@ namespace MagicCampus.World.Movement
             public Position PendingArrival;
             public Failure Pending;
             public bool Finished;
-            public double HeadingX;
-            public double HeadingY;
         }
 
         private readonly IActorWorld actors;
@@ -84,9 +82,7 @@ namespace MagicCampus.World.Movement
         private readonly PortalRouter router;
         private readonly Dictionary<string, ActiveMove> byActor = new Dictionary<string, ActiveMove>(StringComparer.Ordinal);
         private readonly List<ActiveMove> ordered = new List<ActiveMove>();
-        private readonly Queue<MoveTraceEntry> trace = new Queue<MoveTraceEntry>();
         private long sequence;
-        private long traceSequence;
 
         /// <param name="isSceneOwner">Decides from the owner token whether a move is scene-owned; scene-owned moves follow the Scene pause channel.</param>
         /// <param name="playerActorId">Actor that obeys the Player channel; every other actor obeys Ambient.</param>
@@ -110,23 +106,11 @@ namespace MagicCampus.World.Movement
             this.options = options ?? MoveOptions.Default;
             this.revisionSource = revisionSource;
             this.requiresVisibleMap = requiresVisibleMap;
-            planner = new GridPathPlanner(collision, geometry, this.options.Navigation);
+            planner = new GridPathPlanner(collision, geometry);
             router = new PortalRouter(maps, geometry);
         }
 
-        public IReadOnlyList<MoveDebugInfo> ActiveMoves
-        {
-            get
-            {
-                var list = new List<MoveDebugInfo>();
-                foreach (var m in ordered)
-                    list.Add(new MoveDebugInfo(m.OperationId, m.Request.ActorId, m.Request.OwnerToken, m.Last, m.State.ToString(),
-                        Math.Max(0, m.Waypoints.Count - m.Next), m.Replans, m.Elapsed, m.HeadingX, m.HeadingY));
-                return list.AsReadOnly();
-            }
-        }
-
-        public IReadOnlyList<MoveTraceEntry> Trace => Array.AsReadOnly(trace.ToArray());
+        public int ActiveMoveCount => ordered.Count;
 
         public IHandle<MoveArrival> Move(MoveRequest request)
         {
@@ -138,32 +122,30 @@ namespace MagicCampus.World.Movement
 
             var actor = actors.Find(request.ActorId);
             if (actor == null)
-                return Refuse(handle, operationId, request, new Failure(ResultCodes.RefNotFound, "ACTOR_UNKNOWN", "actor " + request.ActorId + " is not in the world"));
+                return Refuse(handle, new Failure(ResultCodes.RefNotFound, "ACTOR_UNKNOWN", "actor " + request.ActorId + " is not in the world"));
             if (byActor.ContainsKey(request.ActorId))
-                return Refuse(handle, operationId, request, new Failure(ResultCodes.ResourceBusy, "ACTOR_BUSY", "actor " + request.ActorId + " already has a running move"));
+                return Refuse(handle, new Failure(ResultCodes.ResourceBusy, "ACTOR_BUSY", "actor " + request.ActorId + " already has a running move"));
 
             var onActive = string.Equals(actor.Position.MapId, maps.ActiveMapId, StringComparison.Ordinal);
             if ((!visible || !onActive) && geometry.Find(actor.Position.MapId) == null)
-                return Refuse(handle, operationId, request, new Failure(ResultCodes.NoRoute, "ACTOR_MAP_UNKNOWN", "actor map " + actor.Position.MapId + " is not a known map"));
+                return Refuse(handle, new Failure(ResultCodes.NoRoute, "ACTOR_MAP_UNKNOWN", "actor map " + actor.Position.MapId + " is not a known map"));
             if (visible && !onActive)
                 return BeginSourceLoad(handle, operationId, request, actor);
 
             var here = new MoveArrival(actor.Position, request.Destination);
             if (here.Arrived && collision.IsPassable(actor.Position, actor.Radius))
             {
-                Record(operationId, request.ActorId, "succeeded", "already within tolerance");
                 handle.Succeed(here, Rev());
                 return handle;
             }
 
             var move = new ActiveMove(operationId, request, handle, actor.Position, visible);
             var failure = PlanLeg(move, actor);
-            if (failure != null) return Refuse(handle, operationId, request, failure);
+            if (failure != null) return Refuse(handle, failure);
 
             byActor.Add(request.ActorId, move);
             ordered.Add(move);
             handle.SetCancellationHandler(reason => CancelMove(move, reason));
-            Record(operationId, request.ActorId, "started", request.Destination.Target.ToString());
             return handle;
         }
 
@@ -246,8 +228,6 @@ namespace MagicCampus.World.Movement
 
                 var length = Math.Min(dist, budget);
                 var to = length >= dist ? waypoint : new Position(from.MapId, from.X + dx / dist * length, from.Y + dy / dist * length);
-                m.HeadingX = dx / dist;
-                m.HeadingY = dy / dist;
 
                 var sweep = collision.Sweep(from, to, actor.Radius);
                 var sameMap = string.Equals(sweep.End.MapId, from.MapId, StringComparison.Ordinal);
@@ -264,7 +244,6 @@ namespace MagicCampus.World.Movement
                     else
                     {
                         stopped = true;
-                        Record(m.OperationId, m.Request.ActorId, "write-rejected", write.Code);
                     }
                 }
                 if (stopped)
@@ -301,7 +280,7 @@ namespace MagicCampus.World.Movement
                 var arrival = new MoveArrival(here, m.Request.Destination);
                 if (arrival.Arrived && (!m.Visible || string.Equals(maps.ActiveMapId, here.MapId, StringComparison.Ordinal)) && collision.IsPassable(here, actor.Radius))
                 {
-                    Terminate(m, "succeeded", here.ToString(), () => m.Handle.Succeed(arrival, Rev()));
+                    Terminate(m, () => m.Handle.Succeed(arrival, Rev()));
                     return;
                 }
                 Replan(m, actor, "NOT_ARRIVED", false);
@@ -342,7 +321,6 @@ namespace MagicCampus.World.Movement
             m.State = Phase.Loading;
             m.LoadFrom = m.MapId;
             m.PendingArrival = hop.Arrival;
-            Record(m.OperationId, m.Request.ActorId, "load", hop.Arrival.MapId);
             IHandle load;
             try
             {
@@ -389,7 +367,6 @@ namespace MagicCampus.World.Movement
             m.Hop = null;
             m.State = Phase.Walking;
             m.BlockedSeconds = 0;
-            Record(m.OperationId, m.Request.ActorId, "portal-crossed", arrival.ToString());
 
             var failure = PlanLeg(m, actor);
             if (failure != null)
@@ -410,8 +387,6 @@ namespace MagicCampus.World.Movement
             byActor.Add(request.ActorId, move);
             ordered.Add(move);
             handle.SetCancellationHandler(reason => CancelMove(move, reason));
-            Record(operationId, request.ActorId, "started", request.Destination.Target.ToString());
-            Record(operationId, request.ActorId, "load", actor.Position.MapId);
             IHandle load;
             try
             {
@@ -489,11 +464,10 @@ namespace MagicCampus.World.Movement
             }
 
             m.State = Phase.Walking;
-            Record(m.OperationId, m.Request.ActorId, "source-loaded", m.MapId);
             var here = new MoveArrival(actor.Position, m.Request.Destination);
             if (here.Arrived && collision.IsPassable(actor.Position, actor.Radius))
             {
-                Terminate(m, "succeeded", "already within tolerance", () => m.Handle.Succeed(here, Rev()));
+                Terminate(m, () => m.Handle.Succeed(here, Rev()));
                 return;
             }
             var failure = PlanLeg(m, actor);
@@ -541,7 +515,6 @@ namespace MagicCampus.World.Movement
         {
             m.Pending = pending;
             m.State = Phase.RollingBack;
-            Record(m.OperationId, m.Request.ActorId, "rollback", m.LoadFrom);
             IHandle back;
             try
             {
@@ -610,7 +583,6 @@ namespace MagicCampus.World.Movement
         private ReplanResult Replan(ActiveMove m, ActorState actor, string reason, bool fatal)
         {
             m.Replans++;
-            Record(m.OperationId, m.Request.ActorId, "replan", reason);
             if (m.Replans > options.MaxReplans)
             {
                 Fail(m, ResultCodes.NoRoute, "REPLAN_LIMIT", "replan limit reached after " + reason);
@@ -628,9 +600,8 @@ namespace MagicCampus.World.Movement
 
         // ------------------------------------------------------------------ termination
 
-        private IHandle<MoveArrival> Refuse(IHandleController<MoveArrival> handle, string operationId, MoveRequest request, Failure failure)
+        private IHandle<MoveArrival> Refuse(IHandleController<MoveArrival> handle, Failure failure)
         {
-            Record(operationId, request.ActorId, "refused", failure.Code);
             handle.Fail(failure.Code, Rev(), failure.Details);
             return handle;
         }
@@ -638,7 +609,7 @@ namespace MagicCampus.World.Movement
         private void CancelMove(ActiveMove m, string reason)
         {
             var text = string.IsNullOrEmpty(reason) ? ResultCodes.Cancelled : reason;
-            Terminate(m, "cancelled", text, () => m.Handle.Cancelled(text, Rev()));
+            Terminate(m, () => m.Handle.Cancelled(text, Rev()));
         }
 
         private void Fail(ActiveMove m, string code, string diagnosticCode, string message)
@@ -648,18 +619,17 @@ namespace MagicCampus.World.Movement
 
         private void FailWith(ActiveMove m, Failure failure)
         {
-            Terminate(m, "failed", failure.Code, () => m.Handle.Fail(failure.Code, Rev(), failure.Details));
+            Terminate(m, () => m.Handle.Fail(failure.Code, Rev(), failure.Details));
         }
 
         // Children are released before any terminal state is published; the first terminal wins.
-        private void Terminate(ActiveMove m, string kind, string detail, Func<bool> publish)
+        private void Terminate(ActiveMove m, Func<bool> publish)
         {
             if (m.Finished) return;
             m.Finished = true;
             ReleaseChildren(m);
             byActor.Remove(m.Request.ActorId);
             ordered.Remove(m);
-            Record(m.OperationId, m.Request.ActorId, kind, detail);
             publish();
         }
 
@@ -673,9 +643,8 @@ namespace MagicCampus.World.Movement
             {
                 load.Cancel("move terminated");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Record(m.OperationId, m.Request.ActorId, "release-error", ex.Message);
             }
         }
 
@@ -684,12 +653,6 @@ namespace MagicCampus.World.Movement
             if (revisionSource == null) return 0;
             var value = revisionSource();
             return value < 0 ? 0 : value;
-        }
-
-        private void Record(string operationId, string actorId, string kind, string detail)
-        {
-            trace.Enqueue(new MoveTraceEntry(++traceSequence, operationId, actorId, kind, detail));
-            while (trace.Count > options.MaxTraceEntries) trace.Dequeue();
         }
 
         private static Diagnostic Diag(string code, string message)

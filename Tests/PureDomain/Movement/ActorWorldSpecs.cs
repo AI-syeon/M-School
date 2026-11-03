@@ -28,11 +28,10 @@ namespace MagicCampus.Tests.Movement
         private static void WritesNeedTokenAndKeepLastValidPosition()
         {
             var geometry = Rig.StandardWorld();
-            var world = new ActorWorld(geometry, new[] { Rig.Actor("a", "hall", 1.5, 1.5) }, token => token.StartsWith("mover.", StringComparison.Ordinal));
+            var world = new ActorWorld(geometry, new[] { Rig.Actor("a", "hall", 1.5, 1.5) });
             var home = Rig.Pos("hall", 1.5, 1.5);
             Expect.True(world.SetPosition("a", Rig.Pos("hall", 2.5, 1.5), "").Status == OperationStatus.Failed, "empty token");
             Expect.True(world.SetPosition("a", Rig.Pos("hall", 2.5, 1.5), "bad token").Status == OperationStatus.Failed, "token with whitespace");
-            Expect.True(world.SetPosition("a", Rig.Pos("hall", 2.5, 1.5), "other.1").Code == ResultCodes.OutOfScope, "writer policy");
             Expect.True(world.SetPosition("ghost", Rig.Pos("hall", 2.5, 1.5), "mover.1").Code == ResultCodes.RefNotFound, "unknown actor");
             Expect.True(world.SetPosition("a", Rig.Pos("hall", 99, 1.5), "mover.1").Status == OperationStatus.Failed, "outside the map");
             Expect.True(world.SetPosition("a", Rig.Pos("nowhere", 1.5, 1.5), "mover.1").Status == OperationStatus.Failed, "unknown map");

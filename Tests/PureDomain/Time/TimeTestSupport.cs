@@ -58,11 +58,6 @@ namespace MagicCampus.Tests.Time
             return new PlannedChange("clock", "advance", Obj(P("minutes", value)));
         }
 
-        public static PlannedChange Grow(long day)
-        {
-            return new PlannedChange("fake-growth", "grow", Obj(P("day", Int(day))));
-        }
-
         public static PlannedChange Mark(string name)
         {
             return new PlannedChange("fake-event", "mark", Obj(P("name", Str(name))));
@@ -86,52 +81,6 @@ namespace MagicCampus.Tests.Time
             }
 
             return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { Nodes.P("/flags", flags) }), basis.Revision);
-        }
-    }
-
-    internal sealed class FakeGrowthParticipant : IStateParticipant
-    {
-        public bool FailPrepare;
-        public string ParticipantId { get { return "fake-growth"; } }
-        public IReadOnlyList<string> OwnedSlices { get; } = new[] { "/crops" };
-
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, IStatePlan plan)
-        {
-            if (FailPrepare)
-                return Outcome<StateReplacement>.Fail(ResultCodes.InvariantViolation, basis.Revision, new Diagnostic("GROWTH_REFUSED", "growth refused the day", null, "accepted", "refused"));
-            var items = new List<DataNode>(basis.Slice("crops").Items);
-            foreach (var change in plan.Changes)
-            {
-                if (change.ParticipantId != ParticipantId) continue;
-                items.Add(change.Payload.Members["day"]);
-            }
-
-            return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { Nodes.P("/crops", DataNode.FromList(items)) }), basis.Revision);
-        }
-    }
-
-    internal enum ConsumerMode { Normal, ReturnNull, Throw, TargetClock, TargetGhost }
-
-    internal sealed class FakeConsumer : IDayBoundaryConsumer
-    {
-        public ConsumerMode Mode;
-        public int Calls;
-
-        public FakeConsumer(string id) { ConsumerId = id; }
-
-        public string ConsumerId { get; }
-
-        public PlannedChange Plan(StateSnapshot basis, DayBoundary boundary)
-        {
-            Calls++;
-            switch (Mode)
-            {
-                case ConsumerMode.ReturnNull: return null;
-                case ConsumerMode.Throw: throw new InvalidOperationException("consumer exploded");
-                case ConsumerMode.TargetClock: return Nodes.Advance(1);
-                case ConsumerMode.TargetGhost: return new PlannedChange("ghost", "grow", Nodes.Obj(Nodes.P("day", Nodes.Int(boundary.Day))));
-                default: return Nodes.Grow(boundary.Day);
-            }
         }
     }
 
@@ -170,11 +119,8 @@ namespace MagicCampus.Tests.Time
         public IStateStore Store;
         public CompletionPump Pump;
         public Calendar Calendar;
-        public DayBoundaryConsumerRegistry Consumers;
         public ClockParticipant Participant;
         public ClockService Clock;
-        public FakeConsumer Growth;
-        public FakeGrowthParticipant GrowthParticipant;
 
         public static readonly string[] UntouchedFields = { "saveVersion", "player", "npcs", "inventory", "flags" };
 
@@ -186,7 +132,6 @@ namespace MagicCampus.Tests.Time
                 Nodes.P("npcs", Nodes.List(Nodes.Obj(Nodes.P("npcId", Nodes.Str("mina")), Nodes.P("mapId", Nodes.Str("hall")), Nodes.P("x", DataNode.FromNumber(1.25))))),
                 Nodes.P("inventory", Nodes.Obj(Nodes.P("herb", Nodes.Int(2)))),
                 Nodes.P("flags", Nodes.Obj()),
-                Nodes.P("crops", Nodes.List()),
                 Nodes.P("clock", Nodes.Obj(
                     Nodes.P("absoluteMinute", Nodes.Int(absoluteMinute)),
                     Nodes.P("fraction", DataNode.FromNumber(fraction)),
@@ -195,30 +140,25 @@ namespace MagicCampus.Tests.Time
                 Nodes.P("returnPending", DataNode.FromBool(returnPending)));
         }
 
-        public static TimeWorld Create(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending = false, bool registerGrowth = true)
+        public static TimeWorld Create(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending = false)
         {
-            return Create(BuildRoot(absoluteMinute, fraction, dayJobs, returnPending), 1, registerGrowth);
+            return Create(BuildRoot(absoluteMinute, fraction, dayJobs, returnPending), 1);
         }
 
-        public static TimeWorld Create(DataNode root, long revision, bool registerGrowth)
+        public static TimeWorld Create(DataNode root, long revision)
         {
             var w = new TimeWorld();
             w.Calendar = new Calendar();
-            w.Consumers = new DayBoundaryConsumerRegistry();
-            w.Growth = new FakeConsumer("growth");
-            Check.True(w.Consumers.Register(w.Growth).Status == OperationStatus.Succeeded, "growth consumer registers");
-            w.Participant = new ClockParticipant(w.Calendar, w.Consumers);
-            w.GrowthParticipant = new FakeGrowthParticipant();
+            w.Participant = new ClockParticipant(w.Calendar);
 
             var registry = new StateParticipantRegistry();
             RegisterOk(registry, w.Participant);
             RegisterOk(registry, new FakeEventParticipant());
-            if (registerGrowth) RegisterOk(registry, w.GrowthParticipant);
             registry.Seal();
 
             w.Pump = new CompletionPump();
             w.Store = new StateStore(new StateSnapshot(revision, root), registry, new IStateInvariant[0], w.Pump, new PersistedCompletionReplayPolicy());
-            w.Clock = new ClockService(w.Store, w.Calendar, w.Consumers);
+            w.Clock = new ClockService(w.Store, w.Calendar);
             return w;
         }
 
@@ -230,7 +170,6 @@ namespace MagicCampus.Tests.Time
         public long Minute { get { return Calendar.FromSnapshot(Store.Current).AbsoluteMinute; } }
         public double Fraction { get { return Calendar.FromSnapshot(Store.Current).Fraction; } }
         public bool Pending { get { return Store.Current.Slice("returnPending").Bool; } }
-        public int CropCount { get { return Store.Current.Slice("crops").Items.Count; } }
 
         public List<string> Jobs
         {

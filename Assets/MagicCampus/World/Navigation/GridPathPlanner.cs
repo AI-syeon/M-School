@@ -7,10 +7,12 @@ namespace MagicCampus.World.Navigation
     /// <summary>
     /// Footprint-aware 8-way A* over the tile centres of one map. Every step is checked with the collision port
     /// (cell passability plus a swept move), so a returned path never crosses a wall for the given radius.
-    /// The search is bounded by the cell count and by NavigationOptions.MaxExpansions.
+    /// The search is bounded by the cell count and by MaxExpansions.
     /// </summary>
     public sealed class GridPathPlanner
     {
+        private const int MaxExpansions = 250000;
+        private const int MaxCells = 4000000;
         private const double ExactReach = 2.0;
         private static readonly int[] Dx = { 1, -1, 0, 0, 1, 1, -1, -1 };
         private static readonly int[] Dy = { 0, 0, 1, -1, 1, -1, 1, -1 };
@@ -18,13 +20,11 @@ namespace MagicCampus.World.Navigation
 
         private readonly ICollisionPort collision;
         private readonly IMapGeometry geometry;
-        private readonly NavigationOptions options;
 
-        public GridPathPlanner(ICollisionPort collision, IMapGeometry geometry, NavigationOptions options = null)
+        public GridPathPlanner(ICollisionPort collision, IMapGeometry geometry)
         {
             this.collision = collision ?? throw new ArgumentNullException(nameof(collision));
             this.geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
-            this.options = options ?? NavigationOptions.Default;
         }
 
         /// <summary>Plans on the map shared by start and goal. The goal counts as reached within tolerance tiles.</summary>
@@ -50,7 +50,7 @@ namespace MagicCampus.World.Navigation
             var width = map.Width;
             var height = map.Height;
             var cellCount = (long)width * height;
-            if (cellCount > options.MaxCells) return PathPlan.Failure(PathStatus.NoRoute, "MAP_TOO_LARGE", 0);
+            if (cellCount > MaxCells) return PathPlan.Failure(PathStatus.NoRoute, "MAP_TOO_LARGE", 0);
             var n = (int)cellCount;
             var g = new double[n];
             var parent = new int[n];
@@ -73,7 +73,7 @@ namespace MagicCampus.World.Navigation
                 var idx = heap.Pop();
                 if (closed[idx]) continue;
                 closed[idx] = true;
-                if (++expansions > options.MaxExpansions)
+                if (++expansions > MaxExpansions)
                 {
                     if (bestIdx < 0) return PathPlan.Failure(PathStatus.NoRoute, "EXPANSION_LIMIT", expansions);
                     break;

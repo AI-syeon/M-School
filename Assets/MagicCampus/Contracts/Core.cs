@@ -162,9 +162,6 @@ namespace MagicCampus.Contracts
     {
         /// <summary>Runs action on the next tick, never synchronously inside Post.</summary>
         void Post(Action action);
-
-        /// <summary>Same as Post, tagged with a key so completions can be traced and deduplicated.</summary>
-        void Post(CompletionKey key, Action action);
     }
 
     public sealed class Lease

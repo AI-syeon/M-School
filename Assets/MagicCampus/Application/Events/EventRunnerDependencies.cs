@@ -44,7 +44,6 @@ namespace MagicCampus.Events
         public IPresentationPort Presentation { get; set; }
         public IPresentationLifetime PresentationLifetime { get; set; }
         public ITickClock Clock { get; set; }
-        public IDomainOperationRegistry Operations { get; set; }
         public IEventCommitPlanner CommitPlanner { get; set; }
         public IStateStore Store { get; set; }
         public IWorldStateProjector Projector { get; set; }
@@ -62,7 +61,7 @@ namespace MagicCampus.Events
         public long MaxInstructionsPerRun { get; set; } = 100000;
         public Action<EventTraceEntry> Trace { get; set; }
 
-        /// <summary>Optional authoritative once-ledger check. When null, a once event without perform is dry-run planned by IEventCommitPlanner before leasing.</summary>
+        /// <summary>Optional authoritative once-ledger check. When null, a once event is dry-run planned by IEventCommitPlanner before leasing.</summary>
         public Func<CompiledEvent, StateSnapshot, bool> RepeatBlocked { get; set; }
 
         internal EventRunnerDependencies Validated()
@@ -76,7 +75,6 @@ namespace MagicCampus.Events
             Need(Presentation, nameof(Presentation));
             Need(PresentationLifetime, nameof(PresentationLifetime));
             Need(Clock, nameof(Clock));
-            Need(Operations, nameof(Operations));
             Need(CommitPlanner, nameof(CommitPlanner));
             Need(Store, nameof(Store));
             Need(Projector, nameof(Projector));

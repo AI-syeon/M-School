@@ -14,17 +14,18 @@ namespace MagicCampus.Application.Reservations
         public const string AcceptOperation = "accept";
         public const string CompleteOperation = "complete";
 
+        private const string EventCompletionParticipantId = "event-effects";
+        private const string EventCompletionOperation = "event.complete";
+
         private static readonly IReadOnlyList<string> Owned = Array.AsReadOnly(new[] { AppointmentCodec.Pointer });
 
         private readonly ICatalogProvider catalog;
         private readonly ICompletionLedger ledger;
-        private readonly ReservationOptions options;
 
-        public ReservationParticipant(ICatalogProvider catalog, ICompletionLedger ledger, ReservationOptions options = null)
+        public ReservationParticipant(ICatalogProvider catalog, ICompletionLedger ledger)
         {
             this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             this.ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
-            this.options = options ?? ReservationOptions.Default;
         }
 
         public string ParticipantId => Id;
@@ -105,7 +106,7 @@ namespace MagicCampus.Application.Reservations
 
             if (!HasEventCompletion(plan, ev.Id))
                 return Reject(ResultCodes.TransactionMismatch, basis, "reservation complete is only valid in the success plan of the same event", ev.Id,
-                    options.EventCompletionParticipantId + "/" + options.EventCompletionOperation, "absent");
+                    EventCompletionParticipantId + "/" + EventCompletionOperation, "absent");
 
             if (index >= 0) rows.RemoveAt(index);
             return null;
@@ -115,7 +116,7 @@ namespace MagicCampus.Application.Reservations
         {
             foreach (var c in plan.Changes)
             {
-                if (c.ParticipantId != options.EventCompletionParticipantId || c.Operation != options.EventCompletionOperation) continue;
+                if (c.ParticipantId != EventCompletionParticipantId || c.Operation != EventCompletionOperation) continue;
                 if (ReservationRules.TryString(c.Payload, "eventId", out var id) && id == eventId) return true;
             }
             return false;

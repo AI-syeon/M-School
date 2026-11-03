@@ -495,7 +495,6 @@ namespace MagicCampus.Tests.State
             private readonly List<Action> pending = new List<Action>();
             public int Pending => pending.Count;
             public void Post(Action action) { pending.Add(action); }
-            public void Post(CompletionKey key, Action action) { pending.Add(action); }
             public void Drain()
             {
                 var run = pending.ToArray();

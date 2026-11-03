@@ -75,15 +75,14 @@ namespace MagicCampus.Tests.ContentValidation
       var pump = new MagicCampus.Runtime.CompletionPump();
       var registry = new MagicCampus.Transactions.Core.StateParticipantRegistry();
       var calendar = new MagicCampus.Timekeeping.Calendar();
-      var consumers = new MagicCampus.Timekeeping.DayBoundaryConsumerRegistry();
       Check(registry.Register(new MagicCampus.Transactions.Effects.EventEffectsParticipant(cat)).Status == OperationStatus.Succeeded, "effects registration");
-      Check(registry.Register(new MagicCampus.Timekeeping.ClockParticipant(calendar, consumers)).Status == OperationStatus.Succeeded, "clock registration");
+      Check(registry.Register(new MagicCampus.Timekeeping.ClockParticipant(calendar)).Status == OperationStatus.Succeeded, "clock registration");
       Check(registry.Register(new MagicCampus.World.Movement.WorldCommitParticipant(actors, geometry)).Status == OperationStatus.Succeeded, "world registration");
       registry.Seal();
       var invariant = new SaveStateValidator(cat, e.SaveSchema.Root, e.Schema);
       var store = new MagicCampus.State.StateStore(new StateSnapshot(0, e.Save.Root), registry, new[] { invariant }, pump, new MagicCampus.Transactions.Core.PersistedCompletionReplayPolicy());
       var before = store.Current;
-      var clock = new MagicCampus.Timekeeping.ClockService(store, calendar, consumers);
+      var clock = new MagicCampus.Timekeeping.ClockService(store, calendar);
       var eventDefinition = cat.FindEvent("event.snack");
       Check(new MagicCampus.Transactions.Conditions.ConditionEvaluator(cat).Evaluate(eventDefinition.When, before).Satisfied, "real intro condition");
       Check(actors.SetPosition("player", new Position("map.lounge", .5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual player projection setup");

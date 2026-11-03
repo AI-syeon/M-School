@@ -4,27 +4,6 @@ using MagicCampus.Contracts;
 
 namespace MagicCampus.Application.Schedules
 {
-    public sealed class ReservedStagingOptions
-    {
-        public static readonly ReservedStagingOptions Default = new ReservedStagingOptions("snapshot.world", "player", "input.player", 60, "stage:");
-
-        public string WorldResource { get; }
-        public string PlayerActorId { get; }
-        public string PlayerResource { get; }
-        public double TimeoutSeconds { get; }
-        public string OwnerTokenPrefix { get; }
-
-        public ReservedStagingOptions(string worldResource, string playerActorId, string playerResource, double timeoutSeconds, string ownerTokenPrefix)
-        {
-            WorldResource = IdGuard.Require(worldResource, nameof(worldResource));
-            PlayerActorId = IdGuard.Require(playerActorId, nameof(playerActorId));
-            PlayerResource = IdGuard.Require(playerResource, nameof(playerResource));
-            if (double.IsNaN(timeoutSeconds) || double.IsInfinity(timeoutSeconds) || timeoutSeconds <= 0) throw new ArgumentOutOfRangeException(nameof(timeoutSeconds));
-            TimeoutSeconds = timeoutSeconds;
-            OwnerTokenPrefix = IdGuard.Require(ownerTokenPrefix, nameof(ownerTokenPrefix));
-        }
-    }
-
     /// <summary>
     /// Staging after the runner holds the lease. The event row's staging field selects the policy:
     /// current only cancels ambient moves of leased NPCs and succeeds without moving anyone;
@@ -37,6 +16,12 @@ namespace MagicCampus.Application.Schedules
         public const string StagingField = "staging";
         public const string CurrentStaging = "current";
         public const string ReservedStaging = "reserved";
+
+        private const string WorldResource = "snapshot.world";
+        private const string PlayerActorId = "player";
+        private const string PlayerResource = "input.player";
+        private const double TimeoutSeconds = 60;
+        private const string OwnerTokenPrefix = "stage:";
 
         private enum AbortKind { None, Cancel, Timeout }
 
@@ -60,7 +45,6 @@ namespace MagicCampus.Application.Schedules
         private readonly Func<CompiledEvent, Lease, Outcome<ReservedJoinPlan>> planner;
         private readonly Action<bool> setHidden;
         private readonly Func<IReadOnlyList<string>, IHandle> stopAmbient;
-        private readonly ReservedStagingOptions options;
         private readonly List<StageOp> ops = new List<StageOp>();
         private double elapsed;
 
@@ -69,7 +53,7 @@ namespace MagicCampus.Application.Schedules
         /// <param name="stopAmbient">Optional; cancels ambient moves of the given actor ids and completes when they are terminal.</param>
         public ReservedStagingService(IActorWorld world, IMapPort map, ICollisionPort collision, IHandleFactory handles,
             Func<CompiledEvent, Lease, Outcome<ReservedJoinPlan>> planner, Action<bool> setHidden,
-            Func<IReadOnlyList<string>, IHandle> stopAmbient, ReservedStagingOptions options = null)
+            Func<IReadOnlyList<string>, IHandle> stopAmbient)
         {
             this.world = world ?? throw new ArgumentNullException(nameof(world));
             this.map = map ?? throw new ArgumentNullException(nameof(map));
@@ -78,7 +62,6 @@ namespace MagicCampus.Application.Schedules
             this.planner = planner;
             this.setHidden = setHidden;
             this.stopAmbient = stopAmbient;
-            this.options = options ?? ReservedStagingOptions.Default;
         }
 
         public int ActiveCount => ops.Count;
@@ -109,7 +92,7 @@ namespace MagicCampus.Application.Schedules
             if (double.IsNaN(unpausedSeconds) || double.IsInfinity(unpausedSeconds) || unpausedSeconds < 0) throw new ArgumentOutOfRangeException(nameof(unpausedSeconds));
             elapsed += unpausedSeconds;
             foreach (var op in ops.ToArray())
-                if (op.Abort == AbortKind.None && elapsed - op.StartedAt >= options.TimeoutSeconds)
+                if (op.Abort == AbortKind.None && elapsed - op.StartedAt >= TimeoutSeconds)
                     Abort(op, AbortKind.Timeout, "stage watchdog expired");
         }
 
@@ -145,7 +128,7 @@ namespace MagicCampus.Application.Schedules
                     return Refuse(controller, ResultCodes.ResourceBusy, D(ResultCodes.ResourceBusy, "another reserved stage is running", definition.Id, "idle", running.Definition.Id));
 
             var held = new HashSet<string>(lease.Resources, StringComparer.Ordinal);
-            var required = new SortedSet<string>(definition.Resources, StringComparer.Ordinal) { options.WorldResource };
+            var required = new SortedSet<string>(definition.Resources, StringComparer.Ordinal) { WorldResource };
             var missing = new List<Diagnostic>();
             foreach (var resource in required)
                 if (!held.Contains(resource))
@@ -190,7 +173,7 @@ namespace MagicCampus.Application.Schedules
                 return;
             }
 
-            Await(op, map.Load(op.Plan.TargetMapId, options.OwnerTokenPrefix + op.Definition.Id), result =>
+            Await(op, map.Load(op.Plan.TargetMapId, OwnerTokenPrefix + op.Definition.Id), result =>
             {
                 if (result.Status == OperationStatus.Succeeded) ApplyJoin(op);
                 else FailOp(op, result.Code, result.Details);
@@ -239,7 +222,7 @@ namespace MagicCampus.Application.Schedules
                     continue;
                 }
                 var leased = held.Contains(placement.ActorId)
-                    || (placement.ActorId == options.PlayerActorId && held.Contains(options.PlayerResource));
+                    || (placement.ActorId == PlayerActorId && held.Contains(PlayerResource));
                 if (!leased)
                 {
                     problems.Add(D(ResultCodes.ResourceBusy, "planned actor is not covered by the lease", placement.ActorId, "leased actor", "not leased"));
@@ -255,7 +238,7 @@ namespace MagicCampus.Application.Schedules
         {
             var ids = new SortedSet<string>(StringComparer.Ordinal);
             foreach (var resource in lease.Resources)
-                if (resource != options.PlayerActorId && world.Find(resource) != null) ids.Add(resource);
+                if (resource != PlayerActorId && world.Find(resource) != null) ids.Add(resource);
             return new List<string>(ids);
         }
 
@@ -297,7 +280,7 @@ namespace MagicCampus.Application.Schedules
             Unhide(op);
             ops.Remove(op);
             if (op.Abort == AbortKind.Timeout)
-                op.Handle.Fail(ResultCodes.Timeout, 0, new[] { D(ResultCodes.Timeout, "stage watchdog expired", op.Definition.Id, "finish within " + options.TimeoutSeconds + "s", "timed out") });
+                op.Handle.Fail(ResultCodes.Timeout, 0, new[] { D(ResultCodes.Timeout, "stage watchdog expired", op.Definition.Id, "finish within " + TimeoutSeconds + "s", "timed out") });
             else
                 op.Handle.Cancelled(op.AbortReason, 0);
         }

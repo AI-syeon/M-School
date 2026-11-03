@@ -6,8 +6,7 @@ namespace MagicCampus.Timekeeping
 {
     /// <summary>
     /// State participant "clock". Owns /clock, /dayJobs and /returnPending. The only operation is advance {minutes}.
-    /// Several advances in one plan are applied in order. Every crossed midnight is recorded once in dayJobs
-    /// (boundary.day_dN and consumer.&lt;consumerId&gt;.day_dN) and only when the consumer's coupled change is part of the same plan.
+    /// Several advances in one plan are applied in order. Every crossed midnight is recorded once in dayJobs (boundary.day_dN).
     /// Prepare never writes the store.
     /// </summary>
     public sealed class ClockParticipant : IStateParticipant
@@ -19,13 +18,11 @@ namespace MagicCampus.Timekeeping
         public const string ReturnPendingPointer = "/returnPending";
 
         private readonly ICalendar calendar;
-        private readonly DayBoundaryConsumerRegistry consumers;
         private readonly IReadOnlyList<string> owned = Array.AsReadOnly(new[] { ClockPointer, DayJobsPointer, ReturnPendingPointer });
 
-        public ClockParticipant(ICalendar calendar, DayBoundaryConsumerRegistry consumers)
+        public ClockParticipant(ICalendar calendar)
         {
             this.calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
-            this.consumers = consumers ?? throw new ArgumentNullException(nameof(consumers));
         }
 
         public string ParticipantId => Id;
@@ -54,16 +51,11 @@ namespace MagicCampus.Timekeeping
 
             var time = state.Time;
             var boundaries = new List<DayBoundary>();
-            var foreign = new List<PlannedChange>();
             var advances = 0;
 
             foreach (var change in plan.Changes)
             {
-                if (change.ParticipantId != Id)
-                {
-                    foreign.Add(change);
-                    continue;
-                }
+                if (change.ParticipantId != Id) continue;
 
                 if (change.Operation != AdvanceOperation)
                     return Refuse(ResultCodes.Unregistered, basis.Revision,
@@ -92,37 +84,9 @@ namespace MagicCampus.Timekeeping
                 return Outcome<StateReplacement>.Ok(new StateReplacement(new KeyValuePair<string, DataNode>[0]), basis.Revision);
 
             var done = new HashSet<string>(state.DayJobs, StringComparer.Ordinal);
-            if (!BoundaryJobs.TryCollect(consumers, basis, done, boundaries, out var work, out var workProblems))
-                return Refuse(ResultCodes.ContentInvalid, basis.Revision, workProblems);
-
-            var missing = new List<Diagnostic>();
-            foreach (var item in work)
-            {
-                var index = IndexOfEqual(foreign, item.Change);
-                if (index < 0)
-                {
-                    missing.Add(TimeDiagnostics.Make("COUPLED_CHANGE_MISSING", string.Empty,
-                        "consumer " + item.Consumer.ConsumerId + " change for " + item.Boundary.Key.Value + " is not part of the plan",
-                        item.Change.ParticipantId + "/" + item.Change.Operation, "absent"));
-                    continue;
-                }
-
-                foreign.RemoveAt(index);
-            }
-
-            if (missing.Count > 0) return Refuse(ResultCodes.TransactionMismatch, basis.Revision, missing);
-
             var jobs = new List<string>(state.DayJobs);
             foreach (var boundary in boundaries)
-            {
                 if (done.Add(boundary.Key.Value)) jobs.Add(boundary.Key.Value);
-                foreach (var item in work)
-                {
-                    if (item.Boundary.Day != boundary.Day) continue;
-                    var key = BoundaryJobs.ConsumerKey(item.Consumer.ConsumerId, boundary.Day);
-                    if (done.Add(key)) jobs.Add(key);
-                }
-            }
 
             var jobNodes = new List<DataNode>();
             foreach (var job in jobs) jobNodes.Add(DataNode.FromString(job));
@@ -160,17 +124,6 @@ namespace MagicCampus.Timekeeping
             }
 
             return Calendar.TryCheckMinutes(minutes, out problem);
-        }
-
-        private static int IndexOfEqual(List<PlannedChange> changes, PlannedChange wanted)
-        {
-            for (var i = 0; i < changes.Count; i++)
-            {
-                var c = changes[i];
-                if (c.ParticipantId == wanted.ParticipantId && c.Operation == wanted.Operation && c.Payload.Equals(wanted.Payload)) return i;
-            }
-
-            return -1;
         }
 
         private static Outcome<StateReplacement> Refuse(string code, long revision, IReadOnlyList<Diagnostic> details)

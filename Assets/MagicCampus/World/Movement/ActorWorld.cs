@@ -32,16 +32,13 @@ namespace MagicCampus.World.Movement
 
         private readonly object gate = new object();
         private readonly IMapGeometry geometry;
-        private readonly Func<string, bool> writerPolicy;
         private volatile View view;
         private long version;
 
-        /// <param name="writerPolicy">Optional extra check of the owner token; null accepts any well-formed token.</param>
         /// <exception cref="ArgumentException">Duplicate actor ids, unknown maps or positions outside their map.</exception>
-        public ActorWorld(IMapGeometry geometry, IEnumerable<ActorState> initial, Func<string, bool> writerPolicy = null)
+        public ActorWorld(IMapGeometry geometry, IEnumerable<ActorState> initial)
         {
             this.geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
-            this.writerPolicy = writerPolicy;
             var problems = new List<Diagnostic>();
             var actors = Validate(initial, problems);
             if (actors == null) throw new ArgumentException(Describe(problems), nameof(initial));
@@ -66,7 +63,6 @@ namespace MagicCampus.World.Movement
             lock (gate)
             {
                 if (!ValidToken(ownerToken)) return Refuse(ResultCodes.ContentInvalid, "OWNER_TOKEN_INVALID", "a non-empty owner token without whitespace is required");
-                if (writerPolicy != null && !writerPolicy(ownerToken)) return Refuse(ResultCodes.OutOfScope, "WRITER_NOT_AUTHORIZED", "owner token is not allowed to write positions");
                 var current = view.Find(actorId);
                 if (current == null) return Refuse(ResultCodes.RefNotFound, "ACTOR_UNKNOWN", "actor is not in the world");
                 var problem = CheckPosition(position, actorId);
