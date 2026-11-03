@@ -46,7 +46,6 @@ namespace MagicCampus.Bootstrap.FirstConnection
     Keyboard kb;
     PauseToken harness;
     object lastWindow;
-    FieldInfo fWindow;
     IHandle<EventCompletion> evHandle;
 
     // ------------------------------------------------------------------ entry
@@ -301,12 +300,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     IEnumerator UiCase()
     {
-      if (mode == "ui-200")
-      {
-        var f = typeof(DialoguePresentation).GetField("textScale", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-        Require(f != null, "DialoguePresentation.textScale field");
-        f.SetValue(Dlg, 2.0f);
-      }
+      if (mode == "ui-200") Dlg.TextScale = 2.0f;
       var text = string.Concat(Enumerable.Repeat("마법 캠퍼스의 첫 연결 대화를 길게 확인하는 시험 문장입니다. ", 20));
       Check("ui.text-500+", text.Length >= 500, "chars " + text.Length);
       var h = CallSay(text);
@@ -383,12 +377,12 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Check("cancel.terminal-once", terminalNotifications == 1, "notifications " + terminalNotifications);
         yield break;
       }
-      var opts = Fld("Options") as ChoiceOption[];
+      var opts = Dlg.CurrentOptions;
       var idx = -1;
       for (var i = 0; opts != null && i < opts.Length; i++) if (opts[i].Key.IndexOf(hint, StringComparison.OrdinalIgnoreCase) >= 0) { idx = i; break; }
       Check("choice.target-found", idx >= 0, "hint '" + hint + "' in [" + string.Join(",", (opts ?? new ChoiceOption[0]).Select(o => o.Key).ToArray()) + "]");
       if (idx < 0) idx = 0;
-      for (var n = 0; opts != null && n < opts.Length && (int)Fld("Focus") != idx; n++) { Rec("Dialogue.Navigate(Down)", "public command"); Dlg.Navigate(NavDirection.Down); yield return null; }
+      for (var n = 0; opts != null && n < opts.Length && Dlg.FocusIndex != idx; n++) { Rec("Dialogue.Navigate(Down)", "public command"); Dlg.Navigate(NavDirection.Down); yield return null; }
       yield return Shot("choose");
       var win = Win();
       Rec("Confirm(Enter)", "virtual Keyboard on choice");
@@ -404,7 +398,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         {
           lastWindow = w;
           yield return Frames(2);
-          branchTexts.Add(Fld("Text") as string ?? "");
+          branchTexts.Add(Dlg.CurrentText);
           if (branchTexts.Count == 1) yield return Shot("branch");
           Rec("Dialogue.Confirm", "public command"); Dlg.Confirm();
         }
@@ -481,21 +475,9 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     // ------------------------------------------------------------------ state readers
 
-    object Win()
-    {
-      if (fWindow == null) fWindow = typeof(DialoguePresentation).GetField("window", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-      return fWindow == null ? null : fWindow.GetValue(Dlg);
-    }
+    object Win() { return Dlg.WindowIdentity; }
 
-    object Fld(string name)
-    {
-      var w = Win();
-      if (w == null) return null;
-      var f = w.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-      return f == null ? null : f.GetValue(w);
-    }
-
-    DialogueWindowKind Kind() { var k = Fld("Kind"); return k == null ? DialogueWindowKind.None : (DialogueWindowKind)k; }
+    DialogueWindowKind Kind() { return Dlg.ActiveWindow; }
 
     long? Wallet()
     {

@@ -10,11 +10,8 @@
   "allowUnsafeCode": false,
   "overrideReferences": true,
   "precompiledReferences": [
-        "Newtonsoft.Json.dll",
-        "JsonSchema.Net.dll",
-        "JsonPointer.Net.dll",
-        "Json.More.dll",
-        "Humanizer.dll"
+    "JsonSchema.Net.dll",
+    "JsonPointer.Net.dll"
   ],
   "autoReferenced": true,
   "defineConstraints": [],

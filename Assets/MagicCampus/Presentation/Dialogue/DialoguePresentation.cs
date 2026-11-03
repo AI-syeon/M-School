@@ -21,7 +21,6 @@ namespace MagicCampus.Presentation.Dialogue
     [DisallowMultipleComponent]
     public sealed class DialoguePresentation : MonoBehaviour, IPresentationPort, IPresentationLifetime, IRuntimeTick, IDialogueUiCommands
     {
-        public const string ResourcePath = "MagicCampus/Dialogue";
         static readonly PauseSet WindowPause = new PauseSet(true, false, true, false, false);
 
         [SerializeField] float textScale = 1f;
@@ -75,6 +74,8 @@ namespace MagicCampus.Presentation.Dialogue
         public int FocusIndex { get { return window == null ? -1 : window.Focus; } }
         public int OptionCount { get { return window == null ? 0 : window.Options.Length; } }
         public int TextScrollLines { get { return window == null ? 0 : window.ScrollLines; } }
+        public object WindowIdentity { get { return window; } }
+        public ChoiceOption[] CurrentOptions { get { return window == null ? null : window.Options; } }
         public string CameraOwner { get { return director == null ? null : director.CameraOwner; } }
 
         /// <summary>Pause tokens, camera holds and visual holds still outstanding. Zero after everything is closed.</summary>
