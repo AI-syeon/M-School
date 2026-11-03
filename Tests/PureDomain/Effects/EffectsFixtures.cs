@@ -227,7 +227,7 @@ namespace MagicCampus.Tests.Effects
             Fx.Require(registry.Register(new EventEffectsParticipant(catalog)).Status == OperationStatus.Succeeded, "register event-effects");
             Fx.Require(registry.Register(new FakeClockParticipant()).Status == OperationStatus.Succeeded, "register fake clock");
             registry.Seal();
-            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), registry, new IStateInvariant[0], new CompletionPump(), NoCompletionReplayPolicy.Instance);
+            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), registry, new IStateInvariant[0], new CompletionPump(), new PersistedCompletionReplayPolicy());
             Effects = EffectPlanner.CreateMinimal(catalog);
             Planner = new EventCommitPlanner(Effects, Clock, World, catalog);
             Conditions = new ConditionEvaluator(catalog);

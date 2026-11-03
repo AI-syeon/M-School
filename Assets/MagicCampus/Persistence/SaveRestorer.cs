@@ -11,17 +11,15 @@ namespace MagicCampus.Persistence
     /// </summary>
     public sealed class SaveRestorer : ISaveRestorer
     {
-        private readonly ISaveMigrationRegistry migrations;
         private readonly IDataCodec codec;
         private readonly ISchemaValidationPort schemaPort;
         private readonly DataNode saveSchema;
         private readonly Func<ICatalog, IStateInvariant> referenceValidatorFactory;
         private readonly IReadOnlyList<IStateInvariant> invariants;
 
-        public SaveRestorer(ISaveMigrationRegistry migrations, IDataCodec codec, ISchemaValidationPort schemaPort, DataNode saveSchema,
+        public SaveRestorer(IDataCodec codec, ISchemaValidationPort schemaPort, DataNode saveSchema,
             Func<ICatalog, IStateInvariant> referenceValidatorFactory, IEnumerable<IStateInvariant> invariants)
         {
-            this.migrations = migrations ?? throw new ArgumentNullException(nameof(migrations));
             this.codec = codec ?? throw new ArgumentNullException(nameof(codec));
             this.schemaPort = schemaPort ?? throw new ArgumentNullException(nameof(schemaPort));
             this.saveSchema = saveSchema ?? throw new ArgumentNullException(nameof(saveSchema));
@@ -45,8 +43,8 @@ namespace MagicCampus.Persistence
             var sum = SaveHash.Sha256Hex(payload);
             if (!string.Equals(sum, envelope.Checksum, StringComparison.Ordinal))
                 return Bad(ResultCodes.ContentInvalid, D("CHECKSUM_MISMATCH", "payload checksum does not match", envelope.Checksum, sum));
-            if (envelope.SaveVersion < 1 || envelope.SaveVersion > migrations.CurrentVersion)
-                return Bad(ResultCodes.SaveIncompatible, D("VERSION_UNSUPPORTED", "save version is not supported by this build", "1.." + migrations.CurrentVersion, envelope.SaveVersion.ToString()));
+            if (envelope.SaveVersion < 1 || envelope.SaveVersion > SaveFields.CurrentVersion)
+                return Bad(ResultCodes.SaveIncompatible, D("VERSION_UNSUPPORTED", "save version is not supported by this build", "1.." + SaveFields.CurrentVersion, envelope.SaveVersion.ToString()));
             if (!string.Equals(envelope.CatalogHash, catalog.CatalogHash, StringComparison.Ordinal))
                 return Bad(ResultCodes.SaveIncompatible, D("CATALOG_HASH_MISMATCH", "save was written against a different catalog", catalog.CatalogHash, envelope.CatalogHash));
 
@@ -61,7 +59,7 @@ namespace MagicCampus.Persistence
             var mismatch = CheckMetadata(root, envelope);
             if (mismatch != null) return Bad(ResultCodes.ContentInvalid, mismatch);
 
-            var migrated = migrations.Migrate(root, envelope.SaveVersion);
+            var migrated = SaveMigration.Migrate(root, envelope.SaveVersion);
             if (!migrated.Succeeded)
             {
                 var d = new List<Diagnostic>(migrated.Result.Details);
@@ -70,8 +68,8 @@ namespace MagicCampus.Persistence
             }
             var m = migrated.Value;
             DataNode ver;
-            if (!m.TryGet("saveVersion", out ver) || ver.Kind != DataKind.Integer || ver.Integer != migrations.CurrentVersion)
-                return Bad(ResultCodes.SaveIncompatible, D("MIGRATION_INCOMPLETE", "migration did not produce the current version", migrations.CurrentVersion.ToString(), ver == null ? "absent" : ver.Kind.ToString()));
+            if (!m.TryGet("saveVersion", out ver) || ver.Kind != DataKind.Integer || ver.Integer != SaveFields.CurrentVersion)
+                return Bad(ResultCodes.SaveIncompatible, D("MIGRATION_INCOMPLETE", "migration did not produce the current version", SaveFields.CurrentVersion.ToString(), ver == null ? "absent" : ver.Kind.ToString()));
 
             var shape = SaveFields.CheckRoot(m);
             if (shape.Count > 0) return Bad(ResultCodes.ContentInvalid, new List<Diagnostic>(shape).ToArray());

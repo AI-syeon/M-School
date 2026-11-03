@@ -10,13 +10,6 @@ namespace MagicCampus.Transactions.Core
         bool IsCompleted(StateSnapshot snapshot, CompletionKey key);
     }
 
-    public sealed class NoCompletionReplayPolicy : ICompletionReplayPolicy
-    {
-        public static readonly NoCompletionReplayPolicy Instance = new NoCompletionReplayPolicy();
-        private NoCompletionReplayPolicy() { }
-        public bool IsCompleted(StateSnapshot snapshot, CompletionKey key) => false;
-    }
-
     /// <summary>
     /// Looks the key up in persisted top-level ledgers (default: completed and rewardLedger).
     /// A ledger matches when it is a list containing the key as a string, or an object having the key as a member name.

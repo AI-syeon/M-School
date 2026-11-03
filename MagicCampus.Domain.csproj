@@ -10,7 +10,6 @@
     <ProjectReference Include="MagicCampus.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/MagicCampus/AssemblyMarker.cs" />
     <Compile Include="Assets/MagicCampus/Content/**/*.cs" />
     <Compile Include="Assets/MagicCampus/Runtime/**/*.cs" />
     <Compile Include="Assets/MagicCampus/State/**/*.cs" />
