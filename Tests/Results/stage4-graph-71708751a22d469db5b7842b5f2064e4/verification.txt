@@ -1,0 +1,1 @@
+PASS real production Runner + MoveService + staging + conditions + effects + clock + world + reservations + scene recovery + safe policy + real save service/disk, display/map geometry ports are test doubles; cancel=False

@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-02",
+  "scope": "document-script VM harness; not a browser and not Unity",
+  "checks": [
+    {
+      "name": "event seven steps and both choices",
+      "status": "pass"
+    },
+    {
+      "name": "previous next buttons",
+      "status": "pass"
+    },
+    {
+      "name": "route normal closed blocked",
+      "status": "pass"
+    },
+    {
+      "name": "entry and complete recovery",
+      "status": "pass"
+    },
+    {
+      "name": "all five cross-domain explanation cases",
+      "status": "pass"
+    },
+    {
+      "name": "reverse independent order and truth2 truth4 finale6",
+      "status": "pass"
+    },
+    {
+      "name": "expand collapse and domain link",
+      "status": "pass"
+    },
+    {
+      "name": "print expansion restore and print action",
+      "status": "pass"
+    },
+    {
+      "name": "hash opens target technical document",
+      "status": "pass"
+    },
+    {
+      "name": "ten embedded JSON exact identity",
+      "status": "pass"
+    },
+    {
+      "name": "function syntax section visible early",
+      "status": "pass"
+    },
+    {
+      "name": "original full table and heading preservation",
+      "status": "pass"
+    }
+  ],
+  "browserRendering": {
+    "status": "not-verified",
+    "reason": "Fresh in-app browser request to http://127.0.0.1:8765 timed out (ERR_CONNECTION_TIMED_OUT). No security bypass attempted."
+  },
+  "responsiveAndPrint": {
+    "cssPresent": true,
+    "actualViewportOrPrintRendering": "not-verified"
+  },
+  "gameRuntime": "not-implemented"
+}

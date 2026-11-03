@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "frames": [
+    {
+      "id": "door",
+      "sha256": "3a5aeaa8c6e2c6961f1253fe21c4ca2c984b15397c09d3e9454a044e94bf349a"
+    },
+    {
+      "id": "notice",
+      "sha256": "08bb94acfb59a5b45091cc4fd5a1519779f0e2afd19e48c7652b84a15b1c0ae8"
+    }
+  ],
+  "visualReview": "Codex inspected preview.png; door frame/handle and notice stand readable; prototype only"
+}

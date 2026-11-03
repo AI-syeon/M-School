@@ -1,0 +1,1418 @@
+{
+  "schema": 1,
+  "quality": "generated-source-pixelized-stage5-v1",
+  "pixelsPerUnit": 16,
+  "origin": "top-left",
+  "filter": "point",
+  "integerScale": 4,
+  "tiles": {
+    "floor.courtyard": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "floor.paving": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "floor.lounge": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "floor.grass.dark": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "wall.school": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 16,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "roof.school": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 16,
+          "y": 16,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "door": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 32,
+          "y": 16,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "notice": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 48,
+          "y": 16,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "tree": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 32,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "hedge": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 16,
+          "y": 32,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "bench": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 32,
+          "y": 32,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "fountain": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 48,
+          "y": 32,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "window": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 48,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "flowers": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 16,
+          "y": 48,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "floor.dirt": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 32,
+          "y": 48,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    },
+    "parchment": {
+      "image": "tiles/atlas.png",
+      "frames": [
+        {
+          "x": 48,
+          "y": 48,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "a8cf897e6e7e378e5600a0dd1f46f94457acb1443eee908c507c81c5fa556805"
+    }
+  },
+  "actors": {
+    "player": {
+      "image": "characters/player/sprite-sheet-alpha.png",
+      "pivot": [
+        0.5,
+        0.0625
+      ],
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 32,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 48,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        },
+        "walk": {
+          "frames": 6,
+          "fps": 9,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 64,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 80,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 96,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 112,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 128,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 144,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        }
+      },
+      "directionAnimations": {
+        "south": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "west": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "east": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "north": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        }
+      },
+      "defaultDirection": "south",
+      "sha256": "04a191dc9a20097f9909bf7b7c31306d678c43468ba8029ef80ec6526167bf38"
+    },
+    "npc.serin": {
+      "image": "characters/npc.serin/sprite-sheet-alpha.png",
+      "pivot": [
+        0.5,
+        0.0625
+      ],
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 32,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 48,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        },
+        "walk": {
+          "frames": 6,
+          "fps": 9,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 64,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 80,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 96,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 112,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 128,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 144,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        }
+      },
+      "directionAnimations": {
+        "south": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "west": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "east": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "north": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        }
+      },
+      "defaultDirection": "south",
+      "sha256": "76e78645564c3897e9520c0676ed9c8fd59c828462a525076af623e8cce2cb13"
+    },
+    "npc.mira": {
+      "image": "characters/npc.mira/sprite-sheet-alpha.png",
+      "pivot": [
+        0.5,
+        0.0625
+      ],
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 32,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 48,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        },
+        "walk": {
+          "frames": 6,
+          "fps": 9,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 64,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 80,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 96,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 112,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 128,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 144,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        }
+      },
+      "directionAnimations": {
+        "south": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 0,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "west": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 32,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "east": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 64,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        },
+        "north": {
+          "idle": {
+            "frames": 4,
+            "fps": 5,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 0,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 16,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 32,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 48,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          },
+          "walk": {
+            "frames": 6,
+            "fps": 9,
+            "loop": true,
+            "rectangles": [
+              {
+                "x": 64,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 80,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 96,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 112,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 128,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              },
+              {
+                "x": 144,
+                "y": 96,
+                "w": 16,
+                "h": 32
+              }
+            ]
+          }
+        }
+      },
+      "defaultDirection": "south",
+      "sha256": "911136579b7b7310014f168896f40b41ca4992a2f14050a05388a397c90e966a"
+    }
+  },
+  "visualRuntimeQA": "pending",
+  "maps": [
+    {
+      "id": "map.courtyard",
+      "image": "maps/map.courtyard.png",
+      "sizePixels": [
+        128,
+        96
+      ],
+      "sizeTiles": [
+        8,
+        6
+      ],
+      "pixelsPerUnit": 16,
+      "pivot": [
+        0,
+        0
+      ],
+      "worldTileToImage": "imageY = mapHeight - 1 - worldY",
+      "use": "optional static floor+blocked obstacle art; render actors/notice separately; suppress duplicate portal sprite if this image is used"
+    },
+    {
+      "id": "map.lounge",
+      "image": "maps/map.lounge.png",
+      "sizePixels": [
+        96,
+        80
+      ],
+      "sizeTiles": [
+        6,
+        5
+      ],
+      "pixelsPerUnit": 16,
+      "pivot": [
+        0,
+        0
+      ],
+      "worldTileToImage": "imageY = mapHeight - 1 - worldY",
+      "use": "optional static floor+blocked obstacle art; render actors/notice separately; suppress duplicate portal sprite if this image is used"
+    }
+  ]
+}

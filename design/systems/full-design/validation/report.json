@@ -1,0 +1,4877 @@
+{
+  "date": "2026-11-02",
+  "scope": "document and static-data only; not Unity runtime",
+  "dataFormat": "11-function-syntax.md (call columns parsed by ../tools/parse-calls.cjs, checked by schemas/functions.json)",
+  "schemaKeywordSubset": [
+    "$ref",
+    "type",
+    "required",
+    "additionalProperties",
+    "oneOf",
+    "anyOf",
+    "enum",
+    "const",
+    "pattern",
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "minItems",
+    "maxItems",
+    "uniqueItems",
+    "minLength",
+    "items"
+  ],
+  "schemaExamples": 3,
+  "semanticResult": "pass",
+  "counts": {
+    "spells": 12,
+    "classes": 24,
+    "reactions": 9,
+    "enemies": 12,
+    "regions": 4,
+    "rooms": 12,
+    "npcs": 12,
+    "relationships": 36,
+    "story": 6,
+    "activities": 36,
+    "projects": 12,
+    "plants": 12,
+    "items": 93,
+    "recipes": 48,
+    "shops": 1,
+    "creatures": 1,
+    "furniture": 20,
+    "objects": 3,
+    "scenarios": 5,
+    "dialogues": 4,
+    "endings": 3,
+    "onboarding": 6,
+    "encounters": 7,
+    "truthScenes": 2,
+    "difficultyPresets": 3,
+    "facilities": 5
+  },
+  "storyNodes": 18,
+  "functionRegistry": {
+    "kinds": {
+      "command": 9,
+      "condition": 8,
+      "effect": 9,
+      "trigger": 3,
+      "scheduleEntry": 1,
+      "goal": 3,
+      "hint": 3,
+      "behavior": 16,
+      "weakness": 1,
+      "reactionPath": 1,
+      "encounterEnemy": 1,
+      "itemQuantity": 1,
+      "itemGrant": 1,
+      "substitute": 1,
+      "finalStage": 1
+    },
+    "columns": 22
+  },
+  "callColumns": {
+    "cells": 293,
+    "calls": 566,
+    "byKind": {
+      "command": 24,
+      "condition": 26,
+      "effect": 17,
+      "trigger": 12,
+      "scheduleEntry": 5,
+      "goal": 55,
+      "hint": 90,
+      "behavior": 24,
+      "weakness": 12,
+      "reactionPath": 11,
+      "encounterEnemy": 7,
+      "itemQuantity": 182,
+      "itemGrant": 50,
+      "substitute": 48,
+      "finalStage": 3
+    },
+    "labels": 58,
+    "diagnostics": 0
+  },
+  "diagnosticCodes": [
+    "PARSE_ERROR",
+    "UNKNOWN_FUNCTION",
+    "ARG_COUNT",
+    "ARG_TYPE",
+    "REF_NOT_FOUND",
+    "REF_KIND",
+    "LABEL_DUP",
+    "FORK_NOT_FOUND",
+    "FORK_UNUSED",
+    "HANDLE_UNAWAITED",
+    "HANDLE_CONFLICT"
+  ],
+  "negativeCases": [
+    {
+      "name": "unknown-field",
+      "expectedCode": null,
+      "errors": [
+        "/spells/0: unknown typo"
+      ]
+    },
+    {
+      "name": "negative-cost",
+      "expectedCode": null,
+      "errors": [
+        "/spells/0/focusCost: minimum"
+      ]
+    },
+    {
+      "name": "unknown-template",
+      "expectedCode": null,
+      "errors": [
+        "/spells/0: unknown template"
+      ]
+    },
+    {
+      "name": "duplicate-id",
+      "expectedCode": "DUPLICATE_ID",
+      "errors": [
+        "DUPLICATE_ID: item.plant_1",
+        "REF_NOT_FOUND: /plants/1/harvestItemId item.plant_2",
+        "REF_NOT_FOUND: /plants/1/parts/leaf/itemId item.plant_2"
+      ]
+    },
+    {
+      "name": "missing-recipe-output",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "REF_NOT_FOUND: /recipes/0/outputItemId item.missing"
+      ]
+    },
+    {
+      "name": "growth-out-of-range",
+      "expectedCode": null,
+      "errors": [
+        "/plants/0/growthDays: maximum"
+      ]
+    },
+    {
+      "name": "cross-case-gate",
+      "expectedCode": null,
+      "errors": [
+        "/story/0/externalCasePrerequisites: maxItems",
+        "CROSS_CASE_GATE: case.a"
+      ]
+    },
+    {
+      "name": "reverse-internal-node",
+      "expectedCode": "NODE_ORDER",
+      "errors": [
+        "NODE_ORDER: node.a3",
+        "NODE_ORDER: node.a1",
+        "CASE_REWARD_BOUNDARY: event.a3_aftermath"
+      ]
+    },
+    {
+      "name": "path-result-difference",
+      "expectedCode": "ROUTE_MISMATCH",
+      "errors": [
+        "REF_NOT_FOUND: /story/0/deviceOutcome outcome.other",
+        "ROUTE_MISMATCH: case.a"
+      ]
+    },
+    {
+      "name": "project-and-gate",
+      "expectedCode": "PROJECT_OR",
+      "errors": [
+        "PROJECT_OR: project.p01"
+      ]
+    },
+    {
+      "name": "staff-romance",
+      "expectedCode": "ROMANCE_SCOPE",
+      "errors": [
+        "ROMANCE_SCOPE: relation.r21"
+      ]
+    },
+    {
+      "name": "bad-relation-order",
+      "expectedCode": "RELATION_ORDER",
+      "errors": [
+        "RELATION_ORDER: relation.r02"
+      ]
+    },
+    {
+      "name": "profit-loop",
+      "expectedCode": "CRAFT_PROFIT",
+      "errors": [
+        "CRAFT_PROFIT: recipe.alchemy_1",
+        "SUBSTITUTE_PROFIT: recipe.alchemy_1"
+      ]
+    },
+    {
+      "name": "bad-substitute-slot",
+      "expectedCode": "SUBSTITUTE_SLOT",
+      "errors": [
+        "SUBSTITUTE_SLOT: recipe.alchemy_1"
+      ]
+    },
+    {
+      "name": "missing-alchemy-property",
+      "expectedCode": "ALCHEMY_PROPERTIES",
+      "errors": [
+        "ALCHEMY_PROPERTIES: recipe.alchemy_1"
+      ]
+    },
+    {
+      "name": "negative-wallet",
+      "expectedCode": null,
+      "errors": [
+        "/wallet: minimum"
+      ]
+    },
+    {
+      "name": "stack-overflow",
+      "expectedCode": "STACK_LIMIT",
+      "errors": [
+        "STACK_LIMIT: item.plant_1"
+      ]
+    },
+    {
+      "name": "loan-no-scope",
+      "expectedCode": null,
+      "errors": [
+        "/stacks/0/provenance: enum",
+        "LOAN_SCOPE: item.plant_1"
+      ]
+    },
+    {
+      "name": "unknown-save-plant",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "REF_NOT_FOUND: save/plots plant.missing"
+      ]
+    },
+    {
+      "name": "future-save",
+      "expectedCode": null,
+      "errors": [
+        "/saveVersion: const"
+      ]
+    },
+    {
+      "name": "duplicate-ledger",
+      "expectedCode": null,
+      "errors": [
+        "/rewardLedger: uniqueItems"
+      ]
+    },
+    {
+      "name": "unknown-perform",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "REF_NOT_FOUND: /events/11/script event.water_practice#1 offset 14 — unknown id activity.missing"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_NOT_FOUND",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/11/script",
+        "entityId": "event.water_practice",
+        "call": "event.water_practice#1",
+        "offset": 14,
+        "message": "unknown id activity.missing",
+        "expected": "class",
+        "actual": "activity.missing"
+      }
+    },
+    {
+      "name": "missing-effects",
+      "expectedCode": null,
+      "errors": [
+        "/events/11: required effects"
+      ]
+    },
+    {
+      "name": "unknown-command",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "errors": [
+        "PRACTICE_REWARD: event.water_practice",
+        "UNKNOWN_FUNCTION: /events/11/script event.water_practice#1 offset 0 — \"eval\" is not a registered command function"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "UNKNOWN_FUNCTION",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/11/script",
+        "entityId": "event.water_practice",
+        "call": "event.water_practice#1",
+        "offset": 0,
+        "message": "\"eval\" is not a registered command function",
+        "expected": "move|await|say|choice|branch|wait|camera|animate|perform",
+        "actual": "eval"
+      }
+    },
+    {
+      "name": "count-drift",
+      "expectedCode": "BUDGET_COUNT",
+      "errors": [
+        "BUDGET_COUNT: classes"
+      ]
+    },
+    {
+      "name": "undefined-encounter-save",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "REF_NOT_FOUND: save/defeats encounter.missing"
+      ]
+    },
+    {
+      "name": "enemy-instead-of-encounter",
+      "expectedCode": "REF_KIND",
+      "errors": [
+        "REF_KIND: /events/5/script event.a3_combat#1 offset 18 — enemy.cleaner is enemy"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_KIND",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/5/script",
+        "entityId": "event.a3_combat",
+        "call": "event.a3_combat#1",
+        "offset": 18,
+        "message": "enemy.cleaner is enemy",
+        "expected": "encounter",
+        "actual": "enemy"
+      }
+    },
+    {
+      "name": "missing-main-room-help",
+      "expectedCode": "ROOM_HELP",
+      "errors": [
+        "ROOM_HELP: room.case_a1"
+      ]
+    },
+    {
+      "name": "living-seed-combo-bypass",
+      "expectedCode": "COMBO_BYPASS",
+      "errors": [
+        "COMBO_BYPASS: sprout"
+      ]
+    },
+    {
+      "name": "room-locks-player",
+      "expectedCode": "ROOM_SCENE_CONFLICT",
+      "errors": [
+        "ROOM_SCENE_CONFLICT: event.a3_combat"
+      ]
+    },
+    {
+      "name": "no-intro-gate",
+      "expectedCode": "INTRO_GATE",
+      "errors": [
+        "INTRO_GATE: class.water_basic"
+      ]
+    },
+    {
+      "name": "save-completion-disagreement",
+      "expectedCode": "SAVE_COMPLETION_MISMATCH",
+      "errors": [
+        "SAVE_COMPLETION_MISMATCH: class.lantern_basic"
+      ]
+    },
+    {
+      "name": "practice-gives-reward",
+      "expectedCode": "PRACTICE_REWARD",
+      "errors": [
+        "PRACTICE_REWARD: event.water_practice"
+      ]
+    },
+    {
+      "name": "double-class-time",
+      "expectedCode": "DOUBLE_CLASS_TIME",
+      "errors": [
+        "DOUBLE_CLASS_TIME: event.water_class"
+      ]
+    },
+    {
+      "name": "fine-cooking-unreachable",
+      "expectedCode": "FINE_UNREACHABLE",
+      "errors": [
+        "FINE_UNREACHABLE: recipe.cooking_1"
+      ]
+    },
+    {
+      "name": "record-cannot-get-light",
+      "expectedCode": "LANTERN_RECORD_UNREACHABLE",
+      "errors": [
+        "LANTERN_RECORD_UNREACHABLE: combo_5"
+      ]
+    },
+    {
+      "name": "case-reward-outside-node-boundary",
+      "expectedCode": "CASE_REWARD_BOUNDARY",
+      "errors": [
+        "CASE_REWARD_BOUNDARY: event.a3_aftermath"
+      ]
+    },
+    {
+      "name": "call-unclosed-quote",
+      "expectedCode": "PARSE_ERROR",
+      "errors": [
+        "PARSE_ERROR: /events/0/script event.snack#2 offset 49 — unclosed quote",
+        "FORK_UNUSED: /events/0/forks/notes event.snack:notes#0 offset 0 — fork \"notes\" is never called",
+        "FORK_UNUSED: /events/0/forks/tea event.snack:tea#0 offset 0 — fork \"tea\" is never called"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "PARSE_ERROR",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#2",
+        "offset": 49,
+        "message": "unclosed quote",
+        "expected": null,
+        "actual": null
+      }
+    },
+    {
+      "name": "call-negated-effect",
+      "expectedCode": "PARSE_ERROR",
+      "errors": [
+        "PARSE_ERROR: /events/10/effects event.a3_aftermath[effects]#2 offset 27 — \"!\" is only allowed on conditions"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "PARSE_ERROR",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/10/effects",
+        "entityId": "event.a3_aftermath",
+        "call": "event.a3_aftermath[effects]#2",
+        "offset": 27,
+        "message": "\"!\" is only allowed on conditions",
+        "expected": "no !",
+        "actual": "!"
+      }
+    },
+    {
+      "name": "call-stage-without-label",
+      "expectedCode": "PARSE_ERROR",
+      "errors": [
+        "PARSE_ERROR: /finalDefinition/stages final.practical[stages]#1 offset 0 — finalStage call needs a label \"name:\""
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "PARSE_ERROR",
+        "file": "examples/full-catalog.json",
+        "pointer": "/finalDefinition/stages",
+        "entityId": "final.practical",
+        "call": "final.practical[stages]#1",
+        "offset": 0,
+        "message": "finalStage call needs a label \"name:\"",
+        "expected": "label:",
+        "actual": "none"
+      }
+    },
+    {
+      "name": "call-unregistered-behavior",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "errors": [
+        "UNKNOWN_FUNCTION: /enemies/0/behavior enemy.ink[behavior]#2 offset 9 — \"teleport\" is not a registered behavior function"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "UNKNOWN_FUNCTION",
+        "file": "examples/full-catalog.json",
+        "pointer": "/enemies/0/behavior",
+        "entityId": "enemy.ink",
+        "call": "enemy.ink[behavior]#2",
+        "offset": 9,
+        "message": "\"teleport\" is not a registered behavior function",
+        "expected": "charge|ink_dispersal|root_line|seed_lure|overheat_armor|cooling_disable|dive|lantern_perch|shadow_immunity|illusion_lure|frontal_shield|supply_cut|three_ring_wave|matching_bells|frost_trail|warm_stone_lure",
+        "actual": "teleport"
+      }
+    },
+    {
+      "name": "call-commit-command-removed",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "errors": [
+        "UNKNOWN_FUNCTION: /events/3/script event.water_class#2 offset 34 — \"commit\" is not a registered command function"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "UNKNOWN_FUNCTION",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/3/script",
+        "entityId": "event.water_class",
+        "call": "event.water_class#2",
+        "offset": 34,
+        "message": "\"commit\" is not a registered command function",
+        "expected": "move|await|say|choice|branch|wait|camera|animate|perform",
+        "actual": "commit"
+      }
+    },
+    {
+      "name": "call-move-without-destination",
+      "expectedCode": "ARG_COUNT",
+      "errors": [
+        "ARG_COUNT: /events/1/script event.stage#1 offset 0 — move: wrong argument count"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "ARG_COUNT",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 0,
+        "message": "move: wrong argument count",
+        "expected": "2-2",
+        "actual": 1
+      }
+    },
+    {
+      "name": "call-say-extra-argument",
+      "expectedCode": "ARG_COUNT",
+      "errors": [
+        "ARG_COUNT: /events/0/forks/tea event.snack:tea#1 offset 0 — say: wrong argument count"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "ARG_COUNT",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/0/forks/tea",
+        "entityId": "event.snack",
+        "call": "event.snack:tea#1",
+        "offset": 0,
+        "message": "say: wrong argument count",
+        "expected": "2-2",
+        "actual": 3
+      }
+    },
+    {
+      "name": "call-timeout-not-number",
+      "expectedCode": "ARG_TYPE",
+      "errors": [
+        "ARG_TYPE: /events/1/script event.stage#1 offset 33 — move.timeout type"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "ARG_TYPE",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 33,
+        "message": "move.timeout type",
+        "expected": "number",
+        "actual": "word"
+      }
+    },
+    {
+      "name": "call-weakness-multiplier-format",
+      "expectedCode": "ARG_TYPE",
+      "errors": [
+        "ARG_TYPE: /enemies/0/weak enemy.ink[weak]#1 offset 4 — wet.multiplier format"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "ARG_TYPE",
+        "file": "examples/full-catalog.json",
+        "pointer": "/enemies/0/weak",
+        "entityId": "enemy.ink",
+        "call": "enemy.ink[weak]#1",
+        "offset": 4,
+        "message": "wet.multiplier format",
+        "expected": "^x\\d+(\\.\\d+)?$",
+        "actual": "times2"
+      }
+    },
+    {
+      "name": "call-variable-type-mismatch",
+      "expectedCode": "ARG_TYPE",
+      "errors": [
+        "ARG_TYPE: /events/0/when event.snack[when]#1 offset 20 — story.intro_done is bool"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "ARG_TYPE",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/0/when",
+        "entityId": "event.snack",
+        "call": "event.snack[when]#1",
+        "offset": 20,
+        "message": "story.intro_done is bool",
+        "expected": "bool",
+        "actual": "int"
+      }
+    },
+    {
+      "name": "call-schedule-not-ascending",
+      "expectedCode": "ARG_TYPE",
+      "errors": [
+        "ARG_TYPE: /schedules/0/script schedule.serin#2 offset 17 — entries must ascend"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "ARG_TYPE",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/schedules/0/script",
+        "entityId": "schedule.serin",
+        "call": "schedule.serin#2",
+        "offset": 17,
+        "message": "entries must ascend",
+        "expected": ">720",
+        "actual": 420
+      }
+    },
+    {
+      "name": "call-missing-ingredient-item",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "RECIPE_PROPERTIES_UNSATISFIED: recipe.alchemy_1",
+        "REF_NOT_FOUND: /recipes/0/ingredients recipe.alchemy_1[ingredients]#1 offset 0 — unknown id item.missing"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_NOT_FOUND",
+        "file": "examples/full-catalog.json",
+        "pointer": "/recipes/0/ingredients",
+        "entityId": "recipe.alchemy_1",
+        "call": "recipe.alchemy_1[ingredients]#1",
+        "offset": 0,
+        "message": "unknown id item.missing",
+        "expected": "item",
+        "actual": "item.missing"
+      }
+    },
+    {
+      "name": "call-missing-goal-label",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "REF_NOT_FOUND: /events/6/script event.a3_device#1 offset 15 — label room.case_a3:valve not found"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_NOT_FOUND",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/6/script",
+        "entityId": "event.a3_device",
+        "call": "event.a3_device#1",
+        "offset": 15,
+        "message": "label room.case_a3:valve not found",
+        "expected": "label in room.case_a3",
+        "actual": "room.case_a3:valve"
+      }
+    },
+    {
+      "name": "call-hint-goal-not-in-room",
+      "expectedCode": "REF_NOT_FOUND",
+      "errors": [
+        "REF_NOT_FOUND: /story/0/nodes/0/hints node.a1[hints]#1 offset 45 — goal=nope is not a label of room.case_a1"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_NOT_FOUND",
+        "file": "examples/full-catalog.json",
+        "pointer": "/story/0/nodes/0/hints",
+        "entityId": "node.a1",
+        "call": "node.a1[hints]#1",
+        "offset": 45,
+        "message": "goal=nope is not a label of room.case_a1",
+        "expected": "label in goals",
+        "actual": "nope"
+      }
+    },
+    {
+      "name": "call-npc-as-encounter-enemy",
+      "expectedCode": "REF_KIND",
+      "errors": [
+        "REF_KIND: /encounters/0/enemies encounter.a3[enemies]#1 offset 0 — npc.serin is npc"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_KIND",
+        "file": "examples/full-catalog.json",
+        "pointer": "/encounters/0/enemies",
+        "entityId": "encounter.a3",
+        "call": "encounter.a3[enemies]#1",
+        "offset": 0,
+        "message": "npc.serin is npc",
+        "expected": "enemy",
+        "actual": "npc"
+      }
+    },
+    {
+      "name": "call-device-goal-is-stage",
+      "expectedCode": "REF_KIND",
+      "errors": [
+        "REF_KIND: /encounters/6/deviceGoalIds encounter.final[deviceGoalIds] offset null — final.practical:flow_1 is a finalStage label"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "REF_KIND",
+        "file": "examples/full-catalog.json",
+        "pointer": "/encounters/6/deviceGoalIds",
+        "entityId": "encounter.final",
+        "call": "encounter.final[deviceGoalIds]",
+        "offset": null,
+        "message": "final.practical:flow_1 is a finalStage label",
+        "expected": "goal",
+        "actual": "finalStage"
+      }
+    },
+    {
+      "name": "call-duplicate-goal-label",
+      "expectedCode": "LABEL_DUP",
+      "errors": [
+        "LABEL_DUP: /story/0/nodes/0/goals node.a1[goals]#3 offset 116 — label \"device\" already used in room.case_a1",
+        "REF_NOT_FOUND: /story/0/nodes/0/hints node.a1[hints]#3 offset 165 — goal=repair is not a label of room.case_a1"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "LABEL_DUP",
+        "file": "examples/full-catalog.json",
+        "pointer": "/story/0/nodes/0/goals",
+        "entityId": "node.a1",
+        "call": "node.a1[goals]#3",
+        "offset": 116,
+        "message": "label \"device\" already used in room.case_a1",
+        "expected": "unique label",
+        "actual": "device"
+      }
+    },
+    {
+      "name": "call-missing-fork",
+      "expectedCode": "FORK_NOT_FOUND",
+      "errors": [
+        "FORK_NOT_FOUND: /events/0/script event.snack#3 offset 104 — fork \"tea\" is not in this row"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "FORK_NOT_FOUND",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#3",
+        "offset": 104,
+        "message": "fork \"tea\" is not in this row",
+        "expected": "notes",
+        "actual": "tea"
+      }
+    },
+    {
+      "name": "call-unused-fork",
+      "expectedCode": "FORK_UNUSED",
+      "errors": [
+        "FORK_UNUSED: /events/0/forks/extra event.snack:extra#0 offset 0 — fork \"extra\" is never called"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "FORK_UNUSED",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/0/forks/extra",
+        "entityId": "event.snack",
+        "call": "event.snack:extra#0",
+        "offset": 0,
+        "message": "fork \"extra\" is never called",
+        "expected": "choice/branch reference",
+        "actual": "extra"
+      }
+    },
+    {
+      "name": "call-handle-not-awaited",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "errors": [
+        "HANDLE_UNAWAITED: /events/1/script event.stage#4 offset 124 — await cam wave before say",
+        "HANDLE_UNAWAITED: /events/1/script event.stage#end offset 168 — list ends with open handles"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "HANDLE_UNAWAITED",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#4",
+        "offset": 124,
+        "message": "await cam wave before say",
+        "expected": "await",
+        "actual": "cam wave"
+      }
+    },
+    {
+      "name": "call-handle-left-open-at-end",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "errors": [
+        "HANDLE_UNAWAITED: /events/2/script event.lunch#end offset 49 — list ends with open handles",
+        "FORK_UNUSED: /events/2/forks/known event.lunch:known#0 offset 0 — fork \"known\" is never called",
+        "FORK_UNUSED: /events/2/forks/new event.lunch:new#0 offset 0 — fork \"new\" is never called"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "HANDLE_UNAWAITED",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/2/script",
+        "entityId": "event.lunch",
+        "call": "event.lunch#end",
+        "offset": 49,
+        "message": "list ends with open handles",
+        "expected": "await",
+        "actual": "walk"
+      }
+    },
+    {
+      "name": "call-two-writers-same-actor",
+      "expectedCode": "HANDLE_CONFLICT",
+      "errors": [
+        "HANDLE_CONFLICT: /events/1/script event.stage#3 offset 63 — npc.mira is already driven by async a"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "HANDLE_CONFLICT",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#3",
+        "offset": 63,
+        "message": "npc.mira is already driven by async a",
+        "expected": "one writer",
+        "actual": "npc.mira"
+      }
+    },
+    {
+      "name": "call-handle-reused",
+      "expectedCode": "HANDLE_CONFLICT",
+      "errors": [
+        "HANDLE_CONFLICT: /events/1/script event.stage#4 offset 101 — handle \"cam\" reused"
+      ],
+      "diagnostic": {
+        "severity": "error",
+        "code": "HANDLE_CONFLICT",
+        "file": "examples/runner-bundle.json",
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#4",
+        "offset": 101,
+        "message": "handle \"cam\" reused",
+        "expected": "new handle",
+        "actual": "cam"
+      }
+    }
+  ],
+  "independentCaseOrders": 720,
+  "sourceSections": 17,
+  "sourceRecords": 343,
+  "tracePointers": 401,
+  "screensHashMatches": 16,
+  "sourceHtmlSha256": "3d003a77121b7b62f00276b9e574de1df32bc85b98dfd48a768e61109b898c0c",
+  "budgetMinutes": 2402,
+  "derivedSymbolIndex": {
+    "note": "저작 symbols 표 대신 정의 칸·엔티티 Row·함수 사전에서 생성",
+    "count": 731,
+    "byKind": {
+      "spell": 12,
+      "class": 24,
+      "reaction": 9,
+      "enemy": 12,
+      "region": 4,
+      "room": 31,
+      "npc": 12,
+      "relationship": 36,
+      "case": 6,
+      "activity": 36,
+      "project": 12,
+      "plant": 12,
+      "item": 93,
+      "recipe": 48,
+      "shop": 1,
+      "creature": 1,
+      "furniture": 20,
+      "object": 3,
+      "scenario": 5,
+      "dialogue": 4,
+      "ending": 3,
+      "onboarding": 6,
+      "encounter": 7,
+      "truth": 2,
+      "difficulty": 3,
+      "facility": 5,
+      "final": 1,
+      "schoolRule": 1,
+      "node": 18,
+      "evidence": 18,
+      "flag": 6,
+      "projection": 21,
+      "outcome": 7,
+      "context": 27,
+      "reward": 25,
+      "completion": 54,
+      "map": 6,
+      "safePoint": 4,
+      "asset": 40,
+      "variable": 5,
+      "destination": 17,
+      "schedule": 2,
+      "event": 12,
+      "portal": 2,
+      "capability": 3,
+      "logicalObject": 55
+    },
+    "list": [
+      {
+        "id": "spell.lantern",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/0"
+      },
+      {
+        "id": "spell.levitate",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/1"
+      },
+      {
+        "id": "spell.water",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/2"
+      },
+      {
+        "id": "spell.ember",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/3"
+      },
+      {
+        "id": "spell.sprout",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/4"
+      },
+      {
+        "id": "spell.shape",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/5"
+      },
+      {
+        "id": "spell.gust",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/6"
+      },
+      {
+        "id": "spell.frost",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/7"
+      },
+      {
+        "id": "spell.echo",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/8"
+      },
+      {
+        "id": "spell.repair",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/9"
+      },
+      {
+        "id": "spell.illusion",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/10"
+      },
+      {
+        "id": "spell.barrier",
+        "kind": "spell",
+        "definedAt": "examples/full-catalog.json#/spells/11"
+      },
+      {
+        "id": "class.lantern_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/0"
+      },
+      {
+        "id": "class.lantern_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/1"
+      },
+      {
+        "id": "class.levitate_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/2"
+      },
+      {
+        "id": "class.levitate_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/3"
+      },
+      {
+        "id": "class.water_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/4"
+      },
+      {
+        "id": "class.water_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/5"
+      },
+      {
+        "id": "class.ember_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/6"
+      },
+      {
+        "id": "class.ember_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/7"
+      },
+      {
+        "id": "class.sprout_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/8"
+      },
+      {
+        "id": "class.sprout_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/9"
+      },
+      {
+        "id": "class.shape_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/10"
+      },
+      {
+        "id": "class.shape_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/11"
+      },
+      {
+        "id": "class.gust_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/12"
+      },
+      {
+        "id": "class.gust_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/13"
+      },
+      {
+        "id": "class.frost_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/14"
+      },
+      {
+        "id": "class.frost_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/15"
+      },
+      {
+        "id": "class.echo_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/16"
+      },
+      {
+        "id": "class.echo_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/17"
+      },
+      {
+        "id": "class.repair_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/18"
+      },
+      {
+        "id": "class.repair_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/19"
+      },
+      {
+        "id": "class.illusion_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/20"
+      },
+      {
+        "id": "class.illusion_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/21"
+      },
+      {
+        "id": "class.barrier_basic",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/22"
+      },
+      {
+        "id": "class.barrier_application",
+        "kind": "class",
+        "definedAt": "examples/full-catalog.json#/classes/23"
+      },
+      {
+        "id": "reaction.combo_1",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/0"
+      },
+      {
+        "id": "reaction.combo_2",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/1"
+      },
+      {
+        "id": "reaction.combo_3",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/2"
+      },
+      {
+        "id": "reaction.combo_4",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/3"
+      },
+      {
+        "id": "reaction.combo_5",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/4"
+      },
+      {
+        "id": "reaction.combo_6",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/5"
+      },
+      {
+        "id": "reaction.water_0",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/6"
+      },
+      {
+        "id": "reaction.water_1",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/7"
+      },
+      {
+        "id": "reaction.water_2",
+        "kind": "reaction",
+        "definedAt": "examples/full-catalog.json#/reactions/8"
+      },
+      {
+        "id": "enemy.ink",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/0"
+      },
+      {
+        "id": "enemy.vine",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/1"
+      },
+      {
+        "id": "enemy.cleaner",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/2"
+      },
+      {
+        "id": "enemy.bird",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/3"
+      },
+      {
+        "id": "enemy.shadow",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/4"
+      },
+      {
+        "id": "enemy.guard",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/5"
+      },
+      {
+        "id": "enemy.orb",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/6"
+      },
+      {
+        "id": "enemy.lizard",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/7"
+      },
+      {
+        "id": "enemy.variant_1",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/8"
+      },
+      {
+        "id": "enemy.variant_2",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/9"
+      },
+      {
+        "id": "enemy.variant_3",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/10"
+      },
+      {
+        "id": "enemy.variant_4",
+        "kind": "enemy",
+        "definedAt": "examples/full-catalog.json#/enemies/11"
+      },
+      {
+        "id": "region.n_1",
+        "kind": "region",
+        "definedAt": "examples/full-catalog.json#/regions/0"
+      },
+      {
+        "id": "region.n_2",
+        "kind": "region",
+        "definedAt": "examples/full-catalog.json#/regions/1"
+      },
+      {
+        "id": "region.n_3",
+        "kind": "region",
+        "definedAt": "examples/full-catalog.json#/regions/2"
+      },
+      {
+        "id": "region.n_4",
+        "kind": "region",
+        "definedAt": "examples/full-catalog.json#/regions/3"
+      },
+      {
+        "id": "room.x01",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/0"
+      },
+      {
+        "id": "room.x02",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/1"
+      },
+      {
+        "id": "room.x03",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/2"
+      },
+      {
+        "id": "room.x04",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/3"
+      },
+      {
+        "id": "room.x05",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/4"
+      },
+      {
+        "id": "room.x06",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/5"
+      },
+      {
+        "id": "room.x07",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/6"
+      },
+      {
+        "id": "room.x08",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/7"
+      },
+      {
+        "id": "room.x09",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/8"
+      },
+      {
+        "id": "room.x10",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/9"
+      },
+      {
+        "id": "room.x11",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/10"
+      },
+      {
+        "id": "room.x12",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/rooms/11"
+      },
+      {
+        "id": "npc.serin",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/0"
+      },
+      {
+        "id": "npc.ruon",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/1"
+      },
+      {
+        "id": "npc.mira",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/2"
+      },
+      {
+        "id": "npc.doyun",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/3"
+      },
+      {
+        "id": "npc.eve",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/4"
+      },
+      {
+        "id": "npc.narin",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/5"
+      },
+      {
+        "id": "npc.haeon",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/6"
+      },
+      {
+        "id": "npc.isol",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/7"
+      },
+      {
+        "id": "npc.or",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/8"
+      },
+      {
+        "id": "npc.rume",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/9"
+      },
+      {
+        "id": "npc.bello",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/10"
+      },
+      {
+        "id": "npc.yuna",
+        "kind": "npc",
+        "definedAt": "examples/full-catalog.json#/npcs/11"
+      },
+      {
+        "id": "relation.r01",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/0"
+      },
+      {
+        "id": "relation.r02",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/1"
+      },
+      {
+        "id": "relation.r03",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/2"
+      },
+      {
+        "id": "relation.r04",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/3"
+      },
+      {
+        "id": "relation.r05",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/4"
+      },
+      {
+        "id": "relation.r06",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/5"
+      },
+      {
+        "id": "relation.r07",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/6"
+      },
+      {
+        "id": "relation.r08",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/7"
+      },
+      {
+        "id": "relation.r09",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/8"
+      },
+      {
+        "id": "relation.r10",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/9"
+      },
+      {
+        "id": "relation.r11",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/10"
+      },
+      {
+        "id": "relation.r12",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/11"
+      },
+      {
+        "id": "relation.r13",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/12"
+      },
+      {
+        "id": "relation.r14",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/13"
+      },
+      {
+        "id": "relation.r15",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/14"
+      },
+      {
+        "id": "relation.r16",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/15"
+      },
+      {
+        "id": "relation.r17",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/16"
+      },
+      {
+        "id": "relation.r18",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/17"
+      },
+      {
+        "id": "relation.r19",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/18"
+      },
+      {
+        "id": "relation.r20",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/19"
+      },
+      {
+        "id": "relation.r21",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/20"
+      },
+      {
+        "id": "relation.r22",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/21"
+      },
+      {
+        "id": "relation.r23",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/22"
+      },
+      {
+        "id": "relation.r24",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/23"
+      },
+      {
+        "id": "relation.r25",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/24"
+      },
+      {
+        "id": "relation.r26",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/25"
+      },
+      {
+        "id": "relation.r27",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/26"
+      },
+      {
+        "id": "relation.r28",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/27"
+      },
+      {
+        "id": "relation.r29",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/28"
+      },
+      {
+        "id": "relation.r30",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/29"
+      },
+      {
+        "id": "relation.r31",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/30"
+      },
+      {
+        "id": "relation.r32",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/31"
+      },
+      {
+        "id": "relation.r33",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/32"
+      },
+      {
+        "id": "relation.r34",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/33"
+      },
+      {
+        "id": "relation.r35",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/34"
+      },
+      {
+        "id": "relation.r36",
+        "kind": "relationship",
+        "definedAt": "examples/full-catalog.json#/relationships/35"
+      },
+      {
+        "id": "case.a",
+        "kind": "case",
+        "definedAt": "examples/full-catalog.json#/story/0"
+      },
+      {
+        "id": "case.b",
+        "kind": "case",
+        "definedAt": "examples/full-catalog.json#/story/1"
+      },
+      {
+        "id": "case.c",
+        "kind": "case",
+        "definedAt": "examples/full-catalog.json#/story/2"
+      },
+      {
+        "id": "case.d",
+        "kind": "case",
+        "definedAt": "examples/full-catalog.json#/story/3"
+      },
+      {
+        "id": "case.e",
+        "kind": "case",
+        "definedAt": "examples/full-catalog.json#/story/4"
+      },
+      {
+        "id": "case.f",
+        "kind": "case",
+        "definedAt": "examples/full-catalog.json#/story/5"
+      },
+      {
+        "id": "activity.h01",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/0"
+      },
+      {
+        "id": "activity.h02",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/1"
+      },
+      {
+        "id": "activity.h03",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/2"
+      },
+      {
+        "id": "activity.h04",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/3"
+      },
+      {
+        "id": "activity.c01",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/4"
+      },
+      {
+        "id": "activity.c02",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/5"
+      },
+      {
+        "id": "activity.c03",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/6"
+      },
+      {
+        "id": "activity.c04",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/7"
+      },
+      {
+        "id": "activity.c05",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/8"
+      },
+      {
+        "id": "activity.c06",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/9"
+      },
+      {
+        "id": "activity.c07",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/10"
+      },
+      {
+        "id": "activity.c08",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/11"
+      },
+      {
+        "id": "activity.q01",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/12"
+      },
+      {
+        "id": "activity.q02",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/13"
+      },
+      {
+        "id": "activity.q03",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/14"
+      },
+      {
+        "id": "activity.q04",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/15"
+      },
+      {
+        "id": "activity.q05",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/16"
+      },
+      {
+        "id": "activity.q06",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/17"
+      },
+      {
+        "id": "activity.q07",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/18"
+      },
+      {
+        "id": "activity.q08",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/19"
+      },
+      {
+        "id": "activity.q09",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/20"
+      },
+      {
+        "id": "activity.q10",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/21"
+      },
+      {
+        "id": "activity.q11",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/22"
+      },
+      {
+        "id": "activity.q12",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/23"
+      },
+      {
+        "id": "activity.q13",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/24"
+      },
+      {
+        "id": "activity.q14",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/25"
+      },
+      {
+        "id": "activity.q15",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/26"
+      },
+      {
+        "id": "activity.q16",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/27"
+      },
+      {
+        "id": "activity.q17",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/28"
+      },
+      {
+        "id": "activity.q18",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/29"
+      },
+      {
+        "id": "activity.q19",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/30"
+      },
+      {
+        "id": "activity.q20",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/31"
+      },
+      {
+        "id": "activity.q21",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/32"
+      },
+      {
+        "id": "activity.q22",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/33"
+      },
+      {
+        "id": "activity.q23",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/34"
+      },
+      {
+        "id": "activity.q24",
+        "kind": "activity",
+        "definedAt": "examples/full-catalog.json#/activities/35"
+      },
+      {
+        "id": "project.p01",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/0"
+      },
+      {
+        "id": "project.p02",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/1"
+      },
+      {
+        "id": "project.p03",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/2"
+      },
+      {
+        "id": "project.p04",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/3"
+      },
+      {
+        "id": "project.p05",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/4"
+      },
+      {
+        "id": "project.p06",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/5"
+      },
+      {
+        "id": "project.p07",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/6"
+      },
+      {
+        "id": "project.p08",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/7"
+      },
+      {
+        "id": "project.p09",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/8"
+      },
+      {
+        "id": "project.p10",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/9"
+      },
+      {
+        "id": "project.p11",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/10"
+      },
+      {
+        "id": "project.p12",
+        "kind": "project",
+        "definedAt": "examples/full-catalog.json#/projects/11"
+      },
+      {
+        "id": "plant.n_1",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/0"
+      },
+      {
+        "id": "plant.n_2",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/1"
+      },
+      {
+        "id": "plant.n_3",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/2"
+      },
+      {
+        "id": "plant.n_4",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/3"
+      },
+      {
+        "id": "plant.n_5",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/4"
+      },
+      {
+        "id": "plant.n_6",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/5"
+      },
+      {
+        "id": "plant.n_7",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/6"
+      },
+      {
+        "id": "plant.n_8",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/7"
+      },
+      {
+        "id": "plant.n_9",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/8"
+      },
+      {
+        "id": "plant.n_10",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/9"
+      },
+      {
+        "id": "plant.n_11",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/10"
+      },
+      {
+        "id": "plant.n_12",
+        "kind": "plant",
+        "definedAt": "examples/full-catalog.json#/plants/11"
+      },
+      {
+        "id": "item.plant_1",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/0"
+      },
+      {
+        "id": "item.plant_2",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/1"
+      },
+      {
+        "id": "item.plant_3",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/2"
+      },
+      {
+        "id": "item.plant_4",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/3"
+      },
+      {
+        "id": "item.plant_5",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/4"
+      },
+      {
+        "id": "item.plant_6",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/5"
+      },
+      {
+        "id": "item.plant_7",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/6"
+      },
+      {
+        "id": "item.plant_8",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/7"
+      },
+      {
+        "id": "item.plant_9",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/8"
+      },
+      {
+        "id": "item.plant_10",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/9"
+      },
+      {
+        "id": "item.plant_11",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/10"
+      },
+      {
+        "id": "item.plant_12",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/11"
+      },
+      {
+        "id": "item.seed",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/12"
+      },
+      {
+        "id": "item.scrap",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/13"
+      },
+      {
+        "id": "item.loan_kit",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/14"
+      },
+      {
+        "id": "item.loan_a",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/15"
+      },
+      {
+        "id": "item.loan_b",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/16"
+      },
+      {
+        "id": "item.loan_c",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/17"
+      },
+      {
+        "id": "item.loan_d",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/18"
+      },
+      {
+        "id": "item.loan_e",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/19"
+      },
+      {
+        "id": "item.loan_f",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/20"
+      },
+      {
+        "id": "item.alchemy_1",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/21"
+      },
+      {
+        "id": "item.alchemy_2",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/22"
+      },
+      {
+        "id": "item.alchemy_3",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/23"
+      },
+      {
+        "id": "item.alchemy_4",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/24"
+      },
+      {
+        "id": "item.alchemy_5",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/25"
+      },
+      {
+        "id": "item.alchemy_6",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/26"
+      },
+      {
+        "id": "item.alchemy_7",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/27"
+      },
+      {
+        "id": "item.alchemy_8",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/28"
+      },
+      {
+        "id": "item.alchemy_9",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/29"
+      },
+      {
+        "id": "item.alchemy_10",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/30"
+      },
+      {
+        "id": "item.alchemy_11",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/31"
+      },
+      {
+        "id": "item.alchemy_12",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/32"
+      },
+      {
+        "id": "item.cooking_1",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/33"
+      },
+      {
+        "id": "item.cooking_2",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/34"
+      },
+      {
+        "id": "item.cooking_3",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/35"
+      },
+      {
+        "id": "item.cooking_4",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/36"
+      },
+      {
+        "id": "item.cooking_5",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/37"
+      },
+      {
+        "id": "item.cooking_6",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/38"
+      },
+      {
+        "id": "item.cooking_7",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/39"
+      },
+      {
+        "id": "item.cooking_8",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/40"
+      },
+      {
+        "id": "item.tool_1",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/41"
+      },
+      {
+        "id": "item.tool_2",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/42"
+      },
+      {
+        "id": "item.tool_3",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/43"
+      },
+      {
+        "id": "item.tool_4",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/44"
+      },
+      {
+        "id": "item.tool_5",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/45"
+      },
+      {
+        "id": "item.tool_6",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/46"
+      },
+      {
+        "id": "item.tool_7",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/47"
+      },
+      {
+        "id": "item.tool_8",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/48"
+      },
+      {
+        "id": "item.furniture_1",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/49"
+      },
+      {
+        "id": "item.furniture_2",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/50"
+      },
+      {
+        "id": "item.furniture_3",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/51"
+      },
+      {
+        "id": "item.furniture_4",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/52"
+      },
+      {
+        "id": "item.furniture_5",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/53"
+      },
+      {
+        "id": "item.furniture_6",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/54"
+      },
+      {
+        "id": "item.furniture_7",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/55"
+      },
+      {
+        "id": "item.furniture_8",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/56"
+      },
+      {
+        "id": "item.furniture_9",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/57"
+      },
+      {
+        "id": "item.furniture_10",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/58"
+      },
+      {
+        "id": "item.furniture_11",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/59"
+      },
+      {
+        "id": "item.furniture_12",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/60"
+      },
+      {
+        "id": "item.furniture_13",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/61"
+      },
+      {
+        "id": "item.furniture_14",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/62"
+      },
+      {
+        "id": "item.furniture_15",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/63"
+      },
+      {
+        "id": "item.furniture_16",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/64"
+      },
+      {
+        "id": "item.furniture_17",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/65"
+      },
+      {
+        "id": "item.furniture_18",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/66"
+      },
+      {
+        "id": "item.furniture_19",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/67"
+      },
+      {
+        "id": "item.furniture_20",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/68"
+      },
+      {
+        "id": "item.plant_1_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/69"
+      },
+      {
+        "id": "item.seed_1",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/70"
+      },
+      {
+        "id": "item.plant_2_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/71"
+      },
+      {
+        "id": "item.seed_2",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/72"
+      },
+      {
+        "id": "item.plant_3_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/73"
+      },
+      {
+        "id": "item.seed_3",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/74"
+      },
+      {
+        "id": "item.plant_4_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/75"
+      },
+      {
+        "id": "item.seed_4",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/76"
+      },
+      {
+        "id": "item.plant_5_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/77"
+      },
+      {
+        "id": "item.seed_5",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/78"
+      },
+      {
+        "id": "item.plant_6_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/79"
+      },
+      {
+        "id": "item.seed_6",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/80"
+      },
+      {
+        "id": "item.plant_7_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/81"
+      },
+      {
+        "id": "item.seed_7",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/82"
+      },
+      {
+        "id": "item.plant_8_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/83"
+      },
+      {
+        "id": "item.seed_8",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/84"
+      },
+      {
+        "id": "item.plant_9_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/85"
+      },
+      {
+        "id": "item.seed_9",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/86"
+      },
+      {
+        "id": "item.plant_10_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/87"
+      },
+      {
+        "id": "item.seed_10",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/88"
+      },
+      {
+        "id": "item.plant_11_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/89"
+      },
+      {
+        "id": "item.seed_11",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/90"
+      },
+      {
+        "id": "item.plant_12_flower",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/91"
+      },
+      {
+        "id": "item.seed_12",
+        "kind": "item",
+        "definedAt": "examples/full-catalog.json#/items/92"
+      },
+      {
+        "id": "recipe.alchemy_1",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/0"
+      },
+      {
+        "id": "recipe.alchemy_2",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/1"
+      },
+      {
+        "id": "recipe.alchemy_3",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/2"
+      },
+      {
+        "id": "recipe.alchemy_4",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/3"
+      },
+      {
+        "id": "recipe.alchemy_5",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/4"
+      },
+      {
+        "id": "recipe.alchemy_6",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/5"
+      },
+      {
+        "id": "recipe.alchemy_7",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/6"
+      },
+      {
+        "id": "recipe.alchemy_8",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/7"
+      },
+      {
+        "id": "recipe.alchemy_9",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/8"
+      },
+      {
+        "id": "recipe.alchemy_10",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/9"
+      },
+      {
+        "id": "recipe.alchemy_11",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/10"
+      },
+      {
+        "id": "recipe.alchemy_12",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/11"
+      },
+      {
+        "id": "recipe.cooking_1",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/12"
+      },
+      {
+        "id": "recipe.cooking_2",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/13"
+      },
+      {
+        "id": "recipe.cooking_3",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/14"
+      },
+      {
+        "id": "recipe.cooking_4",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/15"
+      },
+      {
+        "id": "recipe.cooking_5",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/16"
+      },
+      {
+        "id": "recipe.cooking_6",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/17"
+      },
+      {
+        "id": "recipe.cooking_7",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/18"
+      },
+      {
+        "id": "recipe.cooking_8",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/19"
+      },
+      {
+        "id": "recipe.tool_1",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/20"
+      },
+      {
+        "id": "recipe.tool_2",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/21"
+      },
+      {
+        "id": "recipe.tool_3",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/22"
+      },
+      {
+        "id": "recipe.tool_4",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/23"
+      },
+      {
+        "id": "recipe.tool_5",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/24"
+      },
+      {
+        "id": "recipe.tool_6",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/25"
+      },
+      {
+        "id": "recipe.tool_7",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/26"
+      },
+      {
+        "id": "recipe.tool_8",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/27"
+      },
+      {
+        "id": "recipe.furniture_1",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/28"
+      },
+      {
+        "id": "recipe.furniture_2",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/29"
+      },
+      {
+        "id": "recipe.furniture_3",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/30"
+      },
+      {
+        "id": "recipe.furniture_4",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/31"
+      },
+      {
+        "id": "recipe.furniture_5",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/32"
+      },
+      {
+        "id": "recipe.furniture_6",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/33"
+      },
+      {
+        "id": "recipe.furniture_7",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/34"
+      },
+      {
+        "id": "recipe.furniture_8",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/35"
+      },
+      {
+        "id": "recipe.furniture_9",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/36"
+      },
+      {
+        "id": "recipe.furniture_10",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/37"
+      },
+      {
+        "id": "recipe.furniture_11",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/38"
+      },
+      {
+        "id": "recipe.furniture_12",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/39"
+      },
+      {
+        "id": "recipe.furniture_13",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/40"
+      },
+      {
+        "id": "recipe.furniture_14",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/41"
+      },
+      {
+        "id": "recipe.furniture_15",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/42"
+      },
+      {
+        "id": "recipe.furniture_16",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/43"
+      },
+      {
+        "id": "recipe.furniture_17",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/44"
+      },
+      {
+        "id": "recipe.furniture_18",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/45"
+      },
+      {
+        "id": "recipe.furniture_19",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/46"
+      },
+      {
+        "id": "recipe.furniture_20",
+        "kind": "recipe",
+        "definedAt": "examples/full-catalog.json#/recipes/47"
+      },
+      {
+        "id": "shop.bello",
+        "kind": "shop",
+        "definedAt": "examples/full-catalog.json#/shops/0"
+      },
+      {
+        "id": "creature.greenhouse",
+        "kind": "creature",
+        "definedAt": "examples/full-catalog.json#/creatures/0"
+      },
+      {
+        "id": "furniture.n_1",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/0"
+      },
+      {
+        "id": "furniture.n_2",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/1"
+      },
+      {
+        "id": "furniture.n_3",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/2"
+      },
+      {
+        "id": "furniture.n_4",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/3"
+      },
+      {
+        "id": "furniture.n_5",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/4"
+      },
+      {
+        "id": "furniture.n_6",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/5"
+      },
+      {
+        "id": "furniture.n_7",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/6"
+      },
+      {
+        "id": "furniture.n_8",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/7"
+      },
+      {
+        "id": "furniture.n_9",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/8"
+      },
+      {
+        "id": "furniture.n_10",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/9"
+      },
+      {
+        "id": "furniture.n_11",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/10"
+      },
+      {
+        "id": "furniture.n_12",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/11"
+      },
+      {
+        "id": "furniture.n_13",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/12"
+      },
+      {
+        "id": "furniture.n_14",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/13"
+      },
+      {
+        "id": "furniture.n_15",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/14"
+      },
+      {
+        "id": "furniture.n_16",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/15"
+      },
+      {
+        "id": "furniture.n_17",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/16"
+      },
+      {
+        "id": "furniture.n_18",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/17"
+      },
+      {
+        "id": "furniture.n_19",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/18"
+      },
+      {
+        "id": "furniture.n_20",
+        "kind": "furniture",
+        "definedAt": "examples/full-catalog.json#/furniture/19"
+      },
+      {
+        "id": "object.pot",
+        "kind": "object",
+        "definedAt": "examples/full-catalog.json#/objects/0"
+      },
+      {
+        "id": "object.stain",
+        "kind": "object",
+        "definedAt": "examples/full-catalog.json#/objects/1"
+      },
+      {
+        "id": "object.cleaner",
+        "kind": "object",
+        "definedAt": "examples/full-catalog.json#/objects/2"
+      },
+      {
+        "id": "scenario.school",
+        "kind": "scenario",
+        "definedAt": "examples/full-catalog.json#/scenarios/0"
+      },
+      {
+        "id": "scenario.two_routes",
+        "kind": "scenario",
+        "definedAt": "examples/full-catalog.json#/scenarios/1"
+      },
+      {
+        "id": "scenario.life",
+        "kind": "scenario",
+        "definedAt": "examples/full-catalog.json#/scenarios/2"
+      },
+      {
+        "id": "scenario.schedule",
+        "kind": "scenario",
+        "definedAt": "examples/full-catalog.json#/scenarios/3"
+      },
+      {
+        "id": "scenario.restore",
+        "kind": "scenario",
+        "definedAt": "examples/full-catalog.json#/scenarios/4"
+      },
+      {
+        "id": "dialogue.serin_special",
+        "kind": "dialogue",
+        "definedAt": "examples/full-catalog.json#/dialogues/0"
+      },
+      {
+        "id": "dialogue.serin_aftermath",
+        "kind": "dialogue",
+        "definedAt": "examples/full-catalog.json#/dialogues/1"
+      },
+      {
+        "id": "dialogue.serin_place",
+        "kind": "dialogue",
+        "definedAt": "examples/full-catalog.json#/dialogues/2"
+      },
+      {
+        "id": "dialogue.serin_greeting",
+        "kind": "dialogue",
+        "definedAt": "examples/full-catalog.json#/dialogues/3"
+      },
+      {
+        "id": "ending.supervised_core",
+        "kind": "ending",
+        "definedAt": "examples/full-catalog.json#/endings/0"
+      },
+      {
+        "id": "ending.distributed",
+        "kind": "ending",
+        "definedAt": "examples/full-catalog.json#/endings/1"
+      },
+      {
+        "id": "ending.periodic_rest",
+        "kind": "ending",
+        "definedAt": "examples/full-catalog.json#/endings/2"
+      },
+      {
+        "id": "intro.s1",
+        "kind": "onboarding",
+        "definedAt": "examples/full-catalog.json#/onboarding/0"
+      },
+      {
+        "id": "intro.s2",
+        "kind": "onboarding",
+        "definedAt": "examples/full-catalog.json#/onboarding/1"
+      },
+      {
+        "id": "intro.s3",
+        "kind": "onboarding",
+        "definedAt": "examples/full-catalog.json#/onboarding/2"
+      },
+      {
+        "id": "intro.s4",
+        "kind": "onboarding",
+        "definedAt": "examples/full-catalog.json#/onboarding/3"
+      },
+      {
+        "id": "intro.s5",
+        "kind": "onboarding",
+        "definedAt": "examples/full-catalog.json#/onboarding/4"
+      },
+      {
+        "id": "intro.s6",
+        "kind": "onboarding",
+        "definedAt": "examples/full-catalog.json#/onboarding/5"
+      },
+      {
+        "id": "encounter.a3",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/0"
+      },
+      {
+        "id": "encounter.b3",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/1"
+      },
+      {
+        "id": "encounter.c3",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/2"
+      },
+      {
+        "id": "encounter.d3",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/3"
+      },
+      {
+        "id": "encounter.e3",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/4"
+      },
+      {
+        "id": "encounter.f3",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/5"
+      },
+      {
+        "id": "encounter.final",
+        "kind": "encounter",
+        "definedAt": "examples/full-catalog.json#/encounters/6"
+      },
+      {
+        "id": "truth.a",
+        "kind": "truth",
+        "definedAt": "examples/full-catalog.json#/truthScenes/0"
+      },
+      {
+        "id": "truth.b",
+        "kind": "truth",
+        "definedAt": "examples/full-catalog.json#/truthScenes/1"
+      },
+      {
+        "id": "difficulty.basic",
+        "kind": "difficulty",
+        "definedAt": "examples/full-catalog.json#/difficultyPresets/0"
+      },
+      {
+        "id": "difficulty.comfort",
+        "kind": "difficulty",
+        "definedAt": "examples/full-catalog.json#/difficultyPresets/1"
+      },
+      {
+        "id": "difficulty.challenge",
+        "kind": "difficulty",
+        "definedAt": "examples/full-catalog.json#/difficultyPresets/2"
+      },
+      {
+        "id": "facility.alchemy",
+        "kind": "facility",
+        "definedAt": "examples/full-catalog.json#/facilities/0"
+      },
+      {
+        "id": "facility.cooking",
+        "kind": "facility",
+        "definedAt": "examples/full-catalog.json#/facilities/1"
+      },
+      {
+        "id": "facility.tool",
+        "kind": "facility",
+        "definedAt": "examples/full-catalog.json#/facilities/2"
+      },
+      {
+        "id": "facility.furniture",
+        "kind": "facility",
+        "definedAt": "examples/full-catalog.json#/facilities/3"
+      },
+      {
+        "id": "facility.shared_p07",
+        "kind": "facility",
+        "definedAt": "examples/full-catalog.json#/facilities/4"
+      },
+      {
+        "id": "final.practical",
+        "kind": "final",
+        "definedAt": "examples/full-catalog.json#/finalDefinition"
+      },
+      {
+        "id": "school.shared_tool_repair",
+        "kind": "schoolRule",
+        "definedAt": "examples/full-catalog.json#/schoolRule"
+      },
+      {
+        "id": "node.a1",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/0/id"
+      },
+      {
+        "id": "evidence.a1",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/0/evidenceId"
+      },
+      {
+        "id": "room.case_a1",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/0/roomId"
+      },
+      {
+        "id": "node.a2",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/1/id"
+      },
+      {
+        "id": "evidence.a2",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/1/evidenceId"
+      },
+      {
+        "id": "room.case_a2",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/1/roomId"
+      },
+      {
+        "id": "node.a3",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/2/id"
+      },
+      {
+        "id": "evidence.a3",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/2/evidenceId"
+      },
+      {
+        "id": "room.case_a3",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/2/roomId"
+      },
+      {
+        "id": "node.b1",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/0/id"
+      },
+      {
+        "id": "evidence.b1",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/0/evidenceId"
+      },
+      {
+        "id": "room.case_b1",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/0/roomId"
+      },
+      {
+        "id": "node.b2",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/1/id"
+      },
+      {
+        "id": "evidence.b2",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/1/evidenceId"
+      },
+      {
+        "id": "room.case_b2",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/1/roomId"
+      },
+      {
+        "id": "node.b3",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/2/id"
+      },
+      {
+        "id": "evidence.b3",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/2/evidenceId"
+      },
+      {
+        "id": "room.case_b3",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/2/roomId"
+      },
+      {
+        "id": "node.c1",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/0/id"
+      },
+      {
+        "id": "evidence.c1",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/0/evidenceId"
+      },
+      {
+        "id": "room.case_c1",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/0/roomId"
+      },
+      {
+        "id": "node.c2",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/1/id"
+      },
+      {
+        "id": "evidence.c2",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/1/evidenceId"
+      },
+      {
+        "id": "room.case_c2",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/1/roomId"
+      },
+      {
+        "id": "node.c3",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/2/id"
+      },
+      {
+        "id": "evidence.c3",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/2/evidenceId"
+      },
+      {
+        "id": "room.case_c3",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/2/roomId"
+      },
+      {
+        "id": "node.d1",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/0/id"
+      },
+      {
+        "id": "evidence.d1",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/0/evidenceId"
+      },
+      {
+        "id": "room.case_d1",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/0/roomId"
+      },
+      {
+        "id": "node.d2",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/1/id"
+      },
+      {
+        "id": "evidence.d2",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/1/evidenceId"
+      },
+      {
+        "id": "room.case_d2",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/1/roomId"
+      },
+      {
+        "id": "node.d3",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/2/id"
+      },
+      {
+        "id": "evidence.d3",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/2/evidenceId"
+      },
+      {
+        "id": "room.case_d3",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/2/roomId"
+      },
+      {
+        "id": "node.e1",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/0/id"
+      },
+      {
+        "id": "evidence.e1",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/0/evidenceId"
+      },
+      {
+        "id": "room.case_e1",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/0/roomId"
+      },
+      {
+        "id": "node.e2",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/1/id"
+      },
+      {
+        "id": "evidence.e2",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/1/evidenceId"
+      },
+      {
+        "id": "room.case_e2",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/1/roomId"
+      },
+      {
+        "id": "node.e3",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/2/id"
+      },
+      {
+        "id": "evidence.e3",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/2/evidenceId"
+      },
+      {
+        "id": "room.case_e3",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/2/roomId"
+      },
+      {
+        "id": "node.f1",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/0/id"
+      },
+      {
+        "id": "evidence.f1",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/0/evidenceId"
+      },
+      {
+        "id": "room.case_f1",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/0/roomId"
+      },
+      {
+        "id": "node.f2",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/1/id"
+      },
+      {
+        "id": "evidence.f2",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/1/evidenceId"
+      },
+      {
+        "id": "room.case_f2",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/1/roomId"
+      },
+      {
+        "id": "node.f3",
+        "kind": "node",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/2/id"
+      },
+      {
+        "id": "evidence.f3",
+        "kind": "evidence",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/2/evidenceId"
+      },
+      {
+        "id": "room.case_f3",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/2/roomId"
+      },
+      {
+        "id": "flag.a_resolved",
+        "kind": "flag",
+        "definedAt": "examples/full-catalog.json#/story/0/resolutionFlag"
+      },
+      {
+        "id": "flag.b_resolved",
+        "kind": "flag",
+        "definedAt": "examples/full-catalog.json#/story/1/resolutionFlag"
+      },
+      {
+        "id": "flag.c_resolved",
+        "kind": "flag",
+        "definedAt": "examples/full-catalog.json#/story/2/resolutionFlag"
+      },
+      {
+        "id": "flag.d_resolved",
+        "kind": "flag",
+        "definedAt": "examples/full-catalog.json#/story/3/resolutionFlag"
+      },
+      {
+        "id": "flag.e_resolved",
+        "kind": "flag",
+        "definedAt": "examples/full-catalog.json#/story/4/resolutionFlag"
+      },
+      {
+        "id": "flag.f_resolved",
+        "kind": "flag",
+        "definedAt": "examples/full-catalog.json#/story/5/resolutionFlag"
+      },
+      {
+        "id": "projection.a",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/story/0/worldChangeId"
+      },
+      {
+        "id": "projection.b",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/story/1/worldChangeId"
+      },
+      {
+        "id": "projection.c",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/story/2/worldChangeId"
+      },
+      {
+        "id": "projection.d",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/story/3/worldChangeId"
+      },
+      {
+        "id": "projection.e",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/story/4/worldChangeId"
+      },
+      {
+        "id": "projection.f",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/story/5/worldChangeId"
+      },
+      {
+        "id": "outcome.a_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/story/0/combatOutcome"
+      },
+      {
+        "id": "outcome.b_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/story/1/combatOutcome"
+      },
+      {
+        "id": "outcome.c_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/story/2/combatOutcome"
+      },
+      {
+        "id": "outcome.d_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/story/3/combatOutcome"
+      },
+      {
+        "id": "outcome.e_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/story/4/combatOutcome"
+      },
+      {
+        "id": "outcome.f_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/story/5/combatOutcome"
+      },
+      {
+        "id": "context.lantern_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/0/practiceContextId"
+      },
+      {
+        "id": "context.lantern_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/1/practiceContextId"
+      },
+      {
+        "id": "context.levitate_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/2/practiceContextId"
+      },
+      {
+        "id": "context.levitate_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/3/practiceContextId"
+      },
+      {
+        "id": "context.water_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/4/practiceContextId"
+      },
+      {
+        "id": "context.water_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/5/practiceContextId"
+      },
+      {
+        "id": "context.ember_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/6/practiceContextId"
+      },
+      {
+        "id": "context.ember_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/7/practiceContextId"
+      },
+      {
+        "id": "context.sprout_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/8/practiceContextId"
+      },
+      {
+        "id": "context.sprout_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/9/practiceContextId"
+      },
+      {
+        "id": "context.shape_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/10/practiceContextId"
+      },
+      {
+        "id": "context.shape_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/11/practiceContextId"
+      },
+      {
+        "id": "context.gust_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/12/practiceContextId"
+      },
+      {
+        "id": "context.gust_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/13/practiceContextId"
+      },
+      {
+        "id": "context.frost_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/14/practiceContextId"
+      },
+      {
+        "id": "context.frost_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/15/practiceContextId"
+      },
+      {
+        "id": "context.echo_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/16/practiceContextId"
+      },
+      {
+        "id": "context.echo_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/17/practiceContextId"
+      },
+      {
+        "id": "context.repair_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/18/practiceContextId"
+      },
+      {
+        "id": "context.repair_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/19/practiceContextId"
+      },
+      {
+        "id": "context.illusion_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/20/practiceContextId"
+      },
+      {
+        "id": "context.illusion_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/21/practiceContextId"
+      },
+      {
+        "id": "context.barrier_basic",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/22/practiceContextId"
+      },
+      {
+        "id": "context.barrier_application",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/classes/23/practiceContextId"
+      },
+      {
+        "id": "reward.lantern_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/0/rewardKey"
+      },
+      {
+        "id": "reward.lantern_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/1/rewardKey"
+      },
+      {
+        "id": "reward.levitate_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/2/rewardKey"
+      },
+      {
+        "id": "reward.levitate_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/3/rewardKey"
+      },
+      {
+        "id": "reward.water_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/4/rewardKey"
+      },
+      {
+        "id": "reward.water_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/5/rewardKey"
+      },
+      {
+        "id": "reward.ember_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/6/rewardKey"
+      },
+      {
+        "id": "reward.ember_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/7/rewardKey"
+      },
+      {
+        "id": "reward.sprout_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/8/rewardKey"
+      },
+      {
+        "id": "reward.sprout_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/9/rewardKey"
+      },
+      {
+        "id": "reward.shape_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/10/rewardKey"
+      },
+      {
+        "id": "reward.shape_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/11/rewardKey"
+      },
+      {
+        "id": "reward.gust_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/12/rewardKey"
+      },
+      {
+        "id": "reward.gust_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/13/rewardKey"
+      },
+      {
+        "id": "reward.frost_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/14/rewardKey"
+      },
+      {
+        "id": "reward.frost_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/15/rewardKey"
+      },
+      {
+        "id": "reward.echo_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/16/rewardKey"
+      },
+      {
+        "id": "reward.echo_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/17/rewardKey"
+      },
+      {
+        "id": "reward.repair_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/18/rewardKey"
+      },
+      {
+        "id": "reward.repair_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/19/rewardKey"
+      },
+      {
+        "id": "reward.illusion_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/20/rewardKey"
+      },
+      {
+        "id": "reward.illusion_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/21/rewardKey"
+      },
+      {
+        "id": "reward.barrier_basic",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/22/rewardKey"
+      },
+      {
+        "id": "reward.barrier_application",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/classes/23/rewardKey"
+      },
+      {
+        "id": "projection.p01",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/0/worldChangeId"
+      },
+      {
+        "id": "projection.p02",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/1/worldChangeId"
+      },
+      {
+        "id": "projection.p03",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/2/worldChangeId"
+      },
+      {
+        "id": "projection.p04",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/3/worldChangeId"
+      },
+      {
+        "id": "projection.p05",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/4/worldChangeId"
+      },
+      {
+        "id": "projection.p06",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/5/worldChangeId"
+      },
+      {
+        "id": "projection.p07",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/6/worldChangeId"
+      },
+      {
+        "id": "projection.p08",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/7/worldChangeId"
+      },
+      {
+        "id": "projection.p09",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/8/worldChangeId"
+      },
+      {
+        "id": "projection.p10",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/9/worldChangeId"
+      },
+      {
+        "id": "projection.p11",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/10/worldChangeId"
+      },
+      {
+        "id": "projection.p12",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/projects/11/worldChangeId"
+      },
+      {
+        "id": "complete.x01",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/0/completionKey"
+      },
+      {
+        "id": "complete.x02",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/1/completionKey"
+      },
+      {
+        "id": "complete.x03",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/2/completionKey"
+      },
+      {
+        "id": "complete.x04",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/3/completionKey"
+      },
+      {
+        "id": "complete.x05",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/4/completionKey"
+      },
+      {
+        "id": "complete.x06",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/5/completionKey"
+      },
+      {
+        "id": "complete.x07",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/6/completionKey"
+      },
+      {
+        "id": "complete.x08",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/7/completionKey"
+      },
+      {
+        "id": "complete.x09",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/8/completionKey"
+      },
+      {
+        "id": "complete.x10",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/9/completionKey"
+      },
+      {
+        "id": "complete.x11",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/10/completionKey"
+      },
+      {
+        "id": "complete.x12",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/rooms/11/completionKey"
+      },
+      {
+        "id": "complete.r01",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/0/completionKey"
+      },
+      {
+        "id": "complete.r02",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/1/completionKey"
+      },
+      {
+        "id": "complete.r03",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/2/completionKey"
+      },
+      {
+        "id": "complete.r04",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/3/completionKey"
+      },
+      {
+        "id": "complete.r05",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/4/completionKey"
+      },
+      {
+        "id": "complete.r06",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/5/completionKey"
+      },
+      {
+        "id": "complete.r07",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/6/completionKey"
+      },
+      {
+        "id": "complete.r08",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/7/completionKey"
+      },
+      {
+        "id": "complete.r09",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/8/completionKey"
+      },
+      {
+        "id": "complete.r10",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/9/completionKey"
+      },
+      {
+        "id": "complete.r11",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/10/completionKey"
+      },
+      {
+        "id": "complete.r12",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/11/completionKey"
+      },
+      {
+        "id": "complete.r13",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/12/completionKey"
+      },
+      {
+        "id": "complete.r14",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/13/completionKey"
+      },
+      {
+        "id": "complete.r15",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/14/completionKey"
+      },
+      {
+        "id": "complete.r16",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/15/completionKey"
+      },
+      {
+        "id": "complete.r17",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/16/completionKey"
+      },
+      {
+        "id": "complete.r18",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/17/completionKey"
+      },
+      {
+        "id": "complete.r19",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/18/completionKey"
+      },
+      {
+        "id": "complete.r20",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/19/completionKey"
+      },
+      {
+        "id": "complete.r21",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/20/completionKey"
+      },
+      {
+        "id": "complete.r22",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/21/completionKey"
+      },
+      {
+        "id": "complete.r23",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/22/completionKey"
+      },
+      {
+        "id": "complete.r24",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/23/completionKey"
+      },
+      {
+        "id": "complete.r25",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/24/completionKey"
+      },
+      {
+        "id": "complete.r26",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/25/completionKey"
+      },
+      {
+        "id": "complete.r27",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/26/completionKey"
+      },
+      {
+        "id": "complete.r28",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/27/completionKey"
+      },
+      {
+        "id": "complete.r29",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/28/completionKey"
+      },
+      {
+        "id": "complete.r30",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/29/completionKey"
+      },
+      {
+        "id": "complete.r31",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/30/completionKey"
+      },
+      {
+        "id": "complete.r32",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/31/completionKey"
+      },
+      {
+        "id": "complete.r33",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/32/completionKey"
+      },
+      {
+        "id": "complete.r34",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/33/completionKey"
+      },
+      {
+        "id": "complete.r35",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/34/completionKey"
+      },
+      {
+        "id": "complete.r36",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/relationships/35/completionKey"
+      },
+      {
+        "id": "map.region_1",
+        "kind": "map",
+        "definedAt": "examples/full-catalog.json#/regions/0/mapId"
+      },
+      {
+        "id": "map.region_2",
+        "kind": "map",
+        "definedAt": "examples/full-catalog.json#/regions/1/mapId"
+      },
+      {
+        "id": "map.region_3",
+        "kind": "map",
+        "definedAt": "examples/full-catalog.json#/regions/2/mapId"
+      },
+      {
+        "id": "map.region_4",
+        "kind": "map",
+        "definedAt": "examples/full-catalog.json#/regions/3/mapId"
+      },
+      {
+        "id": "safe.n_1",
+        "kind": "safePoint",
+        "definedAt": "examples/full-catalog.json#/regions/0/safePointId"
+      },
+      {
+        "id": "safe.n_2",
+        "kind": "safePoint",
+        "definedAt": "examples/full-catalog.json#/regions/1/safePointId"
+      },
+      {
+        "id": "safe.n_3",
+        "kind": "safePoint",
+        "definedAt": "examples/full-catalog.json#/regions/2/safePointId"
+      },
+      {
+        "id": "safe.n_4",
+        "kind": "safePoint",
+        "definedAt": "examples/full-catalog.json#/regions/3/safePointId"
+      },
+      {
+        "id": "context.pot",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/objects/0/applicationContextId"
+      },
+      {
+        "id": "context.stain",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/objects/1/applicationContextId"
+      },
+      {
+        "id": "context.cleaner",
+        "kind": "context",
+        "definedAt": "examples/full-catalog.json#/objects/2/applicationContextId"
+      },
+      {
+        "id": "projection.ending_supervised_core",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/endings/0/worldChangeId"
+      },
+      {
+        "id": "projection.ending_distributed",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/endings/1/worldChangeId"
+      },
+      {
+        "id": "projection.ending_periodic_rest",
+        "kind": "projection",
+        "definedAt": "examples/full-catalog.json#/endings/2/worldChangeId"
+      },
+      {
+        "id": "reward.final_common",
+        "kind": "reward",
+        "definedAt": "examples/full-catalog.json#/endings/0/rewardKey"
+      },
+      {
+        "id": "complete.intro_s1",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/onboarding/0/completionKey"
+      },
+      {
+        "id": "complete.intro_s2",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/onboarding/1/completionKey"
+      },
+      {
+        "id": "complete.intro_s3",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/onboarding/2/completionKey"
+      },
+      {
+        "id": "complete.intro_s4",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/onboarding/3/completionKey"
+      },
+      {
+        "id": "complete.intro_s5",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/onboarding/4/completionKey"
+      },
+      {
+        "id": "complete.intro_s6",
+        "kind": "completion",
+        "definedAt": "examples/full-catalog.json#/onboarding/5/completionKey"
+      },
+      {
+        "id": "outcome.final_stopped",
+        "kind": "outcome",
+        "definedAt": "examples/full-catalog.json#/encounters/6/successOutcomeId"
+      },
+      {
+        "id": "room.final_core",
+        "kind": "room",
+        "definedAt": "examples/full-catalog.json#/finalDefinition/roomId"
+      },
+      {
+        "id": "asset.lantern",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/0/assetKey"
+      },
+      {
+        "id": "asset.levitate",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/1/assetKey"
+      },
+      {
+        "id": "asset.water",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/2/assetKey"
+      },
+      {
+        "id": "asset.ember",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/3/assetKey"
+      },
+      {
+        "id": "asset.sprout",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/4/assetKey"
+      },
+      {
+        "id": "asset.shape",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/5/assetKey"
+      },
+      {
+        "id": "asset.gust",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/6/assetKey"
+      },
+      {
+        "id": "asset.frost",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/7/assetKey"
+      },
+      {
+        "id": "asset.echo",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/8/assetKey"
+      },
+      {
+        "id": "asset.repair",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/9/assetKey"
+      },
+      {
+        "id": "asset.illusion",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/10/assetKey"
+      },
+      {
+        "id": "asset.barrier",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/spells/11/assetKey"
+      },
+      {
+        "id": "asset.enemy_ink",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/0/assetKey"
+      },
+      {
+        "id": "asset.enemy_vine",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/1/assetKey"
+      },
+      {
+        "id": "asset.enemy_cleaner",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/2/assetKey"
+      },
+      {
+        "id": "asset.enemy_bird",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/3/assetKey"
+      },
+      {
+        "id": "asset.enemy_shadow",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/4/assetKey"
+      },
+      {
+        "id": "asset.enemy_guard",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/5/assetKey"
+      },
+      {
+        "id": "asset.enemy_orb",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/6/assetKey"
+      },
+      {
+        "id": "asset.enemy_lizard",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/enemies/7/assetKey"
+      },
+      {
+        "id": "asset.furniture_1",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/0/assetKey"
+      },
+      {
+        "id": "asset.furniture_2",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/1/assetKey"
+      },
+      {
+        "id": "asset.furniture_3",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/2/assetKey"
+      },
+      {
+        "id": "asset.furniture_4",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/3/assetKey"
+      },
+      {
+        "id": "asset.furniture_5",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/4/assetKey"
+      },
+      {
+        "id": "asset.furniture_6",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/5/assetKey"
+      },
+      {
+        "id": "asset.furniture_7",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/6/assetKey"
+      },
+      {
+        "id": "asset.furniture_8",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/7/assetKey"
+      },
+      {
+        "id": "asset.furniture_9",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/8/assetKey"
+      },
+      {
+        "id": "asset.furniture_10",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/9/assetKey"
+      },
+      {
+        "id": "asset.furniture_11",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/10/assetKey"
+      },
+      {
+        "id": "asset.furniture_12",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/11/assetKey"
+      },
+      {
+        "id": "asset.furniture_13",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/12/assetKey"
+      },
+      {
+        "id": "asset.furniture_14",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/13/assetKey"
+      },
+      {
+        "id": "asset.furniture_15",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/14/assetKey"
+      },
+      {
+        "id": "asset.furniture_16",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/15/assetKey"
+      },
+      {
+        "id": "asset.furniture_17",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/16/assetKey"
+      },
+      {
+        "id": "asset.furniture_18",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/17/assetKey"
+      },
+      {
+        "id": "asset.furniture_19",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/18/assetKey"
+      },
+      {
+        "id": "asset.furniture_20",
+        "kind": "asset",
+        "definedAt": "examples/full-catalog.json#/furniture/19/assetKey"
+      },
+      {
+        "id": "story.intro_done",
+        "kind": "variable",
+        "definedAt": "examples/runner-bundle.json#/variables/0"
+      },
+      {
+        "id": "memory.snack_done",
+        "kind": "variable",
+        "definedAt": "examples/runner-bundle.json#/variables/1"
+      },
+      {
+        "id": "world.stage_ready",
+        "kind": "variable",
+        "definedAt": "examples/runner-bundle.json#/variables/2"
+      },
+      {
+        "id": "notice.lunch_done",
+        "kind": "variable",
+        "definedAt": "examples/runner-bundle.json#/variables/3"
+      },
+      {
+        "id": "clock.minute_of_day",
+        "kind": "variable",
+        "definedAt": "examples/runner-bundle.json#/variables/4"
+      },
+      {
+        "id": "map.courtyard",
+        "kind": "map",
+        "definedAt": "examples/runner-bundle.json#/maps/0"
+      },
+      {
+        "id": "map.lounge",
+        "kind": "map",
+        "definedAt": "examples/runner-bundle.json#/maps/1"
+      },
+      {
+        "id": "dest.courtyard_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/0"
+      },
+      {
+        "id": "dest.lounge_entry",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/1"
+      },
+      {
+        "id": "dest.snack",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/2"
+      },
+      {
+        "id": "dest.stage",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/3"
+      },
+      {
+        "id": "dest.notice",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/4"
+      },
+      {
+        "id": "dest.serin_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/5"
+      },
+      {
+        "id": "dest.ruon_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/6"
+      },
+      {
+        "id": "dest.mira_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/7"
+      },
+      {
+        "id": "dest.doyun_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/8"
+      },
+      {
+        "id": "dest.eve_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/9"
+      },
+      {
+        "id": "dest.narin_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/10"
+      },
+      {
+        "id": "dest.haeon_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/11"
+      },
+      {
+        "id": "dest.isol_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/12"
+      },
+      {
+        "id": "dest.or_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/13"
+      },
+      {
+        "id": "dest.rume_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/14"
+      },
+      {
+        "id": "dest.bello_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/15"
+      },
+      {
+        "id": "dest.yuna_home",
+        "kind": "destination",
+        "definedAt": "examples/runner-bundle.json#/destinations/16"
+      },
+      {
+        "id": "schedule.serin",
+        "kind": "schedule",
+        "definedAt": "examples/runner-bundle.json#/schedules/0"
+      },
+      {
+        "id": "schedule.mira",
+        "kind": "schedule",
+        "definedAt": "examples/runner-bundle.json#/schedules/1"
+      },
+      {
+        "id": "event.snack",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/0"
+      },
+      {
+        "id": "event.stage",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/1"
+      },
+      {
+        "id": "event.lunch",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/2"
+      },
+      {
+        "id": "event.water_class",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/3"
+      },
+      {
+        "id": "event.pump_project",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/4"
+      },
+      {
+        "id": "event.a3_combat",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/5"
+      },
+      {
+        "id": "event.a3_device",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/6"
+      },
+      {
+        "id": "event.serin_r01",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/7"
+      },
+      {
+        "id": "event.coolant_craft",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/8"
+      },
+      {
+        "id": "event.first_festival",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/9"
+      },
+      {
+        "id": "event.a3_aftermath",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/10"
+      },
+      {
+        "id": "event.water_practice",
+        "kind": "event",
+        "definedAt": "examples/runner-bundle.json#/events/11"
+      },
+      {
+        "id": "portal.to_lounge",
+        "kind": "portal",
+        "definedAt": "examples/runner-bundle.json#/maps/0/portals/0"
+      },
+      {
+        "id": "portal.to_courtyard",
+        "kind": "portal",
+        "definedAt": "examples/runner-bundle.json#/maps/1/portals/0"
+      },
+      {
+        "id": "cap.observe",
+        "kind": "capability",
+        "definedAt": "schemas/functions.json#/kinds/goal/functions/observe"
+      },
+      {
+        "id": "cap.manual_control",
+        "kind": "capability",
+        "definedAt": "schemas/functions.json#/kinds/goal/functions/setState"
+      },
+      {
+        "id": "cap.repair",
+        "kind": "capability",
+        "definedAt": "schemas/functions.json#/kinds/goal/functions/apply"
+      },
+      {
+        "id": "object.a1_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/0/goals"
+      },
+      {
+        "id": "object.a1_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/0/goals"
+      },
+      {
+        "id": "object.a1_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/0/goals"
+      },
+      {
+        "id": "object.a2_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/1/goals"
+      },
+      {
+        "id": "object.a2_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/1/goals"
+      },
+      {
+        "id": "object.a2_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/1/goals"
+      },
+      {
+        "id": "object.a3_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/2/goals"
+      },
+      {
+        "id": "object.a3_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/2/goals"
+      },
+      {
+        "id": "object.a3_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/0/nodes/2/goals"
+      },
+      {
+        "id": "object.b1_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/0/goals"
+      },
+      {
+        "id": "object.b1_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/0/goals"
+      },
+      {
+        "id": "object.b1_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/0/goals"
+      },
+      {
+        "id": "object.b2_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/1/goals"
+      },
+      {
+        "id": "object.b2_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/1/goals"
+      },
+      {
+        "id": "object.b2_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/1/goals"
+      },
+      {
+        "id": "object.b3_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/2/goals"
+      },
+      {
+        "id": "object.b3_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/2/goals"
+      },
+      {
+        "id": "object.b3_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/1/nodes/2/goals"
+      },
+      {
+        "id": "object.c1_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/0/goals"
+      },
+      {
+        "id": "object.c1_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/0/goals"
+      },
+      {
+        "id": "object.c1_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/0/goals"
+      },
+      {
+        "id": "object.c2_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/1/goals"
+      },
+      {
+        "id": "object.c2_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/1/goals"
+      },
+      {
+        "id": "object.c2_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/1/goals"
+      },
+      {
+        "id": "object.c3_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/2/goals"
+      },
+      {
+        "id": "object.c3_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/2/goals"
+      },
+      {
+        "id": "object.c3_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/2/nodes/2/goals"
+      },
+      {
+        "id": "object.d1_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/0/goals"
+      },
+      {
+        "id": "object.d1_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/0/goals"
+      },
+      {
+        "id": "object.d1_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/0/goals"
+      },
+      {
+        "id": "object.d2_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/1/goals"
+      },
+      {
+        "id": "object.d2_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/1/goals"
+      },
+      {
+        "id": "object.d2_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/1/goals"
+      },
+      {
+        "id": "object.d3_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/2/goals"
+      },
+      {
+        "id": "object.d3_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/2/goals"
+      },
+      {
+        "id": "object.d3_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/3/nodes/2/goals"
+      },
+      {
+        "id": "object.e1_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/0/goals"
+      },
+      {
+        "id": "object.e1_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/0/goals"
+      },
+      {
+        "id": "object.e1_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/0/goals"
+      },
+      {
+        "id": "object.e2_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/1/goals"
+      },
+      {
+        "id": "object.e2_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/1/goals"
+      },
+      {
+        "id": "object.e2_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/1/goals"
+      },
+      {
+        "id": "object.e3_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/2/goals"
+      },
+      {
+        "id": "object.e3_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/2/goals"
+      },
+      {
+        "id": "object.e3_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/4/nodes/2/goals"
+      },
+      {
+        "id": "object.f1_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/0/goals"
+      },
+      {
+        "id": "object.f1_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/0/goals"
+      },
+      {
+        "id": "object.f1_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/0/goals"
+      },
+      {
+        "id": "object.f2_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/1/goals"
+      },
+      {
+        "id": "object.f2_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/1/goals"
+      },
+      {
+        "id": "object.f2_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/1/goals"
+      },
+      {
+        "id": "object.f3_target_0",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/2/goals"
+      },
+      {
+        "id": "object.f3_target_1",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/2/goals"
+      },
+      {
+        "id": "object.f3_target_2",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/story/5/nodes/2/goals"
+      },
+      {
+        "id": "object.final_core",
+        "kind": "logicalObject",
+        "definedAt": "examples/full-catalog.json#/finalDefinition/goals"
+      }
+    ]
+  },
+  "derivedBindings": {
+    "note": "저작 bindings 표 대신 assetKey 칸에서 생성. 주소 기본값 PLACEHOLDER/<key>, 실제 주소는 assetAddresses",
+    "count": 40,
+    "placeholders": 40,
+    "byKind": {
+      "effect": 12,
+      "sprite": 8,
+      "prefab": 20
+    },
+    "list": [
+      {
+        "id": "asset.lantern",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.lantern",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.levitate",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.levitate",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.water",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.water",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.ember",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.ember",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.sprout",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.sprout",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.shape",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.shape",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.gust",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.gust",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.frost",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.frost",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.echo",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.echo",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.repair",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.repair",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.illusion",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.illusion",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.barrier",
+        "kind": "effect",
+        "address": "PLACEHOLDER/asset.barrier",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_ink",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_ink",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_vine",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_vine",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_cleaner",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_cleaner",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_bird",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_bird",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_shadow",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_shadow",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_guard",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_guard",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_orb",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_orb",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.enemy_lizard",
+        "kind": "sprite",
+        "address": "PLACEHOLDER/asset.enemy_lizard",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_1",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_1",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_2",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_2",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_3",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_3",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_4",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_4",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_5",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_5",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_6",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_6",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_7",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_7",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_8",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_8",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_9",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_9",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_10",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_10",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_11",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_11",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_12",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_12",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_13",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_13",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_14",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_14",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_15",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_15",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_16",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_16",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_17",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_17",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_18",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_18",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_19",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_19",
+        "required": true,
+        "placeholder": true
+      },
+      {
+        "id": "asset.furniture_20",
+        "kind": "prefab",
+        "address": "PLACEHOLDER/asset.furniture_20",
+        "required": true,
+        "placeholder": true
+      }
+    ]
+  },
+  "limitations": [
+    "No Unity execution",
+    "No gameplay fun/balance validation",
+    "720 orders check dependency structure only",
+    "Full catalog profiles are proposals, not finished dialogue/maps/assets",
+    "Call checks are static: registry signature, reference kind, labels, forks, handles; not runtime behavior"
+  ]
+}

@@ -1,0 +1,507 @@
+{
+  "date": "2026-11-02",
+  "method": "tools/row-reduction.cjs: JSON 객체 수=배열·중첩 포함 모든 {} 개수, Row 수=최상위 배열 길이(단일 객체는 1). before=형식 전환 직전 백업, after=현재 생성물. 손으로 센 값 없음.",
+  "catalog": {
+    "tables": {
+      "units": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 1,
+        "objectsAfter": 1
+      },
+      "rules": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 1,
+        "objectsAfter": 1
+      },
+      "spells": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 12,
+        "objectsAfter": 12
+      },
+      "classes": {
+        "rowsBefore": 24,
+        "rowsAfter": 24,
+        "objectsBefore": 48,
+        "objectsAfter": 24
+      },
+      "reactions": {
+        "rowsBefore": 9,
+        "rowsAfter": 9,
+        "objectsBefore": 20,
+        "objectsAfter": 9
+      },
+      "enemies": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 24,
+        "objectsAfter": 12
+      },
+      "regions": {
+        "rowsBefore": 4,
+        "rowsAfter": 4,
+        "objectsBefore": 4,
+        "objectsAfter": 4
+      },
+      "rooms": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 12,
+        "objectsAfter": 12
+      },
+      "npcs": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 12,
+        "objectsAfter": 12
+      },
+      "relationships": {
+        "rowsBefore": 36,
+        "rowsAfter": 36,
+        "objectsBefore": 36,
+        "objectsAfter": 36
+      },
+      "story": {
+        "rowsBefore": 6,
+        "rowsAfter": 6,
+        "objectsBefore": 24,
+        "objectsAfter": 24
+      },
+      "activities": {
+        "rowsBefore": 36,
+        "rowsAfter": 36,
+        "objectsBefore": 36,
+        "objectsAfter": 36
+      },
+      "projects": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 74,
+        "objectsAfter": 12
+      },
+      "plants": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 60,
+        "objectsAfter": 60
+      },
+      "items": {
+        "rowsBefore": 93,
+        "rowsAfter": 93,
+        "objectsBefore": 93,
+        "objectsAfter": 93
+      },
+      "recipes": {
+        "rowsBefore": 48,
+        "rowsAfter": 48,
+        "objectsBefore": 192,
+        "objectsAfter": 48
+      },
+      "shops": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 87,
+        "objectsAfter": 1
+      },
+      "creatures": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 1,
+        "objectsAfter": 1
+      },
+      "furniture": {
+        "rowsBefore": 20,
+        "rowsAfter": 20,
+        "objectsBefore": 20,
+        "objectsAfter": 20
+      },
+      "objects": {
+        "rowsBefore": 3,
+        "rowsAfter": 3,
+        "objectsBefore": 3,
+        "objectsAfter": 3
+      },
+      "bindings": {
+        "rowsBefore": 40,
+        "rowsAfter": 0,
+        "objectsBefore": 40,
+        "objectsAfter": 0
+      },
+      "scenarios": {
+        "rowsBefore": 5,
+        "rowsAfter": 5,
+        "objectsBefore": 5,
+        "objectsAfter": 5
+      },
+      "symbols": {
+        "rowsBefore": 207,
+        "rowsAfter": 0,
+        "objectsBefore": 207,
+        "objectsAfter": 0
+      },
+      "characterCreation": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 1,
+        "objectsAfter": 1
+      },
+      "dialogues": {
+        "rowsBefore": 4,
+        "rowsAfter": 4,
+        "objectsBefore": 8,
+        "objectsAfter": 4
+      },
+      "hints": {
+        "rowsBefore": 90,
+        "rowsAfter": 0,
+        "objectsBefore": 90,
+        "objectsAfter": 0
+      },
+      "endings": {
+        "rowsBefore": 3,
+        "rowsAfter": 3,
+        "objectsBefore": 3,
+        "objectsAfter": 3
+      },
+      "onboarding": {
+        "rowsBefore": 6,
+        "rowsAfter": 6,
+        "objectsBefore": 6,
+        "objectsAfter": 6
+      },
+      "behaviorRegistry": {
+        "rowsBefore": 16,
+        "rowsAfter": 0,
+        "objectsBefore": 16,
+        "objectsAfter": 0
+      },
+      "mainRooms": {
+        "rowsBefore": 18,
+        "rowsAfter": 0,
+        "objectsBefore": 18,
+        "objectsAfter": 0
+      },
+      "encounters": {
+        "rowsBefore": 7,
+        "rowsAfter": 7,
+        "objectsBefore": 14,
+        "objectsAfter": 7
+      },
+      "goals": {
+        "rowsBefore": 54,
+        "rowsAfter": 0,
+        "objectsBefore": 54,
+        "objectsAfter": 0
+      },
+      "truthScenes": {
+        "rowsBefore": 2,
+        "rowsAfter": 2,
+        "objectsBefore": 2,
+        "objectsAfter": 2
+      },
+      "finalDefinition": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 4,
+        "objectsAfter": 1
+      },
+      "caseDerivation": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 1,
+        "objectsAfter": 1
+      },
+      "puzzles": {
+        "rowsBefore": 20,
+        "rowsAfter": 0,
+        "objectsBefore": 20,
+        "objectsAfter": 0
+      },
+      "difficultyPresets": {
+        "rowsBefore": 3,
+        "rowsAfter": 3,
+        "objectsBefore": 3,
+        "objectsAfter": 3
+      },
+      "facilities": {
+        "rowsBefore": 5,
+        "rowsAfter": 5,
+        "objectsBefore": 5,
+        "objectsAfter": 5
+      },
+      "schoolRule": {
+        "rowsBefore": 1,
+        "rowsAfter": 1,
+        "objectsBefore": 1,
+        "objectsAfter": 1
+      },
+      "assetAddresses": {
+        "rowsBefore": 0,
+        "rowsAfter": 1,
+        "objectsBefore": 0,
+        "objectsAfter": 1
+      }
+    },
+    "storyNodes": {
+      "rowsBefore": 18,
+      "rowsAfter": 18,
+      "objectsBefore": 18,
+      "objectsAfter": 18
+    },
+    "mergedOrRemoved": {
+      "mainRooms": {
+        "rowsBefore": 18,
+        "objectsBefore": 18,
+        "rowsAfter": 0,
+        "replacedBy": "story[].nodes[] 칸"
+      },
+      "goals": {
+        "rowsBefore": 54,
+        "objectsBefore": 54,
+        "rowsAfter": 0,
+        "replacedBy": "nodes[].goals 호출"
+      },
+      "hints": {
+        "rowsBefore": 90,
+        "objectsBefore": 90,
+        "rowsAfter": 0,
+        "replacedBy": "nodes[].hints·rooms[].hints 호출"
+      },
+      "puzzles": {
+        "rowsBefore": 20,
+        "objectsBefore": 20,
+        "rowsAfter": 0,
+        "replacedBy": "perform puzzle <room>[:label]"
+      },
+      "symbols": {
+        "rowsBefore": 207,
+        "objectsBefore": 207,
+        "rowsAfter": 0,
+        "replacedBy": "validation/report.json derivedSymbolIndex(생성)"
+      },
+      "bindings": {
+        "rowsBefore": 40,
+        "objectsBefore": 40,
+        "rowsAfter": 0,
+        "replacedBy": "assetKey 칸 + assetAddresses(생성)"
+      },
+      "behaviorRegistry": {
+        "rowsBefore": 16,
+        "objectsBefore": 16,
+        "rowsAfter": 0,
+        "replacedBy": "schemas/functions.json kinds.behavior"
+      }
+    },
+    "totalObjectsBefore": 1259,
+    "totalObjectsAfter": 462,
+    "totalStringsBefore": 6305,
+    "totalStringsAfter": 3444
+  },
+  "runner": {
+    "tables": {
+      "variables": {
+        "rowsBefore": 5,
+        "rowsAfter": 5,
+        "objectsBefore": 5,
+        "objectsAfter": 5
+      },
+      "maps": {
+        "rowsBefore": 6,
+        "rowsAfter": 6,
+        "objectsBefore": 10,
+        "objectsAfter": 10
+      },
+      "destinations": {
+        "rowsBefore": 17,
+        "rowsAfter": 17,
+        "objectsBefore": 34,
+        "objectsAfter": 34
+      },
+      "npcs": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 24,
+        "objectsAfter": 24
+      },
+      "schedules": {
+        "rowsBefore": 2,
+        "rowsAfter": 2,
+        "objectsBefore": 6,
+        "objectsAfter": 2
+      },
+      "events": {
+        "rowsBefore": 12,
+        "rowsAfter": 12,
+        "objectsBefore": 93,
+        "objectsAfter": 14
+      },
+      "interactions": {
+        "rowsBefore": 2,
+        "rowsAfter": 0,
+        "objectsBefore": 2,
+        "objectsAfter": 0
+      }
+    },
+    "events": {
+      "rowsBefore": 12,
+      "rowsAfter": 12,
+      "objectsBefore": 93,
+      "objectsAfter": 14,
+      "commandAndConditionObjectsBefore": 79,
+      "callsAfter": 65
+    },
+    "interactions": {
+      "rowsBefore": 2,
+      "rowsAfter": 0,
+      "replacedBy": "events[].trigger"
+    },
+    "totalObjectsBefore": 175,
+    "totalObjectsAfter": 90
+  },
+  "callColumnsAfter": {
+    "cells": 293,
+    "calls": 566,
+    "byColumn": {
+      "events.trigger": {
+        "cells": 12,
+        "calls": 12
+      },
+      "events.when": {
+        "cells": 12,
+        "calls": 12
+      },
+      "events.script": {
+        "cells": 12,
+        "calls": 20
+      },
+      "events.forks/*": {
+        "cells": 4,
+        "calls": 4
+      },
+      "events.effects": {
+        "cells": 12,
+        "calls": 17
+      },
+      "schedules.script": {
+        "cells": 2,
+        "calls": 5
+      },
+      "story/*/nodes.goals": {
+        "cells": 18,
+        "calls": 54
+      },
+      "story/*/nodes.hints": {
+        "cells": 18,
+        "calls": 54
+      },
+      "rooms.hints": {
+        "cells": 12,
+        "calls": 36
+      },
+      "finalDefinition.goals": {
+        "cells": 1,
+        "calls": 1
+      },
+      "finalDefinition.stages": {
+        "cells": 1,
+        "calls": 3
+      },
+      "enemies.behavior": {
+        "cells": 12,
+        "calls": 24
+      },
+      "enemies.weak": {
+        "cells": 12,
+        "calls": 12
+      },
+      "reactions.paths": {
+        "cells": 9,
+        "calls": 11
+      },
+      "encounters.enemies": {
+        "cells": 7,
+        "calls": 7
+      },
+      "recipes.ingredients": {
+        "cells": 48,
+        "calls": 96
+      },
+      "recipes.substitutes": {
+        "cells": 48,
+        "calls": 48
+      },
+      "shops.stock": {
+        "cells": 1,
+        "calls": 86
+      },
+      "classes.grantOnFirstAccept": {
+        "cells": 24,
+        "calls": 24
+      },
+      "projects.grantOnAccept": {
+        "cells": 12,
+        "calls": 26
+      },
+      "projects.when": {
+        "cells": 12,
+        "calls": 12
+      },
+      "dialogues.when": {
+        "cells": 4,
+        "calls": 2
+      }
+    }
+  },
+  "fileBytes": {
+    "examples/full-catalog.json": {
+      "before": 343350,
+      "after": 219890
+    },
+    "examples/runner-bundle.json": {
+      "before": 24918,
+      "after": 15392
+    },
+    "examples/safe-save.json": {
+      "before": 10103,
+      "after": 10103
+    },
+    "examples/expected-outcomes.json": {
+      "before": 1921,
+      "after": 2191
+    },
+    "schemas/catalog.schema.json": {
+      "before": 70010,
+      "after": 55607
+    },
+    "schemas/runner.schema.json": {
+      "before": 23404,
+      "after": 10364
+    },
+    "schemas/save.schema.json": {
+      "before": 28086,
+      "after": 28086
+    },
+    "schemas/functions.json": {
+      "before": null,
+      "after": 29006
+    },
+    "validation/report.json": {
+      "before": 6397,
+      "after": 139453
+    },
+    "08-field-dictionary.md": {
+      "before": 51240,
+      "after": 56247
+    },
+    "01-source-trace.md": {
+      "before": 112493,
+      "after": 112309
+    }
+  },
+  "html": {
+    "before": 1686541,
+    "after": 1727499
+  }
+}

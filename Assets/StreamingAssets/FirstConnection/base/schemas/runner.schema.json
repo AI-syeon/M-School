@@ -1,0 +1,408 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contentVersion",
+    "variables",
+    "maps",
+    "destinations",
+    "npcs",
+    "schedules",
+    "events"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "contentVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "initial"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "type": {
+            "enum": [
+              "bool",
+              "int"
+            ]
+          },
+          "initial": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "maps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "width",
+          "height",
+          "blocked",
+          "portals"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "blocked": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "portals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "x",
+                "y",
+                "to",
+                "open"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                },
+                "x": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "y": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "to": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mapId",
+                    "x",
+                    "y"
+                  ],
+                  "properties": {
+                    "mapId": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                    },
+                    "x": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "open": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "destinations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "position",
+          "radius",
+          "facing"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "position": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mapId",
+              "x",
+              "y"
+            ],
+            "properties": {
+              "mapId": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+              },
+              "x": {
+                "type": "number",
+                "minimum": 0
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "radius": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 0.5
+          },
+          "facing": {
+            "enum": [
+              "north",
+              "south",
+              "east",
+              "west"
+            ]
+          }
+        }
+      }
+    },
+    "npcs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source",
+          "name",
+          "position",
+          "home",
+          "speed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "source": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "position": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mapId",
+              "x",
+              "y"
+            ],
+            "properties": {
+              "mapId": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+              },
+              "x": {
+                "type": "number",
+                "minimum": 0
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "home": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "speed": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "schedules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "npcId",
+          "script"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "npcId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "script": {
+            "type": "string",
+            "pattern": "^[^\\r\\n]+$",
+            "description": "함수 호출목록 문자열. 의미 검사는 validate.cjs + functions.json",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "category",
+          "trigger",
+          "staging",
+          "pause",
+          "executionMode",
+          "repeatPolicy",
+          "resources",
+          "when",
+          "costMinutes",
+          "script",
+          "effects"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "category": {
+            "enum": [
+              "resolution",
+              "relationship",
+              "festival",
+              "interaction",
+              "general",
+              "schedule"
+            ]
+          },
+          "trigger": {
+            "type": "string",
+            "pattern": "^(clock|manual|interact .+)$",
+            "description": "함수 호출목록 문자열. 의미 검사는 validate.cjs + functions.json",
+            "minLength": 1
+          },
+          "staging": {
+            "enum": [
+              "current",
+              "reserved"
+            ]
+          },
+          "pause": {
+            "enum": [
+              "dialogue",
+              "scene",
+              "none"
+            ]
+          },
+          "executionMode": {
+            "enum": [
+              "scene",
+              "room-activity"
+            ]
+          },
+          "repeatPolicy": {
+            "enum": [
+              "once",
+              "practice"
+            ]
+          },
+          "completionKey": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "resources": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+            }
+          },
+          "when": {
+            "type": "string",
+            "pattern": "^[^\\r\\n]*$",
+            "description": "함수 호출목록 문자열. 의미 검사는 validate.cjs + functions.json"
+          },
+          "costMinutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "script": {
+            "type": "string",
+            "pattern": "^[^\\r\\n]+$",
+            "description": "함수 호출목록 문자열. 의미 검사는 validate.cjs + functions.json",
+            "minLength": 1
+          },
+          "forks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[^\\r\\n]+$",
+              "description": "함수 호출목록 문자열. 의미 검사는 validate.cjs + functions.json",
+              "minLength": 1
+            }
+          },
+          "effects": {
+            "type": "string",
+            "pattern": "^[^\\r\\n]*$",
+            "description": "함수 호출목록 문자열. 의미 검사는 validate.cjs + functions.json"
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:magic-campus:runner:2",
+  "title": "Runner bundle v2 (function-call columns)",
+  "description": "한 이벤트 = Row 하나. 호출 칸은 문자열이며 의미는 functions.json과 validate.cjs가 검사한다."
+}

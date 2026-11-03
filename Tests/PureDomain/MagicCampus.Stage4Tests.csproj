@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../MagicCampus.Contracts.csproj" /><ProjectReference Include="../../MagicCampus.Domain.csproj" />
+    <Compile Include="ProgramStage4.cs" /><Compile Include="Persistence/**/*.cs" /><Compile Include="Events/**/*.cs" /><Compile Include="Schedules/**/*.cs" /><Compile Include="FirstConnectionData/**/*.cs" />
+    <Compile Include="Movement/MovementFakes.cs" />
+    <Compile Include="../../Assets/MagicCampus/UnityAdapters/ContentIO/**/*.cs" /><Compile Include="../../Assets/MagicCampus/UnityAdapters/Storage/**/*.cs" />
+    <Reference Include="JsonSchema.Net"><HintPath>../../Assets/MagicCampus/ThirdParty/JsonSchemaNet/JsonSchema.Net.dll</HintPath></Reference>
+    <Reference Include="JsonPointer.Net"><HintPath>../../Assets/MagicCampus/ThirdParty/JsonSchemaNet/JsonPointer.Net.dll</HintPath></Reference>
+    <Reference Include="Json.More"><HintPath>../../Assets/MagicCampus/ThirdParty/JsonSchemaNet/Json.More.dll</HintPath></Reference>
+    <Reference Include="Humanizer"><HintPath>../../Assets/MagicCampus/ThirdParty/JsonSchemaNet/Humanizer.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

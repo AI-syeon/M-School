@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Magic Campus · Unity 기반 데이터 중심 게임 시스템 기획서. 구조도, 이동 지도, 이벤트 단계, 저장 복구를 시각적으로 설명합니다.">
+<title>매직캠퍼스 · 그림으로 읽는 시스템 기획서</title>
+<style>__CSS__</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 이동</a>
+<aside class="sidebar">
+  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">M<span>✦</span></span><span>매직캠퍼스<small>SYSTEM DESIGN / UNITY</small></span></a>
+  <div class="nav-caption">그림으로 읽는 시스템 기획</div>
+  <nav aria-label="문서 목차">
+    <a href="#overview"><span>01</span>전체 구조</a>
+    <a href="#event"><span>02</span>이벤트 한 장면 따라가기</a>
+    <a href="#movement"><span>03</span>NPC는 어떻게 찾아갈까</a>
+    <a href="#control"><span>04</span>두 사건이 겹치면</a>
+    <a href="#clock"><span>05</span>시간은 언제 멈출까</a>
+    <a href="#save"><span>06</span>저장과 다시 시작</a>
+    <a href="#reuse"><span>07</span>다른 콘텐츠에 재사용</a>
+    <a href="#roadmap"><span>08</span>만드는 순서</a>
+    <a href="#verification"><span>09</span>확인한 것과 남은 것</a>
+    <a href="#full-spec"><span>10</span>전체 명세와 JSON</a>
+  </nav>
+  <div class="sidebar-bottom"><span class="status-dot"></span>시스템 기획 · 설계 제안 v1<br><small>2026.11.01 · 게임 구현 전</small><button type="button" id="print-guide">인쇄 / PDF로 보관</button></div>
+</aside>
+<main id="main">
+<header id="top" class="hero">
+  <div class="eyebrow">MAGIC CAMPUS / SYSTEM BLUEPRINT</div>
+  <h1>새로운 이야기를,<br><em>데이터로 더하는 게임.</em></h1>
+  <p class="hero-lead">“서린을 휴게실로 보내고, 대화한 결과를 기억하게 해줘.”<br>이 한 장면을 Unity의 공통 시스템이 어떻게 실행하는지 살펴봅니다.</p>
+  <div class="hero-tags"><span>Unity 사용 확정</span><span>콘텐츠와 실행 규칙 분리</span><span>시스템 기획서</span></div>
+  <a class="hero-link" href="#event">한 장면으로 이해하기 <span aria-hidden="true">↓</span></a>
+  <div class="hero-caption">읽는 방법 · 앞부분은 그림과 예제로, 마지막은 개발용 전체 명세로 구성했습니다.</div>
+</header>
+
+<section id="overview" class="chapter">
+  <div class="section-head"><span class="section-no">01</span><div><div class="kicker">THE BIG PICTURE</div><h2>무엇을 추가하고, 무엇을 공통으로 만들까?</h2></div></div>
+  <p class="intro">기획자는 <strong>누가 · 어디로 · 언제 · 무엇을 할지</strong> 적습니다. 공통 시스템은 그 내용을 읽고 이동, 대화, 상태 변경과 저장을 처리합니다.</p>
+  <figure class="architecture" aria-label="콘텐츠 데이터가 공통 게임 시스템을 거쳐 Unity의 화면과 조작으로 연결되는 세 계층 구조">
+    <div class="architecture-row layer-data"><div class="layer-label">기획자가 추가<small>콘텐츠 데이터</small></div><div class="layer-items"><span>NPC · 아트</span><span>목적지 · 일정</span><span>대사 · 선택지</span><span>이벤트 JSON</span></div></div>
+    <div class="connector"><span>데이터 형식과 연결된 ID가 맞는지 먼저 검사</span><b aria-hidden="true">↓</b></div>
+    <div class="architecture-row layer-rules"><div class="layer-label">개발자가 공통화<small>게임 실행 규칙</small></div><div class="layer-items"><span>조건 판정</span><span>이동 · 경로 탐색</span><span>이벤트 실행</span><span>시간 · 일정</span><span>제어권 조정</span><span>상태 · 저장</span></div></div>
+    <div class="connector"><span>화면·충돌·입출력이 필요한 작업만 전달</span><b aria-hidden="true">↓</b></div>
+    <div class="architecture-row layer-unity"><div class="layer-label">Unity가 실행<small>화면과 실제 조작</small></div><div class="layer-items"><span>맵 · 캐릭터 표시</span><span>충돌 검사</span><span>대화창 · 카메라</span><span>입력 · 파일 저장</span></div></div>
+    <figcaption>장면마다 전용 코드를 복사하지 않고, 같은 이동기·이벤트 실행기·저장 규칙을 씁니다.</figcaption>
+  </figure>
+  <div class="two-col explanation"><div><h3>데이터만 바꿔 추가하는 것</h3><p>새 NPC, 목표 장소, 대사, 선택지, 시간 조건, 지원 함수로 조합한 사건. 예를 들어 <strong>“미라가 무대로 이동한 뒤 손을 흔들기”</strong>를 적습니다.</p></div><div><h3>새 기능 개발이 필요한 것</h3><p>처음 등장하는 전투 규칙, 새로운 퍼즐 원리, 새로운 조작 방식. 함수와 실패·중단·저장 규칙을 먼저 만든 뒤 데이터에서 사용합니다.</p></div></div>
+  <div class="note"><strong>프레임워크의 목표</strong><p>Unity 위에서 여러 게임에 재사용할 공통 게임 시스템을 만듭니다. 이 문서는 그 시스템의 동작 범위와 계약을 정한 기획서입니다.</p></div>
+</section>
+
+<section id="event" class="chapter">
+  <div class="section-head"><span class="section-no">02</span><div><div class="kicker">ONE EVENT, END TO END</div><h2>서린과 간식 모임, 한 장면 따라가기</h2></div></div>
+  <p class="intro">아래 단계를 선택하면 <strong>화면에서 보이는 일</strong>과 <strong>뒤에서 처리하는 규칙</strong>을 함께 볼 수 있습니다.</p>
+  <div class="explainer-caption">설명을 위한 단계 모형 · 실제 Unity 실행 화면이 아닙니다.</div>
+  <div id="event-stepper" class="stepper" aria-label="간식 모임 이벤트 단계">__STEPS__</div>
+  <div class="event-scene">
+    <div class="scene-visual">
+      <div class="scene-top"><span>휴게실 · 간식 모임</span><span id="scene-time">07:00</span></div>
+      <svg id="snack-map" class="snack-svg" viewBox="0 0 480 280" role="img" aria-labelledby="snack-map-title snack-map-desc">
+        <title id="snack-map-title">서린이 휴게실 준비 지점에서 간식 자리로 이동하는 개념도</title>
+        <desc id="snack-map-desc">벽과 탁자가 있는 휴게실에서 서린의 이동 경로와 도착 지점을 표시합니다.</desc>
+        <defs><pattern id="floor" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#f0e9db"/><path d="M0 0H40V40" fill="none" stroke="#ded5c5"/></pattern></defs>
+        <rect x="20" y="20" width="440" height="220" rx="10" fill="url(#floor)"/>
+        <rect x="20" y="20" width="440" height="15" rx="5" fill="#789282"/>
+        <rect x="200" y="75" width="45" height="83" rx="5" fill="#b79e7e"/><text x="222" y="121" text-anchor="middle" class="map-prop-label">서가</text>
+        <rect x="349" y="81" width="68" height="48" rx="8" fill="#b79e7e"/><text x="383" y="110" text-anchor="middle" class="map-prop-label">간식 탁자</text>
+        <path id="snack-route" d="M60 193 H380" fill="none" stroke="#48775d" stroke-width="3" stroke-dasharray="6 7"/>
+        <circle cx="380" cy="193" r="19" fill="none" stroke="#48775d" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="60" y="265" text-anchor="middle" class="map-small">준비 지점</text><text x="380" y="265" text-anchor="middle" class="map-small">도착 목표</text>
+        <g id="serin-marker" transform="translate(60 193)"><circle r="15" fill="#365b4a"/><text text-anchor="middle" y="5" fill="#fff" font-size="13">서</text></g>
+      </svg>
+      <div class="dialogue-box" id="scene-dialogue"><strong>서린</strong><p id="scene-dialogue-text">모임을 시작하기 전, 조건을 확인합니다.</p><div id="scene-choices" class="choice-buttons" hidden><button type="button" data-choice="notes">노트부터 정리하자</button><button type="button" data-choice="tea">차부터 준비하자</button></div></div>
+    </div>
+    <div class="scene-explanation" aria-live="polite"><div class="small-label" id="step-count">STEP 01 / 07</div><h3 id="step-title">시작 조건 확인</h3><p id="step-body"></p><div class="rule-line"><span>공통 규칙</span><p id="step-rule"></p></div><div class="call-line"><span>이 단계의 호출</span><code id="step-call"></code></div><dl class="state-readout"><div><dt>함께한 기억</dt><dd id="scene-memory">아직 없음</dd></div><div><dt>서린의 제어권</dt><dd id="scene-owner">평상 일정</dd></div><div><dt>저장 기준점</dt><dd id="scene-save">시작 전 안전 상태</dd></div></dl><div class="step-controls"><button type="button" id="prev-step">← 이전</button><button type="button" class="primary" id="next-step">다음 단계 →</button></div></div>
+  </div>
+  <details class="technical"><summary>이 장면을 실제 JSON에서 확인하기</summary><p>이벤트 하나가 JSON 한 줄(Row)입니다. 한 행동은 한 칸 안의 함수 호출이고, 호출은 <code>/</code>로 이어 씁니다. 아래는 번들에 있는 event.snack의 원문이며, 다음 표는 같은 문자열을 파서가 나눈 결과입니다. 이동은 도착까지 기다리는 호출 하나로 끝나고, 결과 확정은 <code>effects</code> 칸이 맡습니다.</p><pre><code>__SNACK_EVENT__</code></pre>__SNACK_CALLS__<p>호출 위치는 <code>event.snack#3</code>(본문 3번째), <code>event.snack:notes#1</code>(가지 notes 1번째)로 부릅니다. 문법은 <a href="full-design/11-function-syntax.md">함수 문법</a> 문서에 있습니다.</p></details>
+</section>
+
+<section id="movement" class="chapter">
+  <div class="section-head"><span class="section-no">03</span><div><div class="kicker">ONE MOVEMENT SYSTEM</div><h2>목표만 주면, 현재 위치에서 찾아간다</h2></div></div>
+  <p class="intro">미라에게는 <strong>“휴게실 무대로 가기”</strong>만 줍니다. 이동 시스템이 벽을 우회하고, 연결된 문을 통과하고, 도착 여부를 알려줍니다.</p>
+  <div class="movement-sources"><span>시간표에서 이동 요청</span><span>이벤트에서 이동 요청</span><span>일반 자동 이동 요청</span></div>
+  <div class="shared-service">같은 이동 시스템 <small>경로 찾기 → 충돌 확인 → 이동 → 도착 / 실패 / 취소</small></div>
+  <div class="map-panel">
+    <div class="map-toolbar"><div><h3>교정에서 휴게실 무대까지</h3><p>실제 예제의 좌표로 그린 정적 경로 개념도</p></div><label>상황 선택 <select id="route-case"><option value="normal">정상 경로</option><option value="closed">연결 문이 닫힘</option><option value="blocked">도착 지점이 막힘</option></select></label></div>
+    <div class="map-pair">__ROUTE_MAPS__</div>
+    <div class="map-legend"><span><i class="legend-dot"></i>NPC 시작</span><span><i class="legend-path"></i>이동 경로</span><span><i class="legend-wall"></i>막힌 타일</span><span>◇ 도착 목표</span><span>문 ↔ 다른 맵</span></div>
+    <div id="route-result" class="route-result" aria-live="polite"></div>
+  </div>
+  <div class="three-col rules"><div><span class="mini-no">01</span><h3>맵 안에서는</h3><p>타일 길을 찾되 실제 충돌도 검사합니다. 대각선으로 벽 모서리를 뚫고 갈 수 없습니다.</p></div><div><span class="mini-no">02</span><h3>맵이 다르면</h3><p>연결된 문까지 걷고, 대상 맵을 확인한 뒤 전환합니다. 로드에 실패하면 출발 지점에 남습니다.</p></div><div><span class="mini-no">03</span><h3>이동 결과는</h3><p>도착·실패·취소를 구분합니다. 이동 실패를 도착으로 처리하거나, 평상 이동을 몰래 순간이동시키지 않습니다.</p></div></div>
+  <details class="technical"><summary>막힌 길 · 예약 합류 · 도착 판정의 세부 규칙</summary><ul><li>동적 장애물로 1초간 진행이 없으면 재탐색하며 최대 3회, 기본 제한 시간은 시뮬레이션 30초입니다. 수치는 프로토타입에서 조정합니다.</li><li>같은 맵에서 목표 반경 안에 있고, 충돌 없이 정지할 수 있어야 도착입니다.</li><li>예약 장면만 화면 전환 또는 비관찰 공간에서 준비 지점에 안전 합류할 수 있습니다. 그다음 이동은 같은 이동기를 사용합니다.</li><li>이 그림은 정적 도달 가능성을 설명합니다. 실제 움직임, 충돌, 재탐색은 Unity 구현 후 확인합니다.</li></ul></details>
+</section>
+
+<section id="control" class="chapter">
+  <div class="section-head"><span class="section-no">04</span><div><div class="kicker">WHO CONTROLS THE NPC?</div><h2>서린을 두 사건이 동시에 부르면?</h2></div></div>
+  <p class="intro">NPC나 장소를 쓰는 동안에는 <strong>사용권을 먼저 확보</strong>합니다. 이미 진행 중인 장면은 끝까지 유지하고, 다른 사건은 초대 목록에 남깁니다.</p>
+  <div class="priority-chart" aria-label="대기 중인 장면의 우선순위: 사건 해결 연출, 예약 관계 장면, 예약 행사, 일반 상호작용, 평상 일정">
+    <div><span class="priority-rank">1</span><strong>주요 사건 해결 연출</strong><span class="priority-bar" style="--size:100%"></span><small>400</small></div>
+    <div><span class="priority-rank">2</span><strong>예약 관계 장면</strong><span class="priority-bar" style="--size:75%"></span><small>300</small></div>
+    <div><span class="priority-rank">3</span><strong>예약 행사</strong><span class="priority-bar" style="--size:50%"></span><small>200</small></div>
+    <div><span class="priority-rank">4</span><strong>일반 상호작용</strong><span class="priority-bar" style="--size:25%"></span><small>100</small></div>
+    <div><span class="priority-rank">5</span><strong>평상 일정</strong><span class="priority-bar" style="--size:4%"></span><small>10</small></div>
+  </div>
+  <p class="caption">숫자는 다음에 시작할 후보를 고르는 기준입니다. 이미 진행 중인 장면을 끊는 권한이 아닙니다.</p>
+  <div class="two-col"><div class="case-card"><span class="pill">평상 일정 중이라면</span><h3>일정 이동을 멈추고, 사건에 양도</h3><div class="flow-inline"><span>식당으로 걷는 중</span><b>→</b><span>일정 이동 취소</span><b>→</b><span>관계 장면 시작</span></div><p>장면이 끝나면 현재 시각을 확인하고, 현재 위치에서 새 일정 목적지로 다시 이동합니다.</p></div><div class="case-card"><span class="pill warm">관계 장면 진행 중이라면</span><h3>뒤늦게 온 해결 연출은 대기</h3><div class="flow-inline"><span>관계 장면 유지</span><b>→</b><span>장면 종료</span><b>→</b><span>다음 후보 선택</span></div><p>일단 시작한 장면은 강제 선점하지 않습니다. 기다린 초대는 사라지지 않습니다.</p></div></div>
+  <div class="note"><strong>장면끼리는 순서대로, 장면 속 연출은 동시에</strong><p>v1에서는 저장 상태를 바꾸는 전경 이벤트를 한 번에 하나 실행합니다. 한 장면 안에서 카메라 이동과 손 흔들기는 동시에 실행할 수 있습니다. 둘 중 하나가 실패하면 나머지도 정리한 뒤 안전 상태로 복원합니다.</p></div>
+</section>
+
+<section id="clock" class="chapter">
+  <div class="section-head"><span class="section-no">05</span><div><div class="kicker">TIME & DAILY LIFE</div><h2>“시간 정지”도 종류가 다르다</h2></div></div>
+  <p class="intro">대화할 때 게임 시계가 멈춰도, 장면을 위해 움직이는 NPC까지 멈추면 안 됩니다. <strong>시계 · 평상 일정 · 장면 움직임</strong>을 구분합니다.</p>
+  <div class="table-scroll"><table class="time-table"><caption>활동에 따른 시간과 움직임</caption><thead><tr><th scope="col">지금 하는 일</th><th scope="col">게임 시계</th><th scope="col">평상 NPC 이동</th><th scope="col">장면 속 이동·연출</th></tr></thead><tbody><tr><th scope="row">일반 필드 활동</th><td><span class="running">진행</span></td><td><span class="running">진행</span></td><td>해당 작업 실행</td></tr><tr><th scope="row">일상 대화</th><td><span class="paused">정지</span></td><td>대화 참여자 제외 진행</td><td><span class="running">진행 가능</span></td></tr><tr><th scope="row">정식 수업 · 관계 장면</th><td><span class="paused">정지</span></td><td><span class="paused">정지</span></td><td><span class="running">진행 가능</span></td></tr><tr><th scope="row">전체 메뉴 · 전투 주문 고리</th><td><span class="paused">정지</span></td><td><span class="paused">정지</span></td><td><span class="paused">정지</span></td></tr></tbody></table></div>
+  <div class="time-cost"><span class="clock-face">07:00</span><div class="time-cost-middle"><strong>장면을 보는 동안 시계 정지</strong><span>완료할 때 미리 표시한 소요 시간 +10분을 한 번 반영</span><div class="time-line" aria-hidden="true"></div></div><span class="clock-face">07:10</span></div>
+  <p class="caption">간식 예제는 10분을 쓰는 설계입니다. 취소·실패 시 비용은 더하지 않고 진입 상태로 돌아갑니다.</p>
+  <div class="calendar-strip"><div><strong>하루</strong><p>필드에서 현실 10초당 게임 10분</p></div><div><strong>계절 · 학기</strong><p>계절 20일 · 학기 40일 · 달력 80일 순환</p></div><div><strong>놓친 활동</strong><p>복습·연습 회차 예약으로 다시 참여</p></div></div>
+</section>
+
+<section id="save" class="chapter">
+  <div class="section-head"><span class="section-no">06</span><div><div class="kicker">SAVE & RECOVERY</div><h2>장면 중 종료해도, 진행을 잃지 않게</h2></div></div>
+  <p class="intro">안전 저장은 두 곳에 있습니다. <strong>장면 진입 전</strong>과 <strong>결과 확정 후</strong>입니다. 중간 연출의 순간까지 복원하려고 하지 않습니다.</p>
+  <figure class="save-rail" aria-label="장면 시작 전 안전 저장 A, 이동과 대화와 선택, 완료 후 안전 저장 B">
+    <div class="save-point"><span>A</span><strong>진입 전 저장</strong><small>초대 수락 · 완료 전</small></div><div class="save-middle"><span>이동 → 대화 → 선택</span><div class="dashed-line"></div><small>여기서 종료하면 A로 복원</small></div><div class="save-point"><span>B</span><strong>완료 후 저장</strong><small>기억 · 완료 · 시간 확정</small></div>
+  </figure>
+  <div class="save-demo"><div class="save-demo-buttons" role="group" aria-label="종료 시점에 따른 복원 예"><button type="button" id="restore-entry" aria-pressed="true">이동·대화 중 종료했다면</button><button type="button" id="restore-complete" aria-pressed="false">완료 후 다시 열었다면</button></div><div id="restore-output" aria-live="polite"></div></div>
+  <div class="two-col explanation"><div><h3>결과는 함께 확정합니다</h3><p>함께한 기억, 이벤트 완료 표시, 시간 비용을 한 묶음으로 반영합니다. 기억만 생기거나 보상만 여러 번 지급되는 상태를 막습니다.</p></div><div><h3>저장 실패도 알려줍니다</h3><p>디스크 저장에 실패하면 이전 정상 파일을 보존하고 “완료했지만 아직 저장되지 않음”을 안내합니다. 저장 버전이 맞지 않으면 원본 파일을 유지합니다.</p></div></div>
+</section>
+
+<section id="reuse" class="chapter">
+  <div class="section-head"><span class="section-no">07</span><div><div class="kicker">BUILD ONCE, AUTHOR MANY</div><h2>서로 다른 콘텐츠도 같은 규칙으로</h2></div></div>
+  <p class="intro">이야기가 달라도 실행 순서는 재사용합니다. 바뀌는 것은 인물, 목적지, 조건, 대사, 마지막 결과입니다.</p>
+  <div class="three-col reuse-cards"><article><div class="event-type">대화 중심</div><h3>서린의 간식 모임</h3><p>도입 완료 후 초대 수락. 간식 자리에서 대화하고 선택합니다.</p><div class="command-chain">move(도착까지 대기) → say<br>→ choice → effects 커밋</div><code>event.snack</code></article><article><div class="event-type">이동 중심</div><h3>미라의 무대 준비</h3><p>교정에서 출발해 문을 건너 무대에 도착합니다.</p><div class="command-chain">move → camera·animate async<br>→ await → say → effects 커밋</div><code>event.stage</code></article><article><div class="event-type">시간 조건 중심</div><h3>점심시간의 초대</h3><p>12시 이후 초대 후보가 됩니다. 간식 모임의 기억으로 대사가 달라집니다.</p><div class="command-chain">when 조건 → move → branch<br>→ 가지 say → effects 커밋</div><code>event.lunch</code></article></div>
+  <div class="supported"><h3>지금 정의한 함수의 범위</h3><div class="command-pills"><span>move · 이동(기본은 도착까지 대기)</span><span>await · async 핸들 기다림</span><span>say · 대사</span><span>choice · 선택</span><span>branch · 조건 분기</span><span>async= · 동시 연출</span><span>wait · 잠시 대기</span><span>camera · 카메라</span><span>animate · 동작</span><span>effects 칸 · 결과 확정</span><span>eq · gte · any · ! · 조건</span><span>set · 효과</span></div><p>인벤토리·관계·퀘스트·마법·재배·전투는 이 공통 조건·효과·저장을 재사용하도록 설계했습니다. 각 도메인의 전체 데이터 형식과 세부 조작은 후속 설계 범위입니다.</p></div>
+</section>
+
+<section id="roadmap" class="chapter">
+  <div class="section-head"><span class="section-no">08</span><div><div class="kicker">IMPLEMENTATION ORDER</div><h2>먼저 만들 것은 작고 연결된 한 장면</h2></div></div>
+  <p class="intro">첫 구현 목표는 <strong>“NPC와 이벤트 JSON을 추가하면 이동하고, 대화하고, 결과가 저장되는 것”</strong>입니다. 전체 게임 구현과 구분합니다.</p>
+  <ol class="roadmap"><li><span>M0</span><div><h3>Unity 기반과 데이터 계약 고정</h3><p>버전·대상 플랫폼·파일 형식·ID·좌표·오류 표시를 정합니다.</p></div></li><li><span>M1</span><div><h3>이동부터 확실하게</h3><p>같은 맵과 다른 맵 이동, 도착·실패·취소, NPC 사용권을 확인합니다.</p></div></li><li class="milestone"><span>M2</span><div><div class="pill">첫 연결 이정표</div><h3>JSON → 이동 → 대화 → 저장</h3><p>새 NPC·목표·이벤트를 데이터만 바꿔 추가하고, 중간 종료와 재실행까지 확인합니다.</p></div></li><li><span>M3</span><div><h3>일정 · 동시성 · 진단</h3><p>시간표, 예약 큐, 병렬 연출, 미발동 이유와 장애 시험을 연결합니다.</p></div></li><li><span>M4</span><div><h3>게임 고유 시스템 확장</h3><p>관계·퀘스트·물품·마법 반응·방 복구의 세부 명세와 데이터를 만듭니다.</p></div></li><li><span>M5</span><div><h3>60–90분 핵심 체험</h3><p>배운 마법을 그날 쓰는 재미와 생활 부담을 실제 플레이로 확인합니다.</p></div></li></ol>
+  <div class="acceptance"><h3>첫 이정표에서 꼭 확인할 것</h3><ul><li>목표 좌표를 바꾸면 코드를 고치지 않아도 새 위치로 간다.</li><li>실제 도착 전에는 대사가 시작되지 않는다.</li><li>중간 종료 후 다시 시작할 수 있고, 완료 후 보상·시간이 중복되지 않는다.</li><li>새 NPC와 새 이벤트를 JSON만 추가해 같은 규칙으로 실행한다.</li></ul></div>
+</section>
+
+<section id="verification" class="chapter">
+  <div class="section-head"><span class="section-no">09</span><div><div class="kicker">EVIDENCE & LIMITS</div><h2>어디까지 확인했을까?</h2></div></div>
+  <div class="two-col verification"><div class="checked"><div class="verification-symbol" aria-hidden="true">✓</div><h3>문서와 데이터에서 확인</h3><ul><li>원본 요구와 시스템 명세 연결</li><li>맵 2개 · NPC 2명 · 이벤트 3개의 참조</li><li>좌표·정적 경로·이동 핸들·임대 선언</li><li>저장 예제와 완료 결과의 일치</li><li>잘못된 데이터 __NEGATIVE_COUNT__건 거부</li></ul><span class="pill">기계 검사 통과</span></div><div class="pending"><div class="verification-symbol" aria-hidden="true">↗</div><h3>Unity 구현 뒤 확인</h3><ul><li>실제 충돌과 막힌 길 재탐색</li><li>맵 로드 실패와 NPC 제어권 경합</li><li>저장 중 강제 종료·파일 손상 복구</li><li>720가지 사건 순서와 실제 대사</li><li>플레이의 재미·밸런스·UI 가독성</li></ul><span class="pill warm">후속 구현 인수 시험</span></div></div>
+  <details class="technical"><summary>장애 상황별 예상 결과</summary><div class="table-scroll"><table><thead><tr><th>상황</th><th>반드시 지킬 결과</th></tr></thead><tbody><tr><td>목적지에 갈 수 없음</td><td>실패 원인 표시, 결과 미확정, 마지막 안전 상태로 복원</td></tr><tr><td>같은 NPC를 두 장면이 요청</td><td>한 장면만 사용, 다른 초대는 유지</td></tr><tr><td>선택지 중 저장·종료</td><td>진입 전 상태와 초대 복원, 처음부터 다시 진행</td></tr><tr><td>완료 후 재실행</td><td>기억·완료 유지, 같은 결과·시간 비용 중복 적용 없음</td></tr><tr><td>가방이 가득 참</td><td>핵심 기록 유지, 일반 보상은 우편 보관함</td></tr><tr><td>자정 귀환·패배</td><td>현재 방의 임시 상태만 초기화, 이전 방 완료·확정 단서 유지</td></tr></tbody></table></div></details>
+  <p class="caption">이 HTML의 구조와 전환 로직은 검사했습니다. 브라우저 화면 렌더링은 접근 제한으로 직접 확인하지 못했습니다. 구체적인 검사 범위는 아래 전체 명세의 검증 결과에 기록했습니다.</p>
+</section>
+
+<section id="full-spec" class="chapter appendix">
+  <div class="section-head"><span class="section-no">10</span><div><div class="kicker">FULL SPECIFICATION</div><h2>전체 명세와 실제 데이터</h2></div></div>
+  <p class="intro">앞부분에서 생략한 인터페이스, 상태 전이, 실패 규칙까지 아래에 모두 담았습니다. <strong>개발용 본문과 JSON은 이 HTML 안에 포함</strong>되어 있습니다.</p>
+  <div class="appendix-controls"><button type="button" id="expand-all">전체 명세 펼치기</button><button type="button" id="collapse-all">전체 명세 접기</button></div>
+  __FULL_SPEC__
+  <h3 class="data-heading">스키마 · 콘텐츠 · 저장 · 검증 기록</h3>
+  __DATA_APPENDIX__
+</section>
+<footer><strong>MAGIC CAMPUS</strong><span>Unity 기반 시스템 기획 · 2026.11.01</span><p>그림과 단계 모형은 설계를 설명하기 위한 자료입니다. 게임 구현 화면이나 실제 실행 로그가 아닙니다. 원본 콘텐츠 기획서는 보존했습니다.</p><a href="#top">문서 처음으로 ↑</a></footer>
+</main>
+<noscript><div class="noscript-note">단계 전환과 상황 선택에는 JavaScript가 필요합니다. 구조도와 전체 명세는 그대로 읽을 수 있습니다.</div></noscript>
+<script id="guide-data" type="application/json">__GUIDE_DATA__</script>
+<script>__JS__</script>
+</body>
+</html>

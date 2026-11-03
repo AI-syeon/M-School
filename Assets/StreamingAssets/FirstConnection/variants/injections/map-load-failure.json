@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "id": "map-load-failure",
+  "baseRunner": "base/runner-bundle.json",
+  "note": "Runtime hook only. Logical maps, portals and destinations stay untouched so the catalog still compiles.",
+  "hooks": [
+    {
+      "kind": "mapLoadFailure",
+      "mapId": "map.lounge",
+      "code": "MAP_LOAD_FAILED"
+    }
+  ]
+}

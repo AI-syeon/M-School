@@ -1,0 +1,495 @@
+{
+  "saveVersion": 2,
+  "contentVersion": "full-design-0.2-proposal",
+  "generation": 1,
+  "safePoint": "world-safe",
+  "clock": {
+    "absoluteMinute": 420,
+    "fraction": 0
+  },
+  "player": {
+    "name": "새 학생",
+    "pronounKey": "neutral",
+    "appearanceId": "appearance.default",
+    "hp": 100,
+    "focus": 100,
+    "mapId": "map.courtyard",
+    "x": 1.5,
+    "y": 1.5,
+    "quickSlots": [
+      "spell.lantern",
+      "spell.levitate",
+      null,
+      null
+    ]
+  },
+  "wallet": 200,
+  "stacks": [
+    {
+      "itemId": "item.plant_1",
+      "quantity": 6,
+      "provenance": "normal",
+      "quality": "standard",
+      "scopeId": null
+    },
+    {
+      "itemId": "item.scrap",
+      "quantity": 2,
+      "provenance": "normal",
+      "quality": "standard",
+      "scopeId": null
+    },
+    {
+      "itemId": "item.plant_2",
+      "quantity": 3,
+      "provenance": "grant",
+      "quality": "standard",
+      "scopeId": null
+    }
+  ],
+  "mail": [
+    {
+      "id": "mail.intro",
+      "kind": "info",
+      "createdAt": 420,
+      "reservationId": null,
+      "state": "unread",
+      "attachments": []
+    }
+  ],
+  "completed": [
+    "class.lantern_basic",
+    "class.levitate_basic"
+  ],
+  "evidence": [],
+  "learnedSpellIds": [
+    "spell.lantern",
+    "spell.levitate"
+  ],
+  "spellContexts": [],
+  "relations": [
+    {
+      "npcId": "npc.serin",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.ruon",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.mira",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.doyun",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.eve",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.narin",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.haeon",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.isol",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.or",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.rume",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.bello",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    },
+    {
+      "npcId": "npc.yuna",
+      "affinity": 0,
+      "greeted": false,
+      "activityKeys": [],
+      "conflict": "none",
+      "lastTalkDay": -1,
+      "lastGiftDay": -1,
+      "expression": "friendship",
+      "r1BaselineActivityKeys": [],
+      "stage": 0,
+      "rewardedActivityTypes": [],
+      "r2ActivityTypesSinceR1": [],
+      "activityRecords": []
+    }
+  ],
+  "plots": [
+    {
+      "plotId": "plot.personal_1",
+      "plantId": "plant.n_1",
+      "growthTicks": 0,
+      "wateredDay": -1,
+      "harvestPart": "leaf",
+      "lastProcessedDay": -1,
+      "provenance": "normal",
+      "scopeId": null
+    }
+  ],
+  "installedProjects": [],
+  "placements": [],
+  "appointments": [
+    {
+      "id": "event.snack",
+      "status": "Offered",
+      "acceptedAt": 0
+    },
+    {
+      "id": "event.snack_later",
+      "status": "Offered",
+      "acceptedAt": 0
+    }
+  ],
+  "roomCheckpoints": [],
+  "rewardLedger": [
+    "reward.lantern_basic",
+    "reward.levitate_basic"
+  ],
+  "dayJobs": [],
+  "settings": {
+    "textScale": 1,
+    "flash": false,
+    "shake": false,
+    "damageMultiplier": 1,
+    "telegraphMultiplier": 1,
+    "aimAssist": true,
+    "textSpeed": 30,
+    "particleDensity": 0.7,
+    "holdToToggle": true,
+    "masterVolume": 1,
+    "subtitles": true,
+    "aimAssistStrength": 0.5,
+    "preset": "basic"
+  },
+  "discoveredCaseIds": [
+    "case.a"
+  ],
+  "questStates": [
+    {
+      "caseId": "case.a",
+      "status": "discovered",
+      "activeNodeId": "node.a1",
+      "resolved": false
+    }
+  ],
+  "classRecords": [
+    {
+      "classId": "class.lantern_basic",
+      "completed": true,
+      "methodsUsed": [
+        "method.light_color"
+      ],
+      "bestScore": 1,
+      "supportClaimed": true
+    },
+    {
+      "classId": "class.levitate_basic",
+      "completed": true,
+      "methodsUsed": [
+        "method.place_weight"
+      ],
+      "bestScore": 1,
+      "supportClaimed": true
+    }
+  ],
+  "discoveredSafePointIds": [
+    "safe.n_1"
+  ],
+  "npcPositions": [
+    {
+      "npcId": "npc.serin",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.ruon",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.mira",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.doyun",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.eve",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.narin",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.haeon",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.isol",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.or",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.rume",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.bello",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    },
+    {
+      "npcId": "npc.yuna",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 4.5
+    }
+  ],
+  "defeats": [
+    {
+      "encounterId": "encounter.a3",
+      "count": 0
+    }
+  ],
+  "shopState": [
+    {
+      "shopId": "shop.bello",
+      "lastRestockDay": 0,
+      "remaining": [
+        {
+          "itemId": "item.tool_1",
+          "quantity": 5
+        }
+      ]
+    }
+  ],
+  "creatureState": [
+    {
+      "creatureId": "creature.greenhouse",
+      "fedDay": -1,
+      "comfort": 0.5,
+      "lastYieldDay": -1,
+      "lastFoodProvenance": "normal"
+    }
+  ],
+  "journal": [
+    {
+      "entryId": "journal.case_a",
+      "read": false,
+      "hintLevel": 0
+    }
+  ],
+  "dialogueHistory": [
+    {
+      "npcId": "npc.serin",
+      "recentDialogueIds": [
+        "dialogue.serin_greeting"
+      ],
+      "lastSpokenDay": 0
+    }
+  ],
+  "flags": [
+    {
+      "id": "story.intro_done",
+      "value": false
+    },
+    {
+      "id": "memory.snack_done",
+      "value": false
+    },
+    {
+      "id": "world.stage_ready",
+      "value": false
+    },
+    {
+      "id": "notice.lunch_done",
+      "value": false
+    },
+    {
+      "id": "memory.snack_later_done",
+      "value": false
+    }
+  ],
+  "returnPending": false,
+  "caseResolutionOrder": [],
+  "truthReadKeys": [],
+  "finalState": {
+    "status": "locked",
+    "choice": null,
+    "archiveGeneration": null
+  },
+  "companion": {
+    "npcId": null,
+    "usedDays": []
+  },
+  "trackedActivityIds": [],
+  "discoveredRecipeIds": [
+    "recipe.alchemy_3"
+  ],
+  "spellApplicationSelections": [],
+  "acceptedActivityIds": [
+    "activity.q01"
+  ],
+  "invitedRelationIds": [],
+  "preAcceptedEvidenceIds": [],
+  "catalogHash": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33"
+}

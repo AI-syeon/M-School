@@ -1,0 +1,1173 @@
+{
+  "$id": "urn:magic-campus:functions:1",
+  "title": "Magic Campus function registry",
+  "grammar": "full-design/11-function-syntax.md",
+  "types": {
+    "id": "점이 있는 소문자 ID",
+    "int": "정수",
+    "number": "수",
+    "bool": "true/false",
+    "text": "큰따옴표 문자열",
+    "word": "단어(ID도 통과, refKind/pattern으로 추가 검사)",
+    "value": "bool/int/number",
+    "labelref": "소유ID:이름표",
+    "idOrLabel": "ID 또는 소유ID:이름표",
+    "enum:a|b": "열거 값"
+  },
+  "paramKeys": {
+    "refKind": "참조해야 하는 색인 종류(또는 refKinds의 묶음)",
+    "defines": "이 인자가 새 ID를 선언함",
+    "pattern": "단어 형식",
+    "allow": "참조 대신 허용하는 예약어",
+    "min": "rest 인자 최소 개수",
+    "pairs": "rest 인자를 [타입,타입] 쌍으로 읽음",
+    "parse": "인자 문자열을 다시 이 종류의 호출목록으로 파싱",
+    "fork": "같은 Row의 forks 이름",
+    "labelIn": "같은 Row의 이 칸에 있는 이름표",
+    "refKindFrom": "다른 인자 값에 따라 참조 종류 결정"
+  },
+  "refKinds": {
+    "completable": [
+      "class",
+      "project",
+      "relationship",
+      "node",
+      "outcome",
+      "recipe",
+      "activity",
+      "onboarding",
+      "room",
+      "truth",
+      "ending"
+    ],
+    "experienceSource": [
+      "class",
+      "project",
+      "activity",
+      "relationship"
+    ],
+    "puzzleTarget": [
+      "room",
+      "goal"
+    ]
+  },
+  "columns": [
+    {
+      "file": "runner",
+      "table": "events",
+      "column": "trigger",
+      "kind": "trigger",
+      "nonEmpty": true,
+      "maxCalls": 1
+    },
+    {
+      "file": "runner",
+      "table": "events",
+      "column": "when",
+      "kind": "condition"
+    },
+    {
+      "file": "runner",
+      "table": "events",
+      "column": "script",
+      "kind": "command",
+      "nonEmpty": true
+    },
+    {
+      "file": "runner",
+      "table": "events",
+      "column": "forks/*",
+      "kind": "command",
+      "nonEmpty": true
+    },
+    {
+      "file": "runner",
+      "table": "events",
+      "column": "effects",
+      "kind": "effect"
+    },
+    {
+      "file": "runner",
+      "table": "schedules",
+      "column": "script",
+      "kind": "scheduleEntry",
+      "nonEmpty": true
+    },
+    {
+      "file": "catalog",
+      "table": "story/*/nodes",
+      "column": "goals",
+      "kind": "goal",
+      "nonEmpty": true,
+      "labelOwner": "roomId"
+    },
+    {
+      "file": "catalog",
+      "table": "story/*/nodes",
+      "column": "hints",
+      "kind": "hint",
+      "labelOwner": "roomId"
+    },
+    {
+      "file": "catalog",
+      "table": "rooms",
+      "column": "hints",
+      "kind": "hint"
+    },
+    {
+      "file": "catalog",
+      "table": "finalDefinition",
+      "column": "goals",
+      "kind": "goal",
+      "nonEmpty": true,
+      "labelOwner": "roomId"
+    },
+    {
+      "file": "catalog",
+      "table": "finalDefinition",
+      "column": "stages",
+      "kind": "finalStage",
+      "nonEmpty": true,
+      "labelOwner": "id"
+    },
+    {
+      "file": "catalog",
+      "table": "enemies",
+      "column": "behavior",
+      "kind": "behavior",
+      "nonEmpty": true
+    },
+    {
+      "file": "catalog",
+      "table": "enemies",
+      "column": "weak",
+      "kind": "weakness"
+    },
+    {
+      "file": "catalog",
+      "table": "reactions",
+      "column": "paths",
+      "kind": "reactionPath",
+      "nonEmpty": true
+    },
+    {
+      "file": "catalog",
+      "table": "encounters",
+      "column": "enemies",
+      "kind": "encounterEnemy",
+      "nonEmpty": true
+    },
+    {
+      "file": "catalog",
+      "table": "recipes",
+      "column": "ingredients",
+      "kind": "itemQuantity",
+      "nonEmpty": true
+    },
+    {
+      "file": "catalog",
+      "table": "recipes",
+      "column": "substitutes",
+      "kind": "substitute"
+    },
+    {
+      "file": "catalog",
+      "table": "shops",
+      "column": "stock",
+      "kind": "itemQuantity"
+    },
+    {
+      "file": "catalog",
+      "table": "classes",
+      "column": "grantOnFirstAccept",
+      "kind": "itemGrant"
+    },
+    {
+      "file": "catalog",
+      "table": "projects",
+      "column": "grantOnAccept",
+      "kind": "itemGrant"
+    },
+    {
+      "file": "catalog",
+      "table": "projects",
+      "column": "when",
+      "kind": "condition"
+    },
+    {
+      "file": "catalog",
+      "table": "dialogues",
+      "column": "when",
+      "kind": "condition"
+    }
+  ],
+  "kinds": {
+    "command": {
+      "description": "이벤트 script·forks. 순서대로 실행",
+      "nameRule": "registered",
+      "functions": {
+        "move": {
+          "params": [
+            {
+              "name": "actor",
+              "type": "id",
+              "refKind": "npc"
+            },
+            {
+              "name": "destination",
+              "type": "id",
+              "refKind": "destination"
+            }
+          ],
+          "named": {
+            "timeout": {
+              "type": "number",
+              "default": 30,
+              "min": 0.001
+            },
+            "portals": {
+              "type": "bool",
+              "default": true
+            },
+            "async": {
+              "type": "word"
+            }
+          },
+          "negatable": false,
+          "owner": "World/Movement",
+          "writes": "actor",
+          "description": "도착까지 대기. async=핸들이면 바로 다음으로"
+        },
+        "await": {
+          "params": [
+            {
+              "name": "handles",
+              "type": "word",
+              "rest": true,
+              "min": 1
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Scene/Control",
+          "description": "핸들이 모두 끝날 때까지 대기. 하나라도 실패하면 나머지 취소 후 중단"
+        },
+        "say": {
+          "params": [
+            {
+              "name": "speaker",
+              "type": "id",
+              "refKind": "npc"
+            },
+            {
+              "name": "text",
+              "type": "text"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Scene/Control",
+          "requiresClosedHandles": true,
+          "writes": "dialogue"
+        },
+        "choice": {
+          "params": [
+            {
+              "name": "prompt",
+              "type": "text"
+            },
+            {
+              "name": "options",
+              "type": "word",
+              "rest": true,
+              "min": 1,
+              "pairs": [
+                {
+                  "name": "fork",
+                  "type": "word",
+                  "fork": true
+                },
+                {
+                  "name": "label",
+                  "type": "text"
+                }
+              ]
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Scene/Control",
+          "requiresClosedHandles": true,
+          "writes": "dialogue",
+          "description": "고른 가지를 실행한 뒤 다음 명령으로"
+        },
+        "branch": {
+          "params": [
+            {
+              "name": "condition",
+              "type": "text",
+              "parse": "condition"
+            },
+            {
+              "name": "then",
+              "type": "word",
+              "fork": true
+            },
+            {
+              "name": "else",
+              "type": "word",
+              "optional": true,
+              "fork": true
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Scene/Control",
+          "requiresClosedHandles": true
+        },
+        "wait": {
+          "params": [
+            {
+              "name": "seconds",
+              "type": "number",
+              "min": 0
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Clock/Schedule"
+        },
+        "camera": {
+          "params": [
+            {
+              "name": "destination",
+              "type": "id",
+              "refKind": "destination"
+            },
+            {
+              "name": "seconds",
+              "type": "number",
+              "min": 0
+            }
+          ],
+          "named": {
+            "async": {
+              "type": "word"
+            }
+          },
+          "negatable": false,
+          "owner": "Scene/Control",
+          "writes": "camera"
+        },
+        "animate": {
+          "params": [
+            {
+              "name": "actor",
+              "type": "id",
+              "refKind": "npc"
+            },
+            {
+              "name": "clip",
+              "type": "word"
+            },
+            {
+              "name": "seconds",
+              "type": "number",
+              "min": 0
+            }
+          ],
+          "named": {
+            "async": {
+              "type": "word"
+            }
+          },
+          "negatable": false,
+          "owner": "Scene/Control",
+          "writes": "actor"
+        },
+        "perform": {
+          "params": [
+            {
+              "name": "domain",
+              "type": "enum:class|encounter|puzzle|craft|relationship|project|activity"
+            },
+            {
+              "name": "definition",
+              "type": "idOrLabel",
+              "refKindFrom": {
+                "param": "domain",
+                "map": {
+                  "class": "class",
+                  "encounter": "encounter",
+                  "puzzle": "puzzleTarget",
+                  "craft": "recipe",
+                  "relationship": "relationship",
+                  "project": "project",
+                  "activity": "activity"
+                }
+              }
+            }
+          ],
+          "named": {
+            "mode": {
+              "type": "enum:normal|practice",
+              "default": "normal"
+            }
+          },
+          "negatable": false,
+          "owner": "도메인 서비스",
+          "requiresClosedHandles": true,
+          "description": "도메인 작업 성공까지 대기. 결과는 effects 커밋이 읽는다"
+        }
+      }
+    },
+    "condition": {
+      "description": "when·branch·any. /는 AND, !는 부정, any는 OR",
+      "nameRule": "registered",
+      "functions": {
+        "eq": {
+          "params": [
+            {
+              "name": "variable",
+              "type": "id",
+              "refKind": "variable"
+            },
+            {
+              "name": "value",
+              "type": "value"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Catalog"
+        },
+        "gte": {
+          "params": [
+            {
+              "name": "variable",
+              "type": "id",
+              "refKind": "variable"
+            },
+            {
+              "name": "value",
+              "type": "int"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Catalog"
+        },
+        "completed": {
+          "params": [
+            {
+              "name": "id",
+              "type": "id",
+              "refKind": "completable"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Relationship/Story"
+        },
+        "discovered": {
+          "params": [
+            {
+              "name": "case",
+              "type": "id",
+              "refKind": "case"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Relationship/Story"
+        },
+        "evidence": {
+          "params": [
+            {
+              "name": "evidence",
+              "type": "id",
+              "refKind": "evidence"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Relationship/Story"
+        },
+        "learned": {
+          "params": [
+            {
+              "name": "spell",
+              "type": "id",
+              "refKind": "spell"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Ability/Combat"
+        },
+        "caseCountGte": {
+          "params": [
+            {
+              "name": "count",
+              "type": "int",
+              "min": 0,
+              "max": 6
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Relationship/Story"
+        },
+        "any": {
+          "params": [
+            {
+              "name": "alternatives",
+              "type": "text",
+              "rest": true,
+              "min": 2,
+              "parse": "condition"
+            }
+          ],
+          "named": {},
+          "negatable": true,
+          "owner": "Catalog"
+        }
+      }
+    },
+    "effect": {
+      "description": "effects. script 성공 뒤 한 번 원자 커밋. 도메인 전제조건을 재검증",
+      "nameRule": "registered",
+      "functions": {
+        "set": {
+          "params": [
+            {
+              "name": "variable",
+              "type": "id",
+              "refKind": "variable"
+            },
+            {
+              "name": "value",
+              "type": "value"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Catalog"
+        },
+        "complete": {
+          "params": [
+            {
+              "name": "id",
+              "type": "id",
+              "refKind": "completable"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Relationship/Story"
+        },
+        "evidence.add": {
+          "params": [
+            {
+              "name": "evidence",
+              "type": "id",
+              "refKind": "evidence"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Relationship/Story"
+        },
+        "item.grant": {
+          "params": [
+            {
+              "name": "item",
+              "type": "id",
+              "refKind": "item"
+            },
+            {
+              "name": "quantity",
+              "type": "int",
+              "min": 1
+            },
+            {
+              "name": "provenance",
+              "type": "enum:normal|grant"
+            }
+          ],
+          "named": {
+            "quality": {
+              "type": "enum:standard|fine",
+              "default": "standard"
+            }
+          },
+          "negatable": false,
+          "owner": "Inventory/Economy"
+        },
+        "experience.record": {
+          "params": [
+            {
+              "name": "npc",
+              "type": "id",
+              "refKind": "npc"
+            },
+            {
+              "name": "activity",
+              "type": "id",
+              "refKind": "experienceSource"
+            },
+            {
+              "name": "activityType",
+              "type": "enum:class|project|club|meal|request|festival|companion"
+            }
+          ],
+          "named": {
+            "participationOnly": {
+              "type": "bool",
+              "default": false
+            }
+          },
+          "negatable": false,
+          "owner": "Relationship/Story"
+        },
+        "project.install": {
+          "params": [
+            {
+              "name": "project",
+              "type": "id",
+              "refKind": "project"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Life"
+        },
+        "spell.learn": {
+          "params": [
+            {
+              "name": "spell",
+              "type": "id",
+              "refKind": "spell"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat"
+        },
+        "currency.add": {
+          "params": [
+            {
+              "name": "amountCrowns",
+              "type": "int",
+              "min": 0,
+              "max": 999999
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Inventory/Economy"
+        },
+        "case.reward": {
+          "params": [
+            {
+              "name": "case",
+              "type": "id",
+              "refKind": "case"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "CaseService",
+          "description": "사건 정의의 rewardCrowns를 지급. 금액 리터럴 없음"
+        }
+      }
+    },
+    "trigger": {
+      "description": "events.trigger. 이전 interactions 표를 대체",
+      "nameRule": "registered",
+      "functions": {
+        "interact": {
+          "params": [
+            {
+              "name": "target",
+              "type": "id",
+              "refKind": "npc"
+            },
+            {
+              "name": "label",
+              "type": "text"
+            },
+            {
+              "name": "range",
+              "type": "number",
+              "min": 0
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Scene/Control"
+        },
+        "clock": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Clock/Schedule"
+        },
+        "manual": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Scene/Control"
+        }
+      }
+    },
+    "scheduleEntry": {
+      "description": "schedules.script. 이름=시작분, 끝은 다음 항목의 시작(마지막은 1440). home은 NPC 기본 위치",
+      "nameRule": {
+        "pattern": "^\\d+$",
+        "min": 0,
+        "max": 1439,
+        "ascending": true
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "destination",
+              "type": "word",
+              "refKind": "destination",
+              "allow": [
+                "home"
+              ]
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Clock/Schedule"
+        }
+      }
+    },
+    "goal": {
+      "description": "방 목표. 이름표 필수, 참조는 <roomId>:<이름표>. 대여 도구는 같은 Row의 loanItemId",
+      "nameRule": "registered",
+      "labelRequired": true,
+      "functions": {
+        "observe": {
+          "params": [
+            {
+              "name": "object",
+              "type": "id",
+              "defines": "logicalObject"
+            },
+            {
+              "name": "state",
+              "type": "word"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "capability": "cap.observe",
+          "template": "observe-tag"
+        },
+        "setState": {
+          "params": [
+            {
+              "name": "object",
+              "type": "id",
+              "defines": "logicalObject"
+            },
+            {
+              "name": "state",
+              "type": "word"
+            }
+          ],
+          "named": {
+            "count": {
+              "type": "int",
+              "default": 1,
+              "min": 1
+            }
+          },
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "capability": "cap.manual_control",
+          "template": "set-object-state"
+        },
+        "apply": {
+          "params": [
+            {
+              "name": "object",
+              "type": "id",
+              "defines": "logicalObject"
+            },
+            {
+              "name": "state",
+              "type": "word"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "capability": "cap.repair",
+          "template": "apply-capability"
+        }
+      }
+    },
+    "hint": {
+      "description": "방·조사실 힌트. 단계=순서(1부터)",
+      "nameRule": "registered",
+      "functions": {
+        "observation": {
+          "params": [
+            {
+              "name": "text",
+              "type": "text"
+            }
+          ],
+          "named": {
+            "goal": {
+              "type": "word",
+              "labelIn": "goals"
+            }
+          },
+          "negatable": false,
+          "owner": "Journal/Presentation"
+        },
+        "property": {
+          "params": [
+            {
+              "name": "text",
+              "type": "text"
+            }
+          ],
+          "named": {
+            "goal": {
+              "type": "word",
+              "labelIn": "goals"
+            }
+          },
+          "negatable": false,
+          "owner": "Journal/Presentation"
+        },
+        "action": {
+          "params": [
+            {
+              "name": "text",
+              "type": "text"
+            }
+          ],
+          "named": {
+            "goal": {
+              "type": "word",
+              "labelIn": "goals"
+            }
+          },
+          "negatable": false,
+          "owner": "Journal/Presentation"
+        }
+      }
+    },
+    "behavior": {
+      "description": "적 행동 규칙. C# CombatService에 같은 이름의 구현이 있어야 한다(이전 behaviorRegistry)",
+      "nameRule": "registered",
+      "functions": {
+        "charge": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "ink_dispersal": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "root_line": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "seed_lure": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "overheat_armor": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "cooling_disable": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "dive": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "lantern_perch": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "shadow_immunity": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "illusion_lure": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "frontal_shield": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "supply_cut": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "three_ring_wave": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "matching_bells": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "frost_trail": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        },
+        "warm_stone_lure": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat",
+          "stateOwner": "CombatService",
+          "implementationRequired": true
+        }
+      }
+    },
+    "weakness": {
+      "description": "적 약점. 이름=상태 태그, xN=피해 배율, disable=공격 불가 초",
+      "nameRule": {
+        "type": "word"
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "multiplier",
+              "type": "word",
+              "optional": true,
+              "default": "x1",
+              "pattern": "^x\\d+(\\.\\d+)?$"
+            }
+          ],
+          "named": {
+            "disable": {
+              "type": "number",
+              "default": 0,
+              "min": 0
+            }
+          },
+          "negatable": false,
+          "owner": "Ability/Combat"
+        }
+      }
+    },
+    "reactionPath": {
+      "description": "반응 경로. 이름=발동 주문, 인자=필요 태그(모두)",
+      "nameRule": {
+        "type": "id",
+        "refKind": "spell"
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "tags",
+              "type": "word",
+              "rest": true,
+              "min": 1
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat"
+        }
+      }
+    },
+    "encounterEnemy": {
+      "description": "교전 적 구성. 이름=적, 인자=수",
+      "nameRule": {
+        "type": "id",
+        "refKind": "enemy"
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "count",
+              "type": "int",
+              "optional": true,
+              "default": 1,
+              "min": 1
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Ability/Combat"
+        }
+      }
+    },
+    "itemQuantity": {
+      "description": "재료·재고. 이름=아이템, 인자=수량(재고 -1=무한, 0=품절)",
+      "nameRule": {
+        "type": "id",
+        "refKind": "item"
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "quantity",
+              "type": "int",
+              "min": -1
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Inventory/Economy"
+        }
+      }
+    },
+    "itemGrant": {
+      "description": "지급 목록. 이름=아이템, 수량, 출처",
+      "nameRule": {
+        "type": "id",
+        "refKind": "item"
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "quantity",
+              "type": "int",
+              "min": 1
+            },
+            {
+              "name": "provenance",
+              "type": "enum:normal|grant",
+              "optional": true,
+              "default": "grant"
+            }
+          ],
+          "named": {},
+          "negatable": false,
+          "owner": "Inventory/Economy"
+        }
+      }
+    },
+    "substitute": {
+      "description": "대체재. 이름=요구 성질, 인자=수량, slot=바꿀 재료 순번(0부터)",
+      "nameRule": {
+        "type": "word",
+        "enum": [
+          "calm",
+          "glow",
+          "adhesive",
+          "cool"
+        ]
+      },
+      "functions": {
+        "*": {
+          "params": [
+            {
+              "name": "quantity",
+              "type": "int",
+              "min": 1
+            }
+          ],
+          "named": {
+            "slot": {
+              "type": "int",
+              "default": 0,
+              "min": 0
+            }
+          },
+          "negatable": false,
+          "owner": "Inventory/Economy"
+        }
+      }
+    },
+    "finalStage": {
+      "description": "최종 실습 단계. 이름표 필수",
+      "nameRule": "registered",
+      "labelRequired": true,
+      "functions": {
+        "stabilizeChannel": {
+          "params": [],
+          "named": {},
+          "negatable": false,
+          "owner": "CaseService",
+          "template": "stabilize-channel"
+        }
+      }
+    }
+  }
+}

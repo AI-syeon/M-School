@@ -1,0 +1,20 @@
+{
+    "variant": "base",
+    "phase": "Ready",
+    "tokens": "phase=Ready hidden=False busy=False unsaved=False rev=1 map=map.courtyard leases=0 pauses=0 handles=0 uiLocks=0 disk=0 moves=0 events=0 saves=0",
+    "mapId": "map.courtyard",
+    "time": "D0 420",
+    "selectedEvent": "",
+    "status": "시작 중...",
+    "lastError": "",
+    "playerX": 1.5,
+    "playerY": 1.5,
+    "revision": 1,
+    "unsaved": false,
+    "menuOpen": false,
+    "diagnostics": [],
+    "candidates": [
+        "event.snack:Offered",
+        "event.snack_later:Offered"
+    ]
+}

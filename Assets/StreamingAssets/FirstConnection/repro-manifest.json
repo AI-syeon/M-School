@@ -1,0 +1,2365 @@
+{
+  "formatVersion": 1,
+  "status": "expectations only; nothing here claims a runtime pass",
+  "catalogSha256": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33",
+  "inputOps": {
+    "accept": "ReservationParticipant accept {eventId, acceptedAt}",
+    "start": "IEventRunner.Start with the given inputSequence and transactionId",
+    "confirm": "confirm input for the open say window",
+    "choice": "select a fork key in the open choice window",
+    "save": "ISaveService.SaveLatestSafe",
+    "reload": "ISaveService.LoadLatest followed by state replacement",
+    "killphase": "abort the process once the named phase (move, say, choice) is reached; no cleanup runs",
+    "cancel": "cancel the running event handle",
+    "inject": "arm a test-double fault",
+    "moveService": "direct IMoveService.Move",
+    "place": "IActorWorld.Restore of one actor at a safe boundary"
+  },
+  "stagingPolicy": "see base/staging-recipes.json; reserved staging joins leased actors at the incoming portal arrival while hidden, current staging never warps",
+  "acceptanceSource": "design/implementation-tasks/인수기준.md",
+  "scenarios": [
+    {
+      "id": "A01",
+      "title": "등록 함수 호출 칸 로드와 오류 위치",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "compile"
+        },
+        {
+          "op": "compile-negative",
+          "fixture": {
+            "id": "say-arg-count",
+            "runner": "variants/invalid/say-arg-count/runner-bundle.json",
+            "editedCall": {
+              "event": "event.snack",
+              "index": 2,
+              "text": "say npc.serin"
+            },
+            "expect": {
+              "outcome": "Failed",
+              "resultCode": "CONTENT_INVALID",
+              "diagnosticCodes": [
+                "ARG_COUNT"
+              ],
+              "diagnosticCodesMatch": "all",
+              "wholeBundleRejected": true,
+              "providerKeepsPreviousCatalog": true
+            }
+          }
+        },
+        {
+          "op": "compile-negative",
+          "fixture": {
+            "id": "wait-arg-type",
+            "runner": "variants/invalid/wait-arg-type/runner-bundle.json",
+            "editedCall": {
+              "event": "event.snack",
+              "index": 1,
+              "text": "wait notanumber"
+            },
+            "expect": {
+              "outcome": "Failed",
+              "resultCode": "CONTENT_INVALID",
+              "diagnosticCodes": [
+                "ARG_TYPE"
+              ],
+              "diagnosticCodesMatch": "all",
+              "wholeBundleRejected": true,
+              "providerKeepsPreviousCatalog": true
+            }
+          }
+        },
+        {
+          "op": "compile-negative",
+          "fixture": {
+            "id": "unknown-function",
+            "runner": "variants/invalid/unknown-function/runner-bundle.json",
+            "editedCall": {
+              "event": "event.snack",
+              "index": 1,
+              "text": "teleport npc.serin dest.snack"
+            },
+            "expect": {
+              "outcome": "Failed",
+              "resultCode": "CONTENT_INVALID",
+              "diagnosticCodes": [
+                "UNKNOWN_FUNCTION"
+              ],
+              "diagnosticCodesMatch": "all",
+              "wholeBundleRejected": true,
+              "providerKeepsPreviousCatalog": true
+            }
+          }
+        },
+        {
+          "op": "compile-negative",
+          "fixture": {
+            "id": "move-ref-not-found",
+            "runner": "variants/invalid/move-ref-not-found/runner-bundle.json",
+            "editedCall": {
+              "event": "event.snack",
+              "index": 1,
+              "text": "move npc.serin dest.nowhere"
+            },
+            "expect": {
+              "outcome": "Failed",
+              "resultCode": "CONTENT_INVALID",
+              "diagnosticCodes": [
+                "REF_NOT_FOUND"
+              ],
+              "diagnosticCodesMatch": "all",
+              "wholeBundleRejected": true,
+              "providerKeepsPreviousCatalog": true
+            }
+          }
+        },
+        {
+          "op": "compile-negative",
+          "fixture": {
+            "id": "move-ref-kind",
+            "runner": "variants/invalid/move-ref-kind/runner-bundle.json",
+            "editedCall": {
+              "event": "event.snack",
+              "index": 1,
+              "text": "move dest.snack dest.snack"
+            },
+            "expect": {
+              "outcome": "Failed",
+              "resultCode": "CONTENT_INVALID",
+              "diagnosticCodes": [
+                "REF_KIND",
+                "REF_NOT_FOUND"
+              ],
+              "diagnosticCodesMatch": "any",
+              "wholeBundleRejected": true,
+              "providerKeepsPreviousCatalog": true
+            }
+          }
+        }
+      ],
+      "expect": {
+        "validBundleAccepted": true,
+        "eventSpecificCode": false,
+        "invalidBundleRejectedWhole": true,
+        "diagnostics": [
+          "file",
+          "pointer",
+          "call",
+          "offset"
+        ]
+      }
+    },
+    {
+      "id": "A02",
+      "title": "도입 조건 false에서 무변경 거부",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-intro-false.json"
+      },
+      "inputs": [
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 1,
+          "transactionId": "tx.a02.false",
+          "ownerToken": "owner.player"
+        }
+      ],
+      "expect": {
+        "status": "Failed",
+        "code": "CONDITION_FALSE",
+        "stateReplacements": 0,
+        "moves": 0,
+        "saveWrites": 0,
+        "leases": 0,
+        "expectedActualReason": true
+      }
+    },
+    {
+      "id": "A03",
+      "title": "초대 수락 후 전체 임대·안전 진입 저장이 이동보다 먼저",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a03.start",
+          "ownerToken": "owner.player"
+        }
+      ],
+      "expect": {
+        "sceneOrder": [
+          "accept-persisted",
+          "entry-position-projection",
+          "recovery-capture-entry",
+          "scene-entry-notified",
+          "entry-save-succeeded",
+          "staging",
+          "script",
+          "condition-recheck",
+          "single-commit",
+          "scene-complete-notified"
+        ],
+        "reservation": "Accepted",
+        "entrySavedBeforeStaging": true,
+        "resourcesAllOrNone": true
+      }
+    },
+    {
+      "id": "A04",
+      "title": "목적지 JSON 좌표만 변경",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "variants/dest-moved/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a04.moved",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 5
+        }
+      ],
+      "expect": {
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 220,
+          "/clock/absoluteMinute": 430,
+          "/flags/1/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 0.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 20,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    },
+    {
+      "id": "A05",
+      "title": "이동 중 확인 입력으로 대사가 앞서 열리지 않음",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a05.arrival",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm-during-move",
+          "repeat": 3
+        },
+        {
+          "op": "wait-for-actual-arrival"
+        }
+      ],
+      "expect": {
+        "sayCountBeforeArrival": 0,
+        "confirmConsumedDuringMove": false,
+        "sayAfterSuccessfulArrival": true,
+        "actualDistanceWithinTolerance": true
+      }
+    },
+    {
+      "id": "A06",
+      "title": "선택지별 독립 실행과 선택한 응답만 표시",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "cases": [
+        {
+          "freshProcess": true,
+          "inputs": [
+            {
+              "op": "accept",
+              "eventId": "event.snack",
+              "acceptedAt": 420,
+              "inputSequence": 1
+            },
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 2,
+              "transactionId": "tx.a06.notes",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 3
+            },
+            {
+              "op": "choice",
+              "key": "notes",
+              "inputSequence": 4
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 5
+            }
+          ],
+          "expect": {
+            "status": "Succeeded",
+            "set": {
+              "/wallet": 220,
+              "/clock/absoluteMinute": 430,
+              "/flags/1/value": true
+            },
+            "near": [
+              {
+                "pointer": "/npcPositions/0",
+                "mapId": "map.lounge",
+                "x": 4.5,
+                "y": 3.5,
+                "tolerance": 0.2
+              },
+              {
+                "pointer": "/player",
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5,
+                "tolerance": 0.001
+              }
+            ],
+            "onceLedger": {
+              "completedAdds": [
+                "event.snack"
+              ],
+              "rewardLedgerAddsCount": 1
+            },
+            "appointmentsRemoved": [
+              "event.snack"
+            ],
+            "timeCostMinutes": 10,
+            "rewardCrowns": 20,
+            "appliedOnce": true,
+            "unchangedElsewhere": true,
+            "selectedFork": "notes",
+            "otherForkDisplayed": false,
+            "commitCount": 1
+          }
+        },
+        {
+          "freshProcess": true,
+          "inputs": [
+            {
+              "op": "accept",
+              "eventId": "event.snack",
+              "acceptedAt": 420,
+              "inputSequence": 1
+            },
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 2,
+              "transactionId": "tx.a06.tea",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 3
+            },
+            {
+              "op": "choice",
+              "key": "tea",
+              "inputSequence": 4
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 5
+            }
+          ],
+          "expect": {
+            "status": "Succeeded",
+            "set": {
+              "/wallet": 220,
+              "/clock/absoluteMinute": 430,
+              "/flags/1/value": true
+            },
+            "near": [
+              {
+                "pointer": "/npcPositions/0",
+                "mapId": "map.lounge",
+                "x": 4.5,
+                "y": 3.5,
+                "tolerance": 0.2
+              },
+              {
+                "pointer": "/player",
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5,
+                "tolerance": 0.001
+              }
+            ],
+            "onceLedger": {
+              "completedAdds": [
+                "event.snack"
+              ],
+              "rewardLedgerAddsCount": 1
+            },
+            "appointmentsRemoved": [
+              "event.snack"
+            ],
+            "timeCostMinutes": 10,
+            "rewardCrowns": 20,
+            "appliedOnce": true,
+            "unchangedElsewhere": true,
+            "selectedFork": "tea",
+            "otherForkDisplayed": false,
+            "commitCount": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "A07",
+      "title": "성공 저장 후 프로세스 종료·재실행",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a07.success",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 5
+        },
+        {
+          "op": "save",
+          "inputSequence": 6
+        },
+        {
+          "op": "exit-process"
+        },
+        {
+          "op": "relaunch-process"
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 7,
+          "transactionId": "tx.a07.again",
+          "ownerToken": "owner.player"
+        }
+      ],
+      "expect": {
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 220,
+          "/clock/absoluteMinute": 430,
+          "/flags/1/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 3.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 20,
+        "appliedOnce": true,
+        "unchangedElsewhere": true,
+        "reloadMatchesCompletionClockPositionsWallet": true,
+        "retryCode": "CONDITION_FALSE",
+        "rewardGrantedAgain": 0
+      }
+    },
+    {
+      "id": "A08",
+      "title": "이동·대사·선택 중 강제 종료 후 안전 진입 복원",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "cases": [
+        {
+          "freshProcess": true,
+          "inputs": [
+            {
+              "op": "accept",
+              "eventId": "event.snack",
+              "acceptedAt": 420,
+              "inputSequence": 1
+            },
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 2,
+              "transactionId": "tx.a08.move",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "drive-until-phase",
+              "phase": "move"
+            },
+            {
+              "op": "killphase",
+              "phase": "move"
+            },
+            {
+              "op": "relaunch-process"
+            }
+          ],
+          "expect": {
+            "stateEqualsFile": "base/save-accepted.json",
+            "ignorePointers": [
+              "/generation",
+              "/safePoint"
+            ],
+            "rewardCrowns": 0,
+            "timeCostMinutes": 0,
+            "reservationStatus": "Accepted",
+            "liveHandles": 0,
+            "pauseTokens": 0,
+            "leases": 0,
+            "inputLocked": false
+          }
+        },
+        {
+          "freshProcess": true,
+          "inputs": [
+            {
+              "op": "accept",
+              "eventId": "event.snack",
+              "acceptedAt": 420,
+              "inputSequence": 1
+            },
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 2,
+              "transactionId": "tx.a08.say",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "drive-until-phase",
+              "phase": "say"
+            },
+            {
+              "op": "killphase",
+              "phase": "say"
+            },
+            {
+              "op": "relaunch-process"
+            }
+          ],
+          "expect": {
+            "stateEqualsFile": "base/save-accepted.json",
+            "ignorePointers": [
+              "/generation",
+              "/safePoint"
+            ],
+            "rewardCrowns": 0,
+            "timeCostMinutes": 0,
+            "reservationStatus": "Accepted",
+            "liveHandles": 0,
+            "pauseTokens": 0,
+            "leases": 0,
+            "inputLocked": false
+          }
+        },
+        {
+          "freshProcess": true,
+          "inputs": [
+            {
+              "op": "accept",
+              "eventId": "event.snack",
+              "acceptedAt": 420,
+              "inputSequence": 1
+            },
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 2,
+              "transactionId": "tx.a08.choice",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "drive-until-phase",
+              "phase": "choice"
+            },
+            {
+              "op": "killphase",
+              "phase": "choice"
+            },
+            {
+              "op": "relaunch-process"
+            }
+          ],
+          "expect": {
+            "stateEqualsFile": "base/save-accepted.json",
+            "ignorePointers": [
+              "/generation",
+              "/safePoint"
+            ],
+            "rewardCrowns": 0,
+            "timeCostMinutes": 0,
+            "reservationStatus": "Accepted",
+            "liveHandles": 0,
+            "pauseTokens": 0,
+            "leases": 0,
+            "inputLocked": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "A09",
+      "title": "문 폐쇄·막힌 목표·맵 실패·중복 취소",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-accepted.json"
+      },
+      "cases": [
+        {
+          "id": "RV01",
+          "name": "closed-portal",
+          "injection": "variants/injections/closed-portal.json",
+          "initialFiles": {
+            "catalog": "base/full-catalog.json",
+            "functions": "base/schemas/functions.json",
+            "catalogSchema": "base/schemas/catalog.schema.json",
+            "runnerSchema": "base/schemas/runner.schema.json",
+            "runner": "base/runner-bundle.json",
+            "save": "base/save-offered.json"
+          },
+          "inputs": [
+            {
+              "op": "moveService",
+              "actorId": "npc.serin",
+              "destinationId": "dest.snack",
+              "usePortals": true,
+              "timeoutSeconds": 30,
+              "ownerToken": "owner.rv01"
+            }
+          ],
+          "expect": {
+            "status": "Failed",
+            "code": "NO_ROUTE",
+            "positionUnchanged": {
+              "mapId": "map.courtyard",
+              "x": 1.5,
+              "y": 4.5
+            }
+          }
+        },
+        {
+          "id": "RV02",
+          "name": "blocked-destination",
+          "injection": "variants/injections/blocked-destination.json",
+          "initialFiles": {
+            "catalog": "base/full-catalog.json",
+            "functions": "base/schemas/functions.json",
+            "catalogSchema": "base/schemas/catalog.schema.json",
+            "runnerSchema": "base/schemas/runner.schema.json",
+            "runner": "base/runner-bundle.json",
+            "save": "base/save-offered.json"
+          },
+          "inputs": [
+            {
+              "op": "place",
+              "actorId": "npc.serin",
+              "position": {
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5
+              }
+            },
+            {
+              "op": "moveService",
+              "actorId": "npc.serin",
+              "destinationId": "dest.snack",
+              "usePortals": true,
+              "timeoutSeconds": 30,
+              "ownerToken": "owner.rv02"
+            }
+          ],
+          "expect": {
+            "status": "Failed",
+            "code": "TARGET_BLOCKED",
+            "positionUnchanged": {
+              "mapId": "map.lounge",
+              "x": 0.5,
+              "y": 2.5
+            }
+          }
+        },
+        {
+          "id": "RV03",
+          "name": "map-load-failure",
+          "injection": "variants/injections/map-load-failure.json",
+          "initialFiles": {
+            "catalog": "base/full-catalog.json",
+            "functions": "base/schemas/functions.json",
+            "catalogSchema": "base/schemas/catalog.schema.json",
+            "runnerSchema": "base/schemas/runner.schema.json",
+            "runner": "base/runner-bundle.json",
+            "save": "base/save-offered.json"
+          },
+          "inputs": [
+            {
+              "op": "moveService",
+              "actorId": "npc.serin",
+              "destinationId": "dest.snack",
+              "usePortals": true,
+              "timeoutSeconds": 30,
+              "ownerToken": "owner.rv03"
+            }
+          ],
+          "expect": {
+            "status": "Failed",
+            "code": "MAP_LOAD_FAILED",
+            "activeMapIdAfter": "map.courtyard",
+            "temporarySceneCleanedUp": true,
+            "catalogStillCompiles": true
+          }
+        },
+        {
+          "id": "RV04",
+          "name": "wrong-arrival-map",
+          "injection": "variants/injections/wrong-arrival-map.json",
+          "initialFiles": {
+            "catalog": "base/full-catalog.json",
+            "functions": "base/schemas/functions.json",
+            "catalogSchema": "base/schemas/catalog.schema.json",
+            "runnerSchema": "base/schemas/runner.schema.json",
+            "runner": "base/runner-bundle.json",
+            "save": "base/save-offered.json"
+          },
+          "inputs": [
+            {
+              "op": "place",
+              "actorId": "npc.serin",
+              "position": {
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5
+              }
+            },
+            {
+              "op": "moveService",
+              "actorId": "npc.serin",
+              "destinationId": "dest.snack",
+              "usePortals": true,
+              "timeoutSeconds": 30,
+              "ownerToken": "owner.rv04"
+            }
+          ],
+          "expect": {
+            "statusNot": "Succeeded",
+            "status": "Failed",
+            "codeOneOf": [
+              "NO_ROUTE",
+              "TARGET_BLOCKED"
+            ],
+            "arrived": false,
+            "distance": "Infinity",
+            "note": "arrival is judged from the actual final position, never from the request"
+          }
+        },
+        {
+          "id": "RV05",
+          "name": "dest-moved",
+          "initialFiles": {
+            "catalog": "base/full-catalog.json",
+            "functions": "base/schemas/functions.json",
+            "catalogSchema": "base/schemas/catalog.schema.json",
+            "runnerSchema": "base/schemas/runner.schema.json",
+            "runner": "variants/dest-moved/runner-bundle.json",
+            "save": "base/save-offered.json"
+          },
+          "inputs": [
+            {
+              "op": "accept",
+              "eventId": "event.snack",
+              "acceptedAt": 420,
+              "inputSequence": 1
+            },
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 2,
+              "transactionId": "tx.rv05.start",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 3
+            },
+            {
+              "op": "choice",
+              "key": "notes",
+              "inputSequence": 4
+            }
+          ],
+          "expect": {
+            "status": "Succeeded",
+            "set": {
+              "/wallet": 220,
+              "/clock/absoluteMinute": 430,
+              "/flags/1/value": true
+            },
+            "near": [
+              {
+                "pointer": "/npcPositions/0",
+                "mapId": "map.lounge",
+                "x": 4.5,
+                "y": 0.5,
+                "tolerance": 0.2
+              },
+              {
+                "pointer": "/player",
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5,
+                "tolerance": 0.001
+              }
+            ],
+            "onceLedger": {
+              "completedAdds": [
+                "event.snack"
+              ],
+              "rewardLedgerAddsCount": 1
+            },
+            "appointmentsRemoved": [
+              "event.snack"
+            ],
+            "timeCostMinutes": 10,
+            "rewardCrowns": 20,
+            "appliedOnce": true,
+            "unchangedElsewhere": true
+          }
+        },
+        {
+          "id": "A09a",
+          "title": "Cancel during choice, then a duplicate cancel",
+          "inputs": [
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 1,
+              "transactionId": "tx.a09a.start",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 2
+            },
+            {
+              "op": "cancel",
+              "reason": "player-cancel",
+              "inputSequence": 3
+            },
+            {
+              "op": "cancel",
+              "reason": "player-cancel",
+              "inputSequence": 4
+            }
+          ],
+          "expect": {
+            "status": "Cancelled",
+            "code": "CANCELLED",
+            "terminalCount": 1,
+            "childrenTerminatedBeforeTerminal": true,
+            "leasesReleased": true,
+            "stateEqualsFile": "base/save-accepted.json",
+            "ignorePointers": [
+              "/generation",
+              "/safePoint"
+            ],
+            "rewardCrowns": 0,
+            "timeCostMinutes": 0,
+            "reservationStatus": "Accepted"
+          }
+        },
+        {
+          "id": "A09c",
+          "title": "Blocked destination injection: MoveService keeps the last valid position, the Runner restores the whole scene",
+          "injection": "variants/injections/blocked-destination.json",
+          "inputs": [
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 1,
+              "transactionId": "tx.a09c.start",
+              "ownerToken": "owner.player"
+            }
+          ],
+          "expect": {
+            "moveService": {
+              "status": "Failed",
+              "code": "TARGET_BLOCKED",
+              "actorId": "npc.serin",
+              "positionAfter": {
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5
+              },
+              "meaning": "last valid position, no teleport and no restore"
+            },
+            "runner": {
+              "status": "Failed",
+              "code": "TARGET_BLOCKED",
+              "actorPositions": {
+                "npc.serin": {
+                  "mapId": "map.courtyard",
+                  "x": 1.5,
+                  "y": 4.5
+                },
+                "player": {
+                  "mapId": "map.courtyard",
+                  "x": 1.5,
+                  "y": 1.5
+                }
+              },
+              "stateEqualsFile": "base/save-accepted.json",
+              "ignorePointers": [
+                "/generation",
+                "/safePoint"
+              ],
+              "rewardCrowns": 0,
+              "timeCostMinutes": 0,
+              "reservationStatus": "Accepted"
+            },
+            "distinction": "MoveService alone leaves the actor at the joined arrival point; only the Runner failure path restores the entry snapshot"
+          }
+        }
+      ],
+      "expect": {
+        "terminalCount": 1,
+        "timeoutBounded": true,
+        "failureEffects": 0,
+        "rewardDelta": 0,
+        "timeCostDelta": 0,
+        "liveHandles": 0,
+        "leases": 0
+      }
+    },
+    {
+      "id": "A10",
+      "title": "NPC·이벤트·대사 JSON 추가 후 A03–A07 재실행",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "variants/a10-mira/runner-bundle.json",
+        "save": "variants/a10-mira/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.mira_snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.mira_snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a10.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "stage",
+          "inputSequence": 4
+        }
+      ],
+      "expect": {
+        "catalogSha256": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33",
+        "originalNpcMetadataUnchanged": true,
+        "otherAppointmentsUntouched": [
+          "event.snack",
+          "event.snack_later"
+        ],
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 230,
+          "/clock/absoluteMinute": 430,
+          "/flags/5/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/2",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 1.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.mira_snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.mira_snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 30,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      },
+      "repeatAcceptance": [
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "A07"
+      ],
+      "noDedicatedScript": true
+    }
+  ],
+  "supplementalScenarios": [
+    {
+      "id": "S01",
+      "title": "Accepted reservation runs to success with choice notes",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a01.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        },
+        {
+          "op": "save",
+          "inputSequence": 5
+        }
+      ],
+      "expect": {
+        "sceneOrder": [
+          "accept-persisted",
+          "entry-position-projection",
+          "recovery-capture-entry",
+          "scene-entry-notified",
+          "entry-save-succeeded",
+          "staging",
+          "script",
+          "condition-recheck",
+          "single-commit",
+          "scene-complete-notified"
+        ],
+        "afterSave": "SaveLatestSafe succeeds",
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 220,
+          "/clock/absoluteMinute": 430,
+          "/flags/1/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 3.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 20,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    },
+    {
+      "id": "S02",
+      "title": "Same flow with choice tea",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a02.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "tea",
+          "inputSequence": 4
+        },
+        {
+          "op": "save",
+          "inputSequence": 5
+        }
+      ],
+      "expect": {
+        "sceneOrder": [
+          "accept-persisted",
+          "entry-position-projection",
+          "recovery-capture-entry",
+          "scene-entry-notified",
+          "entry-save-succeeded",
+          "staging",
+          "script",
+          "condition-recheck",
+          "single-commit",
+          "scene-complete-notified"
+        ],
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 220,
+          "/clock/absoluteMinute": 430,
+          "/flags/1/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 3.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 20,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    },
+    {
+      "id": "S03",
+      "title": "Same-NPC second invitation loses on priority, stays Accepted, then succeeds later",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-accepted-all.json"
+      },
+      "inputs": [
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 1,
+          "transactionId": "tx.a03.first",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack_later",
+          "inputSequence": 2,
+          "transactionId": "tx.a03.second",
+          "ownerToken": "owner.player",
+          "expectAfter": {
+            "status": "Failed",
+            "code": "RESOURCE_BUSY",
+            "diagnosticPerBusyResource": true,
+            "reservationStatus": "Accepted",
+            "timeCostMinutes": 0,
+            "rewardCrowns": 0
+          }
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack_later",
+          "inputSequence": 5,
+          "transactionId": "tx.a03.retry",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 6
+        },
+        {
+          "op": "choice",
+          "key": "quick",
+          "inputSequence": 7
+        }
+      ],
+      "expect": {
+        "candidateOrderBefore": [
+          "event.snack",
+          "event.snack_later"
+        ],
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 225,
+          "/clock/absoluteMinute": 440,
+          "/flags/1/value": true,
+          "/flags/4/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 3.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack",
+            "event.snack_later"
+          ],
+          "rewardLedgerAddsCount": 2
+        },
+        "appointmentsRemoved": [
+          "event.snack",
+          "event.snack_later"
+        ],
+        "timeCostMinutes": 20,
+        "rewardCrowns": 25,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    },
+    {
+      "id": "S04",
+      "title": "Hard kill during move restores the entry with the reservation Accepted",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a04.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "killphase",
+          "phase": "move"
+        },
+        {
+          "op": "reload"
+        }
+      ],
+      "expect": {
+        "stateEqualsFile": "base/save-accepted.json",
+        "ignorePointers": [
+          "/generation",
+          "/safePoint"
+        ],
+        "rewardCrowns": 0,
+        "timeCostMinutes": 0,
+        "reservationStatus": "Accepted"
+      }
+    },
+    {
+      "id": "S05",
+      "title": "Hard kill during say restores the entry with the reservation Accepted",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a05.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "killphase",
+          "phase": "say"
+        },
+        {
+          "op": "reload"
+        }
+      ],
+      "expect": {
+        "stateEqualsFile": "base/save-accepted.json",
+        "ignorePointers": [
+          "/generation",
+          "/safePoint"
+        ],
+        "rewardCrowns": 0,
+        "timeCostMinutes": 0,
+        "reservationStatus": "Accepted"
+      }
+    },
+    {
+      "id": "S06",
+      "title": "Hard kill during choice restores the entry with the reservation Accepted",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a06.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "killphase",
+          "phase": "choice"
+        },
+        {
+          "op": "reload"
+        }
+      ],
+      "expect": {
+        "stateEqualsFile": "base/save-accepted.json",
+        "ignorePointers": [
+          "/generation",
+          "/safePoint"
+        ],
+        "rewardCrowns": 0,
+        "timeCostMinutes": 0,
+        "reservationStatus": "Accepted"
+      }
+    },
+    {
+      "id": "S07",
+      "title": "Duplicate start applies cost and reward once; a once event refuses a new start",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a07.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a07.start",
+          "ownerToken": "owner.player",
+          "expectAfter": {
+            "resultEqualsFirst": true,
+            "appliedAgain": false
+          }
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 5,
+          "transactionId": "tx.a07.again",
+          "ownerToken": "owner.player",
+          "expectAfter": {
+            "status": "Failed",
+            "code": "CONDITION_FALSE",
+            "note": "assumed refusal code for a completed once event"
+          }
+        },
+        {
+          "op": "save",
+          "inputSequence": 6
+        },
+        {
+          "op": "reload"
+        }
+      ],
+      "expect": {
+        "afterReload": "state equals the success state",
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 220,
+          "/clock/absoluteMinute": 430,
+          "/flags/1/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 3.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 20,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    },
+    {
+      "id": "S08",
+      "title": "Disk failure after the success commit keeps memory success and reports a separate save result",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a08.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "inject",
+          "fault": "file-write-fail",
+          "at": "after-success-commit"
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        },
+        {
+          "op": "reload"
+        }
+      ],
+      "expect": {
+        "memoryAfterSuccess": {
+          "status": "Succeeded",
+          "set": {
+            "/wallet": 220,
+            "/clock/absoluteMinute": 430,
+            "/flags/1/value": true
+          },
+          "near": [
+            {
+              "pointer": "/npcPositions/0",
+              "mapId": "map.lounge",
+              "x": 4.5,
+              "y": 3.5,
+              "tolerance": 0.2
+            },
+            {
+              "pointer": "/player",
+              "mapId": "map.lounge",
+              "x": 0.5,
+              "y": 2.5,
+              "tolerance": 0.001
+            }
+          ],
+          "onceLedger": {
+            "completedAdds": [
+              "event.snack"
+            ],
+            "rewardLedgerAddsCount": 1
+          },
+          "appointmentsRemoved": [
+            "event.snack"
+          ],
+          "timeCostMinutes": 10,
+          "rewardCrowns": 20,
+          "appliedOnce": true,
+          "unchangedElsewhere": true
+        },
+        "saveResult": {
+          "status": "Failed",
+          "reportedSeparatelyFromEvent": true,
+          "unsavedIndicator": true
+        },
+        "afterReload": {
+          "stateEqualsFile": "base/save-accepted.json",
+          "ignorePointers": [
+            "/generation",
+            "/safePoint"
+          ],
+          "rewardCrowns": 0,
+          "timeCostMinutes": 0,
+          "reservationStatus": "Accepted"
+        }
+      }
+    },
+    {
+      "id": "S09",
+      "title": "Cancel, duplicate cancel, and failure: MoveService last valid position versus Runner whole-scene restore",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-accepted.json"
+      },
+      "cases": [
+        {
+          "id": "A09a",
+          "title": "Cancel during choice, then a duplicate cancel",
+          "inputs": [
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 1,
+              "transactionId": "tx.a09a.start",
+              "ownerToken": "owner.player"
+            },
+            {
+              "op": "confirm",
+              "target": "say",
+              "inputSequence": 2
+            },
+            {
+              "op": "cancel",
+              "reason": "player-cancel",
+              "inputSequence": 3
+            },
+            {
+              "op": "cancel",
+              "reason": "player-cancel",
+              "inputSequence": 4
+            }
+          ],
+          "expect": {
+            "status": "Cancelled",
+            "code": "CANCELLED",
+            "terminalCount": 1,
+            "childrenTerminatedBeforeTerminal": true,
+            "leasesReleased": true,
+            "stateEqualsFile": "base/save-accepted.json",
+            "ignorePointers": [
+              "/generation",
+              "/safePoint"
+            ],
+            "rewardCrowns": 0,
+            "timeCostMinutes": 0,
+            "reservationStatus": "Accepted"
+          }
+        },
+        {
+          "id": "A09c",
+          "title": "Blocked destination injection: MoveService keeps the last valid position, the Runner restores the whole scene",
+          "injection": "variants/injections/blocked-destination.json",
+          "inputs": [
+            {
+              "op": "start",
+              "eventId": "event.snack",
+              "inputSequence": 1,
+              "transactionId": "tx.a09c.start",
+              "ownerToken": "owner.player"
+            }
+          ],
+          "expect": {
+            "moveService": {
+              "status": "Failed",
+              "code": "TARGET_BLOCKED",
+              "actorId": "npc.serin",
+              "positionAfter": {
+                "mapId": "map.lounge",
+                "x": 0.5,
+                "y": 2.5
+              },
+              "meaning": "last valid position, no teleport and no restore"
+            },
+            "runner": {
+              "status": "Failed",
+              "code": "TARGET_BLOCKED",
+              "actorPositions": {
+                "npc.serin": {
+                  "mapId": "map.courtyard",
+                  "x": 1.5,
+                  "y": 4.5
+                },
+                "player": {
+                  "mapId": "map.courtyard",
+                  "x": 1.5,
+                  "y": 1.5
+                }
+              },
+              "stateEqualsFile": "base/save-accepted.json",
+              "ignorePointers": [
+                "/generation",
+                "/safePoint"
+              ],
+              "rewardCrowns": 0,
+              "timeCostMinutes": 0,
+              "reservationStatus": "Accepted"
+            },
+            "distinction": "MoveService alone leaves the actor at the joined arrival point; only the Runner failure path restores the entry snapshot"
+          }
+        }
+      ]
+    },
+    {
+      "id": "S10",
+      "title": "Second active NPC variant: cloned event, own variable, flag and reward; catalog bytes unchanged",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "variants/a10-mira/runner-bundle.json",
+        "save": "variants/a10-mira/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.mira_snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.mira_snack",
+          "inputSequence": 2,
+          "transactionId": "tx.a10.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "stage",
+          "inputSequence": 4
+        }
+      ],
+      "expect": {
+        "catalogSha256": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33",
+        "originalNpcMetadataUnchanged": true,
+        "otherAppointmentsUntouched": [
+          "event.snack",
+          "event.snack_later"
+        ],
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 230,
+          "/clock/absoluteMinute": 430,
+          "/flags/5/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/2",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 1.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.mira_snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.mira_snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 30,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    }
+  ],
+  "runtimeVariants": [
+    {
+      "id": "RV01",
+      "name": "closed-portal",
+      "injection": "variants/injections/closed-portal.json",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "moveService",
+          "actorId": "npc.serin",
+          "destinationId": "dest.snack",
+          "usePortals": true,
+          "timeoutSeconds": 30,
+          "ownerToken": "owner.rv01"
+        }
+      ],
+      "expect": {
+        "status": "Failed",
+        "code": "NO_ROUTE",
+        "positionUnchanged": {
+          "mapId": "map.courtyard",
+          "x": 1.5,
+          "y": 4.5
+        }
+      }
+    },
+    {
+      "id": "RV02",
+      "name": "blocked-destination",
+      "injection": "variants/injections/blocked-destination.json",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "place",
+          "actorId": "npc.serin",
+          "position": {
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5
+          }
+        },
+        {
+          "op": "moveService",
+          "actorId": "npc.serin",
+          "destinationId": "dest.snack",
+          "usePortals": true,
+          "timeoutSeconds": 30,
+          "ownerToken": "owner.rv02"
+        }
+      ],
+      "expect": {
+        "status": "Failed",
+        "code": "TARGET_BLOCKED",
+        "positionUnchanged": {
+          "mapId": "map.lounge",
+          "x": 0.5,
+          "y": 2.5
+        }
+      }
+    },
+    {
+      "id": "RV03",
+      "name": "map-load-failure",
+      "injection": "variants/injections/map-load-failure.json",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "moveService",
+          "actorId": "npc.serin",
+          "destinationId": "dest.snack",
+          "usePortals": true,
+          "timeoutSeconds": 30,
+          "ownerToken": "owner.rv03"
+        }
+      ],
+      "expect": {
+        "status": "Failed",
+        "code": "MAP_LOAD_FAILED",
+        "activeMapIdAfter": "map.courtyard",
+        "temporarySceneCleanedUp": true,
+        "catalogStillCompiles": true
+      }
+    },
+    {
+      "id": "RV04",
+      "name": "wrong-arrival-map",
+      "injection": "variants/injections/wrong-arrival-map.json",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "base/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "place",
+          "actorId": "npc.serin",
+          "position": {
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5
+          }
+        },
+        {
+          "op": "moveService",
+          "actorId": "npc.serin",
+          "destinationId": "dest.snack",
+          "usePortals": true,
+          "timeoutSeconds": 30,
+          "ownerToken": "owner.rv04"
+        }
+      ],
+      "expect": {
+        "statusNot": "Succeeded",
+        "status": "Failed",
+        "codeOneOf": [
+          "NO_ROUTE",
+          "TARGET_BLOCKED"
+        ],
+        "arrived": false,
+        "distance": "Infinity",
+        "note": "arrival is judged from the actual final position, never from the request"
+      }
+    },
+    {
+      "id": "RV05",
+      "name": "dest-moved",
+      "initialFiles": {
+        "catalog": "base/full-catalog.json",
+        "functions": "base/schemas/functions.json",
+        "catalogSchema": "base/schemas/catalog.schema.json",
+        "runnerSchema": "base/schemas/runner.schema.json",
+        "runner": "variants/dest-moved/runner-bundle.json",
+        "save": "base/save-offered.json"
+      },
+      "inputs": [
+        {
+          "op": "accept",
+          "eventId": "event.snack",
+          "acceptedAt": 420,
+          "inputSequence": 1
+        },
+        {
+          "op": "start",
+          "eventId": "event.snack",
+          "inputSequence": 2,
+          "transactionId": "tx.rv05.start",
+          "ownerToken": "owner.player"
+        },
+        {
+          "op": "confirm",
+          "target": "say",
+          "inputSequence": 3
+        },
+        {
+          "op": "choice",
+          "key": "notes",
+          "inputSequence": 4
+        }
+      ],
+      "expect": {
+        "status": "Succeeded",
+        "set": {
+          "/wallet": 220,
+          "/clock/absoluteMinute": 430,
+          "/flags/1/value": true
+        },
+        "near": [
+          {
+            "pointer": "/npcPositions/0",
+            "mapId": "map.lounge",
+            "x": 4.5,
+            "y": 0.5,
+            "tolerance": 0.2
+          },
+          {
+            "pointer": "/player",
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5,
+            "tolerance": 0.001
+          }
+        ],
+        "onceLedger": {
+          "completedAdds": [
+            "event.snack"
+          ],
+          "rewardLedgerAddsCount": 1
+        },
+        "appointmentsRemoved": [
+          "event.snack"
+        ],
+        "timeCostMinutes": 10,
+        "rewardCrowns": 20,
+        "appliedOnce": true,
+        "unchangedElsewhere": true
+      }
+    }
+  ],
+  "compileNegatives": [
+    {
+      "id": "say-arg-count",
+      "runner": "variants/invalid/say-arg-count/runner-bundle.json",
+      "editedCall": {
+        "event": "event.snack",
+        "index": 2,
+        "text": "say npc.serin"
+      },
+      "expect": {
+        "outcome": "Failed",
+        "resultCode": "CONTENT_INVALID",
+        "diagnosticCodes": [
+          "ARG_COUNT"
+        ],
+        "diagnosticCodesMatch": "all",
+        "wholeBundleRejected": true,
+        "providerKeepsPreviousCatalog": true
+      }
+    },
+    {
+      "id": "wait-arg-type",
+      "runner": "variants/invalid/wait-arg-type/runner-bundle.json",
+      "editedCall": {
+        "event": "event.snack",
+        "index": 1,
+        "text": "wait notanumber"
+      },
+      "expect": {
+        "outcome": "Failed",
+        "resultCode": "CONTENT_INVALID",
+        "diagnosticCodes": [
+          "ARG_TYPE"
+        ],
+        "diagnosticCodesMatch": "all",
+        "wholeBundleRejected": true,
+        "providerKeepsPreviousCatalog": true
+      }
+    },
+    {
+      "id": "unknown-function",
+      "runner": "variants/invalid/unknown-function/runner-bundle.json",
+      "editedCall": {
+        "event": "event.snack",
+        "index": 1,
+        "text": "teleport npc.serin dest.snack"
+      },
+      "expect": {
+        "outcome": "Failed",
+        "resultCode": "CONTENT_INVALID",
+        "diagnosticCodes": [
+          "UNKNOWN_FUNCTION"
+        ],
+        "diagnosticCodesMatch": "all",
+        "wholeBundleRejected": true,
+        "providerKeepsPreviousCatalog": true
+      }
+    },
+    {
+      "id": "move-ref-not-found",
+      "runner": "variants/invalid/move-ref-not-found/runner-bundle.json",
+      "editedCall": {
+        "event": "event.snack",
+        "index": 1,
+        "text": "move npc.serin dest.nowhere"
+      },
+      "expect": {
+        "outcome": "Failed",
+        "resultCode": "CONTENT_INVALID",
+        "diagnosticCodes": [
+          "REF_NOT_FOUND"
+        ],
+        "diagnosticCodesMatch": "all",
+        "wholeBundleRejected": true,
+        "providerKeepsPreviousCatalog": true
+      }
+    },
+    {
+      "id": "move-ref-kind",
+      "runner": "variants/invalid/move-ref-kind/runner-bundle.json",
+      "editedCall": {
+        "event": "event.snack",
+        "index": 1,
+        "text": "move dest.snack dest.snack"
+      },
+      "expect": {
+        "outcome": "Failed",
+        "resultCode": "CONTENT_INVALID",
+        "diagnosticCodes": [
+          "REF_KIND",
+          "REF_NOT_FOUND"
+        ],
+        "diagnosticCodesMatch": "any",
+        "wholeBundleRejected": true,
+        "providerKeepsPreviousCatalog": true
+      }
+    }
+  ],
+  "unregisteredEffect": {
+    "id": "unregistered-effect",
+    "initialFiles": {
+      "catalog": "base/full-catalog.json",
+      "functions": "base/schemas/functions.json",
+      "catalogSchema": "base/schemas/catalog.schema.json",
+      "runnerSchema": "base/schemas/runner.schema.json",
+      "runner": "variants/unregistered-effect/runner-bundle.json",
+      "save": "base/save-accepted.json"
+    },
+    "inputs": [
+      {
+        "op": "start",
+        "eventId": "event.snack",
+        "inputSequence": 1,
+        "transactionId": "tx.unreg.start",
+        "ownerToken": "owner.player"
+      },
+      {
+        "op": "confirm",
+        "target": "say",
+        "inputSequence": 2
+      },
+      {
+        "op": "choice",
+        "key": "notes",
+        "inputSequence": 3
+      }
+    ],
+    "expect": {
+      "status": "Failed",
+      "code": "UNREGISTERED",
+      "wholeEffectListRefused": true,
+      "stateEqualsFile": "base/save-accepted.json",
+      "ignorePointers": [
+        "/generation",
+        "/safePoint"
+      ],
+      "rewardCrowns": 0,
+      "timeCostMinutes": 0,
+      "reservationStatus": "Accepted"
+    }
+  }
+}

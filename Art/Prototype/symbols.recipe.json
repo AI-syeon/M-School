@@ -1,0 +1,8 @@
+{
+  "schema":1,
+  "palette":{".":"#00000000","O":"#303449","W":"#65677cff","G":"#c59b54ff","L":"#f5d998ff","D":"#34384dff","T":"#497e80ff","P":"#e7e0d5ff"},
+  "symbols":[
+    {"id":"door","rows":["................","................","....WWWWWWWW....","...WWGGGGGGWW...","...WGGGGGGGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WGGDDDLGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WGGDDDDGGW...","...WWWWWWWWWW..."]},
+    {"id":"notice","rows":["................","................","...OOOOOOOOOO...","...OTTTTTTTTO...","...OTPPPPP PTO...","...OTPPPPPPTO...","...OTPPPPPPTO...","...OTPPPPPPTO...","...OTPPPPPPTO...","...OTPPPPPPTO...","...OTTTTTTTTO...","...OOOOOOOOOO...",".......OO.......",".......OO.......","......OOOO......","................"]}
+  ]
+}

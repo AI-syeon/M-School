@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "agentModel": "gpt-6.1-sol",
+  "agentReasoningEffort": "medium",
+  "generatedAt": "2026-11-03",
+  "requests": [
+    {
+      "output": "students-original.png",
+      "transparent_background": true,
+      "prompt": "Use case: stylized-concept. Asset type: production source sprite sheet for a cozy 2D top-down magic school RPG; will be locally pixelized to 16x32 pixel character frames. Create one transparent RGBA sprite sheet, exactly 4 columns by 3 rows, 12 full-body student sprites, each centered in equal rectangular cells, lots of clear transparent space between cells, feet at same baseline per row, no grid lines or labels. Every sprite must have a tall narrow full body readable at tiny resolution, small chibi head, clean silhouette and simple flat clusters, no shading gradients. ROW 1: PLAYER, short dark navy hair, blue academy blazer, pale shirt, gold trim, dark pants, brown shoes. Columns left to right show same student facing SOUTH toward camera, WEST profile looking left, EAST profile looking right, NORTH back view. ROW 2: SERIN, long plum brown hair, mauve academy uniform and pale skirt, gold accent, same four directions south/west/east/north. ROW 3: MIRA, mint green bob hair, forest green academy uniform, cream shirt, brown shoes, same four directions south/west/east/north. Orthographic top-down three-quarter JRPG overworld sprites with no ground plane, no cast shadows. Consistent identical body scale across all 12, entire bodies and shoes in cells, crisp outlines, no text, no props, no decorative frames. At source size around 1024 square, each cell 256 wide and 341 tall, centered vertically. Output true transparent background."
+    },
+    {
+      "output": "academy-tiles-original.png",
+      "transparent_background": false,
+      "prompt": "Use case: stylized-concept. Asset type: tile source atlas for a cozy top-down magic academy RPG, later reduced to 16x16 tile cells. Create exactly a 4 by 4 contact sheet of SIXTEEN square cells that meet seamlessly with no gutters, borders, text, numerals, shadows between tiles, or perspective. Each tile is a clean flat-color illustrated game tile with chunky pixel-like clusters and clear shapes. Restricted coherent warm-cream / muted forest green / dusty purple / brown / gold palette. Row 1 left to right: seamless grass with tiny few flecks; seamless pale cream flagstone paving; seamless warm tan wooden parquet; seamless dark green grass. Row 2: cream limestone academy wall brick face; dusty blue slate roof shingles; large centered closed brown wooden arched door with gold knob inside cream stone frame filling the cell; teal wooden notice board with pale pinned paper standing on two brown legs against grass. Row 3: a single round green leafy tree viewed at 3/4 top-down rooted on grass; neatly clipped hedge on grass; warm brown bench on cream stone path; round gray stone fountain with cyan water on cream path. Row 4: academy window with warm lit panes set in cream stone wall; flower bed with lavender flowers set in grass; simple tan dirt path seamless surface; blank pale parchment rectangle with muted brown edges. Orthographic top-down game artwork, no characters, no scenery composition, do not join tiles into a map. Each cell independent, fully square filling quarter width and quarter height. Source atlas approx 1024 square."
+    }
+  ]
+}

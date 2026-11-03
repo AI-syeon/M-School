@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-02",
+  "browser": "Chrome headless, local file",
+  "checks": [
+    {
+      "name": "initial 56 cards",
+      "pass": true
+    },
+    {
+      "name": "stage 7 filter",
+      "pass": true
+    },
+    {
+      "name": "empty search result",
+      "pass": true
+    },
+    {
+      "name": "reset restores 56",
+      "pass": true
+    },
+    {
+      "name": "expand 56",
+      "pass": true
+    },
+    {
+      "name": "collapse 56",
+      "pass": true
+    },
+    {
+      "name": "dependency jump clears filter and expands target",
+      "pass": true
+    },
+    {
+      "name": "print expands 56",
+      "pass": true
+    },
+    {
+      "name": "after print restores prior state",
+      "pass": true
+    },
+    {
+      "name": "mobile width without overflow",
+      "pass": true
+    },
+    {
+      "name": "mobile tasks width without overflow",
+      "pass": true
+    }
+  ],
+  "runtimeExceptions": []
+}

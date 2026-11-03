@@ -1,0 +1,690 @@
+{
+  "date": "2026-11-02",
+  "scope": "planning documents only; no game implementation or Unity execution",
+  "taskCount": 56,
+  "stageCount": 18,
+  "numbering": "strict stage barriers; same-stage independent work",
+  "checks": {
+    "uniqueTaskIds": true,
+    "earlierStageDependencies": true,
+    "consecutiveStages": true,
+    "consecutiveSubtasks": true,
+    "requiredTaskFields": true,
+    "localLinksChecked": 35,
+    "originalSectionsMapped": 17,
+    "ownershipAndContractReview": "manual; see Claude활용및검토.md"
+  },
+  "errors": [],
+  "tasks": [
+    {
+      "id": "1-1",
+      "stage": 1,
+      "subtask": 1,
+      "name": "실행 기반·상태·포트 계약 확정",
+      "file": "01-기반과최소연결.md",
+      "dependencies": []
+    },
+    {
+      "id": "2-1",
+      "stage": 2,
+      "subtask": 1,
+      "name": "호출 칸 토크나이저·구문 파서",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "1-1"
+      ]
+    },
+    {
+      "id": "2-2",
+      "stage": 2,
+      "subtask": 2,
+      "name": "상태 저장소·원자 변경 계획",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "1-1"
+      ]
+    },
+    {
+      "id": "2-3",
+      "stage": 2,
+      "subtask": 3,
+      "name": "Handle·전체 임대·정지·틱 실행 기반",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "1-1"
+      ]
+    },
+    {
+      "id": "2-4",
+      "stage": 2,
+      "subtask": 4,
+      "name": "입력·타일맵·충돌·씬 포트 어댑터",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "1-1"
+      ]
+    },
+    {
+      "id": "2-5",
+      "stage": 2,
+      "subtask": 5,
+      "name": "파일 세대·체크섬·교체 어댑터",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "1-1"
+      ]
+    },
+    {
+      "id": "3-1",
+      "stage": 3,
+      "subtask": 1,
+      "name": "함수 검증·타입 컴파일·Catalog",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "2-1",
+        "1-1"
+      ]
+    },
+    {
+      "id": "3-2",
+      "stage": 3,
+      "subtask": 2,
+      "name": "공통 이동·문·도착 서비스",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "2-3",
+        "2-4"
+      ]
+    },
+    {
+      "id": "3-3",
+      "stage": 3,
+      "subtask": 3,
+      "name": "조건·효과·공유 완료키 조율",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "2-2",
+        "1-1"
+      ]
+    },
+    {
+      "id": "3-4",
+      "stage": 3,
+      "subtask": 4,
+      "name": "대화·선택·연출 표시 어댑터",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "2-3",
+        "2-4"
+      ]
+    },
+    {
+      "id": "3-5",
+      "stage": 3,
+      "subtask": 5,
+      "name": "달력·시간 비용·일 경계 서비스",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "2-2",
+        "2-3"
+      ]
+    },
+    {
+      "id": "4-1",
+      "stage": 4,
+      "subtask": 1,
+      "name": "이벤트 Runner·도메인 작업 포트",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "3-1",
+        "3-2",
+        "3-3",
+        "3-4",
+        "3-5"
+      ]
+    },
+    {
+      "id": "4-2",
+      "stage": 4,
+      "subtask": 2,
+      "name": "안전 snapshot·저장·복원·migration",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "2-5",
+        "3-3",
+        "3-5"
+      ]
+    },
+    {
+      "id": "4-3",
+      "stage": 4,
+      "subtask": 3,
+      "name": "NPC 일정·예약·숨김 합류·복귀",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "3-1",
+        "3-2",
+        "3-5",
+        "2-3",
+        "2-2"
+      ]
+    },
+    {
+      "id": "4-4",
+      "stage": 4,
+      "subtask": 4,
+      "name": "최소 연결 콘텐츠·실패 fixture",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "3-1",
+        "1-1"
+      ]
+    },
+    {
+      "id": "5-1",
+      "stage": 5,
+      "subtask": 1,
+      "name": "최소 연결 조립·A01–A10 검증",
+      "file": "01-기반과최소연결.md",
+      "dependencies": [
+        "4-1",
+        "4-2",
+        "4-3",
+        "4-4"
+      ]
+    },
+    {
+      "id": "6-1",
+      "stage": 6,
+      "subtask": 1,
+      "name": "방 체크포인트·overlay·공통 목표 실행",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "5-1",
+        "4-2",
+        "3-3"
+      ]
+    },
+    {
+      "id": "6-2",
+      "stage": 6,
+      "subtask": 2,
+      "name": "인벤토리·출처·대여·우편",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "5-1",
+        "2-2",
+        "3-3"
+      ]
+    },
+    {
+      "id": "6-3",
+      "stage": 6,
+      "subtask": 3,
+      "name": "공동 경험·참여·친밀도 원장",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "5-1",
+        "2-2",
+        "3-3"
+      ]
+    },
+    {
+      "id": "6-4",
+      "stage": 6,
+      "subtask": 4,
+      "name": "주문 시전·태그 반응·제한 조합",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "5-1",
+        "3-1",
+        "3-2",
+        "3-3"
+      ]
+    },
+    {
+      "id": "6-5",
+      "stage": 6,
+      "subtask": 5,
+      "name": "수첩 조회·힌트 기록·다음 행동",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "5-1",
+        "3-1",
+        "3-3"
+      ]
+    },
+    {
+      "id": "6-6",
+      "stage": 6,
+      "subtask": 6,
+      "name": "접근성·설정·자산 표시 기반",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "5-1",
+        "3-4"
+      ]
+    },
+    {
+      "id": "7-1",
+      "stage": 7,
+      "subtask": 1,
+      "name": "상점·거래·재입고·경제 lint",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-2",
+        "3-5",
+        "3-3"
+      ]
+    },
+    {
+      "id": "7-2",
+      "stage": 7,
+      "subtask": 2,
+      "name": "재배·자동 급수·생물 돌봄",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-2",
+        "3-5",
+        "3-3"
+      ]
+    },
+    {
+      "id": "7-3",
+      "stage": 7,
+      "subtask": 3,
+      "name": "성질 제작·요리·일괄 제작",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-2",
+        "3-1",
+        "3-3"
+      ]
+    },
+    {
+      "id": "7-4",
+      "stage": 7,
+      "subtask": 4,
+      "name": "전투·AI·공격권·회피",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-1",
+        "6-4",
+        "6-6",
+        "3-2"
+      ]
+    },
+    {
+      "id": "7-5",
+      "stage": 7,
+      "subtask": 5,
+      "name": "수업·복습·학습 성장",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-2",
+        "6-3",
+        "6-4",
+        "3-3"
+      ]
+    },
+    {
+      "id": "7-6",
+      "stage": 7,
+      "subtask": 6,
+      "name": "사건·선취 증거·해결 파생·중간 정리",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-1",
+        "6-3",
+        "6-5",
+        "3-3"
+      ]
+    },
+    {
+      "id": "7-7",
+      "stage": 7,
+      "subtask": 7,
+      "name": "관계 단계·초대·최종 표현",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-3",
+        "6-2",
+        "4-3",
+        "3-3"
+      ]
+    },
+    {
+      "id": "8-1",
+      "stage": 8,
+      "subtask": 1,
+      "name": "배치·되돌리기·회수·영구 투영",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-2",
+        "6-1",
+        "3-2",
+        "6-6"
+      ]
+    },
+    {
+      "id": "8-2",
+      "stage": 8,
+      "subtask": 2,
+      "name": "생활 프로젝트·공용 시설·편의 해금",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "7-2",
+        "7-3",
+        "7-6",
+        "7-5",
+        "6-3"
+      ]
+    },
+    {
+      "id": "8-3",
+      "stage": 8,
+      "subtask": 3,
+      "name": "탐험·환경 퍼즐·현장 지원·귀환문",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "6-1",
+        "6-4",
+        "7-6",
+        "6-2",
+        "6-5"
+      ]
+    },
+    {
+      "id": "8-4",
+      "stage": 8,
+      "subtask": 4,
+      "name": "행사·모임·부탁·지정 지점 동행",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "7-5",
+        "7-7",
+        "6-3",
+        "6-2",
+        "4-3"
+      ]
+    },
+    {
+      "id": "8-5",
+      "stage": 8,
+      "subtask": 5,
+      "name": "상태 기반 대사·인물 소개·후일담",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "7-6",
+        "7-7",
+        "6-3",
+        "3-4"
+      ]
+    },
+    {
+      "id": "8-6",
+      "stage": 8,
+      "subtask": 6,
+      "name": "일 경계·자정·복구 조율",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "7-1",
+        "7-2",
+        "7-4",
+        "4-1",
+        "4-2",
+        "4-3"
+      ]
+    },
+    {
+      "id": "9-1",
+      "stage": 9,
+      "subtask": 1,
+      "name": "전체 서비스 배선·핵심 체험 번들 연결",
+      "file": "02-게임시스템.md",
+      "dependencies": [
+        "8-1",
+        "8-2",
+        "8-3",
+        "8-4",
+        "8-5",
+        "8-6"
+      ]
+    },
+    {
+      "id": "10-1",
+      "stage": 10,
+      "subtask": 1,
+      "name": "60–90분 사용자 체험 검증",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "9-1"
+      ]
+    },
+    {
+      "id": "10-2",
+      "stage": 10,
+      "subtask": 2,
+      "name": "시스템 경계·복구·양경로 통합 검증",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "9-1"
+      ]
+    },
+    {
+      "id": "11-1",
+      "stage": 11,
+      "subtask": 1,
+      "name": "검증 결과 반영·기준 계약 재확정",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "10-1",
+        "10-2"
+      ]
+    },
+    {
+      "id": "12-1",
+      "stage": 12,
+      "subtask": 1,
+      "name": "독립 사건·최종 실습·엔딩 후 생활 골격",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "11-1",
+        "7-6",
+        "8-3",
+        "8-5"
+      ]
+    },
+    {
+      "id": "12-2",
+      "stage": 12,
+      "subtask": 2,
+      "name": "콘텐츠 제작 규약·검수표·분할 소유권",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "11-1",
+        "3-1"
+      ]
+    },
+    {
+      "id": "13-1",
+      "stage": 13,
+      "subtask": 1,
+      "name": "자유 순서 모델·대표 실플레이·복구 프로필",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "12-1",
+        "12-2"
+      ]
+    },
+    {
+      "id": "13-2",
+      "stage": 13,
+      "subtask": 2,
+      "name": "저장 장애·호환·강제 종료 검증",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "12-1",
+        "4-2"
+      ]
+    },
+    {
+      "id": "13-3",
+      "stage": 13,
+      "subtask": 3,
+      "name": "기기·한국어·접근성·자산 검증",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "12-1",
+        "6-6",
+        "12-2"
+      ]
+    },
+    {
+      "id": "14-1",
+      "stage": 14,
+      "subtask": 1,
+      "name": "진행·저장·표시 결함 수정과 제작 기준 동결",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "13-1",
+        "13-2",
+        "13-3"
+      ]
+    },
+    {
+      "id": "15-1",
+      "stage": 15,
+      "subtask": 1,
+      "name": "주문·수업·적·교전 정의 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "7-4",
+        "7-5",
+        "6-4"
+      ]
+    },
+    {
+      "id": "15-2",
+      "stage": 15,
+      "subtask": 2,
+      "name": "주요 사건·최종 실습·필수 맵 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "12-1",
+        "8-3"
+      ]
+    },
+    {
+      "id": "15-3",
+      "stage": 15,
+      "subtask": 3,
+      "name": "생활·경제·프로젝트 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "7-1",
+        "7-2",
+        "7-3",
+        "8-1",
+        "8-2"
+      ]
+    },
+    {
+      "id": "15-4",
+      "stage": 15,
+      "subtask": 4,
+      "name": "NPC·관계 사건·일상 대사 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "7-7",
+        "8-5",
+        "4-3"
+      ]
+    },
+    {
+      "id": "15-5",
+      "stage": 15,
+      "subtask": 5,
+      "name": "행사·모임·부탁 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "8-4"
+      ]
+    },
+    {
+      "id": "15-6",
+      "stage": 15,
+      "subtask": 6,
+      "name": "선택 조사실·권역 확장 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "8-3"
+      ]
+    },
+    {
+      "id": "15-7",
+      "stage": 15,
+      "subtask": 7,
+      "name": "픽셀 자산·UI·초상·음향 팩",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "14-1",
+        "6-6",
+        "12-2"
+      ]
+    },
+    {
+      "id": "16-1",
+      "stage": 16,
+      "subtask": 1,
+      "name": "전체 팩 병합·원본 대응·버전 확정",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "15-1",
+        "15-2",
+        "15-3",
+        "15-4",
+        "15-5",
+        "15-6",
+        "15-7"
+      ]
+    },
+    {
+      "id": "17-1",
+      "stage": 17,
+      "subtask": 1,
+      "name": "전구간 플레이·시간 예산·재미 검증",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "16-1"
+      ]
+    },
+    {
+      "id": "17-2",
+      "stage": 17,
+      "subtask": 2,
+      "name": "전구간 기술 회귀·플랫폼·저장·순서 검증",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "16-1"
+      ]
+    },
+    {
+      "id": "18-1",
+      "stage": 18,
+      "subtask": 1,
+      "name": "결함·분량 조정·회귀·최종 보고",
+      "file": "03-통합과콘텐츠검증.md",
+      "dependencies": [
+        "17-1",
+        "17-2"
+      ]
+    }
+  ]
+}

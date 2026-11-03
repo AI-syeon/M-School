@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "seed": 20261102,
+  "tiles": [
+    {
+      "id": "courtyard_grass",
+      "kind": "grass",
+      "size": 16,
+      "count": 4,
+      "palette": {
+        "base": "#526c54",
+        "accent": "#688665",
+        "shadow": "#405344",
+        "light": "#89a777"
+      }
+    },
+    {
+      "id": "lounge_floor",
+      "kind": "stone",
+      "size": 16,
+      "count": 4,
+      "palette": {
+        "base": "#a78c75",
+        "accent": "#bda18a",
+        "shadow": "#846c61",
+        "light": "#d1b99a"
+      }
+    },
+    {
+      "id": "school_wall",
+      "kind": "stone",
+      "size": 16,
+      "count": 2,
+      "palette": {
+        "base": "#4c4e65",
+        "accent": "#65677c",
+        "shadow": "#34384d",
+        "light": "#85879c"
+      }
+    },
+    {
+      "id": "portal_gold",
+      "kind": "stone",
+      "size": 16,
+      "count": 1,
+      "palette": {
+        "base": "#c59b54",
+        "accent": "#dcb46b",
+        "shadow": "#88623e",
+        "light": "#f5d998"
+      }
+    },
+    {
+      "id": "notice_teal",
+      "kind": "stone",
+      "size": 16,
+      "count": 1,
+      "palette": {
+        "base": "#497e80",
+        "accent": "#62999b",
+        "shadow": "#345a65",
+        "light": "#9fc2ba"
+      }
+    }
+  ],
+  "characters": [
+    {
+      "id": "student_player",
+      "size": [
+        16,
+        32
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6
+      },
+      "fps": {
+        "idle": 5,
+        "walk": 9
+      },
+      "palette": {
+        "outline": "#303449",
+        "body": "#647496",
+        "trim": "#d5ae65",
+        "skin": "#dcae91",
+        "light": "#b4cbd2"
+      }
+    },
+    {
+      "id": "student_serin",
+      "size": [
+        16,
+        32
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6
+      },
+      "fps": {
+        "idle": 5,
+        "walk": 9
+      },
+      "palette": {
+        "outline": "#303449",
+        "body": "#976b87",
+        "trim": "#d5ae65",
+        "skin": "#dcae91",
+        "light": "#d6bfd0"
+      }
+    }
+  ],
+  "screens": []
+}

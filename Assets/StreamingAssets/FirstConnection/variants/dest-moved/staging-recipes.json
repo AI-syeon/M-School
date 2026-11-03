@@ -1,0 +1,92 @@
+[
+  {
+    "eventId": "event.snack",
+    "policy": "hidden-join-at-incoming-portal-arrival",
+    "firstMove": {
+      "actorId": "npc.serin",
+      "destinationId": "dest.snack",
+      "targetMapId": "map.lounge"
+    },
+    "incomingPortalId": "portal.to_lounge",
+    "incomingFromMapId": "map.courtyard",
+    "arrival": {
+      "mapId": "map.lounge",
+      "x": 0.5,
+      "y": 2.5
+    },
+    "join": [
+      {
+        "actorId": "npc.serin",
+        "entry": {
+          "mapId": "map.courtyard",
+          "x": 1.5,
+          "y": 4.5
+        },
+        "joinAt": {
+          "mapId": "map.lounge",
+          "x": 0.5,
+          "y": 2.5
+        }
+      },
+      {
+        "actorId": "player",
+        "entry": {
+          "mapId": "map.courtyard",
+          "x": 1.5,
+          "y": 1.5
+        },
+        "joinAt": {
+          "mapId": "map.lounge",
+          "x": 0.5,
+          "y": 2.5
+        }
+      }
+    ],
+    "walk": "leased actors are joined offscreen at arrival during the hidden transition, then the move walks from arrival to the actual destination; the destination is never a warp target"
+  },
+  {
+    "eventId": "event.snack_later",
+    "policy": "hidden-join-at-incoming-portal-arrival",
+    "firstMove": {
+      "actorId": "npc.serin",
+      "destinationId": "dest.snack",
+      "targetMapId": "map.lounge"
+    },
+    "incomingPortalId": "portal.to_lounge",
+    "incomingFromMapId": "map.courtyard",
+    "arrival": {
+      "mapId": "map.lounge",
+      "x": 0.5,
+      "y": 2.5
+    },
+    "join": [
+      {
+        "actorId": "npc.serin",
+        "entry": {
+          "mapId": "map.courtyard",
+          "x": 1.5,
+          "y": 4.5
+        },
+        "joinAt": {
+          "mapId": "map.lounge",
+          "x": 0.5,
+          "y": 2.5
+        }
+      },
+      {
+        "actorId": "player",
+        "entry": {
+          "mapId": "map.courtyard",
+          "x": 1.5,
+          "y": 1.5
+        },
+        "joinAt": {
+          "mapId": "map.lounge",
+          "x": 0.5,
+          "y": 2.5
+        }
+      }
+    ],
+    "walk": "leased actors are joined offscreen at arrival during the hidden transition, then the move walks from arrival to the actual destination; the destination is never a warp target"
+  }
+]

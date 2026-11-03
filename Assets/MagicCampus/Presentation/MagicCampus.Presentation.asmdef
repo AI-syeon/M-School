@@ -1,0 +1,17 @@
+{
+  "name": "MagicCampus.Presentation",
+  "rootNamespace": "MagicCampus.Presentation",
+  "references": [
+    "MagicCampus.Contracts",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

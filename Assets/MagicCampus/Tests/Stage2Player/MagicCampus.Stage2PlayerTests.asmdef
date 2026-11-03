@@ -1,0 +1,6 @@
+{
+  "name": "MagicCampus.Stage2PlayerTests",
+  "references": ["MagicCampus.Contracts", "MagicCampus.Domain", "MagicCampus.UnityAdapters", "Unity.InputSystem"],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}

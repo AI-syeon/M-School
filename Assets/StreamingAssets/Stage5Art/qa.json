@@ -1,0 +1,83 @@
+{
+  "pipeline": "pixel_pipeline.cli.check_image + grid_atlas + save_json",
+  "pythonEnvironment": "2D-pixel-asset-pipeline/.venv/Scripts/python.exe",
+  "sourceImages": {
+    "students-original.png": {
+      "sha256": "59fd022508df78a1f827f3917fef65355d3e8eedb72c56189f401bf4e9880368",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "academy-tiles-original.png": {
+      "sha256": "235b482a0506c6b55e4401091db98b8096ac955f8e06ecd22a2dc8570c113abd",
+      "size": [
+        1254,
+        1254
+      ]
+    }
+  },
+  "tiles": 16,
+  "actors": {
+    "player": {
+      "frames": 40,
+      "directions": 4,
+      "idleFramesPerDirection": 4,
+      "walkFramesPerDirection": 6,
+      "size": [
+        16,
+        32
+      ],
+      "alpha": "binary 0/255",
+      "paletteMaxPerBasePose": 24
+    },
+    "npc.serin": {
+      "frames": 40,
+      "directions": 4,
+      "idleFramesPerDirection": 4,
+      "walkFramesPerDirection": 6,
+      "size": [
+        16,
+        32
+      ],
+      "alpha": "binary 0/255",
+      "paletteMaxPerBasePose": 24
+    },
+    "npc.mira": {
+      "frames": 40,
+      "directions": 4,
+      "idleFramesPerDirection": 4,
+      "walkFramesPerDirection": 6,
+      "size": [
+        16,
+        32
+      ],
+      "alpha": "binary 0/255",
+      "paletteMaxPerBasePose": 24
+    }
+  },
+  "atlasFrameEquality": true,
+  "visualInspection": {
+    "status": "passed-at-nearest-neighbor-preview-scale",
+    "reviewed": [
+      "character-review.png",
+      "tile-review.png",
+      "characters/npc.serin/review.png",
+      "maps/map.courtyard-review.png",
+      "maps/map.lounge-review.png"
+    ],
+    "findings": [
+      "Three student color identities and all four directions are distinct.",
+      "Door, notice board, tree, hedge, bench, fountain, window and flowers recognizable at 16px.",
+      "Walk is a simple locally rigged leg-shift/bob loop, not independently generated poses.",
+      "Map images match existing fixture dimensions and blocked cells; not a large designed campus."
+    ]
+  },
+  "runtimeManifestCompatibility": {
+    "status": "passed",
+    "oldRuntimeTileKeysPreserved": true,
+    "oldRuntimeActorKeysPreserved": true,
+    "sha256AndPaths": "passed",
+    "savedFrameAtlasEquality": 120
+  }
+}

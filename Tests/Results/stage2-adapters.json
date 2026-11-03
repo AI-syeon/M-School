@@ -1,0 +1,20 @@
+{
+  "unityVersion": "6000.6.3f1",
+  "startedUtc": "2026-11-02T04:51:10.7437721Z",
+  "cases": 10,
+  "passed": 10,
+  "failed": 0,
+  "assertions": 1065,
+  "outcomes": [
+    {"name": "input.eight-directions", "passed": true, "assertions": 50, "millis": 50.921, "message": ""},
+    {"name": "input.gamepad-deadzone-and-detach", "passed": true, "assertions": 16, "millis": 26.427, "message": ""},
+    {"name": "input.ui-capture-no-leak", "passed": true, "assertions": 13, "millis": 0.476, "message": ""},
+    {"name": "input.mouse-buttons", "passed": true, "assertions": 3, "millis": 8.522, "message": ""},
+    {"name": "maps.parse-and-validate", "passed": true, "assertions": 39, "millis": 11.178, "message": ""},
+    {"name": "maps.load-builds-real-roots-and-colliders", "passed": true, "assertions": 28, "millis": 16.281, "message": ""},
+    {"name": "maps.load-failure-cancel-cleanup", "passed": true, "assertions": 36, "millis": 2.093, "message": ""},
+    {"name": "collision.doorway-closed-portal-blocked-tile-high-delta", "passed": true, "assertions": 40, "millis": 2.709, "message": ""},
+    {"name": "collision.inactive-map-and-argument-guards", "passed": true, "assertions": 19, "millis": 0.906, "message": ""},
+    {"name": "collision.random-sweeps-never-tunnel", "passed": true, "assertions": 821, "millis": 11.787, "message": ""}
+  ]
+}

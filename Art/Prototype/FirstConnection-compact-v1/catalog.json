@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "generator": "0.1.0",
+  "recipe": "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Prototype\\first-connection-compact.recipe.json",
+  "assets": [
+    {
+      "id": "courtyard_grass",
+      "type": "tile",
+      "manifest": "tiles/courtyard_grass/manifest.json",
+      "count": 4
+    },
+    {
+      "id": "lounge_floor",
+      "type": "tile",
+      "manifest": "tiles/lounge_floor/manifest.json",
+      "count": 4
+    },
+    {
+      "id": "school_wall",
+      "type": "tile",
+      "manifest": "tiles/school_wall/manifest.json",
+      "count": 2
+    },
+    {
+      "id": "portal_gold",
+      "type": "tile",
+      "manifest": "tiles/portal_gold/manifest.json",
+      "count": 1
+    },
+    {
+      "id": "notice_teal",
+      "type": "tile",
+      "manifest": "tiles/notice_teal/manifest.json",
+      "count": 1
+    },
+    {
+      "id": "student_player",
+      "type": "character",
+      "manifest": "characters/student_player/manifest.json",
+      "count": 10
+    },
+    {
+      "id": "student_serin",
+      "type": "character",
+      "manifest": "characters/student_serin/manifest.json",
+      "count": 10
+    }
+  ]
+}

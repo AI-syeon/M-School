@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "generator": "0.1.0",
+  "recipe": "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Prototype\\first-connection-mira.recipe.json",
+  "assets": [
+    {
+      "id": "student_mira",
+      "type": "character",
+      "manifest": "characters/student_mira/manifest.json",
+      "count": 10
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-02",
+  "status": "new Claude response unavailable; prior Claude domain drafts used; external retry rejected by approval review",
+  "attempt": {
+    "requestedModel": "claude-opus-5-5",
+    "result": "ENOTFOUND",
+    "isError": true,
+    "inputTokens": 0,
+    "outputTokens": 0
+  },
+  "files": [
+    {
+      "file": "claude-request.txt",
+      "bytes": 3354,
+      "sha256": "cc31d75b72e42c1d8f8041ded77dece8f6588a018bb982dd6c1a8d7c68212a73"
+    },
+    {
+      "file": "claude-sent.txt",
+      "bytes": 215578,
+      "sha256": "0170bfc5eb970d5545bd262a9dabaa2f34eba8298e036536f8cb2631fb70a980"
+    },
+    {
+      "file": "claude-response.jsonl",
+      "bytes": 7067,
+      "sha256": "927aef9cca9772bc1af51b08c53e452c9d0cdcb8b63c04fa56c9fea81cd283f4"
+    },
+    {
+      "file": "claude-draft.md",
+      "bytes": 81,
+      "sha256": "a59b7c4c99625d315873d3b2c64ad9a54a0a9fa031a86f6ce95553e4cd8c5af7"
+    }
+  ]
+}

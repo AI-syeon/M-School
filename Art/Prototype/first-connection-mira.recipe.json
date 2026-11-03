@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "seed": 20261102,
+  "tiles": [],
+  "characters": [
+    {
+      "id": "student_mira",
+      "size": [
+        16,
+        32
+      ],
+      "states": {
+        "idle": 4,
+        "walk": 6
+      },
+      "fps": {
+        "idle": 5,
+        "walk": 9
+      },
+      "palette": {
+        "outline": "#303449",
+        "body": "#668779",
+        "trim": "#d5ae65",
+        "skin": "#dcae91",
+        "light": "#b9d1ac"
+      }
+    }
+  ],
+  "screens": []
+}

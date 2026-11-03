@@ -1,0 +1,367 @@
+{
+  "schema": 1,
+  "quality": "prototype-only",
+  "pixelsPerUnit": 16,
+  "origin": "top-left",
+  "filter": "point",
+  "integerScale": 4,
+  "tiles": {
+    "floor.courtyard": {
+      "image": "FirstConnection-compact-v1/tiles/courtyard_grass/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "98145655079e1a485d27a2b8e85807f0f17e59959bb5db9070d70e73828ee5a0"
+    },
+    "floor.lounge": {
+      "image": "FirstConnection-compact-v1/tiles/lounge_floor/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 32,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 48,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "b44e20520d1505f9c7a617aa0153e589eac2725e1b664c4abc96e1a95cc6f963"
+    },
+    "wall.school": {
+      "image": "FirstConnection-compact-v1/tiles/school_wall/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "4bf604b28999f726688f45e3076fadc9d049324e3c9334bb51b562c9b692bbec"
+    },
+    "door": {
+      "image": "FirstConnection-symbols-v1/atlas.png",
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "3670305ed88d9ec329445ce4a305560e492f7eaf9f1624eae116e5cadb58dee4"
+    },
+    "notice": {
+      "image": "FirstConnection-symbols-v1/atlas.png",
+      "frames": [
+        {
+          "x": 16,
+          "y": 0,
+          "w": 16,
+          "h": 16
+        }
+      ],
+      "sha256": "3670305ed88d9ec329445ce4a305560e492f7eaf9f1624eae116e5cadb58dee4"
+    }
+  },
+  "actors": {
+    "player": {
+      "image": "FirstConnection-compact-v1/characters/student_player/sprite-sheet-alpha.png",
+      "pivot": [
+        0.5,
+        0.0625
+      ],
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 32,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 48,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        },
+        "walk": {
+          "frames": 6,
+          "fps": 9,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 64,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 80,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 96,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 112,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 128,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 144,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        }
+      },
+      "sha256": "6f54a9f04d5cdde70e38a46ef372bb3f5d3c11bbd07471d712753992c2e416d3"
+    },
+    "npc.serin": {
+      "image": "FirstConnection-compact-v1/characters/student_serin/sprite-sheet-alpha.png",
+      "pivot": [
+        0.5,
+        0.0625
+      ],
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 32,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 48,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        },
+        "walk": {
+          "frames": 6,
+          "fps": 9,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 64,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 80,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 96,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 112,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 128,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 144,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        }
+      },
+      "sha256": "e482013764aa2e84c45aa82ed5515cb41dc407f2a287b8ba8763dc1e3409184d"
+    },
+    "npc.mira": {
+      "image": "FirstConnection-mira-v1/characters/student_mira/sprite-sheet-alpha.png",
+      "pivot": [
+        0.5,
+        0.0625
+      ],
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 5,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 0,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 32,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 48,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        },
+        "walk": {
+          "frames": 6,
+          "fps": 9,
+          "loop": true,
+          "rectangles": [
+            {
+              "x": 64,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 80,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 96,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 112,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 128,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            },
+            {
+              "x": 144,
+              "y": 0,
+              "w": 16,
+              "h": 32
+            }
+          ]
+        }
+      },
+      "sha256": "6abd3a0d3a2e235f997736be64fc4f0c2470d4f3f58dae35ccbf5395baecba7c"
+    }
+  },
+  "visualRuntimeQA": "pending"
+}

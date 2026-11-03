@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:magic-campus:save:1",
+  "title": "Safe snapshot payload v1 (example subset)",
+  "type": "object", "additionalProperties": false,
+  "required": ["saveVersion", "contentVersion", "catalogHash", "generation", "safePoint", "clock", "variables", "positions", "completed", "appointments"],
+  "properties": {
+    "saveVersion": {"const": 1}, "contentVersion": {"type": "string", "minLength": 1},
+    "catalogHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "generation": {"type": "integer", "minimum": 1},
+    "safePoint": {"enum": ["scene-entry", "scene-complete", "world-safe"]},
+    "clock": {"type": "object", "additionalProperties": false, "required": ["absoluteMinute", "fraction"], "properties": {"absoluteMinute": {"type": "integer", "minimum": 0}, "fraction": {"type": "number", "minimum": 0, "exclusiveMaximum": 1}}},
+    "variables": {"type": "object", "additionalProperties": {"oneOf": [{"type": "boolean"}, {"type": "integer"}]}},
+    "positions": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["actorId", "mapId", "x", "y"], "properties": {"actorId": {"type": "string"}, "mapId": {"type": "string"}, "x": {"type": "number", "minimum": 0}, "y": {"type": "number", "minimum": 0}}}},
+    "completed": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "appointments": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["eventId", "status", "acceptedAt"], "properties": {"eventId": {"type": "string"}, "status": {"const": "Accepted"}, "acceptedAt": {"type": "integer", "minimum": 0}}}}
+  }
+}

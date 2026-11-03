@@ -1,0 +1,401 @@
+{
+  "quality": "prototype-only",
+  "generator": "2D-pixel-asset-pipeline 0.1.0",
+  "frames": 32,
+  "checks": [
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\courtyard_grass\\0000.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "7e60de2866f01e828ce076b1f33dde7ad2c338390df4feb0c720d374302917e3"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\courtyard_grass\\0001.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "9640e9ad0e843feae8863782e352a616cf1d24ff0d98e8ee15619534fa8dcd09"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\courtyard_grass\\0002.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "5da3fe17a83042092746822817339f33e488f1428d977c5644c9eda5174cf95b"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\courtyard_grass\\0003.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "61d510858d4f80af05a4175ae0d8e2ca233d2f803edccccc6550c91f361adcf8"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\lounge_floor\\0000.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "77ebd4f3ef840d90a56e2c42883dd083e4e9216805cc31c997fac0b95d90ba0f"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\lounge_floor\\0001.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "b63c35b302b45cadebfcb3985124a90c143b65fd7c963e927352aeeeb7d34f3d"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\lounge_floor\\0002.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "9c2e5beccc8b90883f2f05215ea77a96fecfb42962d308056017b60f5a0e90f1"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\lounge_floor\\0003.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "114d99838824a07fe47d6069eb5bee84979b4ed5657e0a4c3917d85408351e62"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\school_wall\\0000.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "9b075cc0deabbf63d68ed459e8bede034e3c314856d5878876b5b150dfbac7c7"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\school_wall\\0001.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "43da2a3678dd4dffa22fa5207d076d719cc9bdccccca350a89595c45b041af40"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\portal_gold\\0000.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "822d4b8c99b35a1ad0bdbf8ec5970f0898ce715151f5f23df88740e2c0434f0c"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\tiles\\notice_teal\\0000.png",
+      "size": [
+        16,
+        16
+      ],
+      "alpha": [
+        255,
+        255
+      ],
+      "sha256": "51dc26e4c2a67896060dd0ce4b61f10b3ae67708f9970d095ad910a6a16a216b"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\idle_000.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "71a9fc73f9d5f9cc888e08007e90e58f683bb3e67ed9e854066dabcadc07bb54"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\idle_001.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "30844aa439d4868c9211d9a461946fdb20f51c2442f85d57f139fb39d70cd3f8"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\idle_002.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "71a9fc73f9d5f9cc888e08007e90e58f683bb3e67ed9e854066dabcadc07bb54"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\idle_003.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "4b708c4e2739011eed35f86dab65e8792f994aa555163338cb5645b8c30a8c1e"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\walk_000.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "71a9fc73f9d5f9cc888e08007e90e58f683bb3e67ed9e854066dabcadc07bb54"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\walk_001.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "b2744a0dbd6db2894eab025e3fe44738e9f919d0ffab763bd4fdd3b04becb123"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\walk_002.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "b2744a0dbd6db2894eab025e3fe44738e9f919d0ffab763bd4fdd3b04becb123"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\walk_003.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "71a9fc73f9d5f9cc888e08007e90e58f683bb3e67ed9e854066dabcadc07bb54"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\walk_004.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "dcb208dd4480a69aa5a81269c4aa162a7b4cc9ee5432a6d0c80aa109d55fb1bf"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_player\\walk_005.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "dcb208dd4480a69aa5a81269c4aa162a7b4cc9ee5432a6d0c80aa109d55fb1bf"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\idle_000.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "274511b8891701702ea78ce0094bcae0cd536dc86d29625fa26f7af5579f9b11"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\idle_001.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "a444ed6c76d7b9b81e1352f47c7bc054533c7d32d6f9c04e0a5e3d3967aa574a"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\idle_002.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "274511b8891701702ea78ce0094bcae0cd536dc86d29625fa26f7af5579f9b11"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\idle_003.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "fddd63203141dd3327f4ba73dab965e8ae608ddb25bf10b362789217368a265b"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\walk_000.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "274511b8891701702ea78ce0094bcae0cd536dc86d29625fa26f7af5579f9b11"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\walk_001.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "84e5b3a7b17d9e434f4c71b1450b887fbdd00ff41eb4cd7e4c858d172b6db802"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\walk_002.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "84e5b3a7b17d9e434f4c71b1450b887fbdd00ff41eb4cd7e4c858d172b6db802"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\walk_003.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "274511b8891701702ea78ce0094bcae0cd536dc86d29625fa26f7af5579f9b11"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\walk_004.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "5b133c311369d8135f7f1eabe029de4dba7b918389066c0e4b5219ae5b4c8269"
+    },
+    {
+      "path": "FirstConnection-compact-v1\\characters\\student_serin\\walk_005.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "5b133c311369d8135f7f1eabe029de4dba7b918389066c0e4b5219ae5b4c8269"
+    }
+  ],
+  "atlasRectanglesMatchIndividualFrames": [
+    "courtyard_grass",
+    "lounge_floor",
+    "school_wall",
+    "portal_gold",
+    "notice_teal",
+    "student_player",
+    "student_serin"
+  ],
+  "visualReview": "Codex inspected first-connection-compact-review.png: 16x32 characters preserve separate silhouette and palette at same pixel density as 16x16 tiles; use as candidate for integer-scaled runtime QA, not production art."
+}

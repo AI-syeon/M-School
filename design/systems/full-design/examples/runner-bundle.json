@@ -1,0 +1,680 @@
+{
+  "schemaVersion": 2,
+  "contentVersion": "full-design-0.2-proposal",
+  "variables": [
+    {
+      "id": "story.intro_done",
+      "type": "bool",
+      "initial": true
+    },
+    {
+      "id": "memory.snack_done",
+      "type": "bool",
+      "initial": false
+    },
+    {
+      "id": "world.stage_ready",
+      "type": "bool",
+      "initial": false
+    },
+    {
+      "id": "notice.lunch_done",
+      "type": "bool",
+      "initial": false
+    },
+    {
+      "id": "clock.minute_of_day",
+      "type": "int",
+      "initial": 420
+    }
+  ],
+  "maps": [
+    {
+      "id": "map.courtyard",
+      "width": 8,
+      "height": 6,
+      "blocked": [
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "portals": [
+        {
+          "id": "portal.to_lounge",
+          "x": 7.5,
+          "y": 2.5,
+          "to": {
+            "mapId": "map.lounge",
+            "x": 0.5,
+            "y": 2.5
+          },
+          "open": true
+        }
+      ]
+    },
+    {
+      "id": "map.lounge",
+      "width": 6,
+      "height": 5,
+      "blocked": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "portals": [
+        {
+          "id": "portal.to_courtyard",
+          "x": 0.5,
+          "y": 2.5,
+          "to": {
+            "mapId": "map.courtyard",
+            "x": 7.5,
+            "y": 2.5
+          },
+          "open": true
+        }
+      ]
+    },
+    {
+      "id": "map.region_1",
+      "width": 20,
+      "height": 20,
+      "blocked": [],
+      "portals": []
+    },
+    {
+      "id": "map.region_2",
+      "width": 20,
+      "height": 20,
+      "blocked": [],
+      "portals": []
+    },
+    {
+      "id": "map.region_3",
+      "width": 20,
+      "height": 20,
+      "blocked": [],
+      "portals": []
+    },
+    {
+      "id": "map.region_4",
+      "width": 20,
+      "height": 20,
+      "blocked": [],
+      "portals": []
+    }
+  ],
+  "destinations": [
+    {
+      "id": "dest.courtyard_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 1.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.lounge_entry",
+      "position": {
+        "mapId": "map.lounge",
+        "x": 0.5,
+        "y": 3.5
+      },
+      "radius": 0.2,
+      "facing": "east"
+    },
+    {
+      "id": "dest.snack",
+      "position": {
+        "mapId": "map.lounge",
+        "x": 4.5,
+        "y": 3.5
+      },
+      "radius": 0.2,
+      "facing": "north"
+    },
+    {
+      "id": "dest.stage",
+      "position": {
+        "mapId": "map.lounge",
+        "x": 4.5,
+        "y": 1.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.notice",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 5.5,
+        "y": 1.5
+      },
+      "radius": 0.2,
+      "facing": "west"
+    },
+    {
+      "id": "dest.serin_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.ruon_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.mira_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.doyun_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.eve_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.narin_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.haeon_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.isol_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.or_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.rume_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.bello_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    },
+    {
+      "id": "dest.yuna_home",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "radius": 0.2,
+      "facing": "south"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "npc.serin",
+      "source": "N01",
+      "name": "서린",
+      "position": {
+        "mapId": "map.lounge",
+        "x": 0.5,
+        "y": 3.5
+      },
+      "home": "dest.snack",
+      "speed": 3
+    },
+    {
+      "id": "npc.mira",
+      "source": "N03",
+      "name": "미라",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 1.5
+      },
+      "home": "dest.stage",
+      "speed": 3
+    },
+    {
+      "id": "npc.ruon",
+      "source": "N02",
+      "name": "루온",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.ruon_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.doyun",
+      "source": "N04",
+      "name": "도윤",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.doyun_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.eve",
+      "source": "N05",
+      "name": "이브",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.eve_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.narin",
+      "source": "N06",
+      "name": "나린",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.narin_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.haeon",
+      "source": "N07",
+      "name": "해온",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.haeon_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.isol",
+      "source": "N08",
+      "name": "이솔",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.isol_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.or",
+      "source": "N09",
+      "name": "오르",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.or_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.rume",
+      "source": "N10",
+      "name": "루메",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.rume_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.bello",
+      "source": "N11",
+      "name": "벨로",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.bello_home",
+      "speed": 3
+    },
+    {
+      "id": "npc.yuna",
+      "source": "N12",
+      "name": "유나",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 1.5,
+        "y": 4.5
+      },
+      "home": "dest.yuna_home",
+      "speed": 3
+    }
+  ],
+  "schedules": [
+    {
+      "id": "schedule.serin",
+      "npcId": "npc.serin",
+      "script": "420 dest.snack / 720 dest.notice / 1080 home"
+    },
+    {
+      "id": "schedule.mira",
+      "npcId": "npc.mira",
+      "script": "420 dest.courtyard_home / 1080 dest.stage"
+    }
+  ],
+  "events": [
+    {
+      "id": "event.snack",
+      "category": "relationship",
+      "trigger": "interact npc.serin \"간식 모임 시작\" 1.5",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "npc.serin",
+        "space.map.lounge",
+        "input.player",
+        "camera.main"
+      ],
+      "when": "eq story.intro_done true",
+      "costMinutes": 10,
+      "script": "move npc.serin dest.snack / say npc.serin \"실습 노트를 같이 정리해 볼래?\" / choice \"서린과 무엇부터 할까?\" notes \"노트부터 정리하자\" tea \"차부터 준비하자\"",
+      "forks": {
+        "notes": "say npc.serin \"같이 하니까 마음이 놓여.\"",
+        "tea": "say npc.serin \"좋아, 따뜻한 차가 필요했어.\""
+      },
+      "effects": "set memory.snack_done true"
+    },
+    {
+      "id": "event.stage",
+      "category": "resolution",
+      "trigger": "interact npc.mira \"무대 준비\" 1.5",
+      "staging": "current",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "npc.mira",
+        "space.map.courtyard",
+        "space.map.lounge",
+        "input.player",
+        "camera.main"
+      ],
+      "when": "eq story.intro_done true",
+      "costMinutes": 10,
+      "script": "move npc.mira dest.stage timeout=30 portals=true / camera dest.stage 0.5 async=cam / animate npc.mira wave 0.5 async=wave / await cam wave / say npc.mira \"교정에서 여기까지 길을 따라 왔어. 무대를 준비하자.\"",
+      "effects": "set world.stage_ready true"
+    },
+    {
+      "id": "event.lunch",
+      "category": "interaction",
+      "trigger": "clock",
+      "staging": "current",
+      "pause": "dialogue",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "npc.serin",
+        "space.map.courtyard",
+        "space.map.lounge",
+        "input.player"
+      ],
+      "when": "gte clock.minute_of_day 720 / eq story.intro_done true",
+      "costMinutes": 0,
+      "script": "move npc.serin dest.notice / branch \"eq memory.snack_done true\" known new / wait 0.25",
+      "forks": {
+        "known": "say npc.serin \"아까 함께한 간식도 좋았어. 이제 점심시간이야.\"",
+        "new": "say npc.serin \"점심시간이야. 오늘은 같이 먹을래?\""
+      },
+      "effects": "set notice.lunch_done true"
+    },
+    {
+      "id": "event.water_class",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.courtyard"
+      ],
+      "when": "eq story.intro_done true",
+      "costMinutes": 0,
+      "script": "perform class class.water_basic",
+      "effects": "spell.learn spell.water / complete class.water_basic / experience.record npc.serin class.water_basic class"
+    },
+    {
+      "id": "event.pump_project",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.courtyard"
+      ],
+      "when": "any \"completed class.water_basic\" \"discovered case.b\"",
+      "costMinutes": 10,
+      "script": "perform project project.p01",
+      "effects": "project.install project.p01 / complete project.p01"
+    },
+    {
+      "id": "event.a3_combat",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "current",
+      "pause": "none",
+      "executionMode": "room-activity",
+      "repeatPolicy": "once",
+      "completionKey": "outcome.a_stopped",
+      "resources": [
+        "space.room.case_a3"
+      ],
+      "when": "completed node.a2 / !completed outcome.a_stopped",
+      "costMinutes": 0,
+      "script": "perform encounter encounter.a3",
+      "effects": "complete outcome.a_stopped"
+    },
+    {
+      "id": "event.a3_device",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "current",
+      "pause": "none",
+      "executionMode": "room-activity",
+      "repeatPolicy": "once",
+      "completionKey": "outcome.a_stopped",
+      "resources": [
+        "space.room.case_a3"
+      ],
+      "when": "completed node.a2 / !completed outcome.a_stopped",
+      "costMinutes": 0,
+      "script": "perform puzzle room.case_a3:device",
+      "effects": "complete outcome.a_stopped"
+    },
+    {
+      "id": "event.serin_r01",
+      "category": "relationship",
+      "trigger": "manual",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.courtyard"
+      ],
+      "when": "",
+      "costMinutes": 10,
+      "script": "perform relationship relation.r01",
+      "effects": "complete relation.r01"
+    },
+    {
+      "id": "event.coolant_craft",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.courtyard"
+      ],
+      "when": "",
+      "costMinutes": 10,
+      "script": "perform craft recipe.alchemy_3",
+      "effects": "complete recipe.alchemy_3"
+    },
+    {
+      "id": "event.first_festival",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.courtyard"
+      ],
+      "when": "",
+      "costMinutes": 10,
+      "script": "perform activity activity.h01",
+      "effects": "complete activity.h01"
+    },
+    {
+      "id": "event.a3_aftermath",
+      "category": "resolution",
+      "trigger": "manual",
+      "staging": "current",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "once",
+      "completionKey": "node.a3",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.region_2"
+      ],
+      "when": "completed outcome.a_stopped",
+      "costMinutes": 10,
+      "script": "perform puzzle room.case_a3:repair",
+      "effects": "evidence.add evidence.a3 / complete node.a3 / case.reward case.a"
+    },
+    {
+      "id": "event.water_practice",
+      "category": "interaction",
+      "trigger": "manual",
+      "staging": "reserved",
+      "pause": "scene",
+      "executionMode": "scene",
+      "repeatPolicy": "practice",
+      "resources": [
+        "input.player",
+        "camera.main",
+        "space.map.courtyard"
+      ],
+      "when": "completed class.water_basic",
+      "costMinutes": 0,
+      "script": "perform class class.water_basic mode=practice",
+      "effects": "experience.record npc.serin class.water_basic class participationOnly=true"
+    }
+  ]
+}

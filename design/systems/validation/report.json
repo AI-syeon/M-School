@@ -1,0 +1,817 @@
+{
+  "scope": "Documentation validation only; no Unity/runtime gameplay execution",
+  "schemaDialect": "2020-12; bundled checker evaluates only keywords used in supplied schemas",
+  "format": "function-call columns (full-design/11-function-syntax.md); one event = one row",
+  "contentVersion": "campus-demo.2",
+  "catalogHash": "6d98704a62a54ac07f3b4d43f6cb3fa8f796d5669a25ebc895cbfd0960b557f2",
+  "sourceMarkdownHash": "caaacf9f4398fe7bba5aff54a777bdaccd29205c16c211db57d44eb06cc8edba",
+  "counts": {
+    "maps": 2,
+    "npcs": 2,
+    "events": 3,
+    "schedules": 2,
+    "forks": 4,
+    "parsedCalls": {
+      "trigger": 3,
+      "when": 5,
+      "script": 11,
+      "forks": 4,
+      "effects": 3,
+      "schedule": 5
+    },
+    "staticMoveRoutes": 3,
+    "markdownDocuments": 8,
+    "localLinks": 33,
+    "negativeCases": 63
+  },
+  "positiveVariants": [
+    {
+      "name": "! and any in when",
+      "status": "pass"
+    },
+    {
+      "name": "negated any",
+      "status": "pass"
+    },
+    {
+      "name": "async camera beside a sync move of another resource",
+      "status": "pass"
+    },
+    {
+      "name": "fork calling another fork",
+      "status": "pass"
+    },
+    {
+      "name": "empty when, effects and schedule",
+      "status": "pass"
+    },
+    {
+      "name": "label on a call and escaped quote",
+      "status": "pass"
+    }
+  ],
+  "positive": {
+    "schema": "pass",
+    "callParsing": "pass",
+    "functionRegistry": "pass",
+    "references": "pass",
+    "staticReachability": "pass",
+    "handleContracts": "pass",
+    "saveExample": "pass",
+    "expectedTraceReferences": "pass",
+    "documentLinks": "pass",
+    "sourceUnchanged": "pass",
+    "parserSelfTest": "pass"
+  },
+  "routes": [
+    {
+      "eventId": "event.snack",
+      "call": "event.snack#1",
+      "actorId": "npc.serin",
+      "destinationId": "dest.snack",
+      "portals": []
+    },
+    {
+      "eventId": "event.stage",
+      "call": "event.stage#1",
+      "actorId": "npc.mira",
+      "destinationId": "dest.stage",
+      "portals": [
+        "portal.to_lounge"
+      ]
+    },
+    {
+      "eventId": "event.lunch",
+      "call": "event.lunch#1",
+      "actorId": "npc.serin",
+      "destinationId": "dest.notice",
+      "portals": [
+        "portal.to_courtyard"
+      ]
+    }
+  ],
+  "negative": [
+    {
+      "name": "unclosed quote in script",
+      "expectedCode": "PARSE_ERROR",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#4",
+        "offset": 140,
+        "message": "unclosed quote"
+      }
+    },
+    {
+      "name": "empty call between slashes",
+      "expectedCode": "PARSE_ERROR",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#2",
+        "offset": 27,
+        "message": "empty call between \"/\""
+      }
+    },
+    {
+      "name": "\"!\" on a command",
+      "expectedCode": "PARSE_ERROR",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 0,
+        "message": "\"!\" is only allowed on conditions"
+      }
+    },
+    {
+      "name": "unknown command (teleport)",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 0,
+        "message": "unknown command function \"teleport\""
+      }
+    },
+    {
+      "name": "removed command parallel",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#4",
+        "offset": 121,
+        "message": "unknown command function \"parallel\""
+      }
+    },
+    {
+      "name": "removed command commit",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#4",
+        "offset": 121,
+        "message": "unknown command function \"commit\""
+      }
+    },
+    {
+      "name": "effect function used as command",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#4",
+        "offset": 121,
+        "message": "unknown command function \"set\""
+      }
+    },
+    {
+      "name": "unknown condition function",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/when",
+        "entityId": "event.snack",
+        "call": "event.snack@when#1",
+        "offset": 0,
+        "message": "unknown condition function \"completed\""
+      }
+    },
+    {
+      "name": "unknown effect function",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/effects",
+        "entityId": "event.snack",
+        "call": "event.snack@effects#1",
+        "offset": 0,
+        "message": "unknown effect function \"complete\""
+      }
+    },
+    {
+      "name": "unknown trigger function",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/2/trigger",
+        "entityId": "event.lunch",
+        "call": "event.lunch@trigger",
+        "offset": 0,
+        "message": "unknown trigger function \"daily\""
+      }
+    },
+    {
+      "name": "unknown trigger call",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/trigger",
+        "entityId": "event.snack",
+        "call": "event.snack@trigger",
+        "offset": 0,
+        "message": "unknown trigger function \"touch\""
+      }
+    },
+    {
+      "name": "unknown property typo",
+      "expectedCode": "SCHEMA",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/scirpt",
+        "message": "Unknown property"
+      }
+    },
+    {
+      "name": "missing argument (move)",
+      "expectedCode": "ARG_COUNT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 0,
+        "message": "move: wrong argument count"
+      }
+    },
+    {
+      "name": "extra argument (say)",
+      "expectedCode": "ARG_COUNT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#2",
+        "offset": 28,
+        "message": "say: wrong argument count"
+      }
+    },
+    {
+      "name": "unknown named argument",
+      "expectedCode": "ARG_COUNT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 31,
+        "message": "move: unknown named argument \"speed\""
+      }
+    },
+    {
+      "name": "named timeout not a number",
+      "expectedCode": "ARG_TYPE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 33,
+        "message": "move.timeout type"
+      }
+    },
+    {
+      "name": "named timeout not positive",
+      "expectedCode": "ARG_TYPE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 33,
+        "message": "move.timeout out of range"
+      }
+    },
+    {
+      "name": "clip outside registry",
+      "expectedCode": "ARG_TYPE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#3",
+        "offset": 102,
+        "message": "animate.clip type"
+      }
+    },
+    {
+      "name": "quoted text where id expected",
+      "expectedCode": "ARG_TYPE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 5,
+        "message": "move.actor type"
+      }
+    },
+    {
+      "name": "choice prompt count (pairs)",
+      "expectedCode": "ARG_COUNT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#3",
+        "offset": 64,
+        "message": "choice: needs prompt followed by (fork \"text\") pairs"
+      }
+    },
+    {
+      "name": "gte needs int value",
+      "expectedCode": "ARG_TYPE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/2/when",
+        "entityId": "event.lunch",
+        "call": "event.lunch@when#1",
+        "offset": 24,
+        "message": "gte.value type"
+      }
+    },
+    {
+      "name": "missing destination",
+      "expectedCode": "REF_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 15,
+        "message": "dest.missing"
+      }
+    },
+    {
+      "name": "missing NPC speaker",
+      "expectedCode": "REF_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#2",
+        "offset": 32,
+        "message": "npc.ghost"
+      }
+    },
+    {
+      "name": "missing variable in when",
+      "expectedCode": "REF_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/when",
+        "entityId": "event.snack",
+        "call": "event.snack@when#1",
+        "offset": 3,
+        "message": "story.nope"
+      }
+    },
+    {
+      "name": "missing trigger target",
+      "expectedCode": "REF_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/trigger",
+        "entityId": "event.snack",
+        "call": "event.snack@trigger",
+        "offset": 9,
+        "message": "npc.ghost"
+      }
+    },
+    {
+      "name": "destination used as actor",
+      "expectedCode": "REF_KIND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 5,
+        "message": "dest.snack is a dest, expected npc"
+      }
+    },
+    {
+      "name": "duplicate ID",
+      "expectedCode": "DUPLICATE_ID",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/npcs/1/id",
+        "entityId": "npc.serin",
+        "message": "npc.serin"
+      }
+    },
+    {
+      "name": "wrong bool initial",
+      "expectedCode": "TYPE_MISMATCH",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/variables/0/initial",
+        "entityId": "story.intro_done",
+        "message": "story.intro_done is bool"
+      }
+    },
+    {
+      "name": "wrong bool effect value",
+      "expectedCode": "TYPE_MISMATCH",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/effects",
+        "entityId": "event.snack",
+        "call": "event.snack@effects#1",
+        "offset": 22,
+        "message": "memory.snack_done is bool"
+      }
+    },
+    {
+      "name": "gte on bool",
+      "expectedCode": "TYPE_MISMATCH",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/when",
+        "entityId": "event.snack",
+        "call": "event.snack@when#1",
+        "offset": 21,
+        "message": "story.intro_done is bool"
+      }
+    },
+    {
+      "name": "readonly clock write",
+      "expectedCode": "READ_ONLY",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/effects",
+        "entityId": "event.snack",
+        "call": "event.snack@effects#1",
+        "offset": 4,
+        "message": "clock.minute_of_day"
+      }
+    },
+    {
+      "name": "duplicate effect write",
+      "expectedCode": "EFFECT_DUPLICATE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/effects",
+        "entityId": "event.snack",
+        "call": "event.snack@effects#2",
+        "offset": 33,
+        "message": "memory.snack_done"
+      }
+    },
+    {
+      "name": "blocked destination",
+      "expectedCode": "INVALID_POSITION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/destinations/2/position",
+        "entityId": "dest.snack",
+        "message": "{\"mapId\":\"map.lounge\",\"x\":2.5,\"y\":2.5}"
+      }
+    },
+    {
+      "name": "outside map",
+      "expectedCode": "INVALID_POSITION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/npcs/0/position",
+        "entityId": "npc.serin",
+        "message": "{\"mapId\":\"map.lounge\",\"x\":100,\"y\":3.5}"
+      }
+    },
+    {
+      "name": "closed cross map portal",
+      "expectedCode": "NO_ROUTE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 0,
+        "message": "No static route from NPC definition position"
+      }
+    },
+    {
+      "name": "forbid required portal",
+      "expectedCode": "NO_ROUTE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 0,
+        "message": "No static route from NPC definition position"
+      }
+    },
+    {
+      "name": "diagonal corner cut",
+      "expectedCode": "NO_ROUTE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#1",
+        "offset": 0,
+        "message": "No static route from NPC definition position"
+      }
+    },
+    {
+      "name": "choice calls undefined fork",
+      "expectedCode": "FORK_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#3",
+        "offset": 86,
+        "message": "fork \"ghost\" not defined in this event"
+      }
+    },
+    {
+      "name": "branch calls undefined fork",
+      "expectedCode": "FORK_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/2/script",
+        "entityId": "event.lunch",
+        "call": "event.lunch#2",
+        "offset": 70,
+        "message": "fork \"ghost\" not defined in this event"
+      }
+    },
+    {
+      "name": "fork never called",
+      "expectedCode": "FORK_UNUSED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/forks/spare",
+        "entityId": "event.snack",
+        "message": "fork \"spare\" is never called by choice or branch"
+      }
+    },
+    {
+      "name": "fork calls itself",
+      "expectedCode": "FORK_CYCLE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/forks/notes",
+        "entityId": "event.snack",
+        "message": "fork \"notes\" calls itself"
+      }
+    },
+    {
+      "name": "await of unknown handle",
+      "expectedCode": "HANDLE_UNDEFINED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#4",
+        "offset": 134,
+        "message": "handle \"ghost\" is not an open async handle in this list (handles never cross into forks)"
+      }
+    },
+    {
+      "name": "unawaited handle before say",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#4",
+        "offset": 124,
+        "message": "async handle \"cam\" (event.stage#2) is not awaited before say"
+      }
+    },
+    {
+      "name": "unawaited handle at end of list",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/2/script",
+        "entityId": "event.lunch",
+        "call": "event.lunch#4",
+        "offset": 88,
+        "message": "async handle \"late\" is not awaited before the end of the list"
+      }
+    },
+    {
+      "name": "async move not awaited before choice",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#2",
+        "offset": 36,
+        "message": "async handle \"m\" (event.snack#1) is not awaited before say"
+      }
+    },
+    {
+      "name": "handle crossing into a fork",
+      "expectedCode": "HANDLE_UNDEFINED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/2/forks/known",
+        "entityId": "event.lunch",
+        "call": "event.lunch:known#1",
+        "offset": 6,
+        "message": "handle \"cam\" is not an open async handle in this list (handles never cross into forks)"
+      }
+    },
+    {
+      "name": "handle name reused",
+      "expectedCode": "HANDLE_DUPLICATE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#3",
+        "offset": 117,
+        "message": "handle \"cam\" reused in this list"
+      }
+    },
+    {
+      "name": "same camera used by two async calls",
+      "expectedCode": "HANDLE_CONFLICT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#3",
+        "offset": 85,
+        "message": "camera.main is already used by async handle \"cam\" (event.stage#2)"
+      }
+    },
+    {
+      "name": "same actor used by two async calls",
+      "expectedCode": "HANDLE_CONFLICT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#3",
+        "offset": 89,
+        "message": "npc.mira is already used by async handle \"cam\" (event.stage#2)"
+      }
+    },
+    {
+      "name": "sync move of an actor busy in async",
+      "expectedCode": "HANDLE_CONFLICT",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#4",
+        "offset": 124,
+        "message": "npc.mira is already used by async handle \"wave\" (event.stage#3)"
+      }
+    },
+    {
+      "name": "undeclared NPC lease",
+      "expectedCode": "LEASE_UNDECLARED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/script",
+        "entityId": "event.snack",
+        "call": "event.snack#1",
+        "offset": 0,
+        "message": "npc.serin"
+      }
+    },
+    {
+      "name": "undeclared camera lease",
+      "expectedCode": "LEASE_UNDECLARED",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/1/script",
+        "entityId": "event.stage",
+        "call": "event.stage#2",
+        "offset": 51,
+        "message": "camera.main"
+      }
+    },
+    {
+      "name": "schedule start order",
+      "expectedCode": "SCHEDULE_ORDER",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schedules/0/script",
+        "entityId": "schedule.serin",
+        "call": "schedule.serin#2",
+        "offset": 17,
+        "message": "start minutes must strictly increase"
+      }
+    },
+    {
+      "name": "schedule minute out of range",
+      "expectedCode": "SCHEDULE_RANGE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schedules/0/script",
+        "entityId": "schedule.serin",
+        "call": "schedule.serin#3",
+        "offset": 35,
+        "message": "start minute must be 0..1439"
+      }
+    },
+    {
+      "name": "schedule entry without minute",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schedules/0/script",
+        "entityId": "schedule.serin",
+        "call": "schedule.serin#1",
+        "offset": 0,
+        "message": "schedule entry must start with a minute, got \"dest.snack\""
+      }
+    },
+    {
+      "name": "schedule missing destination",
+      "expectedCode": "REF_NOT_FOUND",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schedules/0/script",
+        "entityId": "schedule.serin",
+        "call": "schedule.serin#2",
+        "offset": 21,
+        "message": "dest.nowhere"
+      }
+    },
+    {
+      "name": "duplicate schedule per NPC",
+      "expectedCode": "SCHEDULE_DUPLICATE",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schedules/1",
+        "entityId": "schedule.mira",
+        "message": "npc.serin"
+      }
+    },
+    {
+      "name": "schema version 1 object bundle",
+      "expectedCode": "SCHEMA",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schemaVersion",
+        "message": "const mismatch"
+      }
+    },
+    {
+      "name": "old event object format (commands/condition/once)",
+      "expectedCode": "SCHEMA",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/events/0/commands",
+        "message": "Unknown property"
+      }
+    },
+    {
+      "name": "old interactions table",
+      "expectedCode": "SCHEMA",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/interactions",
+        "message": "Unknown property"
+      }
+    },
+    {
+      "name": "old schedule rows",
+      "expectedCode": "SCHEMA",
+      "status": "pass",
+      "diagnostic": {
+        "pointer": "/schedules/0/rows",
+        "message": "Unknown property"
+      }
+    },
+    {
+      "name": "future save version",
+      "expectedCode": "SCHEMA",
+      "status": "pass"
+    },
+    {
+      "name": "unsafe call-PC save",
+      "expectedCode": "SCHEMA",
+      "status": "pass"
+    }
+  ],
+  "notExecuted": [
+    "Unity scene or C# execution",
+    "Dynamic collision and replanning",
+    "Actual disk crash recovery",
+    "NPC leases at runtime",
+    "720 quest order model",
+    "Gameplay balance or visual UI inspection",
+    "Full-design function registry (perform, domain conditions/effects): only the v1 subset is registered here"
+  ]
+}

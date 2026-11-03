@@ -1,0 +1,44 @@
+Mono path[0] = 'C:/Users/syeon/Workspace/MagicCampus/Builds/Stage5/MagicCampus_Data/Managed'
+Mono config path = 'C:/Users/syeon/Workspace/MagicCampus/Builds/Stage5/MonoBleedingEdge/etc'
+CodeReloadManager initialized
+Found 1 interfaces on host : 0) 172.30.1.9
+Player connection [12784]  Target information:
+
+Player connection [12784]  * "[IP] 172.30.1.9 [Port] 55000 [Flags] 2 [Guid] 1421343669 [EditorId] 1663253968 [Version] 1048832 [Id] WindowsPlayer(2,syeon_desktop) [Debug] 0 [PackageName] WindowsPlayer [ProjectName] MagicCampus" 
+
+Player connection [12784] Started UDP target info broadcast (1) on [225.0.0.222:54997].
+
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.6.3f1 (45d8eee7de74)
+[EntityIdStore] init: VM path (explicit commit), pageSize=4096, blockCount=1048576, entitiesPerBlock=256, slots reserved=4294967296 bytes
+[Subsystems] Discovering subsystems at path C:/Users/syeon/Workspace/MagicCampus/Builds/Stage5/MagicCampus_Data/UnitySubsystems
+[D3D12 Device Filter] Vendor Name: NVIDIA
+[D3D12 Device Filter] Device Name: NVIDIA GeForce RTX 5060 Ti
+[D3D12 Device Filter] Driver Version: 32.0.16.1088
+[D3D12 Device Filter] Feature Level: 12.2
+[D3D12 Device Filter] Graphics Memory: 7891 MB
+[D3D12 Device Filter] Processor Count: 12
+[D3D12 Device Filter] Device Type: Discrete
+GfxDevice: creating device client; kGfxThreadingModeSplitJobs
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 5060 Ti (ID=0x2d04)
+    Vendor:          NVIDIA
+    VRAM:            7891 MB
+    App VRAM Budget: 7123 MB
+    Driver:          32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Finished resetting the current domain, in  0.006 seconds
+[Physics::Module] Selected backend (deferred post-plugins).
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+Using Windows.Gaming.Input
+<RI> Input initialized.
+UnloadTime: 0.955600 ms

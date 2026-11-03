@@ -1,0 +1,32 @@
+{
+  "artifact": "시스템_기획서.html",
+  "scope": "HTML structure, embedded source and script syntax; browser QA recorded separately",
+  "bytes": 315935,
+  "embeddedSystemDocuments": 8,
+  "embeddedOriginalContentDocuments": 1,
+  "embeddedJsonDocuments": 6,
+  "diagramTypes": [
+    "architecture",
+    "event-stepper",
+    "call-table",
+    "cross-map-route",
+    "control-priority",
+    "time-pause",
+    "safe-save",
+    "implementation-roadmap"
+  ],
+  "uniqueElementIds": 170,
+  "internalLinks": 37,
+  "negativeDataCases": 63,
+  "expectedSystemTableRows": 141,
+  "staticRouteNodes": 13,
+  "externalResourceDependencies": 0,
+  "embeddedDataHashes": {
+    "schemas/content.schema.json": "a2b92ce7bd53152fb42faf43bb0fd379e99d0035c161f4738f62b3b91f7b96e7",
+    "schemas/save.schema.json": "010f727ecee3ef3939da96ad450ec31469f6a83d2c13f7a1e8561160027de5a7",
+    "examples/campus-demo.json": "6d98704a62a54ac07f3b4d43f6cb3fa8f796d5669a25ebc895cbfd0960b557f2",
+    "examples/save-v1.json": "bbe0d3538c85b8fa2f589c68eb0e9c17ad048baaa2a79763aafe700291c537ba",
+    "examples/expected-trace.json": "31bf90ca283ebf1755c54356b8427a067c2e631c7071a7ae03009c72aeb761b1",
+    "validation/report.json": "b565a9f331566613c6089d559b47b14ea61208d1dd5d8c6ec3040f664f47d0e0"
+  }
+}

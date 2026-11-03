@@ -1,0 +1,1 @@
+{"name":"MagicCampus.Stage3PlayerTests","references":["MagicCampus.Contracts","MagicCampus.Domain","MagicCampus.UnityAdapters","MagicCampus.Presentation"],"autoReferenced":true}

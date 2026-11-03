@@ -1,0 +1,41 @@
+{
+  "scope": "stdlib BCL supplied by installed Unity; only these four libraries copied",
+  "packages": [
+    {
+      "id": "jsonschema.net",
+      "version": "7.2.0",
+      "file": "JsonSchema.Net.dll",
+      "license": "MIT",
+      "authors": "Greg Dennis",
+      "copyright": "",
+      "sha256": "088e0bee1dd16a188ccbf44bac677628d0bd4ab5d9ff4c04f2b86573ddbf8eb7"
+    },
+    {
+      "id": "jsonpointer.net",
+      "version": "5.0.0",
+      "file": "JsonPointer.Net.dll",
+      "license": "MIT",
+      "authors": "Greg Dennis",
+      "copyright": "",
+      "sha256": "2c22ffd81a32e6362cb802aa9fbfe9c39420061b46f3b85d936182583f3c4013"
+    },
+    {
+      "id": "json.more.net",
+      "version": "2.0.1.2",
+      "file": "Json.More.dll",
+      "license": "MIT",
+      "authors": "Greg Dennis",
+      "copyright": "",
+      "sha256": "ff24e08fb7e36bda16d7673a3c5a1585d448ca9eebc540adb0cee16863e04fad"
+    },
+    {
+      "id": "humanizer.core",
+      "version": "2.14.1",
+      "file": "Humanizer.dll",
+      "license": "MIT",
+      "authors": "Mehdi Khalili, Claire Novotny",
+      "copyright": "Copyright (c) .NET Foundation and Contributors",
+      "sha256": "2c522cd285de2e3a02520f91203f548e454b980821f10df90e801bd7d3f5c43e"
+    }
+  ]
+}

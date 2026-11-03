@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:magic-campus:content:2",
+  "title": "Magic Campus contract example bundle v2 (function-call columns)",
+  "description": "한 이벤트 = Row 하나. trigger/when/script/forks/effects와 일정 script는 함수 호출 문자열이며 문법·함수 이름·인자·참조는 스키마가 아니라 tools/validate.cjs가 parse-calls로 검사한다. 문법: design/systems/full-design/11-function-syntax.md",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contentVersion", "variables", "maps", "destinations", "npcs", "schedules", "events"],
+  "properties": {
+    "schemaVersion": {"const": 2},
+    "contentVersion": {"type": "string", "minLength": 1},
+    "variables": {"type": "array", "items": {"$ref": "#/$defs/variable"}},
+    "maps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/map"}},
+    "destinations": {"type": "array", "items": {"$ref": "#/$defs/destination"}},
+    "npcs": {"type": "array", "items": {"$ref": "#/$defs/npc"}},
+    "schedules": {"type": "array", "items": {"$ref": "#/$defs/schedule"}},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"},
+    "number": {"type": "number", "minimum": 0},
+    "value": {"oneOf": [{"type": "boolean"}, {"type": "integer"}]},
+    "calls": {"description": "함수 호출 목록 문자열. 호출은 '/'로 잇는다. 빈 문자열은 호출 0개. 한 줄 문자열이며 의미 검사는 validate.cjs가 한다.", "type": "string", "pattern": "^[^\\r\\n]*$"},
+    "callsNonEmpty": {"type": "string", "minLength": 1, "pattern": "^[^\\r\\n]+$"},
+    "position": {
+      "type": "object", "additionalProperties": false, "required": ["mapId", "x", "y"],
+      "properties": {"mapId": {"$ref": "#/$defs/id"}, "x": {"$ref": "#/$defs/number"}, "y": {"$ref": "#/$defs/number"}}
+    },
+    "variable": {
+      "type": "object", "additionalProperties": false, "required": ["id", "type", "initial"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "type": {"enum": ["bool", "int"]}, "initial": {"$ref": "#/$defs/value"}}
+    },
+    "map": {
+      "type": "object", "additionalProperties": false, "required": ["id", "width", "height", "blocked", "portals"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1},
+        "blocked": {"type": "array", "uniqueItems": true, "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 0}}},
+        "portals": {"type": "array", "items": {"$ref": "#/$defs/portal"}}
+      }
+    },
+    "portal": {
+      "type": "object", "additionalProperties": false, "required": ["id", "x", "y", "to", "open"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "x": {"$ref": "#/$defs/number"}, "y": {"$ref": "#/$defs/number"}, "to": {"$ref": "#/$defs/position"}, "open": {"type": "boolean"}}
+    },
+    "destination": {
+      "type": "object", "additionalProperties": false, "required": ["id", "position", "radius", "facing"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "position": {"$ref": "#/$defs/position"}, "radius": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5}, "facing": {"enum": ["north", "south", "east", "west"]}}
+    },
+    "npc": {
+      "type": "object", "additionalProperties": false, "required": ["id", "source", "name", "position", "home", "speed"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "source": {"type": "string"}, "name": {"type": "string", "minLength": 1}, "position": {"$ref": "#/$defs/position"}, "home": {"$ref": "#/$defs/id"}, "speed": {"type": "number", "exclusiveMinimum": 0}}
+    },
+    "schedule": {
+      "description": "script: '시작분 목적지' 항목을 '/'로 잇는다. 예: 420 dest.snack / 720 dest.notice / 1080 home. 끝은 다음 항목의 시작, 마지막은 1440. 목적지 home은 NPC의 home.",
+      "type": "object", "additionalProperties": false, "required": ["id", "npcId", "script"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "npcId": {"$ref": "#/$defs/id"}, "script": {"$ref": "#/$defs/calls"}}
+    },
+    "event": {
+      "description": "이벤트 하나가 Row 하나. trigger: 'interact <npc> \"표시문\" <거리>' | 'clock' | 'manual'. when: 조건 호출. script: 명령 호출. forks: choice/branch가 부르는 이름 있는 하위 명령목록(같은 Row 안). effects: script 성공 뒤 한 번 원자 커밋하는 효과 호출.",
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "category", "trigger", "staging", "pause", "repeatPolicy", "resources", "when", "costMinutes", "script", "effects"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "category": {"enum": ["resolution", "relationship", "festival", "interaction"]},
+        "trigger": {"$ref": "#/$defs/callsNonEmpty"},
+        "staging": {"enum": ["current", "reserved"]},
+        "pause": {"enum": ["dialogue", "scene", "none"]},
+        "repeatPolicy": {"enum": ["once", "practice"]},
+        "resources": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "when": {"$ref": "#/$defs/calls"},
+        "costMinutes": {"type": "integer", "minimum": 0},
+        "script": {"$ref": "#/$defs/callsNonEmpty"},
+        "forks": {"type": "object", "additionalProperties": {"$ref": "#/$defs/callsNonEmpty"}},
+        "effects": {"$ref": "#/$defs/calls"}
+      }
+    }
+  }
+}

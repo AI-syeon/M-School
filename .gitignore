@@ -1,0 +1,15 @@
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/Builds/
+/obj/
+/bin/
+**/bin/
+**/obj/
+/Tools/SchemaPackages/packages/
+/design/implementation-tasks/execution/
+/Tests/Results/verify/
+/Tests/Temporary/
+*.csproj.user
+.vs/

@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "id": "wrong-arrival-map",
+  "baseRunner": "base/runner-bundle.json",
+  "note": "Runtime hook only. Logical maps, portals and destinations stay untouched so the catalog still compiles.",
+  "hooks": [
+    {
+      "kind": "actualPositionOverride",
+      "actorId": "npc.serin",
+      "when": "move-final-position",
+      "position": {
+        "mapId": "map.courtyard",
+        "x": 4.5,
+        "y": 3.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+using System.Collections.Generic;
+using MagicCampus.Contracts;
+using MagicCampus.Timekeeping;
+
+namespace MagicCampus.Tests.Time
+{
+    internal static class ClockServiceSpecs
+    {
+        public static void Run()
+        {
+            BasicAdvance();
+            FractionAccumulation();
+            PausePolicies();
+            MidnightWithConsumer();
+            ZeroAndInvalidDelta();
+            ConflictPreservesTime();
+            UnregisteredConsumerParticipant();
+            ConsumerPrepareFailureIsAtomic();
+            ConsumerPlanFailure();
+            NullConsumerIsNotMarked();
+            ReloadLikeDayJobs();
+            EventCostSuccessOnceAndCancelledNone();
+            InvalidPlanCost();
+        }
+
+        private static void BasicAdvance()
+        {
+            var w = TimeWorld.Create(420, 0, new string[0]);
+            var advance = w.Clock.Advance(60, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "advanced status");
+            Check.True(w.Clock.LastFailure == null, "no failure");
+            Check.Equal(480L, w.Minute, "one simulation second is one game minute");
+            Check.Equal(420L, advance.From.AbsoluteMinute, "advance from");
+            Check.Equal(480L, advance.To.AbsoluteMinute, "advance to");
+            Check.Equal(480L, w.Clock.Now.AbsoluteMinute, "Now reads the store");
+            Check.True(!w.Pending, "no midnight, no return pending");
+            Check.Equal(0, w.Jobs.Count, "no jobs without a boundary");
+            Check.Equal(0, w.Growth.Calls, "consumers are not asked without a boundary");
+        }
+
+        private static void FractionAccumulation()
+        {
+            var w = TimeWorld.Create(420, 0, new string[0]);
+            for (var i = 0; i < 60; i++) w.Clock.Advance(1.0 / 60.0, PauseSet.None);
+            Check.Equal(421L, w.Minute, "sixty frames of 1/60 make one game minute");
+            Check.True(w.Fraction < 1e-9, "no leftover fraction");
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "still advancing");
+        }
+
+        private static void PausePolicies()
+        {
+            var w = TimeWorld.Create(420, 0, new string[0]);
+            var before = w.Store.Current;
+            var menu = w.Clock.Advance(30, PauseSet.All);
+            Check.Equal(ClockAdvanceStatus.Paused, w.Clock.LastStatus, "menu pause status");
+            Check.True(menu.From.Equals(menu.To), "paused advance is identity");
+            w.AssertUnchanged(before, "menu pause");
+
+            w.Clock.Advance(30, new PauseSet(true, false, false, false, false));
+            Check.Equal(ClockAdvanceStatus.Paused, w.Clock.LastStatus, "calendar-only pause");
+            w.AssertUnchanged(before, "calendar-only pause");
+
+            w.Clock.Advance(10, new PauseSet(false, true, true, true, true));
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "other channels paused do not stop the calendar");
+            Check.Equal(430L, w.Minute, "advanced while other channels are paused");
+        }
+
+        private static void MidnightWithConsumer()
+        {
+            var w = TimeWorld.Create(1430, 0, new[] { "legacy" });
+            var before = w.Store.Current;
+            var advance = w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "midnight advance status");
+            Check.Equal(1, advance.Boundaries.Count, "reported boundary");
+            Check.Equal(1450L, w.Minute, "minute after midnight");
+            Check.True(w.Pending, "return pending set");
+            Check.Equal("legacy|boundary.day_d1|consumer.growth.day_d1", string.Join("|", w.Jobs), "dayJobs keep old entries and add new keys");
+            Check.Equal(1, w.CropCount, "consumer change committed in the same plan");
+            Check.Equal(1L, w.Store.Current.Slice("crops").Items[0].Integer, "consumer saw day 1");
+            Check.Equal(2, w.Growth.Calls, "pure consumer planned then revalidated at commit; effect applied once");
+            Check.Equal("preserved", w.Store.Current.Slice("clock").Members["note"].Text, "unknown clock members are kept");
+            foreach (var field in TimeWorld.UntouchedFields)
+                Check.True(before.Slice(field).Equals(w.Store.Current.Slice(field)), "field " + field + " untouched");
+            Check.Equal(DataKind.Integer, w.Store.Current.Slice("clock").Members["absoluteMinute"].Kind, "minute stays integer");
+        }
+
+        private static void ZeroAndInvalidDelta()
+        {
+            var w = TimeWorld.Create(420, 0, new string[0]);
+            var before = w.Store.Current;
+            w.Clock.Advance(0, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.ZeroDelta, w.Clock.LastStatus, "zero delta status");
+            w.AssertUnchanged(before, "zero delta");
+
+            var bad = new[] { -1.0, double.NaN, double.PositiveInfinity, double.NegativeInfinity, CalendarLimits.MaxMinutesPerAdvance + 1 };
+            foreach (var delta in bad)
+            {
+                w.Clock.Advance(delta, PauseSet.None);
+                Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "failed status for " + delta);
+                Check.True(w.Clock.LastFailure != null, "failure exposed for " + delta);
+                Check.Equal(ResultCodes.ContentInvalid, w.Clock.LastFailure.Code, "failure code for " + delta);
+                w.AssertUnchanged(before, "invalid delta " + delta);
+            }
+
+            w.Clock.Advance(1, PauseSet.None);
+            Check.True(w.Clock.LastFailure == null, "failure cleared by a later success");
+            Check.Equal(421L, w.Minute, "valid advance after failures");
+        }
+
+        private static void ConflictPreservesTime()
+        {
+            var w = TimeWorld.Create(1400, 0, new string[0]);
+            var inner = w.Store;
+            var wrapped = new InterferingStore(inner, () =>
+                inner.Commit(new StatePlan(new TransactionId("direct.clock.1"), null, inner.Current.Revision, new[] { Nodes.Advance(5) })));
+            var service = new ClockService(wrapped, w.Calendar, w.Consumers);
+
+            var advance = service.Advance(60, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Failed, service.LastStatus, "conflict is a failure");
+            Check.Equal(ResultCodes.RevisionConflict, service.LastFailure.Code, "conflict code");
+            Check.True(advance.From.Equals(advance.To) && advance.Boundaries.Count == 0, "failed advance reports no progress");
+            Check.Equal(1405L, w.Minute, "only the direct advance applied, no double time");
+            Check.Equal(0, w.CropCount, "no consumer change leaked");
+            Check.True(!w.Pending, "no return pending leaked");
+            Check.Equal(0, w.Jobs.Count, "no jobs leaked");
+
+            service.Advance(60, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, service.LastStatus, "next advance uses the fresh revision");
+            Check.Equal(1465L, w.Minute, "time after retry");
+            Check.True(w.Pending, "midnight crossed on retry");
+        }
+
+        private static void UnregisteredConsumerParticipant()
+        {
+            var w = TimeWorld.Create(1430, 0, new string[0]);
+            w.Growth.Mode = ConsumerMode.TargetGhost;
+            var before = w.Store.Current;
+            w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "unknown participant refuses the plan");
+            Check.Equal(ResultCodes.Unregistered, w.Clock.LastFailure.Code, "store reports UNREGISTERED");
+            w.AssertUnchanged(before, "unknown participant");
+        }
+
+        private static void ConsumerPrepareFailureIsAtomic()
+        {
+            var w = TimeWorld.Create(1430, 0, new[] { "legacy" });
+            w.GrowthParticipant.FailPrepare = true;
+            var before = w.Store.Current;
+            w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "consumer participant failure");
+            Check.True(!w.Clock.LastFailure.Code.Equals(ResultCodes.Ok), "failure code is not OK");
+            w.AssertUnchanged(before, "consumer failure refuses time too");
+            Check.Equal(1430L, w.Minute, "time preserved");
+            Check.True(!w.Pending, "returnPending preserved");
+
+            w.GrowthParticipant.FailPrepare = false;
+            w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "retry after recovery");
+            Check.Equal("legacy|boundary.day_d1|consumer.growth.day_d1", string.Join("|", w.Jobs), "keys recorded exactly once after retry");
+            Check.Equal(1, w.CropCount, "one consumer effect after retry");
+        }
+
+        private static void ConsumerPlanFailure()
+        {
+            var w = TimeWorld.Create(1430, 0, new string[0]);
+            var before = w.Store.Current;
+
+            w.Growth.Mode = ConsumerMode.Throw;
+            w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "throwing consumer fails the advance");
+            Check.Equal(ResultCodes.ContentInvalid, w.Clock.LastFailure.Code, "planning failure code");
+            Check.Equal("CONSUMER_FAILED", w.Clock.LastFailure.Details[0].Code, "planning failure diagnostic");
+            w.AssertUnchanged(before, "throwing consumer");
+            var cost = w.Clock.PlanCost(before, 20);
+            Check.True(!cost.Succeeded, "PlanCost refuses with a failing consumer");
+
+            w.Growth.Mode = ConsumerMode.TargetClock;
+            w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "consumer may not change the clock");
+            Check.Equal("CONSUMER_TARGETS_CLOCK", w.Clock.LastFailure.Details[0].Code, "clock-targeting diagnostic");
+            w.AssertUnchanged(before, "clock-targeting consumer");
+
+            w.Growth.Mode = ConsumerMode.Throw;
+            var calls = w.Growth.Calls;
+            var noMidnight = TimeWorld.Create(1400, 0, new string[0]);
+            noMidnight.Growth.Mode = ConsumerMode.Throw;
+            noMidnight.Clock.Advance(5, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, noMidnight.Clock.LastStatus, "consumers only matter when a boundary is crossed");
+            Check.Equal(0, noMidnight.Growth.Calls, "consumer not invoked without boundary");
+            Check.True(calls >= 1, "consumer was invoked on the failing runs");
+        }
+
+        private static void NullConsumerIsNotMarked()
+        {
+            var w = TimeWorld.Create(1430, 0, new string[0]);
+            w.Growth.Mode = ConsumerMode.ReturnNull;
+            w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "null consumer does not block time");
+            Check.Equal("boundary.day_d1", string.Join("|", w.Jobs), "only the boundary is recorded");
+            Check.True(w.Pending, "return pending still derived");
+            Check.Equal(0, w.CropCount, "nothing pretended");
+        }
+
+        private static void ReloadLikeDayJobs()
+        {
+            // Both keys already recorded: nothing is consumed again.
+            var done = TimeWorld.Create(1430, 0, new[] { "legacy", "boundary.day_d1", "consumer.growth.day_d1" });
+            done.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, done.Clock.LastStatus, "advance with recorded jobs");
+            Check.Equal(0, done.Growth.Calls, "recorded consumer job is not planned again");
+            Check.Equal("legacy|boundary.day_d1|consumer.growth.day_d1", string.Join("|", done.Jobs), "no duplicate keys");
+            Check.Equal(0, done.CropCount, "no second consumption");
+            Check.True(done.Pending, "return pending still derived");
+
+            // Boundary recorded but consumer not: the consumer runs once, the boundary is not duplicated.
+            var partial = TimeWorld.Create(1430, 0, new[] { "boundary.day_d1" });
+            partial.Clock.Advance(20, PauseSet.None);
+            Check.Equal("boundary.day_d1|consumer.growth.day_d1", string.Join("|", partial.Jobs), "consumer key added once");
+            Check.Equal(1, partial.CropCount, "consumer applied once");
+
+            // Rebuild a world from the committed state (reload-like): same day adds nothing, next midnight adds day 2 only.
+            var reloaded = TimeWorld.Create(partial.Store.Current.Root, 7, true);
+            reloaded.Clock.Advance(100, PauseSet.None);
+            Check.Equal(0, reloaded.Growth.Calls, "same-day advance after reload consumes nothing");
+            Check.Equal("boundary.day_d1|consumer.growth.day_d1", string.Join("|", reloaded.Jobs), "jobs unchanged within the day");
+            reloaded.Clock.Advance(1440, PauseSet.None);
+            Check.Equal("boundary.day_d1|consumer.growth.day_d1|boundary.day_d2|consumer.growth.day_d2", string.Join("|", reloaded.Jobs), "day 2 appended once");
+            Check.Equal(2, reloaded.Growth.Calls, "day 2 pure consumer planned then revalidated");
+            Check.Equal(2, reloaded.CropCount, "crops grew once per day");
+        }
+
+        private static void EventCostSuccessOnceAndCancelledNone()
+        {
+            var w = TimeWorld.Create(1400, 0, new string[0]);
+            var start = w.Store.Current;
+            var cost = w.Clock.PlanCost(start, 90);
+            Check.True(cost.Succeeded, "cost planned");
+            Check.Equal(2, cost.Value.Changes.Count, "clock change plus one consumer change");
+            Check.Equal("clock", cost.Value.Changes[0].ParticipantId, "clock change first");
+            Check.Equal("fake-growth", cost.Value.Changes[1].ParticipantId, "consumer change after clock");
+            Check.Equal(0, w.Growth.Calls - 1, "consumer planned exactly once for the single boundary");
+
+            // Cancelled event: the plan is dropped, nothing advanced.
+            w.AssertUnchanged(start, "cancelled event cost");
+            Check.Equal(1400L, w.Minute, "cancelled cost leaves time");
+            Check.True(!w.Pending, "cancelled cost leaves returnPending");
+
+            // Successful event: one StatePlan carries the event change, the clock change and the consumer change.
+            var changes = new List<PlannedChange> { Nodes.Mark("class_done") };
+            changes.AddRange(cost.Value.Changes);
+            var plan = new StatePlan(new TransactionId("evt.class.1"), null, start.Revision, changes);
+            var first = w.Store.Commit(plan);
+            Check.True(first.Succeeded, "event commit succeeds");
+            Check.Equal(1490L, w.Minute, "cost applied once");
+            Check.True(w.Store.Current.Slice("flags").Members["class_done"].Bool, "event change in the same commit");
+            Check.Equal(1, w.CropCount, "consumer change in the same commit");
+            Check.Equal("boundary.day_d1|consumer.growth.day_d1", string.Join("|", w.Jobs), "boundary jobs recorded");
+            Check.True(w.Pending, "return pending set by the cost");
+            var committedRevision = w.Store.Current.Revision;
+            Check.Equal(first.Value.Revision, committedRevision, "commit revision");
+
+            // Repeating the same transaction never applies the cost again.
+            w.Store.Commit(plan);
+            Check.Equal(1490L, w.Minute, "repeated transaction does not double the cost");
+            Check.Equal(committedRevision, w.Store.Current.Revision, "repeated transaction keeps the revision");
+            Check.Equal(1, w.CropCount, "repeated transaction does not repeat the consumer");
+
+            // A stale plan under a new transaction id is refused.
+            var stale = w.Store.Commit(new StatePlan(new TransactionId("evt.class.2"), null, start.Revision, changes));
+            Check.True(!stale.Succeeded, "stale plan refused");
+            Check.Equal(ResultCodes.RevisionConflict, stale.Result.Code, "stale plan code");
+            Check.Equal(1490L, w.Minute, "stale plan does not change time");
+            Check.Equal(1, w.CropCount, "stale plan does not change crops");
+        }
+
+        private static void InvalidPlanCost()
+        {
+            var w = TimeWorld.Create(420, 0, new string[0]);
+            var start = w.Store.Current;
+            foreach (var minutes in new[] { -1.0, double.NaN, double.PositiveInfinity, 1e300 })
+            {
+                var cost = w.Clock.PlanCost(start, minutes);
+                Check.True(!cost.Succeeded, "cost refused for " + minutes);
+                Check.Equal(ResultCodes.ContentInvalid, cost.Result.Code, "cost code for " + minutes);
+                Check.True(cost.Result.Details.Count > 0, "cost diagnostics for " + minutes);
+                Check.True(cost.Value == null, "no partial change set for " + minutes);
+            }
+
+            var zero = w.Clock.PlanCost(start, 0);
+            Check.True(zero.Succeeded && zero.Value.Changes.Count == 0, "zero cost plans nothing");
+
+            var malformed = new StateSnapshot(1, Nodes.Obj(Nodes.P("dayJobs", Nodes.List())));
+            var broken = w.Clock.PlanCost(malformed, 5);
+            Check.True(!broken.Succeeded, "malformed basis refused");
+            Check.Equal(ResultCodes.ContentInvalid, broken.Result.Code, "malformed basis code");
+            w.AssertUnchanged(start, "invalid costs");
+        }
+    }
+}

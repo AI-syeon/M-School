@@ -1,0 +1,106 @@
+{
+  "htmlSha256": "3d003a77121b7b62f00276b9e574de1df32bc85b98dfd48a768e61109b898c0c",
+  "lines": 574,
+  "characters": 34994,
+  "headings": [
+    "1. 이 게임에서 유저가 하는 일",
+    "2. 기본 범위와 플레이 시간의 뜻",
+    "3. 하루의 흐름과 시간 규칙",
+    "4. 학교생활과 성장",
+    "5. 마법: 같은 주문으로 생활과 모험을 연결",
+    "6. 생활 콘텐츠와 경제",
+    "7. 전투와 탐험",
+    "8. NPC와 관계: 같이한 일을 기억하는 사람들",
+    "9. 전체 이야기와 자유 순서 사건망",
+    "10. 학교 행사·동아리·작은 부탁",
+    "11. 약 40시간의 콘텐츠 예산",
+    "12. 처음 2시간의 플레이",
+    "13. 진행 막힘과 충돌을 막는 규칙",
+    "14. 픽셀 아트·화면·소리의 기준",
+    "15. 제작 범위를 지키는 방법",
+    "16. 검증 계획과 조정 기준",
+    "17. Claude 사용과 통합 편집 내역"
+  ],
+  "screens": [
+    {
+      "id": "01-campus",
+      "embeddedHash": "36f1e474f2696316d29e9917ca6030a3a7ad1d0f4d0e88e7914282d344b4241d",
+      "fileHash": "36f1e474f2696316d29e9917ca6030a3a7ad1d0f4d0e88e7914282d344b4241d"
+    },
+    {
+      "id": "02-classroom",
+      "embeddedHash": "ac733cf8c22c2515c38b2e23bc4f96920998eda411262143430092b92a1b5dcb",
+      "fileHash": "ac733cf8c22c2515c38b2e23bc4f96920998eda411262143430092b92a1b5dcb"
+    },
+    {
+      "id": "03-magic",
+      "embeddedHash": "5d3d8b0a1c72c9ff25e487627f0de212913df9f6e0ed100503d4c07f0c70cdd7",
+      "fileHash": "5d3d8b0a1c72c9ff25e487627f0de212913df9f6e0ed100503d4c07f0c70cdd7"
+    },
+    {
+      "id": "04-garden",
+      "embeddedHash": "a42d939b3ee87f8be348aaf1ee5e7e126103cc07283d5af87d48f6aba3f050f7",
+      "fileHash": "a42d939b3ee87f8be348aaf1ee5e7e126103cc07283d5af87d48f6aba3f050f7"
+    },
+    {
+      "id": "05-alchemy",
+      "embeddedHash": "3f61164f3988e143cf58220c74c36dcf6dd53d44a5bd5b1e491cc2459e1a30e7",
+      "fileHash": "3f61164f3988e143cf58220c74c36dcf6dd53d44a5bd5b1e491cc2459e1a30e7"
+    },
+    {
+      "id": "06-room",
+      "embeddedHash": "b56d582e3ed7377d648a05dfe637a84d53072d08cb296a14e3b868c21fa73fbe",
+      "fileHash": "b56d582e3ed7377d648a05dfe637a84d53072d08cb296a14e3b868c21fa73fbe"
+    },
+    {
+      "id": "14-shop",
+      "embeddedHash": "dbdd69edf35e544b4235738d0cab57945d3f1d81aeb831429c32f994b77db759",
+      "fileHash": "dbdd69edf35e544b4235738d0cab57945d3f1d81aeb831429c32f994b77db759"
+    },
+    {
+      "id": "07-combat",
+      "embeddedHash": "ce5e8c42dc312303e6a17ad587c63a1acd020b2bc2f6fe73837dcbc0b8572810",
+      "fileHash": "ce5e8c42dc312303e6a17ad587c63a1acd020b2bc2f6fe73837dcbc0b8572810"
+    },
+    {
+      "id": "08-explore",
+      "embeddedHash": "4b39b4f5c6b950739b98ef0f10822b3362dd20a320e0a5e1a29cb7da173b983e",
+      "fileHash": "4b39b4f5c6b950739b98ef0f10822b3362dd20a320e0a5e1a29cb7da173b983e"
+    },
+    {
+      "id": "09-npc",
+      "embeddedHash": "3118edd958ca903e488c5e4636cde037556392d3398d3c9e3d6ecd3d94fef0b8",
+      "fileHash": "3118edd958ca903e488c5e4636cde037556392d3398d3c9e3d6ecd3d94fef0b8"
+    },
+    {
+      "id": "10-investigate",
+      "embeddedHash": "3653750f926285c57610c6b98d8c281cd419b643efbc829ca2db5e4f88708d98",
+      "fileHash": "3653750f926285c57610c6b98d8c281cd419b643efbc829ca2db5e4f88708d98"
+    },
+    {
+      "id": "15-finale",
+      "embeddedHash": "3eea795b06b39c475365055f1f7c4a5712029bc70f8793be7f67896979839ac5",
+      "fileHash": "3eea795b06b39c475365055f1f7c4a5712029bc70f8793be7f67896979839ac5"
+    },
+    {
+      "id": "11-festival",
+      "embeddedHash": "4278d5863a4b93c830a2512249490bf23c816ca027df9eaa972b1521d0856fbc",
+      "fileHash": "4278d5863a4b93c830a2512249490bf23c816ca027df9eaa972b1521d0856fbc"
+    },
+    {
+      "id": "12-club",
+      "embeddedHash": "7b61aae92bf64f701675988e7e9f5a1d80d795e881905057ea3bf632a2f03279",
+      "fileHash": "7b61aae92bf64f701675988e7e9f5a1d80d795e881905057ea3bf632a2f03279"
+    },
+    {
+      "id": "13-requests",
+      "embeddedHash": "86fe218026ebbf26b1be3aaead9782d90103a69af51982586995f75de267e41a",
+      "fileHash": "86fe218026ebbf26b1be3aaead9782d90103a69af51982586995f75de267e41a"
+    },
+    {
+      "id": "16-journal",
+      "embeddedHash": "02f407b844608168d26c8fe1e0dbc84c98a54b12feb07586ad91d0e13a82d37f",
+      "fileHash": "02f407b844608168d26c8fe1e0dbc84c98a54b12feb07586ad91d0e13a82d37f"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "artifact": "시스템_기획서.html",
+  "scope": "Pure document-script harness and embedded data identity; no actual browser rendering",
+  "checks": [
+    {
+      "name": "initial step, state and prev button",
+      "status": "pass"
+    },
+    {
+      "name": "all seven event steps",
+      "status": "pass"
+    },
+    {
+      "name": "completed event time, memory and movement marker",
+      "status": "pass"
+    },
+    {
+      "name": "step calls match the real event positions",
+      "status": "pass"
+    },
+    {
+      "name": "both choice responses",
+      "status": "pass"
+    },
+    {
+      "name": "previous and next controls",
+      "status": "pass"
+    },
+    {
+      "name": "normal, closed and blocked routes",
+      "status": "pass"
+    },
+    {
+      "name": "restore safe entry and complete states",
+      "status": "pass"
+    },
+    {
+      "name": "expand and collapse full specification",
+      "status": "pass"
+    },
+    {
+      "name": "embedded schema and example JSON identity",
+      "status": "pass"
+    },
+    {
+      "name": "print opens details and restores prior states",
+      "status": "pass"
+    },
+    {
+      "name": "internal reference opens its parent document",
+      "status": "pass"
+    }
+  ],
+  "browserRendering": {
+    "status": "not-executed",
+    "reason": "In-app browser could not connect to local preview; local file navigation was blocked by URL policy; native Chrome access was not approved. No browser restriction bypass was attempted."
+  },
+  "responsiveDesign": {
+    "cssBreakpoints": [
+      1200,
+      1000,
+      680
+    ],
+    "actualViewportRendering": "not-executed"
+  },
+  "gameRuntime": "not-implemented"
+}

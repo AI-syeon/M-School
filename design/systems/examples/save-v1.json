@@ -1,0 +1,42 @@
+{
+  "saveVersion": 1,
+  "contentVersion": "campus-demo.2",
+  "catalogHash": "6d98704a62a54ac07f3b4d43f6cb3fa8f796d5669a25ebc895cbfd0960b557f2",
+  "generation": 2,
+  "safePoint": "scene-complete",
+  "clock": {
+    "absoluteMinute": 430,
+    "fraction": 0
+  },
+  "variables": {
+    "story.intro_done": true,
+    "memory.snack_done": true,
+    "world.stage_ready": false,
+    "notice.lunch_done": false,
+    "clock.minute_of_day": 430
+  },
+  "positions": [
+    {
+      "actorId": "actor.player",
+      "mapId": "map.lounge",
+      "x": 3.5,
+      "y": 3.5
+    },
+    {
+      "actorId": "npc.serin",
+      "mapId": "map.lounge",
+      "x": 4.5,
+      "y": 3.5
+    },
+    {
+      "actorId": "npc.mira",
+      "mapId": "map.courtyard",
+      "x": 1.5,
+      "y": 1.5
+    }
+  ],
+  "completed": [
+    "event.snack"
+  ],
+  "appointments": []
+}

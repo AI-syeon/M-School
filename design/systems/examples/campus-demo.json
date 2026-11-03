@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "contentVersion": "campus-demo.2",
+  "variables": [
+    {"id": "story.intro_done", "type": "bool", "initial": true},
+    {"id": "memory.snack_done", "type": "bool", "initial": false},
+    {"id": "world.stage_ready", "type": "bool", "initial": false},
+    {"id": "notice.lunch_done", "type": "bool", "initial": false},
+    {"id": "clock.minute_of_day", "type": "int", "initial": 420}
+  ],
+  "maps": [
+    {"id": "map.courtyard", "width": 8, "height": 6,
+      "blocked": [[3,1],[3,2],[3,3]],
+      "portals": [{"id": "portal.to_lounge", "x": 7.5, "y": 2.5, "to": {"mapId": "map.lounge", "x": 0.5, "y": 2.5}, "open": true}]},
+    {"id": "map.lounge", "width": 6, "height": 5,
+      "blocked": [[2,1],[2,2]],
+      "portals": [{"id": "portal.to_courtyard", "x": 0.5, "y": 2.5, "to": {"mapId": "map.courtyard", "x": 7.5, "y": 2.5}, "open": true}]}
+  ],
+  "destinations": [
+    {"id": "dest.courtyard_home", "position": {"mapId": "map.courtyard", "x": 1.5, "y": 1.5}, "radius": 0.2, "facing": "south"},
+    {"id": "dest.lounge_entry", "position": {"mapId": "map.lounge", "x": 0.5, "y": 3.5}, "radius": 0.2, "facing": "east"},
+    {"id": "dest.snack", "position": {"mapId": "map.lounge", "x": 4.5, "y": 3.5}, "radius": 0.2, "facing": "north"},
+    {"id": "dest.stage", "position": {"mapId": "map.lounge", "x": 4.5, "y": 1.5}, "radius": 0.2, "facing": "south"},
+    {"id": "dest.notice", "position": {"mapId": "map.courtyard", "x": 5.5, "y": 1.5}, "radius": 0.2, "facing": "west"}
+  ],
+  "npcs": [
+    {"id": "npc.serin", "source": "N01", "name": "서린", "position": {"mapId": "map.lounge", "x": 0.5, "y": 3.5}, "home": "dest.snack", "speed": 3},
+    {"id": "npc.mira", "source": "N03", "name": "미라", "position": {"mapId": "map.courtyard", "x": 1.5, "y": 1.5}, "home": "dest.stage", "speed": 3}
+  ],
+  "schedules": [
+    {"id": "schedule.serin", "npcId": "npc.serin", "script": "420 dest.snack / 720 dest.notice / 1080 home"},
+    {"id": "schedule.mira", "npcId": "npc.mira", "script": "420 dest.courtyard_home / 1080 dest.stage"}
+  ],
+  "events": [
+    {"id": "event.snack", "category": "relationship", "trigger": "interact npc.serin \"간식 모임 시작\" 1.5",
+      "staging": "reserved", "pause": "scene", "repeatPolicy": "once",
+      "resources": ["npc.serin", "space.map.lounge", "input.player", "camera.main"],
+      "when": "eq story.intro_done true", "costMinutes": 10,
+      "script": "move npc.serin dest.snack / say npc.serin \"실습 노트를 같이 정리해 볼래?\" / choice \"서린과 무엇부터 할까?\" notes \"노트부터 정리하자\" tea \"차부터 준비하자\"",
+      "forks": {
+        "notes": "say npc.serin \"같이 하니까 마음이 놓여.\"",
+        "tea": "say npc.serin \"좋아, 따뜻한 차가 필요했어.\""
+      },
+      "effects": "set memory.snack_done true"},
+    {"id": "event.stage", "category": "resolution", "trigger": "interact npc.mira \"무대 준비\" 1.5",
+      "staging": "current", "pause": "scene", "repeatPolicy": "once",
+      "resources": ["npc.mira", "space.map.courtyard", "space.map.lounge", "input.player", "camera.main"],
+      "when": "eq story.intro_done true", "costMinutes": 10,
+      "script": "move npc.mira dest.stage timeout=30 portals=true / camera dest.stage 0.5 async=cam / animate npc.mira wave 0.5 async=wave / await cam wave / say npc.mira \"교정에서 여기까지 길을 따라 왔어. 무대를 준비하자.\"",
+      "effects": "set world.stage_ready true"},
+    {"id": "event.lunch", "category": "interaction", "trigger": "clock",
+      "staging": "current", "pause": "dialogue", "repeatPolicy": "once",
+      "resources": ["npc.serin", "space.map.courtyard", "space.map.lounge", "input.player"],
+      "when": "gte clock.minute_of_day 720 / eq story.intro_done true", "costMinutes": 0,
+      "script": "move npc.serin dest.notice / branch \"eq memory.snack_done true\" known new / wait 0.25",
+      "forks": {
+        "known": "say npc.serin \"아까 함께한 간식도 좋았어. 이제 점심시간이야.\"",
+        "new": "say npc.serin \"점심시간이야. 오늘은 같이 먹을래?\""
+      },
+      "effects": "set notice.lunch_done true"}
+  ]
+}

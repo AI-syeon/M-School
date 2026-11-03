@@ -1,0 +1,97 @@
+{
+  "kind": "expected-contract-examples-not-runtime-trace",
+  "cases": [
+    {
+      "id": "A3",
+      "paths": [
+        {
+          "route": "combat",
+          "event": "event.a3_combat",
+          "perform": "encounter encounter.a3"
+        },
+        {
+          "route": "device",
+          "event": "event.a3_device",
+          "perform": "puzzle room.case_a3:device"
+        }
+      ],
+      "routeCompletionKey": "outcome.a_stopped",
+      "aftermath": {
+        "event": "event.a3_aftermath",
+        "perform": "puzzle room.case_a3:repair"
+      },
+      "shared": {
+        "completionKey": "node.a3",
+        "evidenceId": "evidence.a3",
+        "walletReward": 150,
+        "confirmed": true
+      },
+      "replay": "ALREADY_COMMITTED"
+    },
+    {
+      "id": "overflow",
+      "before": {
+        "slotsUsed": 24
+      },
+      "commit": {
+        "rewardKey": "reward.q01",
+        "normalItemQuantity": 1,
+        "evidenceCount": 1
+      },
+      "after": {
+        "mailAttachments": 1,
+        "newEvidence": 1,
+        "duplicateRewards": 0
+      }
+    },
+    {
+      "id": "midnight",
+      "before": {
+        "absoluteMinute": 1439,
+        "encounter": "active",
+        "newEncounterAllowed": true
+      },
+      "afterBoundary": {
+        "absoluteMinute": 1440,
+        "encounter": "active",
+        "newEncounterAllowed": false,
+        "returnPending": true
+      },
+      "afterSafeReturn": {
+        "absoluteMinute": 1860,
+        "roomOverlay": "discarded",
+        "confirmedEvidence": "preserved"
+      }
+    },
+    {
+      "id": "plant",
+      "before": {
+        "growthTicks": 0,
+        "wateredDay": -1,
+        "lastProcessedDay": -1
+      },
+      "dayBoundary": {
+        "absoluteDay": 1
+      },
+      "after": {
+        "growthTicks": 0,
+        "alive": true
+      },
+      "duplicateBoundary": "NO_OP"
+    },
+    {
+      "id": "economy",
+      "buyInputs": 35,
+      "saleOutput": 6,
+      "profit": -29,
+      "loanOutputDisposition": "scope-only"
+    },
+    {
+      "id": "save",
+      "interruptedDuring": "choice",
+      "restore": "scene-entry",
+      "completedRewardRestore": "scene-complete",
+      "duplicateGrant": 0
+    }
+  ]
+}

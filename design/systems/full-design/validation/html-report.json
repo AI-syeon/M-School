@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-02",
+  "artifact": "C:\\Users\\syeon\\Workspace\\MagicCampus\\design\\마법학교_전체시스템기획서.html",
+  "bytes": 1729151,
+  "sha256": "c26fd3d711663493ee51932f65e515cd6a576102b9820bf1dc9e8e212acffced",
+  "domainVisuals": 20,
+  "interactiveCases": 5,
+  "sourceSections": 17,
+  "sourceRecords": 343,
+  "embeddedJsonFiles": 10,
+  "internalIds": 421,
+  "externalDependencies": 0,
+  "scriptSyntax": "pass",
+  "internalLinks": "pass",
+  "browserQA": "separate-report"
+}

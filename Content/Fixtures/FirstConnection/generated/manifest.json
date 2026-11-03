@@ -1,0 +1,184 @@
+{
+  "formatVersion": 1,
+  "generator": "build-fixtures.cjs",
+  "source": {
+    "catalogSha256": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33",
+    "catalogBytes": 219890,
+    "originalSaveCatalogHash": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33",
+    "originalSaveCatalogHashMatches": true,
+    "contentVersion": "full-design-0.2-proposal",
+    "functionsFile": "functions.json",
+    "runnerSchemaFile": "runner.schema.json",
+    "catalogSchemaFile": "catalog.schema.json",
+    "saveSchemaFile": "save.schema.json",
+    "appointmentRowSource": "save schema save.schema.json"
+  },
+  "playableMaps": [
+    "map.courtyard",
+    "map.lounge"
+  ],
+  "inactive": {
+    "maps": [
+      "map.region_1",
+      "map.region_2",
+      "map.region_3",
+      "map.region_4"
+    ],
+    "npcs": [
+      "npc.mira",
+      "npc.ruon",
+      "npc.doyun",
+      "npc.eve",
+      "npc.narin",
+      "npc.haeon",
+      "npc.isol",
+      "npc.or",
+      "npc.rume",
+      "npc.bello",
+      "npc.yuna"
+    ],
+    "reason": "kept only because the strict full catalog references them; no runner NPC, schedule or event uses them in the base bundle"
+  },
+  "files": [
+    {
+      "path": "base/full-catalog.json",
+      "sha256": "ae3ed586e18205fe7e6d7ac3b29ecf8498bfdf34bffa19f51586463f5cc7aa33",
+      "bytes": 219890
+    },
+    {
+      "path": "base/runner-bundle.json",
+      "sha256": "433f9d07db8102d3a3950a583ebabcbdd3b15d71d1ef3752d5cde875801de4c0",
+      "bytes": 7532
+    },
+    {
+      "path": "base/save-accepted-all.json",
+      "sha256": "454dea8d3b38a3beadff3c406c0a8b829e542a269aa0a7c240d9122830b395dd",
+      "bytes": 10368
+    },
+    {
+      "path": "base/save-accepted.json",
+      "sha256": "bd30fb850f2e328b4de2f6be2afed0cc6c13f39d433eaa6db9ff2e30ce92a106",
+      "bytes": 10365
+    },
+    {
+      "path": "base/save-intro-false.json",
+      "sha256": "b925c232c54b3e17c73df5dc215fa3836991bedaf03ed70e545bbb65016773a3",
+      "bytes": 10363
+    },
+    {
+      "path": "base/save-offered.json",
+      "sha256": "5dc40e68576f9b7cb9480f37c72f2142659f90e75b3ca40471f800dc9a9afd0d",
+      "bytes": 10362
+    },
+    {
+      "path": "base/schemas/catalog.schema.json",
+      "sha256": "c0baab21f443931ac2a2a83d76949227e32b2908b96fdf4c9afcd8d8b7ea656e",
+      "bytes": 55607
+    },
+    {
+      "path": "base/schemas/functions.json",
+      "sha256": "f7df820dfb9dcc05aebe025e7f4584308536a60b9c3964102da8eaa9eb47128f",
+      "bytes": 29006
+    },
+    {
+      "path": "base/schemas/runner.schema.json",
+      "sha256": "a8e43c4b27eb22b35da4e3ae6a76241ef7e29817a011e6f70ab19d609906aefb",
+      "bytes": 10364
+    },
+    {
+      "path": "base/schemas/save.schema.json",
+      "sha256": "f5d60f65c4f96bbf8498a7b9c3919d7506799046aaac904afb7c5ffceb13edea",
+      "bytes": 28086
+    },
+    {
+      "path": "base/staging-recipes.json",
+      "sha256": "d9875581a9bdc64b1f5823eb1203279365fbaf5941c3767162d1b866a60ce5a7",
+      "bytes": 2229
+    },
+    {
+      "path": "repro-manifest.json",
+      "sha256": "f43a5e150df4643a127daee654615d50ea9ee1dcab265a0aabce2dc653a2aa3d",
+      "bytes": 67030
+    },
+    {
+      "path": "variants/a10-mira/runner-bundle.json",
+      "sha256": "5b83aa8c861c0f85c89f40aa049fb58f4bae8ab15d053b8bc8b874dd2be61b34",
+      "bytes": 8900
+    },
+    {
+      "path": "variants/a10-mira/save-accepted.json",
+      "sha256": "d9d626f76d42962d9a9204eb34efc62e82668b66bbc87c0b2cdb1bb5a555ee74",
+      "bytes": 10525
+    },
+    {
+      "path": "variants/a10-mira/save-offered.json",
+      "sha256": "a253a6b135c5f6ed469e6ec0e29ddb19085569e2f2c95ccc60bf3383d88a3b56",
+      "bytes": 10522
+    },
+    {
+      "path": "variants/a10-mira/staging-recipes.json",
+      "sha256": "32c1861c1fd52eea3f2e72fbe30720aa1b27bf5f785d38be7a3febf82089d06e",
+      "bytes": 3342
+    },
+    {
+      "path": "variants/dest-moved/runner-bundle.json",
+      "sha256": "13fbf4ef318e6a90843e9a6e41aac4b4cc4e6c8a787b50de109e3a024b4a36d6",
+      "bytes": 7532
+    },
+    {
+      "path": "variants/dest-moved/staging-recipes.json",
+      "sha256": "d9875581a9bdc64b1f5823eb1203279365fbaf5941c3767162d1b866a60ce5a7",
+      "bytes": 2229
+    },
+    {
+      "path": "variants/injections/blocked-destination.json",
+      "sha256": "ef8266a66779b6836d8bfc5d4ef41044c5f41b24438045b8914a3578d823ed7f",
+      "bytes": 331
+    },
+    {
+      "path": "variants/injections/closed-portal.json",
+      "sha256": "b1c894319833bdd0c96dfd2af3f65f4e2cb9c16228c42ef3490b9ea28be77f07",
+      "bytes": 326
+    },
+    {
+      "path": "variants/injections/map-load-failure.json",
+      "sha256": "33f81b3138a6456bc3d0ff272f146e40bdce22d732baedf6c2c13cde4732d52a",
+      "bytes": 336
+    },
+    {
+      "path": "variants/injections/wrong-arrival-map.json",
+      "sha256": "ea1368c08f0f5e952784afe47c1c14617bad1ca5637db95ccfc793913cce1971",
+      "bytes": 448
+    },
+    {
+      "path": "variants/invalid/move-ref-kind/runner-bundle.json",
+      "sha256": "48f76e4e416869155e35f69125ba86032328a541cca37d4596da662e25f51321",
+      "bytes": 7533
+    },
+    {
+      "path": "variants/invalid/move-ref-not-found/runner-bundle.json",
+      "sha256": "1c66308ceeb2018c5ffcc2e60074471fb26e6a6c3f188996ad1471cabdcff393",
+      "bytes": 7534
+    },
+    {
+      "path": "variants/invalid/say-arg-count/runner-bundle.json",
+      "sha256": "0ac210ab5fff92a64b72e23027de14b4792f98c411b6e616e5b9af8eb7efc19a",
+      "bytes": 7486
+    },
+    {
+      "path": "variants/invalid/unknown-function/runner-bundle.json",
+      "sha256": "4d518cf974cae3c1ef4ece392dd19ae6dbd616a7beaabb4d1c642911f5173fdf",
+      "bytes": 7536
+    },
+    {
+      "path": "variants/invalid/wait-arg-type/runner-bundle.json",
+      "sha256": "cfbdc5e5f1460872b850fad0994f9ab4b50d89549aaba3699d304993c5bda26b",
+      "bytes": 7522
+    },
+    {
+      "path": "variants/unregistered-effect/runner-bundle.json",
+      "sha256": "549dbd3ceb2636f38b416dc8ed198f216742ab4512e507f683f9e9f1429ddcf3",
+      "bytes": 7558
+    }
+  ]
+}

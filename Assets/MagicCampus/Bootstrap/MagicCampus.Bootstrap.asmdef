@@ -1,0 +1,26 @@
+{
+  "name": "MagicCampus.Bootstrap",
+  "rootNamespace": "MagicCampus.Bootstrap",
+  "references": [
+    "MagicCampus.Contracts",
+    "MagicCampus.Domain",
+    "MagicCampus.UnityAdapters",
+    "MagicCampus.Presentation",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Newtonsoft.Json.dll",
+    "JsonSchema.Net.dll",
+    "JsonPointer.Net.dll",
+    "Json.More.dll",
+    "Humanizer.dll"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

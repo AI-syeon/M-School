@@ -1,0 +1,131 @@
+{
+  "quality": "prototype-only",
+  "generator": "2D-pixel-asset-pipeline 0.1.0",
+  "frames": 10,
+  "checks": [
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\idle_000.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "a708e0cbf815a62f28ebcd1c2bd3d0807f0645097fe17a2f4b0f19dccfdf36c7"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\idle_001.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "037c1ff1b644669d739e8b1fcf76cfced1653b2f269c082044b3fec1864f450e"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\idle_002.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "a708e0cbf815a62f28ebcd1c2bd3d0807f0645097fe17a2f4b0f19dccfdf36c7"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\idle_003.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "2daac1407b4d0ee16aecbf9baede66ba542a2bcd0d67e1fb127e159cad518c6d"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\walk_000.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "a708e0cbf815a62f28ebcd1c2bd3d0807f0645097fe17a2f4b0f19dccfdf36c7"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\walk_001.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "27fa9d001987622b0405a5aa8d4f16fe21bfa6dcc72cb5af56af614db3d16719"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\walk_002.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "27fa9d001987622b0405a5aa8d4f16fe21bfa6dcc72cb5af56af614db3d16719"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\walk_003.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "a708e0cbf815a62f28ebcd1c2bd3d0807f0645097fe17a2f4b0f19dccfdf36c7"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\walk_004.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "60cfb0659125f6d7bbe9c5344f3100621efa5305d16a6951d92aed21fefa4c8b"
+    },
+    {
+      "path": "FirstConnection-mira-v1\\characters\\student_mira\\walk_005.png",
+      "size": [
+        16,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "60cfb0659125f6d7bbe9c5344f3100621efa5305d16a6951d92aed21fefa4c8b"
+    }
+  ],
+  "atlasRectanglesMatchIndividualFrames": [
+    "student_mira"
+  ],
+  "visualReview": "pending"
+}

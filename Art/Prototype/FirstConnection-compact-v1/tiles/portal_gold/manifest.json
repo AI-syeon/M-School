@@ -1,0 +1,18 @@
+{
+  "id": "portal_gold",
+  "type": "tile",
+  "image": "atlas.png",
+  "size": [
+    16,
+    16
+  ],
+  "frames": [
+    {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16
+    }
+  ],
+  "count": 1
+}

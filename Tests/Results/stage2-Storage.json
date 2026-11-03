@@ -1,0 +1,10 @@
+{
+  "scope": "pure domain and real disk; Unity adapters separate",
+  "failures": 0,
+  "results": [
+    {
+      "suite": "Storage",
+      "passed": true
+    }
+  ]
+}

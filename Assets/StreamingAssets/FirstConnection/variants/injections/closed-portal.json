@@ -1,0 +1,13 @@
+{
+  "formatVersion": 1,
+  "id": "closed-portal",
+  "baseRunner": "base/runner-bundle.json",
+  "note": "Runtime hook only. Logical maps, portals and destinations stay untouched so the catalog still compiles.",
+  "hooks": [
+    {
+      "kind": "portalOpen",
+      "portalId": "portal.to_lounge",
+      "open": false
+    }
+  ]
+}

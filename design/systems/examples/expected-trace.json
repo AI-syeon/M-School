@@ -1,0 +1,22 @@
+{
+  "kind": "specification-example-not-runtime-log",
+  "scenario": "event.snack 성공 및 완료 후 복원",
+  "callPositionRule": "call = 이벤트ID#호출번호 (본문 script) 또는 이벤트ID:가지이름#호출번호 (forks). 번호는 1부터. 명령 ID는 없다.",
+  "initialAbsoluteMinute": 420,
+  "records": [
+    {"sequence": 1, "eventId": "event.snack", "phase": "eligibility", "code": "ELIGIBLE"},
+    {"sequence": 2, "eventId": "event.snack", "phase": "acquire", "code": "LEASED"},
+    {"sequence": 3, "eventId": "event.snack", "phase": "safe-entry", "code": "SNAPSHOT_READY"},
+    {"sequence": 4, "eventId": "event.snack", "call": "event.snack#1", "phase": "start", "code": "RUNNING"},
+    {"sequence": 5, "eventId": "event.snack", "call": "event.snack#1", "phase": "wait", "code": "WAITING"},
+    {"sequence": 6, "eventId": "event.snack", "call": "event.snack#1", "phase": "terminal", "code": "SUCCEEDED"},
+    {"sequence": 7, "eventId": "event.snack", "call": "event.snack#2", "phase": "complete", "code": "ACKNOWLEDGED"},
+    {"sequence": 8, "eventId": "event.snack", "call": "event.snack#3", "phase": "complete", "code": "OPTION_SELECTED", "fork": "notes"},
+    {"sequence": 9, "eventId": "event.snack", "call": "event.snack:notes#1", "phase": "complete", "code": "ACKNOWLEDGED"},
+    {"sequence": 10, "eventId": "event.snack", "phase": "commit", "code": "COMMITTED", "source": "effects", "transactionId": "event.snack", "absoluteMinute": 430},
+    {"sequence": 11, "eventId": "event.snack", "phase": "release", "code": "LEASES_RELEASED"},
+    {"sequence": 12, "eventId": "event.snack", "phase": "safe-complete", "code": "SAVE_GENERATION_2"},
+    {"sequence": 13, "eventId": "event.snack", "phase": "reload", "code": "ALREADY_COMPLETED"}
+  ],
+  "expected": {"absoluteMinute": 430, "memory.snack_done": true, "completed": ["event.snack"], "activeLeases": 0}
+}
