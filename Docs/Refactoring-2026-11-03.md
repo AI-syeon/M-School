@@ -38,6 +38,10 @@
 - 2-B 상태·저장: 같은 경로 안의 중복 검증과 체크섬 재계산을 없애고, 참가자 레지스트리와 구현이 하나뿐인 저장 인터페이스를 단순화한다. 커밋마다 하는 상태 불변식 검사는 동작이므로 남긴다.
 - 2-C 런타임·앱: 틱 인터페이스의 중복 인자, 의미 없어진 계약 필드, 항상 빈 값, 구현이 하나뿐인 인터페이스를 정리한다.
 - 2-V 화면: 자체 JSON 리더를 기존 코덱으로 바꾸고 FirstConnectionRuntime의 안 쓰는 공개 멤버를 정리한다. 2-A~C를 합친 뒤에 한다.
+- 2-B 결과(-165줄): 저장 복원의 체크섬 재계산, 도달할 수 없는 검사, 항상 null인 invariants 인자, 참가자 레지스트리 래퍼, 완료 재처리 정책 인터페이스, ISaveCodec·ISaveRestorer·IStatePlan을 없앴다. SaveFields.CheckRoot는 스키마와 다른 오류 코드를 내므로 남겼다.
+- 2-C 결과(-157줄): 틱을 값 하나로 줄이고 IRuntimeTick·ITickClock·IEventRunner·ICompletionPump·IReservationService·IScheduleService와 중복 ID 검사(RuntimeGuard, IdGuard)를 없앴다. FirstConnectionRuntime의 안 쓰는 공개 멤버를 비공개로 바꿨다. ICompletionLedger는 테스트 가짜가 있어 남겼다. 게임 종료 정리(Dispose) 중 NPC가 최대 0.3초 거리를 더 걸을 수 있으나 저장·커밋이 없는 시점이다.
+- 2-B·2-C 합친 뒤 검증: 순수 도메인 4종 통과, Unity 빌드 오류 0, probe 13개와 복원 4건이 기준과 같다.
+- 이벤트 진행 틱 비교: 첫 기준 실행은 success-notes fork.enter가 123틱이었고 리팩토링 후는 122틱이었다. 기준 커밋 f463071을 다시 빌드해 두 번 돌리니 122틱이 나와 첫 기준 실행의 흔들림으로 판단했다. 마지막 refused 단계는 같은 빌드에서도 1틱씩 흔들린다.
 - 하지 않는 것: 테스트 프로젝트 4개 통합(가치가 낮음), DTO 생성자 검증 제거(테스트가 예외를 검사함, 효과 대비 변경이 큼).
 
 ## 진행 기록
