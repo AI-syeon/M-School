@@ -25,7 +25,6 @@ namespace MagicCampus.Bootstrap.FirstConnection
     }
 
     const float MoveStep = 0.4f;
-    const string ProbeTypeName = "MagicCampus.Bootstrap.FirstConnection.FirstConnectionProbe, MagicCampus.Bootstrap";
 
     string variant = "base", initialSave = "save-offered.json", saveDir, probeCase, evidenceDir;
     bool fresh, userConfigured, running;
@@ -175,9 +174,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
     void AttachProbe()
     {
       if (probeCase == null) return;
-      var type = Type.GetType(ProbeTypeName);
-      if (type == null) { Debug.LogError("probe type not found: " + ProbeTypeName); return; }
-      gameObject.AddComponent(type);
+      gameObject.AddComponent<FirstConnectionProbe>();
     }
 
     // ------------------------------------------------------------------ frame
