@@ -260,7 +260,7 @@ namespace MagicCampus.Tests.Events
             var h = rig.Start("ev.y");
             Check(rig.Presentation.OfKind("animate").Count == 64, "exactly 64 immediate instructions, then yield");
             Check(!Contains(rig.Runner.ActiveResources, EventRunner.WorldResource), "room activity does not lease snapshot.world");
-            rig.Runner.Tick(0, 0);
+            rig.Runner.Tick(0);
             Check(rig.Presentation.OfKind("animate").Count == 70, "remaining instructions run on the next tick");
             foreach (var op in rig.Presentation.OfKind("animate")) op.Handle.Succeed(null, 0);
             rig.Until(() => h.Terminal != null, "run");
@@ -422,7 +422,7 @@ namespace MagicCampus.Tests.Events
             rig.Catalog.Add(Ev("ev.t", ExecutionMode.Scene, new string[0], new[] { Move("ev.t", 1, null) }));
             var h = rig.Start("ev.t");
             rig.Until(() => rig.Moves.Pending.Count == 1, "move");
-            rig.Runner.Tick(0, 6);
+            rig.Runner.Tick(6);
             rig.Until(() => h.Terminal != null, "timeout");
             Check(h.Terminal.Status == OperationStatus.Failed && h.Terminal.Code == ResultCodes.Timeout, "watchdog fails with TIMEOUT");
             Check(rig.Moves.Pending[0].CancelRequested && rig.Recovery.Restores == 1, "child cancelled and entry recovered");
@@ -587,7 +587,7 @@ namespace MagicCampus.Tests.Events
         public readonly FakeMoves Moves;
         public readonly FakePresentation Presentation;
         public readonly FakeLifetime Lifetime;
-        public readonly FakeClock Clock;
+        public readonly TickClock Clock;
         public readonly FakePlanner Planner = new FakePlanner();
         public readonly FakeProjector Projector;
         public readonly FakeRecovery Recovery;
@@ -610,7 +610,7 @@ namespace MagicCampus.Tests.Events
             Moves = new FakeMoves(Handles, Log);
             Presentation = new FakePresentation(Handles, Log);
             Lifetime = new FakeLifetime(Log);
-            Clock = new FakeClock(Handles);
+            Clock = new TickClock(Handles);
             Projector = new FakeProjector(Log);
             Recovery = new FakeRecovery(Log);
             Boundaries = new FakeBoundaries(Log);
@@ -654,8 +654,8 @@ namespace MagicCampus.Tests.Events
             for (var i = 0; i < n; i++)
             {
                 Pump.AdvanceTick();
-                Runner.Tick(1, 1);
-                Clock.Tick++;
+                Clock.Advance(1);
+                Runner.Tick(1);
             }
         }
 
@@ -875,24 +875,6 @@ namespace MagicCampus.Tests.Events
         public int Closed;
         public FakeLifetime(List<string> log) { this.log = log; }
         public void CloseOwner(string ownerToken) { Closed++; log.Add("lifetime.close"); }
-    }
-
-    internal sealed class FakeClock : ITickClock
-    {
-        private readonly IHandleFactory factory;
-        private int n;
-        public FakeClock(IHandleFactory factory) { this.factory = factory; }
-        public long Tick { get; set; }
-        public double SimulationSeconds { get; set; }
-        public double UnpausedSeconds { get; set; }
-
-        public IHandle Delay(double seconds, string ownerToken)
-        {
-            var h = factory.Create<object>("delay." + (++n));
-            h.Start();
-            h.SetCancellationHandler(reason => h.Cancelled(reason, 0));
-            return h;
-        }
     }
 
     internal sealed class FakePlanner : IEventCommitPlanner

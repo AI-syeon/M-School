@@ -10,10 +10,10 @@ namespace MagicCampus.World.Movement
     /// Common mover for player, NPC schedule and scenes. It is the only writer of simulation positions (through IActorWorld).
     /// Path: portal route, footprint A* per map, swept continuous steps at actor speed, portal crossing only after the actor actually
     /// stands on Portal.From and the target map is loaded. Arrival is judged from the actual position only. Failures never teleport.
-    /// Called from the runtime tick on one thread. Tick(simulationSeconds, unpausedSeconds): the first value moves actors when the
-    /// matching pause channel is open, the second always advances the timeout watchdog.
+    /// Called from the runtime tick on one thread. Tick(seconds) moves actors only while the matching pause channel is open;
+    /// the timeout watchdog always advances.
     /// </summary>
-    public sealed class MoveService : IMoveService, IRuntimeTick
+    public sealed class MoveService : IMoveService
     {
         private enum Phase { Walking, Loading, RollingBack, SourceLoading }
 
@@ -149,20 +149,19 @@ namespace MagicCampus.World.Movement
             return handle;
         }
 
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        public void Tick(double seconds)
         {
-            if (double.IsNaN(simulationSeconds) || double.IsInfinity(simulationSeconds) || simulationSeconds < 0) throw new ArgumentOutOfRangeException(nameof(simulationSeconds));
-            if (double.IsNaN(unpausedSeconds) || double.IsInfinity(unpausedSeconds) || unpausedSeconds < 0) throw new ArgumentOutOfRangeException(nameof(unpausedSeconds));
+            PortGuard.NonNegative(seconds, nameof(seconds));
             var snapshot = ordered.ToArray();
             foreach (var move in snapshot)
-                if (!move.Finished) TickMove(move, simulationSeconds, unpausedSeconds);
+                if (!move.Finished) TickMove(move, seconds);
         }
 
         // ------------------------------------------------------------------ per-tick processing
 
-        private void TickMove(ActiveMove m, double sim, double unpaused)
+        private void TickMove(ActiveMove m, double dt)
         {
-            m.Elapsed += unpaused;
+            m.Elapsed += dt;
             var actor = actors.Find(m.Request.ActorId);
             if (actor == null)
             {
@@ -183,7 +182,7 @@ namespace MagicCampus.World.Movement
                     return;
                 }
                 if (maps.NavRevision != m.NavRevision && Replan(m, actor, "NAV_REVISION", true) == ReplanResult.Terminated) return;
-                if (!IsPaused(m)) Step(m, actor, sim);
+                if (!IsPaused(m)) Step(m, actor, dt);
             }
 
             if (!m.Finished && m.Elapsed >= m.Request.TimeoutSeconds)
@@ -198,10 +197,10 @@ namespace MagicCampus.World.Movement
             return pause.Ambient || pause.World;
         }
 
-        private void Step(ActiveMove m, ActorState actor, double sim)
+        private void Step(ActiveMove m, ActorState actor, double dt)
         {
-            if (m.Cooldown > 0) m.Cooldown = Math.Max(0.0, m.Cooldown - sim);
-            var budget = actor.Speed * sim;
+            if (m.Cooldown > 0) m.Cooldown = Math.Max(0.0, m.Cooldown - dt);
+            var budget = actor.Speed * dt;
             var moved = 0.0;
             var blocked = false;
             var guard = m.Waypoints.Count + 8;
@@ -259,7 +258,7 @@ namespace MagicCampus.World.Movement
             if (moved > options.MinProgress) m.BlockedSeconds = 0;
             if (!blocked) return;
 
-            if (moved <= options.MinProgress) m.BlockedSeconds += sim;
+            if (moved <= options.MinProgress) m.BlockedSeconds += dt;
             if (m.BlockedSeconds >= options.StuckSeconds)
             {
                 Fail(m, ResultCodes.NoRoute, "STUCK", "no progress for " + m.BlockedSeconds.ToString(CultureInfo.InvariantCulture) + " simulation seconds");

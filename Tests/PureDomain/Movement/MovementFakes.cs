@@ -304,7 +304,7 @@ namespace MagicCampus.Tests.Movement
         public void Frame(double dt)
         {
             Pump.AdvanceTick();
-            Moves.Tick(dt, dt);
+            Moves.Tick(dt);
         }
 
         public int RunUntil(IHandle handle, double dt, int max)

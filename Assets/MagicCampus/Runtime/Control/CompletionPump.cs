@@ -8,7 +8,7 @@ namespace MagicCampus.Runtime
     /// FIFO completion queue. AdvanceTick drains a snapshot taken at entry; items posted while draining wait for the next AdvanceTick.
     /// A throwing item is isolated and counted.
     /// </summary>
-    public sealed class CompletionPump : ICompletionPump
+    public sealed class CompletionPump : ICompletionQueue
     {
         private readonly Action<Exception> onFault;
         private List<Action> pending = new List<Action>();
@@ -34,7 +34,7 @@ namespace MagicCampus.Runtime
 
         public void Post(Action action)
         {
-            RuntimeGuard.Required(action, nameof(action));
+            PortGuard.Required(action, nameof(action));
             pending.Add(action);
         }
 

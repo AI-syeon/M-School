@@ -87,38 +87,37 @@ namespace MagicCampus.Bootstrap.FirstConnection
     public JsonDataCodec Codec { get; }
     public StandardSchemaValidator Schema { get; }
     public ICatalog Compiled { get; }
-    public CatalogProvider Provider { get; }
+    CatalogProvider Provider { get; }
     public MapLayout Layout { get; }
     public MapAdapter Maps { get; }
-    public GridCollisionPort CollisionPort { get; }
+    GridCollisionPort CollisionPort { get; }
     public ActorWorld Actors { get; }
     public CompletionPump Pump { get; }
-    public HandleFactory Handles { get; }
+    HandleFactory Handles { get; }
     public PauseService Pause { get; }
     public LeaseService Leases { get; }
     public TickClock Ticks { get; }
-    public MoveService Moves { get; }
+    MoveService Moves { get; }
     public StateStore Store { get; }
-    public Tk.ClockService Clock { get; }
-    public WorldStateProjector Projector { get; }
+    Tk.ClockService Clock { get; }
+    WorldStateProjector Projector { get; }
     public CatalogDestinationResolver Destinations { get; }
     public ReservationService Reservations { get; }
-    public ScheduleService Schedule { get; }
-    public ScheduleController Scheduler { get; }
+    ScheduleService Schedule { get; }
+    ScheduleController Scheduler { get; }
     public FileGenerationStore Disk { get; }
     public SafeBoundaryPolicy Policy { get; }
-    public SaveService Saves { get; }
+    SaveService Saves { get; }
     public ReservedStagingService Staging { get; }
-    public EventRunner Runner { get; }
-    public DialoguePresentation DialogueUi { get { return config.DialogueUi; } }
+    EventRunner Runner { get; }
 
     public RuntimePhase Phase { get; private set; }
     public string LastError { get; private set; }
     public bool Hidden { get; private set; }
-    public IHandle<EventCompletion> LastEventHandle { get; private set; }
+    IHandle<EventCompletion> LastEventHandle { get; set; }
 
     public bool Ready { get { return Phase == RuntimePhase.Ready; } }
-    public bool Busy
+    bool Busy
     {
       get
       {
@@ -312,28 +311,25 @@ namespace MagicCampus.Bootstrap.FirstConnection
       try
       {
         if (config.PumpInStep) Pump.AdvanceTick();
-        Ticks.Advance(Pause.Effective.Scene ? 0.0 : dt, dt);
+        Ticks.Advance(Pause.Effective.Scene ? 0.0 : dt);
         Watchdog(dt);
-        Disk.Tick(dt, dt);
-        Maps.Tick(dt, dt);
-        Staging.Tick(dt, dt);
-        Moves.Tick(dt, dt);
-        config.DialogueUi.Tick(dt, dt);
-        Runner.Tick(dt, dt);
+        Disk.Tick();
+        Maps.Tick();
+        Staging.Tick(dt);
+        Moves.Tick(dt);
+        config.DialogueUi.Tick(dt);
+        Runner.Tick(dt);
         if (Phase == RuntimePhase.Ready)
         {
           Clock.Advance(dt, Pause.Effective);
           var failure = Clock.LastFailure;
           var code = failure == null ? "" : failure.Code;
           if (code != lastClockFailure) { lastClockFailure = code; if (failure != null) Diag("clock advance failed: " + Describe(failure)); }
-          Scheduler.Tick(dt, dt);
+          Scheduler.Tick(dt);
         }
       }
       finally { inStep = false; }
     }
-
-    /// <summary>Convenience for callers that do not own the pump.</summary>
-    public void AdvancePump() { Pump.AdvanceTick(); }
 
     void Watchdog(double dt)
     {
@@ -471,7 +467,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       if (manualHandle != null && manualHandle.Terminal == null) return Failed<MoveArrival>(ResultCodes.ResourceBusy, "a manual move is already running");
       var seq = ++inputSeq;
       var owner = "player:move#" + seq;
-      var lease = Leases.TryAcquire(new LeaseRequest(owner, new[] { PlayerResource }, CandidatePriority.General, Math.Max(0L, ((ITickClock)Ticks).Tick), seq));
+      var lease = Leases.TryAcquire(new LeaseRequest(owner, new[] { PlayerResource }));
       if (!lease.Succeeded) return Failed<MoveArrival>(lease.Result.Code, Describe(lease.Result));
       var leaseId = lease.Value.LeaseId;
       IHandle<MoveArrival> move;
@@ -854,7 +850,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     void Emit(string message)
     {
-      var line = "tick=" + (Ticks == null ? 0 : ((ITickClock)Ticks).Tick) + " seq=" + (++traceSeq) + " rev=" + (Store == null ? 0 : Store.Current.Revision) + " " + message;
+      var line = "tick=" + (Ticks == null ? 0 : Ticks.TickCount) + " seq=" + (++traceSeq) + " rev=" + (Store == null ? 0 : Store.Current.Revision) + " " + message;
       traceLog.Add(line);
       if (traceLog.Count > 4000) traceLog.RemoveAt(0);
       var sink = config.Trace;
@@ -888,10 +884,10 @@ namespace MagicCampus.Bootstrap.FirstConnection
         for (var i = 0; i < 10; i++)
         {
           Pump.AdvanceTick();
-          Disk.Tick(0.01, 0.01);
-          Staging.Tick(0.0, 0.01);
-          Moves.Tick(0.0, 0.01);
-          Runner.Tick(0.0, 0.01);
+          Disk.Tick();
+          Staging.Tick(0.01);
+          Moves.Tick(0.01);
+          Runner.Tick(0.01);
         }
         Disk.Shutdown();
         Pump.AdvanceTick();

@@ -11,7 +11,7 @@ namespace MagicCampus.Application.Schedules
     /// the latest entry whose start is at or before the minute of day wins, and before the first entry the last entry
     /// of the previous day applies.
     /// </summary>
-    public sealed class ScheduleService : IScheduleService
+    public sealed class ScheduleService
     {
         public const string HomeKeyword = "home";
         public const string DestinationArgument = "destination";

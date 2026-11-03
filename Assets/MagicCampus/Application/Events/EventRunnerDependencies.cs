@@ -1,5 +1,6 @@
 using System;
 using MagicCampus.Contracts;
+using MagicCampus.Runtime;
 
 namespace MagicCampus.Events
 {
@@ -43,7 +44,7 @@ namespace MagicCampus.Events
         public IDestinationResolver Destinations { get; set; }
         public IPresentationPort Presentation { get; set; }
         public IPresentationLifetime PresentationLifetime { get; set; }
-        public ITickClock Clock { get; set; }
+        public TickClock Clock { get; set; }
         public IEventCommitPlanner CommitPlanner { get; set; }
         public IStateStore Store { get; set; }
         public IWorldStateProjector Projector { get; set; }
@@ -54,7 +55,7 @@ namespace MagicCampus.Events
         public IMapPort Maps { get; set; }
         public IHandleFactory Handles { get; set; }
 
-        /// <summary>Watchdog in unpaused seconds, accumulated from the second Tick delta.</summary>
+        /// <summary>Watchdog in unpaused seconds, accumulated from the Tick delta.</summary>
         public double EventTimeoutSeconds { get; set; } = 3600;
         public double RecoveryTimeoutSeconds { get; set; } = 10;
         public int MaxScriptDepth { get; set; } = 16;

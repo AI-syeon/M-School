@@ -83,7 +83,7 @@ namespace MagicCampus.Tests.FirstConnectionData
             var codec=new SaveCodec(Codec);
             var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema),null);
             var saves=new SaveService(policy,codec,disk,restorer,store,provider,handles);
-            void Wait(IHandle h) {for(int i=0;i<200 && h.Terminal==null;i++){pump.AdvanceTick();disk.Tick(.01,.01);}pump.AdvanceTick();Check(h.Terminal!=null,"bounded disk terminal");}
+            void Wait(IHandle h) {for(int i=0;i<200 && h.Terminal==null;i++){pump.AdvanceTick();disk.Tick();}pump.AdvanceTick();Check(h.Terminal!=null,"bounded disk terminal");}
             policy.Notify(SafeBoundary.SceneEntry,store.Current);
             var first=saves.SaveLatestSafe();Wait(first);Check(first.Status==OperationStatus.Succeeded,"real entry save");
             var modified=new StateSnapshot(0,store.Current.Root.With("wallet",DataNode.FromInteger(321)));

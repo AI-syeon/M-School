@@ -4,18 +4,6 @@ using MagicCampus.Contracts;
 
 namespace MagicCampus.Application.Schedules
 {
-    internal static class IdGuard
-    {
-        internal static string Require(string value, string name)
-        {
-            if (value == null) throw new ArgumentNullException(name);
-            if (value.Length == 0) throw new ArgumentException("must not be empty", name);
-            foreach (var c in value)
-                if (char.IsWhiteSpace(c) || char.IsControl(c)) throw new ArgumentException("whitespace/control characters not allowed", name);
-            return value;
-        }
-    }
-
     public sealed class ReservedActorPlacement
     {
         public string ActorId { get; }
@@ -23,7 +11,7 @@ namespace MagicCampus.Application.Schedules
 
         public ReservedActorPlacement(string actorId, Position position)
         {
-            ActorId = IdGuard.Require(actorId, nameof(actorId));
+            ActorId = Ids.Require(actorId, nameof(actorId));
             if (position.MapId == null) throw new ArgumentException("default position", nameof(position));
             Position = position;
         }
@@ -37,7 +25,7 @@ namespace MagicCampus.Application.Schedules
 
         public ReservedJoinPlan(string targetMapId, IEnumerable<ReservedActorPlacement> placements)
         {
-            TargetMapId = IdGuard.Require(targetMapId, nameof(targetMapId));
+            TargetMapId = Ids.Require(targetMapId, nameof(targetMapId));
             if (placements == null) throw new ArgumentNullException(nameof(placements));
             var sorted = new SortedDictionary<string, ReservedActorPlacement>(StringComparer.Ordinal);
             foreach (var p in placements)

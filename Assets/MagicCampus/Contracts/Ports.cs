@@ -312,17 +312,11 @@ namespace MagicCampus.Contracts
     {
         public string Owner { get; }
         public IReadOnlyList<string> Resources { get; }   // distinct, ordinal-sorted
-        public int Priority { get; }                      // see CandidatePriority
-        public long ReservedAt { get; }
-        public long Sequence { get; }
 
-        public LeaseRequest(string owner, IEnumerable<string> resources, int priority, long reservedAt, long sequence)
+        public LeaseRequest(string owner, IEnumerable<string> resources)
         {
             Owner = Ids.Require(owner, nameof(owner));
             Resources = PortGuard.IdSet(resources, nameof(resources));
-            Priority = priority;
-            ReservedAt = PortGuard.Min(reservedAt, 0, nameof(reservedAt));
-            Sequence = PortGuard.Min(sequence, 0, nameof(sequence));
         }
     }
 
@@ -371,17 +365,6 @@ namespace MagicCampus.Contracts
         IPausePolicy Effective { get; }
         PauseToken Acquire(string owner, IPausePolicy requested);
         void Release(PauseToken token);   // idempotent
-    }
-
-    public interface ITickClock
-    {
-        long Tick { get; }
-        /// <summary>Simulation time; stops while the relevant channel is paused.</summary>
-        double SimulationSeconds { get; }
-        /// <summary>Advances every tick even while paused. Timeouts and watchdogs use this clock.</summary>
-        double UnpausedSeconds { get; }
-        /// <summary>Handle that succeeds after the given simulation seconds.</summary>
-        IHandle Delay(double seconds, string ownerToken);
     }
 
     // ---------------------------------------------------------------- logical input, collision, maps
@@ -476,7 +459,7 @@ namespace MagicCampus.Contracts
         public string ActorId { get; }
         public Destination Destination { get; }
         public string OwnerToken { get; }
-        public double TimeoutSeconds { get; }   // measured on ITickClock.UnpausedSeconds
+        public double TimeoutSeconds { get; }   // unpaused seconds
         public bool UsePortals { get; }
 
         public MoveRequest(string actorId, Destination destination, string ownerToken, double timeoutSeconds, bool usePortals)
@@ -771,21 +754,6 @@ namespace MagicCampus.Contracts
         public ChangeSet(IEnumerable<PlannedChange> changes) { Changes = PortGuard.Opt(changes, nameof(changes)); }
     }
 
-    public sealed class OperationRequest
-    {
-        public string Domain { get; }          // class, encounter, puzzle, craft, relationship, project, activity
-        public string DefinitionId { get; }    // puzzle: room id or room:label
-        public string EventId { get; }
-        public string OwnerToken { get; }
-        public bool Practice { get; }
-
-        public OperationRequest(string domain, string definitionId, string eventId, string ownerToken, bool practice)
-        {
-            Domain = Ids.Require(domain, nameof(domain)); DefinitionId = Ids.Require(definitionId, nameof(definitionId));
-            EventId = Ids.Require(eventId, nameof(eventId)); OwnerToken = Ids.Require(ownerToken, nameof(ownerToken)); Practice = practice;
-        }
-    }
-
     /// <summary>Staged perform result. Nothing is persisted when it is produced; effects read it at commit time.</summary>
     public sealed class OperationResult
     {
@@ -953,12 +921,6 @@ namespace MagicCampus.Contracts
         }
     }
 
-    public interface IEventRunner
-    {
-        /// <summary>Refusals (RESOURCE_BUSY, CONDITION_FALSE, UNREGISTERED) arrive as a terminal Failed handle, never as success.</summary>
-        IHandle<EventCompletion> Start(EventStartRequest request);
-    }
-
     // ---------------------------------------------------------------- safe snapshot, save, restore, file generations
 
     public enum SafeBoundary { WorldSafe, SceneEntry, SceneComplete, RoomSafe }
@@ -1071,16 +1033,4 @@ namespace MagicCampus.Contracts
         }
     }
 
-    public interface IReservationService
-    {
-        /// <summary>Ordered by priority descending, ReservedAt, Sequence, EventId (ordinal). Accepted reservations stay candidates after a failed start, a missing lease or a failed move; only a successful completion commit removes them.</summary>
-        IReadOnlyList<StartCandidate> Candidates(StateSnapshot snapshot);
-        Outcome<PlannedChange> PlanAccept(string reservationId, StateSnapshot basis);
-    }
-
-    public interface IScheduleService
-    {
-        /// <summary>Exactly one destination for the current time, recomputed from the clock rather than from a stored path.</summary>
-        Outcome<Destination> CurrentDestination(string npcId, GameTime now);
-    }
 }

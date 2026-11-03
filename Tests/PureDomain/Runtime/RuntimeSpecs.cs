@@ -16,7 +16,7 @@ namespace MagicCampus.Tests.Runtime
             PumpOrderingAndIsolation();
             LeasesOverlapBusyNoPartialNoPreempt();
             PauseUnionAndScenePolicy();
-            TickClockSeparatesSimulationFromUnpaused();
+            TickClockStallsDelaysWhilePaused();
             DelaysCompleteInDeterministicOrder();
         }
 
@@ -52,9 +52,9 @@ namespace MagicCampus.Tests.Runtime
             return string.Join(",", items);
         }
 
-        private static LeaseRequest Req(string owner, int priority, long reservedAt, long sequence, params string[] resources)
+        private static LeaseRequest Req(string owner, params string[] resources)
         {
-            return new LeaseRequest(owner, resources, priority, reservedAt, sequence);
+            return new LeaseRequest(owner, resources);
         }
 
         // ------------------------------------------------------------ handles
@@ -190,23 +190,23 @@ namespace MagicCampus.Tests.Runtime
         private static void LeasesOverlapBusyNoPartialNoPreempt()
         {
             var svc = new LeaseService();
-            var a = svc.TryAcquire(Req("npc.a", 10, 0, 0, "b", "a"));
+            var a = svc.TryAcquire(Req("npc.a", "b", "a"));
             True(a.Succeeded, "first lease granted");
             Eq("a,b", J(a.Value.Resources), "resources canonical sorted");
-            var b = svc.TryAcquire(Req("npc.b", 10, 0, 1, "c", "b"));
+            var b = svc.TryAcquire(Req("npc.b", "c", "b"));
             True(!b.Succeeded, "overlapping lease refused");
             Eq(ResultCodes.ResourceBusy, b.Result.Code, "busy code");
             Eq(1, b.Result.Details.Count, "one diagnostic per busy resource");
             True(svc.HolderOf("c") == null, "no partial acquisition");
             Eq(2, svc.HeldResourceCount, "only the first lease holds resources");
 
-            var hi = svc.TryAcquire(Req("npc.hi", CandidatePriority.Resolution, 0, 2, "a"));
-            True(!hi.Succeeded, "higher priority never preempts a holder");
+            var hi = svc.TryAcquire(Req("npc.hi", "a"));
+            True(!hi.Succeeded, "a second request never preempts a holder");
             Eq(a.Value.LeaseId, svc.HolderOf("a"), "active holder not preempted");
 
             svc.Release(a.Value.LeaseId);
             Eq(0, svc.HeldResourceCount, "release frees every resource");
-            var again = svc.TryAcquire(Req("npc.hi", CandidatePriority.Resolution, 0, 2, "a"));
+            var again = svc.TryAcquire(Req("npc.hi", "a"));
             True(again.Succeeded, "freed resource can be acquired");
             Eq(again.Value.LeaseId, svc.HolderOf("a"), "new holder owns a");
             Eq(1, svc.HeldResourceCount, "only the new lease holds resources");
@@ -248,27 +248,22 @@ namespace MagicCampus.Tests.Runtime
 
         // ------------------------------------------------------------ tick clock
 
-        private static void TickClockSeparatesSimulationFromUnpaused()
+        private static void TickClockStallsDelaysWhilePaused()
         {
             var e = new Env();
             var clock = new TickClock(e.Factory);
-            IRuntimeTick rt = clock;
-            ITickClock c = clock;
-            var delay = c.Delay(2.0, "scene.1");
+            var delay = clock.Delay(2.0);
             Eq(OperationStatus.Running, delay.Status, "delay running");
-            rt.Tick(0, 0.5);
-            Eq(1L, c.Tick, "tick counted");
-            Eq(0.0, c.SimulationSeconds, "simulation stops while paused");
-            Eq(0.5, c.UnpausedSeconds, "unpaused clock keeps running");
-            rt.Tick(0, 0.6);
-            True(c.UnpausedSeconds > 1.0, "unpaused clock passes a 1s timeout while the simulation is paused");
-            Eq(OperationStatus.Running, delay.Status, "simulated delay unaffected by unpaused time");
-            rt.Tick(1.0, 1.0);
+            clock.Advance(0);
+            clock.Advance(0);
+            Eq(2L, clock.TickCount, "paused ticks are counted");
+            Eq(OperationStatus.Running, delay.Status, "delay does not advance while paused");
+            clock.Advance(1.0);
             Eq(OperationStatus.Running, delay.Status, "delay not due yet");
-            rt.Tick(1.0, 1.0);
-            Eq(OperationStatus.Succeeded, delay.Status, "delay completes from simulation delta");
-            Throws<ArgumentOutOfRangeException>(() => rt.Tick(-1, 0), "negative delta");
-            Throws<ArgumentOutOfRangeException>(() => rt.Tick(0, double.NaN), "NaN delta");
+            clock.Advance(1.0);
+            Eq(OperationStatus.Succeeded, delay.Status, "delay completes from the advanced seconds");
+            Throws<ArgumentOutOfRangeException>(() => clock.Advance(-1), "negative delta");
+            Throws<ArgumentOutOfRangeException>(() => clock.Advance(double.NaN), "NaN delta");
             Eq(4L, clock.TickCount, "rejected ticks do not advance");
             e.Pump.AdvanceTick();
             Eq(0, e.Factory.LiveCount, "no live handles");
@@ -278,23 +273,22 @@ namespace MagicCampus.Tests.Runtime
         {
             var e = new Env();
             var clock = new TickClock(e.Factory);
-            IRuntimeTick rt = clock;
             var log = new List<string>();
-            var d1 = clock.Delay(1.0, "a");
-            var d2 = clock.Delay(1.0, "b");
-            var d3 = clock.Delay(0.5, "c");
+            var d1 = clock.Delay(1.0);
+            var d2 = clock.Delay(1.0);
+            var d3 = clock.Delay(0.5);
             d1.OnTerminal(r => log.Add("a"));
             d2.OnTerminal(r => log.Add("b"));
             d3.OnTerminal(r => log.Add("c"));
-            rt.Tick(1.0, 1.0);
+            clock.Advance(1.0);
             Eq(0, log.Count, "callbacks are next tick");
             e.Pump.AdvanceTick();
             Eq("c,a,b", J(log), "due time then creation order");
 
-            var d4 = clock.Delay(5.0, "o");
+            var d4 = clock.Delay(5.0);
             d4.Cancel("done");
             Eq(OperationStatus.Cancelled, d4.Status, "cancelled delay is terminal");
-            rt.Tick(10.0, 10.0);
+            clock.Advance(10.0);
             Eq(OperationStatus.Cancelled, d4.Status, "cancelled delay is not completed later");
             e.Pump.AdvanceTick();
             Eq(0, e.Factory.LiveCount, "no live handles");

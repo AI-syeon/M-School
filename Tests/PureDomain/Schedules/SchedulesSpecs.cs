@@ -89,33 +89,33 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             var rig = new ControllerRig();
 
             rig.Pause.Effective = new PauseSet(false, true, false, false, false);
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(0, rig.Move.Requests.Count, "paused ambient channel starts nothing");
             rig.Pause.Effective = PauseSet.None;
 
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(1, rig.Move.Requests.Count, "ambient move starts toward the current destination");
             Spec.Equal("dest.x", rig.Move.Requests[0].Destination.DestinationId, "morning destination");
             Spec.Equal("ambient:npc.a", rig.Move.Requests[0].OwnerToken, "owner token");
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(1, rig.Move.Requests.Count, "no second move while one is running");
 
             rig.Leased.Add("npc.a");
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(1, rig.Move.CancelReasons.Count, "leased npc's ambient move is cancelled");
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(1, rig.Move.CancelReasons.Count, "cancel is requested once");
             Spec.True(rig.Controller.IsMoving("npc.a"), "controller waits for the terminal state");
             Spec.Equal(1, rig.Move.Requests.Count, "nothing new while cancelling");
 
             rig.Move.Handles[0].Cancelled("yielded", 0);
-            for (var i = 0; i < 4; i++) rig.Controller.Tick(1, 1);
+            for (var i = 0; i < 4; i++) rig.Controller.Tick(1);
             Spec.True(!rig.Controller.IsMoving("npc.a"), "terminal move is released");
             Spec.Equal(1, rig.Move.Requests.Count, "foreground lease is never preempted");
 
             rig.Clock.Now = new GameTime(GameTime.MinutesPerDay + 720, 0);
             rig.Leased.Remove("npc.a");
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(2, rig.Move.Requests.Count, "resume after release");
             Spec.Equal("dest.y", rig.Move.Requests[1].Destination.DestinationId, "resume uses the current clock, not the stale morning path");
             Spec.Equal(0, rig.World.SetPositionCalls, "no teleport");
@@ -126,7 +126,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         {
             var rig = new ControllerRig();
             rig.Move.AutoFail = true;
-            for (var i = 0; i < 100; i++) rig.Controller.Tick(0.1, 0.1);
+            for (var i = 0; i < 100; i++) rig.Controller.Tick(0.1);
             var count = rig.Move.Requests.Count;
             Spec.True(count >= 2, "failed target is retried");
             Spec.True(count <= 5, "retries are bounded by backoff, saw " + count);
@@ -136,7 +136,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         private static void StopActorsWaitsForTerminalMove()
         {
             var rig = new ControllerRig();
-            rig.Controller.Tick(1, 1);
+            rig.Controller.Tick(1);
             Spec.Equal(1, rig.Move.Requests.Count, "move running");
 
             var stop = rig.Controller.StopActors(new[] { "npc.a", "space.map.t" });

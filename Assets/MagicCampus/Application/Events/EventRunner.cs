@@ -13,7 +13,7 @@ namespace MagicCampus.Events
     /// Failure, cancel and timeout cancel children, wait for every child to be terminal, close owned display, restore the entry map and state
     /// (scene only) and release pause then lease last. A commit that already happened is never undone.
     /// </summary>
-    public sealed class EventRunner : IEventRunner, IRuntimeTick
+    public sealed class EventRunner
     {
         public const int MaxImmediatePerTick = 64;
         public const string WorldResource = "snapshot.world";
@@ -67,7 +67,6 @@ namespace MagicCampus.Events
             public bool EntryCaptured;
             public Phase Phase;
             public readonly List<Frame> Stack = new List<Frame>();
-            public readonly List<OperationResult> Staged = new List<OperationResult>();
             public readonly HashSet<IHandle> Live = new HashSet<IHandle>();
             public readonly List<Diagnostic> Notes = new List<Diagnostic>();
             public int Gen;
@@ -174,7 +173,7 @@ namespace MagicCampus.Events
             var scene = def.Mode == ExecutionMode.Scene;
             var resources = new List<string>(def.Resources);
             if (scene) resources.Add(WorldResource);
-            var leased = d.Leases.TryAcquire(new LeaseRequest(request.OwnerToken, resources, CandidatePriority.Event, Math.Max(0L, d.Clock.Tick), request.InputSequence));
+            var leased = d.Leases.TryAcquire(new LeaseRequest(request.OwnerToken, resources));
             if (!leased.Succeeded) return Refuse(request, leased.Result.Code, leased.Result.Details);
 
             PauseToken token = null;
@@ -284,10 +283,9 @@ namespace MagicCampus.Events
 
         // ------------------------------------------------------------------ tick
 
-        public void Tick(double simulationSeconds, double unpausedSeconds)
+        public void Tick(double seconds)
         {
-            if (double.IsNaN(simulationSeconds) || double.IsInfinity(simulationSeconds) || simulationSeconds < 0) throw new ArgumentOutOfRangeException(nameof(simulationSeconds));
-            if (double.IsNaN(unpausedSeconds) || double.IsInfinity(unpausedSeconds) || unpausedSeconds < 0) throw new ArgumentOutOfRangeException(nameof(unpausedSeconds));
+            PortGuard.NonNegative(seconds, nameof(seconds));
             var runs = active.ToArray();
             foreach (var run in runs) run.Budget = 0;
             foreach (var run in runs)
@@ -295,7 +293,7 @@ namespace MagicCampus.Events
                 if (run.Phase == Phase.Done) continue;
                 if (run.Closing && run.RecoveryLoad != null && !run.RecoveryCancelRequested)
                 {
-                    run.RecoveryElapsed += unpausedSeconds;
+                    run.RecoveryElapsed += seconds;
                     if (run.RecoveryElapsed >= d.RecoveryTimeoutSeconds)
                     {
                         run.RecoveryCancelRequested = true;
@@ -305,7 +303,7 @@ namespace MagicCampus.Events
                 }
                 if (!run.Closing && !run.Committed)
                 {
-                    run.Elapsed += unpausedSeconds;
+                    run.Elapsed += seconds;
                     if (run.Elapsed >= d.EventTimeoutSeconds)
                     {
                         Abort(run, Fail(ResultCodes.Timeout, "event watchdog expired", null, d.EventTimeoutSeconds.ToString(CultureInfo.InvariantCulture), run.Elapsed.ToString(CultureInfo.InvariantCulture)));
@@ -527,9 +525,7 @@ namespace MagicCampus.Events
         {
             double seconds;
             if (!ReqNumber(run, call, "seconds", out seconds)) return;
-            var h = d.Clock.Delay(seconds, run.Owner);
-            if (h == null) { PortNull(run, call, "Delay"); return; }
-            Launch(run, frame, call, h, null, null, null, null);
+            Launch(run, frame, call, d.Clock.Delay(seconds), null, null, null, null);
         }
 
         private void ExecCamera(Run run, Frame frame, CompiledCall call)
@@ -784,7 +780,7 @@ namespace MagicCampus.Events
                 });
                 return;
             }
-            var planned = d.CommitPlanner.PlanCommit(run.Def, new EffectContext(snapshot, run.Txn, run.Def.Completion, run.Staged));
+            var planned = d.CommitPlanner.PlanCommit(run.Def, new EffectContext(snapshot, run.Txn, run.Def.Completion, null));
             if (!planned.Succeeded) { Abort(run, FailureFrom(planned.Result)); return; }
             var plan = planned.Value;
             if (!plan.TransactionId.Equals(run.Txn) || plan.ExpectedRevision != snapshot.Revision)
@@ -809,7 +805,7 @@ namespace MagicCampus.Events
             active.Remove(run);
             Guard(run, "notify boundary", () => d.Boundaries.Notify(run.Scene ? SafeBoundary.SceneComplete : SafeBoundary.RoomSafe, d.Store.Current));
             CompletionKey? completion = run.Def.Repeat == RepeatPolicy.Once ? run.Def.Completion ?? new CompletionKey(run.Def.Id) : (CompletionKey?)null;
-            run.Handle.Succeed(new EventCompletion(run.Def.Id, completion, revision, run.Staged), revision);
+            run.Handle.Succeed(new EventCompletion(run.Def.Id, completion, revision, null), revision);
             AutoSave();
         }
 
@@ -975,7 +971,7 @@ namespace MagicCampus.Events
         {
             var trace = d.Trace;
             if (trace == null) return;
-            trace(new EventTraceEntry(d.Clock.Tick, ++traceSeq, d.Store.Current.Revision, eventId, call, phase));
+            trace(new EventTraceEntry(d.Clock.TickCount,++traceSeq, d.Store.Current.Revision, eventId, call, phase));
         }
     }
 }

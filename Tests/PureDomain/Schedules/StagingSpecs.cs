@@ -174,7 +174,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             var rig = new StageRig();
             var handle = rig.Service.Stage(Reserved(), FullLease());
             rig.Rt.Step();
-            rig.Service.Tick(0, 61);
+            rig.Service.Tick(61);
             Spec.Equal(1, rig.Map.CancelReasons.Count, "watchdog cancels the child");
             rig.Map.Loads[0].Cancelled("watchdog", 0);
             rig.Rt.Step();

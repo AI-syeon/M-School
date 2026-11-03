@@ -56,12 +56,12 @@ namespace MagicCampus.Tests.Storage
             {
                 var p = Bytes(1, 5000);
                 var h = r.Store.Write(1, p);
-                r.Store.Tick(0.1, 0.1);
+                r.Store.Tick();
                 Check.True(!h.Status.IsTerminal(), "write must not finish in one tick");
                 Check.Equal(1, Directory.GetFiles(r.Box.Root, "*.tmp").Length, "temp file visible while writing");
                 Check.True(!File.Exists(r.Store.PathFor(1)), "final file must not exist before Replace");
                 var ticks = 1;
-                while (!h.Status.IsTerminal() && ticks < 64) { r.Store.Tick(0.1, 0.1); ticks++; }
+                while (!h.Status.IsTerminal() && ticks < 64) { r.Store.Tick(); ticks++; }
                 Check.Equal(8, ticks, "one phase per tick");
                 Check.Equal(OperationStatus.Succeeded, h.Status, "write status");
                 Check.Equal(1L, h.Terminal.Revision, "revision is the generation");
@@ -181,7 +181,7 @@ namespace MagicCampus.Tests.Storage
                 r.Drive(h);
                 var terminal = h.Terminal;
                 h.Cancel("third after terminal");
-                r.Store.Tick(0.1, 0.1);
+                r.Store.Tick();
                 Check.Equal(OperationStatus.Cancelled, h.Status, "cancelled");
                 Check.Equal(1, terminalCalls, "terminal callback exactly once");
                 Check.True(ReferenceEquals(terminal, h.Terminal), "terminal never changes");
@@ -462,7 +462,7 @@ namespace MagicCampus.Tests.Storage
             using (var r = new Rig())
             {
                 var h = r.Store.Write(1, Bytes(50, 80));
-                for (var i = 0; i < 3; i++) r.Store.Tick(0.1, 0.1);
+                for (var i = 0; i < 3; i++) r.Store.Tick();
                 Check.Equal(1, Directory.GetFiles(r.Box.Root, "*.tmp").Length, "temp present mid-write");
                 r.Store.Shutdown();
                 Check.Equal(OperationStatus.Cancelled, h.Status, "cancelled by shutdown");
@@ -485,7 +485,7 @@ namespace MagicCampus.Tests.Storage
 
                 var ha = r.Store.Write(2, a);
                 var hb = r.Store.Write(3, b);
-                for (var i = 0; i < 64 && (!ha.Status.IsTerminal() || !hb.Status.IsTerminal()); i++) r.Store.Tick(0.1, 0.1);
+                for (var i = 0; i < 64 && (!ha.Status.IsTerminal() || !hb.Status.IsTerminal()); i++) r.Store.Tick();
                 Check.Succeeded(ha, "interleaved A");
                 Check.Succeeded(hb, "interleaved B");
                 Check.Bytes(a, r.ReadDone(2).Value.Bytes.ToArray(), "gen 2 is A");
@@ -545,7 +545,7 @@ namespace MagicCampus.Tests.Storage
             for (var i = 0; i < 64; i++)
             {
                 if (h.Status.IsTerminal()) return;
-                store.Tick(0.016, 0.016);
+                store.Tick();
             }
             if (!h.Status.IsTerminal()) throw new InvalidOperationException("operation did not reach a terminal state");
         }

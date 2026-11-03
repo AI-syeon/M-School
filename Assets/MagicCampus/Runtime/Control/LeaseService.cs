@@ -26,7 +26,7 @@ namespace MagicCampus.Runtime
 
         public Outcome<Lease> TryAcquire(LeaseRequest request)
         {
-            RuntimeGuard.Required(request, nameof(request));
+            PortGuard.Required(request, nameof(request));
             var busy = new List<Diagnostic>();
             foreach (var r in request.Resources)
             {

@@ -49,7 +49,7 @@ namespace MagicCampus.Runtime
 
         public void Release(PauseToken token)
         {
-            RuntimeGuard.Required(token, nameof(token));
+            PortGuard.Required(token, nameof(token));
             PauseToken held;
             if (tokens.TryGetValue(token.TokenId, out held) && ReferenceEquals(held, token))
             {
