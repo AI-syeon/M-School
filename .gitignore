@@ -16,3 +16,5 @@
 /.claude/worktrees/
 /Tests/Results/stage4-disk-*/
 /Tests/Results/stage4-graph-*/
+/Tests/Results/stage2-*.json
+/Tests/Results/refactor/
