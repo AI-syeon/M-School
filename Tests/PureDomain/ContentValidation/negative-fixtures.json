@@ -1,0 +1,979 @@
+{
+  "source": "unchanged full-design/tools/validate.cjs mutations; expected codes preserved",
+  "cases": [
+    {
+      "name": "unknown-field",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [
+          {
+            "op": "add",
+            "path": "/spells/0/typo",
+            "value": 1
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "negative-cost",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/spells/0/focusCost",
+            "value": -1
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "unknown-template",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [
+          {
+            "op": "add",
+            "path": "/spells/0/template",
+            "value": "anything"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "duplicate-id",
+      "expectedCode": "DUPLICATE_ID",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/items/1/id",
+            "value": "item.plant_1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "missing-recipe-output",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/recipes/0/outputItemId",
+            "value": "item.missing"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "growth-out-of-range",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/plants/0/growthDays",
+            "value": 5
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "cross-case-gate",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [
+          {
+            "op": "add",
+            "path": "/story/0/externalCasePrerequisites/0",
+            "value": "case.b"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "reverse-internal-node",
+      "expectedCode": "NODE_ORDER",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/id",
+            "value": "node.a3"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/sourceId",
+            "value": "A3"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/description",
+            "value": "A3 인형 냉각 후 수리 또는 우회 수로 정상화. 식당 분수 복구"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/evidenceId",
+            "value": "evidence.a3"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/roomId",
+            "value": "room.case_a3"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/encounterId",
+            "value": "encounter.a3"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/goals",
+            "value": "observe: observe object.a3_target_0 observed / device: setState object.a3_target_1 supply_stopped count=2 / repair: apply object.a3_target_2 repaired"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/hints",
+            "value": "observation \"인형 옆 배관과 두 밸브를 살펴보세요.\" goal=observe / property \"냉각하거나 마력 공급을 끊으면 회전이 멈춥니다.\" goal=device / action \"옆 유지보수 길에서 밸브 두 개를 잠그고 공구로 명령 부품을 수리하세요.\" goal=repair"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/id",
+            "value": "node.a1"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/sourceId",
+            "value": "A1"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/description",
+            "value": "A1 식당의 뜨거운 물이 사라져 공급 경로 추적"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/evidenceId",
+            "value": "evidence.a1"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/roomId",
+            "value": "room.case_a1"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/encounterId",
+            "value": null
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/goals",
+            "value": "observe: observe object.a1_target_0 observed / device: setState object.a1_target_1 supply_stopped count=2 / repair: apply object.a1_target_2 repaired"
+          },
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/2/hints",
+            "value": "observation \"방에서 강조된 조작 대상의 상태를 관찰하세요.\" goal=observe / property \"대상의 성질과 입구 대여 도구의 같은 성질을 비교하세요.\" goal=device / action \"수첩의 현재 목표 순서대로 도구를 적용하고 변경된 상태를 확인하세요.\" goal=repair"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "path-result-difference",
+      "expectedCode": "ROUTE_MISMATCH",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/story/0/deviceOutcome",
+            "value": "outcome.other"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "project-and-gate",
+      "expectedCode": "PROJECT_OR",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/projects/0/when",
+            "value": "completed class.water_basic / discovered case.b"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "staff-romance",
+      "expectedCode": "ROMANCE_SCOPE",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/relationships/20/romanceVariant",
+            "value": true
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "bad-relation-order",
+      "expectedCode": "RELATION_ORDER",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/relationships/1/previousId",
+            "value": "relation.r30"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "profit-loop",
+      "expectedCode": "CRAFT_PROFIT",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/items/21/saleBasePrice",
+            "value": 99999
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "bad-substitute-slot",
+      "expectedCode": "SUBSTITUTE_SLOT",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/recipes/0/substitutes",
+            "value": "calm 3 slot=4"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "missing-alchemy-property",
+      "expectedCode": "ALCHEMY_PROPERTIES",
+      "patches": {
+        "catalog": [
+          {
+            "op": "remove",
+            "path": "/recipes/0/requiredProperties/1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "negative-wallet",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/wallet",
+            "value": -1
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "stack-overflow",
+      "expectedCode": "STACK_LIMIT",
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/stacks/0/quantity",
+            "value": 100
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "loan-no-scope",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/stacks/0/provenance",
+            "value": "loan"
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "unknown-save-plant",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/plots/0/plantId",
+            "value": "plant.missing"
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "future-save",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/saveVersion",
+            "value": 99
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "duplicate-ledger",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/rewardLedger/0",
+            "value": "reward.x"
+          },
+          {
+            "op": "replace",
+            "path": "/rewardLedger/1",
+            "value": "reward.x"
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "unknown-perform",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/11/script",
+            "value": "perform class activity.missing mode=practice"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-effects",
+      "expectedCode": null,
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "remove",
+            "path": "/events/11/effects"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown-command",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/11/script",
+            "value": "eval \"anything\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "count-drift",
+      "expectedCode": "BUDGET_COUNT",
+      "patches": {
+        "catalog": [
+          {
+            "op": "remove",
+            "path": "/classes/23"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "undefined-encounter-save",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/defeats/0/encounterId",
+            "value": "encounter.missing"
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "enemy-instead-of-encounter",
+      "expectedCode": "REF_KIND",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/5/script",
+            "value": "perform encounter enemy.cleaner"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-main-room-help",
+      "expectedCode": "ROOM_HELP",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/hints",
+            "value": ""
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "living-seed-combo-bypass",
+      "expectedCode": "COMBO_BYPASS",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/spells/4/resultTag",
+            "value": "opened_seed"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "room-locks-player",
+      "expectedCode": "ROOM_SCENE_CONFLICT",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "add",
+            "path": "/events/5/resources/1",
+            "value": "input.player"
+          }
+        ]
+      }
+    },
+    {
+      "name": "no-intro-gate",
+      "expectedCode": "INTRO_GATE",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/classes/4/requiresIntro",
+            "value": false
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "save-completion-disagreement",
+      "expectedCode": "SAVE_COMPLETION_MISMATCH",
+      "patches": {
+        "catalog": [],
+        "save": [
+          {
+            "op": "replace",
+            "path": "/classRecords/0/completed",
+            "value": false
+          }
+        ],
+        "runner": []
+      }
+    },
+    {
+      "name": "practice-gives-reward",
+      "expectedCode": "PRACTICE_REWARD",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/11/effects",
+            "value": "experience.record npc.serin class.water_basic class participationOnly=true / currency.add 1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "double-class-time",
+      "expectedCode": "DOUBLE_CLASS_TIME",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/3/costMinutes",
+            "value": 60
+          }
+        ]
+      }
+    },
+    {
+      "name": "fine-cooking-unreachable",
+      "expectedCode": "FINE_UNREACHABLE",
+      "patches": {
+        "catalog": [
+          {
+            "op": "remove",
+            "path": "/recipes/12/allowedFacilityIds/1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "record-cannot-get-light",
+      "expectedCode": "LANTERN_RECORD_UNREACHABLE",
+      "patches": {
+        "catalog": [
+          {
+            "op": "remove",
+            "path": "/spells/0/acceptTargetTags/1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "case-reward-outside-node-boundary",
+      "expectedCode": "CASE_REWARD_BOUNDARY",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/10/effects",
+            "value": "evidence.add evidence.a3 / case.reward case.a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-unclosed-quote",
+      "expectedCode": "PARSE_ERROR",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/0/script",
+            "value": "move npc.serin dest.snack / say npc.serin \"실습 노트를"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-negated-effect",
+      "expectedCode": "PARSE_ERROR",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/10/effects",
+            "value": "evidence.add evidence.a3 / !complete node.a3 / case.reward case.a"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-stage-without-label",
+      "expectedCode": "PARSE_ERROR",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/finalDefinition/stages",
+            "value": "stabilizeChannel / flow_2: stabilizeChannel"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-unregistered-behavior",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/enemies/0/behavior",
+            "value": "charge / teleport"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-commit-command-removed",
+      "expectedCode": "UNKNOWN_FUNCTION",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/3/script",
+            "value": "perform class class.water_basic / commit"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-move-without-destination",
+      "expectedCode": "ARG_COUNT",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/1/script",
+            "value": "move npc.mira / camera dest.stage 0.5 async=cam / animate npc.mira wave 0.5 async=wave / await cam wave / say npc.mira \"교정에서 여기까지 길을 따라 왔어. 무대를 준비하자.\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-say-extra-argument",
+      "expectedCode": "ARG_COUNT",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/0/forks/tea",
+            "value": "say npc.serin \"좋아\" \"추가\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-timeout-not-number",
+      "expectedCode": "ARG_TYPE",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/1/script",
+            "value": "move npc.mira dest.stage timeout=abc portals=true / camera dest.stage 0.5 async=cam / animate npc.mira wave 0.5 async=wave / await cam wave / say npc.mira \"교정에서 여기까지 길을 따라 왔어. 무대를 준비하자.\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-weakness-multiplier-format",
+      "expectedCode": "ARG_TYPE",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/enemies/0/weak",
+            "value": "wet times2 disable=2"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-variable-type-mismatch",
+      "expectedCode": "ARG_TYPE",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/0/when",
+            "value": "eq story.intro_done 3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-schedule-not-ascending",
+      "expectedCode": "ARG_TYPE",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/schedules/0/script",
+            "value": "720 dest.snack / 420 home"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-missing-ingredient-item",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/recipes/0/ingredients",
+            "value": "item.missing 3 / item.plant_2 1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-missing-goal-label",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/6/script",
+            "value": "perform puzzle room.case_a3:valve"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-hint-goal-not-in-room",
+      "expectedCode": "REF_NOT_FOUND",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/hints",
+            "value": "observation \"방에서 강조된 조작 대상의 상태를 관찰하세요.\" goal=nope / property \"대상의 성질과 입구 대여 도구의 같은 성질을 비교하세요.\" goal=device / action \"수첩의 현재 목표 순서대로 도구를 적용하고 변경된 상태를 확인하세요.\" goal=repair"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-npc-as-encounter-enemy",
+      "expectedCode": "REF_KIND",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/encounters/0/enemies",
+            "value": "npc.serin 1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-device-goal-is-stage",
+      "expectedCode": "REF_KIND",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/encounters/6/deviceGoalIds/0",
+            "value": "final.practical:flow_1"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-duplicate-goal-label",
+      "expectedCode": "LABEL_DUP",
+      "patches": {
+        "catalog": [
+          {
+            "op": "replace",
+            "path": "/story/0/nodes/0/goals",
+            "value": "observe: observe object.a1_target_0 observed / device: setState object.a1_target_1 supply_stopped count=2 / device: apply object.a1_target_2 repaired"
+          }
+        ],
+        "save": [],
+        "runner": []
+      }
+    },
+    {
+      "name": "call-missing-fork",
+      "expectedCode": "FORK_NOT_FOUND",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "remove",
+            "path": "/events/0/forks/tea"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-unused-fork",
+      "expectedCode": "FORK_UNUSED",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "add",
+            "path": "/events/0/forks/extra",
+            "value": "say npc.serin \"쓰지 않는 가지\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-handle-not-awaited",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/1/script",
+            "value": "move npc.mira dest.stage timeout=30 portals=true / camera dest.stage 0.5 async=cam / animate npc.mira wave 0.5 async=wave / say npc.mira \"교정에서 여기까지 길을 따라 왔어. 무대를 준비하자.\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-handle-left-open-at-end",
+      "expectedCode": "HANDLE_UNAWAITED",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/2/script",
+            "value": "move npc.serin dest.notice async=walk / wait 0.25"
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-two-writers-same-actor",
+      "expectedCode": "HANDLE_CONFLICT",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/1/script",
+            "value": "move npc.mira dest.stage / animate npc.mira wave 0.5 async=a / animate npc.mira bow 0.5 async=b / await a b / say npc.mira \"준비하자.\""
+          }
+        ]
+      }
+    },
+    {
+      "name": "call-handle-reused",
+      "expectedCode": "HANDLE_CONFLICT",
+      "patches": {
+        "catalog": [],
+        "save": [],
+        "runner": [
+          {
+            "op": "replace",
+            "path": "/events/1/script",
+            "value": "move npc.mira dest.stage / camera dest.stage 0.5 async=cam / await cam / camera dest.snack 0.5 async=cam / await cam / say npc.mira \"준비하자.\""
+          }
+        ]
+      }
+    }
+  ]
+}

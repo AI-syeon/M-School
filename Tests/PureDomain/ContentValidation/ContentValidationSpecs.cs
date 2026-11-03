@@ -141,7 +141,7 @@ namespace MagicCampus.Tests.ContentValidation
       e.CatalogSchema = e.Bundle("schemas/catalog.schema.json", File.ReadAllBytes(Path.Combine(fd, "schemas", "catalog.schema.json")), true);
       e.RunnerSchema = e.Bundle("schemas/runner.schema.json", File.ReadAllBytes(Path.Combine(fd, "schemas", "runner.schema.json")), true);
       e.SaveSchema = e.Bundle("schemas/save.schema.json", File.ReadAllBytes(Path.Combine(fd, "schemas", "save.schema.json")), true);
-      e.FixturesPath = Path.Combine(root, "design", "implementation-tasks", "execution", "2026-11-02-stage3", "negative-fixtures.json");
+      e.FixturesPath = Path.Combine(root, "Tests", "PureDomain", "ContentValidation", "negative-fixtures.json");
       return e;
     }
 
