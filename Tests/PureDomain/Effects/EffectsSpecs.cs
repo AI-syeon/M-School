@@ -89,24 +89,58 @@ namespace MagicCampus.Tests.Effects
             return new PlannedChange(EffectOperations.ParticipantId, op, payload);
         }
 
-        private static PlannedChange Setc(string variable, DataNode value)
+        private static Outcome<ChangeSet> PlanCalls(Rig r, string completionKey, params CompiledCall[] calls)
         {
-            return Ch(EffectOperations.Set, Fx.Obj(Fx.P("variable", Fx.S(variable)), Fx.P("value", value)));
+            var context = new EffectContext(r.Store.Current, Rig.Tx(), completionKey == null ? (CompletionKey?)null : new CompletionKey(completionKey), null);
+            return r.Effects.Plan(calls, context);
         }
 
-        private static PlannedChange Comp(string id)
+        private static PlannedChange PlanOne(Rig r, string completionKey, CompiledCall call)
         {
-            return Ch(EffectOperations.Complete, Fx.Obj(Fx.P("id", Fx.S(id))));
+            var planned = PlanCalls(r, completionKey, call);
+            Require(planned.Succeeded && planned.Value.Changes.Count == 1, "test effect plans");
+            return planned.Value.Changes[0];
         }
 
-        private static PlannedChange Cur(long amount)
+        private static CompiledCall SetCall(string variable, DataNode value)
         {
-            return Ch(EffectOperations.CurrencyAdd, Fx.Obj(Fx.P("amountCrowns", Fx.I(amount))));
+            return Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S(variable)), Fx.P("value", value));
         }
 
-        private static PlannedChange Done(string eventId, string key, string policy)
+        private static CompiledCall CompleteCall(string id)
         {
-            return Ch(EffectOperations.EventComplete, Fx.Obj(Fx.P("eventId", Fx.S(eventId)), Fx.P("completionKey", Fx.S(key)), Fx.P("repeatPolicy", Fx.S(policy))));
+            return Fx.Call(Fx.CompleteFn, false, Fx.P("id", Fx.S(id)));
+        }
+
+        private static CompiledCall CurrencyCall(DataNode amount)
+        {
+            return Fx.Call(Fx.CurrencyFn, false, Fx.P("amountCrowns", amount));
+        }
+
+        private static PlannedChange Setc(Rig r, string variable, DataNode value)
+        {
+            return PlanOne(r, null, SetCall(variable, value));
+        }
+
+        private static PlannedChange Comp(Rig r, string id)
+        {
+            return PlanOne(r, null, CompleteCall(id));
+        }
+
+        private static PlannedChange Cur(Rig r, long amount)
+        {
+            return PlanOne(r, "evt_intro", CurrencyCall(Fx.I(amount)));
+        }
+
+        private static PlannedChange Done(string eventId, string key, RepeatPolicy policy)
+        {
+            return EffectChange.EventComplete(eventId, key, policy);
+        }
+
+        private static void PlanRefused(Rig r, string completionKey, string code, string what, params CompiledCall[] calls)
+        {
+            var planned = PlanCalls(r, completionKey, calls);
+            Require(!planned.Succeeded && planned.Result.Code == code && planned.Value == null, what + " must be refused at planning with " + code);
         }
 
         private static void Unchanged(Rig r, StateSnapshot before, string what)
@@ -138,13 +172,13 @@ namespace MagicCampus.Tests.Effects
 
         private static void ConstructorGuards()
         {
-            Throws<ArgumentNullException>(() => new ConditionEvaluator((ICatalog)null));
-            Throws<ArgumentNullException>(() => new EventEffectsParticipant((ICatalog)null));
+            Throws<ArgumentNullException>(() => new ConditionEvaluator(null));
+            Throws<ArgumentNullException>(() => new EventEffectsParticipant(null));
+            Throws<ArgumentNullException>(() => new EffectPlanner(null));
             var catalog = Fx.DefaultCatalog();
-            Throws<ArgumentNullException>(() => new EventCommitPlanner(null, new FakeClockPlanner(), new FakeWorldProjector(), catalog));
-            Throws<ArgumentNullException>(() => new EventCommitPlanner(EffectPlanner.CreateMinimal(catalog), null, new FakeWorldProjector(), catalog));
-            Throws<ArgumentNullException>(() => new EventCommitPlanner(EffectPlanner.CreateMinimal(catalog), new FakeClockPlanner(), null, catalog));
-            Throws<ArgumentException>(() => new EffectPlanner(new IEffectHandler[] { new CurrencyAddEffectHandler(), new CurrencyAddEffectHandler() }));
+            Throws<ArgumentNullException>(() => new EventCommitPlanner(null, new FakeWorldProjector(), catalog));
+            Throws<ArgumentNullException>(() => new EventCommitPlanner(new FakeClockPlanner(), null, catalog));
+            Throws<ArgumentNullException>(() => new EventCommitPlanner(new FakeClockPlanner(), new FakeWorldProjector(), null));
         }
 
         private static void ConditionFalseReportsReasons()
@@ -244,9 +278,6 @@ namespace MagicCampus.Tests.Effects
 
             var call = Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S("clock.minute_of_day")), Fx.P("value", Fx.I(5)));
             Require(!r.Effects.Plan(new[] { call }, r.Context()).Succeeded, "set on clock refused by planner");
-            var before = r.Store.Current;
-            Require(!r.Store.Commit(P(r, null, Setc("clock.minute_of_day", Fx.I(5)))).Succeeded, "set on clock refused by participant");
-            Unchanged(r, before, "clock set");
             Require(AbsoluteMinute(r) == 2040, "absolute minute untouched");
         }
 
@@ -314,27 +345,34 @@ namespace MagicCampus.Tests.Effects
                 Require(!outcome.Succeeded, name + " must be refused");
                 Unchanged(r, before, name);
             };
-            refuse("zero currency", P(r, "evt_intro", Cur(0), Done("evt_intro", "evt_intro", "once")));
-            refuse("negative currency", P(r, "evt_intro", Cur(-5), Done("evt_intro", "evt_intro", "once")));
-            refuse("fractional currency", P(r, "evt_intro", Ch(EffectOperations.CurrencyAdd, Fx.Obj(Fx.P("amountCrowns", DataNode.FromNumber(2.5)))), Done("evt_intro", "evt_intro", "once")));
-            refuse("wallet schema maximum overflow", P(r, "evt_intro", Cur(int.MaxValue), Done("evt_intro", "evt_intro", "once")));
-            refuse("reward without ledger entry", P(r, "evt_intro", Cur(5)));
-            refuse("reward without completion", P(r, null, Cur(5), Done("evt_intro", "evt_intro", "once")));
-            refuse("wrong completion key", P(r, "evt_intro", Done("evt_intro", "other_key", "once")));
-            refuse("unknown event", P(r, "ghost", Done("ghost", "ghost", "once")));
-            refuse("policy mismatch", P(r, "evt_intro", Done("evt_intro", "evt_intro", "practice")));
-            refuse("duplicate event.complete", P(r, "evt_intro", Done("evt_intro", "evt_intro", "once"), Done("evt_intro", "evt_intro", "once")));
-            refuse("forged event completion key", P(r, null, Comp("evt_intro")));
-            refuse("undeclared flag", P(r, null, Setc("ghost_flag", Fx.B(true))));
-            refuse("flag type mismatch", P(r, null, Setc("gold_stars", Fx.B(true))));
-            refuse("flag range", P(r, null, Setc("gold_stars", Fx.I(99))));
-            refuse("clock flag", P(r, null, Setc("clock.minute_of_day", Fx.I(5))));
-            refuse("extra payload member", P(r, null, Ch(EffectOperations.Set, Fx.Obj(Fx.P("variable", Fx.S("met_mentor")), Fx.P("value", Fx.B(true)), Fx.P("extra", Fx.I(1))))));
-            refuse("unknown operation", P(r, null, Ch("item.grant", Fx.Obj())));
-            refuse("valid changes followed by an unknown one", P(r, "evt_intro", Setc("met_mentor", Fx.B(true)), Comp("intro_seen"), Ch("spell.learn", Fx.Obj())));
-            refuse("foreign revision", new StatePlan(Rig.Tx(), null, r.Store.Current.Revision + 7, new[] { Setc("met_mentor", Fx.B(true)) }));
+            PlanRefused(r, "evt_intro", ResultCodes.InvariantViolation, "zero currency", CurrencyCall(Fx.I(0)));
+            PlanRefused(r, "evt_intro", ResultCodes.InvariantViolation, "negative currency", CurrencyCall(Fx.I(-5)));
+            PlanRefused(r, "evt_intro", ResultCodes.ArgType, "fractional currency", CurrencyCall(DataNode.FromNumber(2.5)));
+            PlanRefused(r, "evt_intro", ResultCodes.InvariantViolation, "wallet schema maximum overflow", CurrencyCall(Fx.I(int.MaxValue)));
+            PlanRefused(r, null, ResultCodes.TransactionMismatch, "reward without completion", CurrencyCall(Fx.I(5)));
+            PlanRefused(r, null, ResultCodes.ContentInvalid, "forged event completion key", CompleteCall("evt_intro"));
+            PlanRefused(r, null, ResultCodes.RefNotFound, "undeclared flag", SetCall("ghost_flag", Fx.B(true)));
+            Require(!PlanCalls(r, null, SetCall("gold_stars", Fx.B(true))).Succeeded, "flag type mismatch must be refused at planning");
+            Require(!PlanCalls(r, null, SetCall("gold_stars", Fx.I(99))).Succeeded, "flag range must be refused at planning");
+            Require(!PlanCalls(r, null, SetCall("clock.minute_of_day", Fx.I(5))).Succeeded, "clock flag must be refused at planning");
 
-            var ok = r.Store.Commit(P(r, "evt_intro", Setc("met_mentor", Fx.B(true)), Comp("intro_seen"), Cur(25), Done("evt_intro", "evt_intro", "once")));
+            refuse("reward without ledger entry", P(r, "evt_intro", Cur(r, 5)));
+            refuse("reward without plan completion", P(r, null, Cur(r, 5), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
+            refuse("wrong completion key", P(r, "evt_intro", Done("evt_intro", "other_key", RepeatPolicy.Once)));
+            refuse("unknown event", P(r, "ghost", Done("ghost", "ghost", RepeatPolicy.Once)));
+            refuse("policy mismatch", P(r, "evt_intro", Done("evt_intro", "evt_intro", RepeatPolicy.Practice)));
+            refuse("duplicate event.complete", P(r, "evt_intro", Done("evt_intro", "evt_intro", RepeatPolicy.Once), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
+            refuse("duplicate completion inside one plan", P(r, null, Comp(r, "intro_seen2"), Comp(r, "intro_seen2")));
+            var early = Comp(r, "recorded_later");
+            Require(r.Store.Commit(P(r, null, Comp(r, "recorded_later"))).Succeeded, "completion recorded");
+            refuse("completion already recorded", P(r, null, early));
+            refuse("summed rewards overflow the wallet", P(r, "evt_intro", Cur(r, int.MaxValue - 100), Cur(r, int.MaxValue - 100), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
+            refuse("unplanned operation", P(r, null, Ch("item.grant", Fx.Obj())));
+            refuse("unplanned known operation", P(r, null, Ch(EffectOperations.Set, Fx.Obj(Fx.P("variable", Fx.S("met_mentor")), Fx.P("value", Fx.B(true))))));
+            refuse("valid changes followed by an unknown one", P(r, "evt_intro", Setc(r, "met_mentor", Fx.B(true)), Comp(r, "intro_seen"), Ch("spell.learn", Fx.Obj())));
+            refuse("foreign revision", new StatePlan(Rig.Tx(), null, r.Store.Current.Revision + 7, new[] { Setc(r, "met_mentor", Fx.B(true)) }));
+
+            var ok = r.Store.Commit(P(r, "evt_intro", Setc(r, "met_mentor", Fx.B(true)), Comp(r, "intro_seen"), Cur(r, 25), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
             Require(ok.Succeeded && Crowns(r) == 125, "the same rig accepts a valid plan");
         }
 
@@ -367,8 +405,8 @@ namespace MagicCampus.Tests.Effects
         private static void RevisionConflictThroughStore()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            var stale = P(r, null, Setc("met_mentor", Fx.B(true)));
-            Require(r.Store.Commit(P(r, null, Setc("gold_stars", Fx.I(2)))).Succeeded, "first commit");
+            var stale = P(r, null, Setc(r, "met_mentor", Fx.B(true)));
+            Require(r.Store.Commit(P(r, null, Setc(r, "gold_stars", Fx.I(2)))).Succeeded, "first commit");
             var mid = r.Store.Current;
             var outcome = r.Store.Commit(stale);
             Require(!outcome.Succeeded && outcome.Result.Code == ResultCodes.RevisionConflict, "stale plan conflicts");
@@ -376,7 +414,7 @@ namespace MagicCampus.Tests.Effects
 
             var oldContext = r.Context();
             var plan = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_intro"), oldContext).Value;
-            Require(r.Store.Commit(P(r, null, Setc("gold_stars", Fx.I(3)))).Succeeded, "interleaved commit");
+            Require(r.Store.Commit(P(r, null, Setc(r, "gold_stars", Fx.I(3)))).Succeeded, "interleaved commit");
             var afterInterleave = r.Store.Current;
             var conflict = r.Store.Commit(plan);
             Require(!conflict.Succeeded && conflict.Result.Code == ResultCodes.RevisionConflict, "event plan from an old basis conflicts");
@@ -399,7 +437,7 @@ namespace MagicCampus.Tests.Effects
 
             var second = r.Planner.PlanCommit(evt, r.Context());
             Require(!second.Succeeded && second.Result.Code == ResultCodes.ConditionFalse, "new transaction for a consumed completion is refused at planning");
-            var forced = P(r, "evt_intro", Cur(25), Done("evt_intro", "evt_intro", "once"));
+            var forced = P(r, "evt_intro", Cur(r, 25), Done("evt_intro", "evt_intro", RepeatPolicy.Once));
             Require(!r.Store.Commit(forced).Succeeded, "participant refuses a forced repeat");
             Unchanged(r, afterFirst, "forced repeat");
             Require(r.Store.Current.Slice("rewardLedger").Items.Count == 1, "ledger has one entry");
@@ -523,7 +561,7 @@ namespace MagicCampus.Tests.Effects
             Require(!reward.Succeeded, "practice reward refused");
             var withCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("evt_practice"), null);
             Require(!r.Planner.PlanCommit(practice, withCompletion).Succeeded, "practice with a completion key refused");
-            Require(!r.Store.Commit(P(r, "evt_practice", Done("evt_practice", "evt_practice", "practice"))).Succeeded, "practice event.complete with a completion refused");
+            Require(!r.Store.Commit(P(r, "evt_practice", Done("evt_practice", "evt_practice", RepeatPolicy.Practice))).Succeeded, "practice event.complete with a completion refused");
         }
 
         private static void PlanOrderAndStoreRefusesUnregisteredParticipants()

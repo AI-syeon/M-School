@@ -228,8 +228,8 @@ namespace MagicCampus.Tests.Effects
             Fx.Require(registry.Register(new FakeClockParticipant()).Status == OperationStatus.Succeeded, "register fake clock");
             registry.Seal();
             Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), registry, new IStateInvariant[0], new CompletionPump());
-            Effects = EffectPlanner.CreateMinimal(catalog);
-            Planner = new EventCommitPlanner(Effects, Clock, World, catalog);
+            Effects = new EffectPlanner(catalog);
+            Planner = new EventCommitPlanner(Clock, World, catalog);
             Conditions = new ConditionEvaluator(catalog);
         }
 

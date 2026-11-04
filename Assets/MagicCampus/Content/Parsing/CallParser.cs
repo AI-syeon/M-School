@@ -9,7 +9,7 @@ namespace MagicCampus.Content.Parsing
     /// Syntax-only parser for function-call cells. It does not look at the function dictionary, references, forks or handles.
     /// The first syntax error fails the whole cell (PARSE_ERROR) and no partial list is returned.
     /// </summary>
-    public sealed class CallParser : ICallParser
+    public sealed class CallParser
     {
         public Outcome<CallList> Parse(CallKind kind, string text, string file, string pointer, string entityId)
         {

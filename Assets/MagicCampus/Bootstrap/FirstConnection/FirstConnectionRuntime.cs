@@ -186,7 +186,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         if (!compiledOutcome.Succeeded) throw new InvalidOperationException("catalog compile failed: " + Describe(compiledOutcome.Result));
         Compiled = compiledOutcome.Value;
         saveSchema = ReadBundle(Path.Combine(baseDir, "schemas", "save.schema.json")).Root;
-        Provider = new CatalogProvider(compiler, Compiled);
+        Provider = new CatalogProvider(Compiled);
 
         var runnerRoot = Compiled.FindDefinition("runner", "root");
         DataNode mapsNode;
@@ -259,11 +259,11 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Staging = new ReservedStagingService(Actors, Maps, CollisionPort, Handles, PlanJoin, SetHidden, ids => Scheduler.StopActors(ids));
         LoadRecipes(variantDir, baseDir);
 
-        var planner = new EventCommitPlanner(EffectPlanner.CreateMinimal(Compiled), Clock, Projector, Compiled);
+        var planner = new EventCommitPlanner(Clock, Projector, Compiled);
         var deps = new EventRunnerDependencies
         {
           Catalog = Provider,
-          Conditions = new ConditionEvaluator(Provider),
+          Conditions = new ConditionEvaluator(Compiled),
           Leases = Leases,
           Pauses = Pause,
           Moves = Moves,

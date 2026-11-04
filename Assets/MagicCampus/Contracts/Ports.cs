@@ -212,7 +212,7 @@ namespace MagicCampus.Contracts
     }
 
     /// <summary>One domain operation addressed to a registered participant; Payload is validated by that participant only.</summary>
-    public sealed class PlannedChange
+    public class PlannedChange
     {
         public string ParticipantId { get; }
         public string Operation { get; }
@@ -559,12 +559,6 @@ namespace MagicCampus.Contracts
             => new SourceLocation(File, Pointer, EntityId, EntityId + "#" + node.Index, node.Span.Offset + offsetInCall);
     }
 
-    public interface ICallParser
-    {
-        /// <summary>Syntax only. Any error yields a failed Outcome with diagnostics and no partial list.</summary>
-        Outcome<CallList> Parse(CallKind kind, string text, string file, string pointer, string entityId);
-    }
-
     // ---------------------------------------------------------------- function dictionary
 
     public enum FunctionRole { Trigger, Command, Condition, Effect, ScheduleEntry, Goal, Hint, Behavior, Weakness, ReactionPath, EncounterEnemy, ItemQuantity, ItemGrant, Substitute, FinalStage }
@@ -606,15 +600,6 @@ namespace MagicCampus.Contracts
             Params = PortGuard.Opt(parameters, nameof(parameters)); Raw = raw ?? DataNode.Null;
         }
     }
-
-    public interface IFunctionDictionary
-    {
-        DataNode Source { get; } // full registry, including kind nameRule, named params, groups and all validation metadata
-        IReadOnlyList<FunctionDef> All { get; }
-        FunctionDef Find(FunctionRole role, string name);   // null when unknown
-    }
-
-    public interface IFunctionDictionaryLoader { Outcome<IFunctionDictionary> Load(DataNode functionsJson); }
 
     // ---------------------------------------------------------------- compiled calls, events, catalog
 
@@ -702,18 +687,9 @@ namespace MagicCampus.Contracts
         DataNode FindDefinition(string kind, string id);       // raw definition Row, null when unknown
     }
 
-    public interface ICatalogCompiler
-    {
-        Outcome<ICatalog> Compile(ContentBundle catalog, ContentBundle runner, ContentBundle functions,
-            ContentBundle catalogSchema, ContentBundle runnerSchema);
-    }
-
     public interface ICatalogProvider
     {
         ICatalog Current { get; }
-        /// <summary>A failed bundle is rejected whole and Current stays the previous valid catalog.</summary>
-        Outcome<ICatalog> TryReplace(ContentBundle catalog, ContentBundle runner, ContentBundle functions,
-            ContentBundle catalogSchema, ContentBundle runnerSchema);
     }
 
     // ---------------------------------------------------------------- conditions and effects
@@ -763,19 +739,6 @@ namespace MagicCampus.Contracts
             Basis = PortGuard.Required(basis, nameof(basis)); TransactionId = transactionId; Completion = completion;
             Staged = PortGuard.Opt(staged, nameof(staged));
         }
-    }
-
-    public interface IEffectHandler
-    {
-        string FunctionName { get; }
-        string ParticipantId { get; }
-        Outcome<ChangeSet> Plan(CompiledCall call, EffectContext context);
-    }
-
-    public interface IEffectPlanner
-    {
-        /// <summary>All effects or none. A function without a registered handler refuses the whole list with UNREGISTERED.</summary>
-        Outcome<ChangeSet> Plan(IReadOnlyList<CompiledCall> effects, EffectContext context);
     }
 
     // ---------------------------------------------------------------- presentation

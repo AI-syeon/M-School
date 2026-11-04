@@ -48,7 +48,7 @@ namespace MagicCampus.Tests.FirstConnectionData
             foreach(bool cancel in new[]{false,true})
             {
                 var compiled=Compile("base/runner-bundle.json").Value;
-                var provider=new CatalogProvider(new CatalogCompiler(new CallParser(),Schema),compiled);
+                var provider=new CatalogProvider(compiled);
                 var initial=new StateSnapshot(0,Read(Root+"base/save-accepted.json").Root);
                 var pump=new CompletionPump();var handles=new HandleFactory(pump);var pause=new PauseService();var leases=new LeaseService();var ticks=new TickClock(handles);
                 var grid=new TestWorld();var maps=new TestMapPort(handles,"map.courtyard");
@@ -73,7 +73,7 @@ namespace MagicCampus.Tests.FirstConnectionData
                 var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema));
                 var saves=new SaveService(policy,new SaveCodec(Codec),disk,restorer,store,provider,handles);var ui=new GraphPresentation(handles,actors,target);bool hidden=false;
                 var staging=new ReservedStagingService(actors,maps,grid,handles,(definition,lease)=>Outcome<ReservedJoinPlan>.Ok(new ReservedJoinPlan("map.lounge",new[]{new ReservedActorPlacement("player",new Position("map.lounge",.5,2.5)),new ReservedActorPlacement("npc.serin",new Position("map.lounge",.5,2.5))}),store.Current.Revision),value=>{if(value)Check(disk.ListCandidates().Count>0,"entry physically saved before hiding/staging");hidden=value;},null);
-                var runner=new EventRunner(new EventRunnerDependencies{Catalog=provider,Conditions=new ConditionEvaluator(provider),Leases=leases,Pauses=pause,Moves=moves,Destinations=resolver,Presentation=ui,PresentationLifetime=ui,Clock=ticks,CommitPlanner=new EventCommitPlanner(EffectPlanner.CreateMinimal(compiled),clock,projector,compiled),Store=store,Projector=projector,Recovery=new SceneRecovery(actors),Boundaries=policy,Saves=saves,Staging=staging,Maps=maps,Handles=handles,RepeatBlocked=(e,s)=>new StateCompletionLedger().IsCompleted(s,e.Completion??new CompletionKey(e.Id))});
+                var runner=new EventRunner(new EventRunnerDependencies{Catalog=provider,Conditions=new ConditionEvaluator(compiled),Leases=leases,Pauses=pause,Moves=moves,Destinations=resolver,Presentation=ui,PresentationLifetime=ui,Clock=ticks,CommitPlanner=new EventCommitPlanner(clock,projector,compiled),Store=store,Projector=projector,Recovery=new SceneRecovery(actors),Boundaries=policy,Saves=saves,Staging=staging,Maps=maps,Handles=handles,RepeatBlocked=(e,s)=>new StateCompletionLedger().IsCompleted(s,e.Completion??new CompletionKey(e.Id))});
                 var handle=runner.Start(new EventStartRequest("event.snack","graph.scene",1,new TransactionId("graph.start")));
                 void Frame(){pump.AdvanceTick();ticks.Advance(.1);disk.Tick();staging.Tick(.1);moves.Tick(.1);runner.Tick(.1);}
                 for(int i=0;i<600 && ui.Choice==null && handle.Terminal==null;i++)Frame();
