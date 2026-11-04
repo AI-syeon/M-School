@@ -20,11 +20,10 @@ namespace MagicCampus.Content.Catalog
     public string FunctionsHash { get; }
     public IReadOnlyList<CompiledEvent> Events { get; }
     public IReadOnlyList<AssetBinding> Bindings { get; }
-    public IFunctionDictionary Functions { get; }
 
     public CompiledCatalog(string contentVersion, string catalogHash, string runnerHash, string functionsHash, IEnumerable<CompiledEvent> events,
       IDictionary<string, Dictionary<string, DataNode>> definitions, IDictionary<string, string> kindById, IEnumerable<AssetBinding> bindings,
-      DataNode catalogRoot, DataNode runnerRoot, IFunctionDictionary functions, IEnumerable<CompiledColumn> columns = null)
+      DataNode catalogRoot, DataNode runnerRoot, IEnumerable<CompiledColumn> columns = null)
     {
       if (string.IsNullOrEmpty(contentVersion)) throw new ArgumentException("contentVersion required", nameof(contentVersion));
       if (string.IsNullOrEmpty(catalogHash)) throw new ArgumentException("catalogHash required", nameof(catalogHash));
@@ -33,7 +32,6 @@ namespace MagicCampus.Content.Catalog
       if (kindById == null) throw new ArgumentNullException(nameof(kindById));
       this.catalogRoot = catalogRoot ?? throw new ArgumentNullException(nameof(catalogRoot));
       this.runnerRoot = runnerRoot ?? throw new ArgumentNullException(nameof(runnerRoot));
-      Functions = functions ?? throw new ArgumentNullException(nameof(functions));
       ContentVersion = contentVersion; CatalogHash = catalogHash; RunnerHash = runnerHash ?? string.Empty; FunctionsHash = functionsHash ?? string.Empty;
       var list = new List<CompiledEvent>();
       foreach (var e in events)

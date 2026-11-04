@@ -16,17 +16,17 @@ namespace MagicCampus.Transactions.Effects
             "class", "encounter", "puzzle", "craft", "relationship", "project", "activity"
         };
 
-        private readonly IEffectPlanner effects;
+        private readonly EffectPlanner effects;
         private readonly IClockCostPlanner clock;
         private readonly IWorldStateProjector world;
         private readonly ICatalog catalog;
 
-        public EventCommitPlanner(IEffectPlanner effects, IClockCostPlanner clock, IWorldStateProjector world, ICatalog catalog)
+        public EventCommitPlanner(IClockCostPlanner clock, IWorldStateProjector world, ICatalog catalog)
         {
-            this.effects = effects ?? throw new ArgumentNullException(nameof(effects));
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
             this.world = world ?? throw new ArgumentNullException(nameof(world));
             this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+            effects = new EffectPlanner(catalog);
         }
 
         public Outcome<StatePlan> PlanCommit(CompiledEvent definition, EffectContext context)
@@ -67,27 +67,10 @@ namespace MagicCampus.Transactions.Effects
 
             var effectContext = new EffectContext(basis, context.TransactionId, completion, context.Staged);
             var planned = effects.Plan(definition.Effects, effectContext);
-            if (planned == null) return Refuse(revision, Diag.Make(ResultCodes.ContentInvalid, "effect planner returned no outcome", "Outcome", "null"));
             if (!planned.Succeeded) return Propagate(revision, planned);
             var changes = new List<PlannedChange>(planned.Value.Changes);
-            foreach (var change in changes)
-            {
-                if (change.ParticipantId != EffectOperations.ParticipantId) continue;
-                if (change.Operation == EffectOperations.EventComplete)
-                    return Refuse(revision, Diag.Make(ResultCodes.TransactionMismatch, "effects may not write the event ledger", "planner-owned event.complete", change.Operation));
-                if (practice && change.Operation == EffectOperations.CurrencyAdd)
-                    return Refuse(revision, Diag.Make(ResultCodes.TransactionMismatch, "practice runs earn no currency", "no reward", change.Operation));
-            }
 
-            if (!practice)
-            {
-                changes.Add(new PlannedChange(EffectOperations.ParticipantId, EffectOperations.EventComplete, DataNode.FromObject(new[]
-                {
-                    new KeyValuePair<string, DataNode>("eventId", DataNode.FromString(definition.Id)),
-                    new KeyValuePair<string, DataNode>("completionKey", DataNode.FromString(completion.Value.Value)),
-                    new KeyValuePair<string, DataNode>("repeatPolicy", DataNode.FromString(EffectOperations.Once))
-                })));
-            }
+            if (!practice) changes.Add(EffectChange.EventComplete(definition.Id, completion.Value.Value, RepeatPolicy.Once));
 
             if (minutes > 0)
             {

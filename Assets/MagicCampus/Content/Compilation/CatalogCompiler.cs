@@ -2,26 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Parsing;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Content.Compilation
 {
   // Order: schema -> function dictionary -> parsed cells -> signatures/types/defaults -> typed refs/index -> labels/forks/async -> semantics.
   // Any diagnostic rejects the whole bundle. CatalogHash is exactly catalog.SourceHash (lowercase hex SHA-256 of the original bytes).
-  public sealed class CatalogCompiler : ICatalogCompiler
+  public sealed class CatalogCompiler
   {
     static readonly Regex HashRe = new Regex("^[0-9a-f]{64}$", RegexOptions.CultureInvariant);
-    readonly ICallParser parser;
+    readonly CallParser parser;
     readonly ISchemaValidationPort schema;
-    readonly IFunctionDictionaryLoader loader;
 
-    public CatalogCompiler(ICallParser parser, ISchemaValidationPort schema) : this(parser, schema, new FunctionDictionaryLoader()) { }
-
-    public CatalogCompiler(ICallParser parser, ISchemaValidationPort schema, IFunctionDictionaryLoader loader)
+    public CatalogCompiler(CallParser parser, ISchemaValidationPort schema)
     {
       this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
       this.schema = schema ?? throw new ArgumentNullException(nameof(schema));
-      this.loader = loader ?? throw new ArgumentNullException(nameof(loader));
     }
 
     static Outcome<ICatalog> Failed(IEnumerable<Diagnostic> d) { return Outcome<ICatalog>.Fail(ResultCodes.ContentInvalid, 0, new List<Diagnostic>(d).ToArray()); }
@@ -42,10 +39,9 @@ namespace MagicCampus.Content.Compilation
       var diags = new List<Diagnostic>();
       Validate(catalogSchema, catalog, diags);
       Validate(runnerSchema, runner, diags);
-      var dl = loader.Load(functions.Root);
+      var dl = FunctionDictionary.Load(functions.Root);
       if (!dl.Succeeded) { diags.AddRange(dl.Result.Details); return Failed(diags); }
-      var dict = dl.Value;
-      var reg = ((FunctionDictionary)dict).Registry;
+      var reg = dl.Value;
       var files = new Dictionary<string, string> { { "catalog", catalog.File }, { "runner", runner.File }, { "functions", functions.File } };
       var an = new ContentAnalyzer(parser, reg, catalog.Root, runner.Root, files);
       an.Run();
@@ -59,7 +55,7 @@ namespace MagicCampus.Content.Compilation
       {
         var columns = new List<CompiledColumn>();
         foreach (var cl in an.Columns) columns.Add(new CompiledColumn(cl.File, cl.Spec.Table, cl.EntityId, cl.ColumnName, cl.Compiled));
-        var cat = new CompiledCatalog(version, catalog.SourceHash, runner.SourceHash, functions.SourceHash, events, an.Rows, an.KindById(), an.Bindings, catalog.Root, runner.Root, dict, columns);
+        var cat = new CompiledCatalog(version, catalog.SourceHash, runner.SourceHash, functions.SourceHash, events, an.Rows, an.KindById(), an.Bindings, catalog.Root, runner.Root, columns);
         return Outcome<ICatalog>.Ok(cat, 0);
       }
       catch (ArgumentException ex) { return Failed(new[] { Plain(catalog.File, "", "", "catalog cannot be assembled: " + ex.Message) }); }

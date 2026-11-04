@@ -142,27 +142,57 @@ namespace MagicCampus.Content.Compilation
     public int MaxCalls;
   }
 
-  internal sealed class Registry
+  // The loaded function dictionary: the full registry (kinds, signatures, columns) the analyzer validates calls against.
+  public sealed class FunctionDictionary
   {
-    public DataNode Source;
-    public Dictionary<string, KindSpec> Kinds = new Dictionary<string, KindSpec>(StringComparer.Ordinal);
-    public List<ColumnSpec> Columns = new List<ColumnSpec>();
-    public Dictionary<string, List<string>> RefKinds = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-    public List<FunctionDef> All = new List<FunctionDef>();
+    public DataNode Source { get; internal set; }   // full registry, including kind nameRule, named params, groups and all validation metadata
+    internal Dictionary<string, KindSpec> Kinds = new Dictionary<string, KindSpec>(StringComparer.Ordinal);
+    internal List<ColumnSpec> Columns = new List<ColumnSpec>();
+    internal Dictionary<string, List<string>> RefKinds = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+    internal List<FunctionDef> Defs = new List<FunctionDef>();
+
+    public IReadOnlyList<FunctionDef> All => Defs;
+
+    internal FunctionDictionary() { }
+
+    public static Outcome<FunctionDictionary> Load(DataNode functionsJson)
+    {
+      var diags = new List<Diagnostic>();
+      var dictionary = RegistryBuilder.Build(functionsJson, "functions", diags);
+      if (dictionary == null || diags.Count > 0)
+      {
+        if (diags.Count == 0) diags.Add(Diags.Make(ResultCodes.ContentInvalid, "functions", "", "functions", "", 0, "function dictionary could not be built", null, null));
+        return Outcome<FunctionDictionary>.Fail(ResultCodes.ContentInvalid, 0, diags.ToArray());
+      }
+      return Outcome<FunctionDictionary>.Ok(dictionary, 0);
+    }
+
+    public FunctionDef Find(FunctionRole role, string name)
+    {
+      if (name == null) return null;
+      foreach (var ks in Kinds.Values)
+      {
+        if (ks.Role != role) continue;
+        SigSpec s;
+        if (ks.Rule == NameRule.Registered) return ks.Functions.TryGetValue(name, out s) ? s.Def : null;
+        return ks.NameMatches(name) && ks.Functions.TryGetValue("*", out s) ? s.Def : null;
+      }
+      return null;
+    }
   }
 
   internal static class RegistryBuilder
   {
     static readonly HashSet<string> BaseTypes = new HashSet<string>(StringComparer.Ordinal) { "id", "int", "number", "bool", "text", "word", "value", "labelref", "idOrLabel" };
 
-    public static Registry Build(DataNode root, string file, List<Diagnostic> diags)
+    public static FunctionDictionary Build(DataNode root, string file, List<Diagnostic> diags)
     {
       void E(string ptr, string msg) { diags.Add(Diags.Make(ResultCodes.ContentInvalid, file, ptr, "functions", "", 0, msg, null, null)); }
       if (root == null || root.Kind != DataKind.Object) { E("", "functions root must be an object"); return null; }
       var kindsNode = root.G("kinds"); var colsNode = root.G("columns");
       if (kindsNode == null || kindsNode.Kind != DataKind.Object) { E("/kinds", "kinds object required"); return null; }
       if (colsNode == null || colsNode.Kind != DataKind.List) { E("/columns", "columns list required"); return null; }
-      var reg = new Registry { Source = root };
+      var reg = new FunctionDictionary { Source = root };
       foreach (var kv in root.G("refKinds").Pairs()) reg.RefKinds[kv.Key] = kv.Value.Strs();
       Action<string, string> err = E;
       foreach (var kv in kindsNode.Members)
@@ -193,7 +223,7 @@ namespace MagicCampus.Content.Compilation
         {
           var sig = BuildSig(fv.Key, fv.Value, role, kp + "/functions/" + Dn.Esc(fv.Key), err);
           if (sig == null) continue;
-          ks.Functions[fv.Key] = sig; reg.All.Add(sig.Def);
+          ks.Functions[fv.Key] = sig; reg.Defs.Add(sig.Def);
         }
         if (ks.Rule != NameRule.Registered && !ks.Functions.ContainsKey("*")) E(kp + "/functions/*", "wildcard signature required");
         reg.Kinds[kv.Key] = ks;
@@ -292,47 +322,6 @@ namespace MagicCampus.Content.Compilation
         }
       var ev = isEnum ? p.Type.Substring(5).Split('|') : new string[0];
       return new ParamDef(p.Name, t, !named && !p.Optional, p.Rest, p.RefKind ?? string.Empty, ev, p.Default, p.Min);
-    }
-  }
-
-  public sealed class FunctionDictionary : IFunctionDictionary
-  {
-    internal Registry Registry { get; }
-    public DataNode Source { get; }
-    public IReadOnlyList<FunctionDef> All { get; }
-
-    internal FunctionDictionary(DataNode source, Registry registry)
-    {
-      Source = source; Registry = registry;
-      All = registry.All.ToArray();
-    }
-
-    public FunctionDef Find(FunctionRole role, string name)
-    {
-      if (name == null) return null;
-      foreach (var ks in Registry.Kinds.Values)
-      {
-        if (ks.Role != role) continue;
-        SigSpec s;
-        if (ks.Rule == NameRule.Registered) return ks.Functions.TryGetValue(name, out s) ? s.Def : null;
-        return ks.NameMatches(name) && ks.Functions.TryGetValue("*", out s) ? s.Def : null;
-      }
-      return null;
-    }
-  }
-
-  public sealed class FunctionDictionaryLoader : IFunctionDictionaryLoader
-  {
-    public Outcome<IFunctionDictionary> Load(DataNode functionsJson)
-    {
-      var diags = new List<Diagnostic>();
-      var reg = RegistryBuilder.Build(functionsJson, "functions", diags);
-      if (reg == null || diags.Count > 0)
-      {
-        if (diags.Count == 0) diags.Add(Diags.Make(ResultCodes.ContentInvalid, "functions", "", "functions", "", 0, "function dictionary could not be built", null, null));
-        return Outcome<IFunctionDictionary>.Fail(ResultCodes.ContentInvalid, 0, diags.ToArray());
-      }
-      return Outcome<IFunctionDictionary>.Ok(new FunctionDictionary(functionsJson, reg), 0);
     }
   }
 }

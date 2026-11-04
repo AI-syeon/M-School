@@ -45,7 +45,7 @@ namespace MagicCampus.Tests.FirstConnectionData
                 Check(!o.Succeeded && o.Result.Details.Any(d=>d.Code==negatives[Path.GetFileName(folder)] && d.Location!=null && d.Location.Pointer.Contains("/events/")),"invalid fixture rejected with expected code/source pointer "+folder+" "+string.Join(";",o.Result.Details.Select(d=>d.Code)));
             }
             var compiled=Compile("base/runner-bundle.json").Value;
-            var provider=new CatalogProvider(new CatalogCompiler(new CallParser(),Schema),compiled);
+            var provider=new CatalogProvider(compiled);
             var schedules=new Dictionary<string,IReadOnlyList<CompiledCall>>();
             foreach(var row in compiled.FindDefinition("runner","root").Members["schedules"].Items)
                 schedules.Add(S(row,"id"),((ICompiledContentLookup)compiled).FindCalls("runner","schedules",S(row,"id"),"script"));
@@ -72,7 +72,7 @@ namespace MagicCampus.Tests.FirstConnectionData
         public static void RunDisk()
         {
             var compiled=Compile("base/runner-bundle.json").Value;
-            var provider=new CatalogProvider(new CatalogCompiler(new CallParser(),Schema),compiled);
+            var provider=new CatalogProvider(compiled);
             var pump=new CompletionPump(); var handles=new HandleFactory(pump); var policy=new SafeBoundaryPolicy();
             var registry=new StateParticipantRegistry();registry.Seal();
             var invariant=new SaveStateValidator(compiled,SchemaRoot,Schema);

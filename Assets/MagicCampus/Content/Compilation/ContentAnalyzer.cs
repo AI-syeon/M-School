@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Parsing;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Content.Compilation
@@ -32,8 +33,8 @@ namespace MagicCampus.Content.Compilation
   // It only reads the immutable source trees and accumulates diagnostics; whether the bundle is accepted is decided by the caller.
   internal sealed partial class ContentAnalyzer
   {
-    readonly ICallParser parser;
-    readonly Registry reg;
+    readonly CallParser parser;
+    readonly FunctionDictionary reg;
     readonly DataNode c, r;
     readonly Dictionary<string, string> files;
     readonly List<Diagnostic> diags = new List<Diagnostic>();
@@ -45,7 +46,7 @@ namespace MagicCampus.Content.Compilation
     readonly Dictionary<string, IReadOnlyList<CallNode>> parsed = new Dictionary<string, IReadOnlyList<CallNode>>(StringComparer.Ordinal);
     public readonly List<AssetBinding> Bindings = new List<AssetBinding>();
 
-    public ContentAnalyzer(ICallParser parser, Registry reg, DataNode catalog, DataNode runner, Dictionary<string, string> files)
+    public ContentAnalyzer(CallParser parser, FunctionDictionary reg, DataNode catalog, DataNode runner, Dictionary<string, string> files)
     {
       this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
       this.reg = reg ?? throw new ArgumentNullException(nameof(reg));

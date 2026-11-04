@@ -7,24 +7,18 @@ namespace MagicCampus.Transactions.Effects
 {
     /// <summary>
     /// State participant 'event-effects'. Owns /flags, /completed, /rewardLedger and /wallet only. Prepare never writes the store:
-    /// it aggregates every event-effects change of one plan on the same basis and returns one replacement or one refusal.
+    /// it applies the typed EffectChanges of one plan on the same basis and returns one replacement or one refusal.
+    /// Per-call validation already happened in EffectPlanner; this checks only what depends on the whole plan and the stored state.
     /// </summary>
     public sealed class EventEffectsParticipant : IStateParticipant
     {
         private static readonly IReadOnlyList<string> Owned = Array.AsReadOnly(new[] { "/flags", "/completed", "/rewardLedger", "/wallet" });
 
-        private readonly Func<ICatalog> catalogSource;
+        private readonly ICatalog catalog;
 
         public EventEffectsParticipant(ICatalog catalog)
         {
-            if (catalog == null) throw new ArgumentNullException(nameof(catalog));
-            catalogSource = () => catalog;
-        }
-
-        public EventEffectsParticipant(ICatalogProvider provider)
-        {
-            if (provider == null) throw new ArgumentNullException(nameof(provider));
-            catalogSource = () => provider.Current;
+            this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
         }
 
         public string ParticipantId => EffectOperations.ParticipantId;
@@ -35,11 +29,8 @@ namespace MagicCampus.Transactions.Effects
             if (basis == null) throw new ArgumentNullException(nameof(basis));
             if (plan == null) throw new ArgumentNullException(nameof(plan));
             Diagnostic problem = null;
-            var catalog = catalogSource();
             if (plan.ExpectedRevision != basis.Revision)
                 problem = Diag.Make(ResultCodes.RevisionConflict, "plan was prepared for another revision", "revision " + Diag.Num(plan.ExpectedRevision), "revision " + Diag.Num(basis.Revision));
-            else if (catalog == null)
-                problem = Diag.Make(ResultCodes.ContentInvalid, "no catalog available", "catalog", "null");
             if (problem == null)
             {
                 var session = new Session(basis, plan, catalog);
@@ -54,7 +45,6 @@ namespace MagicCampus.Transactions.Effects
             private readonly StateSnapshot basis;
             private readonly IStatePlan plan;
             private readonly ICatalog catalog;
-            private HashSet<string> reservedKeys;
             private string claimedKey;
             private bool claimedOnce;
             private bool eventCompleteApplied;
@@ -80,15 +70,19 @@ namespace MagicCampus.Transactions.Effects
 
             public Diagnostic Run()
             {
-                var mine = new List<PlannedChange>();
-                foreach (var change in plan.Changes)
-                    if (change.ParticipantId == EffectOperations.ParticipantId) mine.Add(change);
+                var mine = new List<EffectChange>();
                 var eventCompletes = 0;
-                foreach (var change in mine)
+                foreach (var change in plan.Changes)
                 {
-                    if (change.Operation != EffectOperations.EventComplete) continue;
+                    if (change.ParticipantId != EffectOperations.ParticipantId) continue;
+                    var typed = change as EffectChange;
+                    if (typed == null)
+                        return Diag.Make(ResultCodes.Unregistered, "event-effects applies only planned effect changes", "set|complete|currency.add|event.complete", change.Operation);
+                    mine.Add(typed);
+                    if (typed.Kind != EffectKind.EventComplete) continue;
                     eventCompletes++;
-                    Scan(change.Payload);
+                    claimedKey = typed.CompletionKey;
+                    claimedOnce = typed.Policy == RepeatPolicy.Once;
                 }
                 if (eventCompletes > 1)
                     return Diag.Make(ResultCodes.TransactionMismatch, "a plan carries at most one event.complete", "1", Diag.Num(eventCompletes));
@@ -110,49 +104,15 @@ namespace MagicCampus.Transactions.Effects
                 return new StateReplacement(slices);
             }
 
-            private void Scan(DataNode payload)
+            private Diagnostic Apply(EffectChange change)
             {
-                DataNode key;
-                DataNode policy;
-                if (payload != null && payload.Kind == DataKind.Object && payload.TryGet("completionKey", out key) && payload.TryGet("repeatPolicy", out policy)
-                    && key.Kind == DataKind.String && policy.Kind == DataKind.String)
+                switch (change.Kind)
                 {
-                    claimedKey = key.Text;
-                    claimedOnce = policy.Text == EffectOperations.Once;
+                    case EffectKind.Set: return ApplySet(change);
+                    case EffectKind.Complete: return ApplyComplete(change);
+                    case EffectKind.CurrencyAdd: return ApplyCurrency(change);
+                    default: return ApplyEventComplete(change);
                 }
-            }
-
-            private Diagnostic Apply(PlannedChange change)
-            {
-                switch (change.Operation)
-                {
-                    case EffectOperations.Set: return ApplySet(change.Payload);
-                    case EffectOperations.Complete: return ApplyComplete(change.Payload);
-                    case EffectOperations.CurrencyAdd: return ApplyCurrency(change.Payload);
-                    case EffectOperations.EventComplete: return ApplyEventComplete(change.Payload);
-                    default:
-                        return Diag.Make(ResultCodes.Unregistered, "event-effects does not implement this operation", "set|complete|currency.add|event.complete", change.Operation);
-                }
-            }
-
-            private static Diagnostic Exact(DataNode payload, string operation, params string[] keys)
-            {
-                if (payload == null || payload.Kind != DataKind.Object || payload.Members.Count != keys.Length)
-                    return Diag.Make(ResultCodes.ContentInvalid, operation + " payload must be an object with exactly: " + string.Join(", ", keys), string.Join(",", keys), payload == null ? "null" : Diag.Value(payload));
-                foreach (var key in keys)
-                    if (!payload.Members.ContainsKey(key))
-                        return Diag.Make(ResultCodes.ContentInvalid, operation + " payload misses '" + key + "'", key, "absent");
-                return null;
-            }
-
-            private static Diagnostic TextOf(DataNode payload, string key, out string text)
-            {
-                text = null;
-                var node = payload.Members[key];
-                if (node.Kind != DataKind.String || node.Text.Length == 0)
-                    return Diag.Make(ResultCodes.ArgType, key + " must be a non-empty string", "string", Diag.Value(node));
-                text = node.Text;
-                return null;
             }
 
             private Diagnostic LoadFlags()
@@ -200,101 +160,54 @@ namespace MagicCampus.Transactions.Effects
                 return null;
             }
 
-            private Diagnostic ApplySet(DataNode payload)
+            private Diagnostic ApplySet(EffectChange change)
             {
-                var problem = Exact(payload, EffectOperations.Set, "variable", "value");
+                var problem = LoadFlags();
                 if (problem != null) return problem;
-                string name;
-                problem = TextOf(payload, "variable", out name);
-                if (problem != null) return problem;
-                VariableDeclaration declaration;
-                if (!VariableDeclaration.TryResolve(catalog, name, out declaration, out problem)) return problem;
-                var value = payload.Members["value"];
-                if (!declaration.TryAccept(value, out problem)) return problem;
-                problem = LoadFlags();
-                if (problem != null) return problem;
-                flags.Set(declaration.Id, value);
+                flags.Set(change.Id, change.Value);
                 flagsDirty = true;
                 return null;
             }
 
-            private Diagnostic ApplyComplete(DataNode payload)
+            private Diagnostic ApplyComplete(EffectChange change)
             {
-                var problem = Exact(payload, EffectOperations.Complete, "id");
+                var problem = LoadCompleted();
                 if (problem != null) return problem;
-                string id;
-                problem = TextOf(payload, "id", out id);
-                if (problem != null) return problem;
-                try
-                {
-                    var key = new CompletionKey(id);
-                    if (key.Value.Length == 0) throw new ArgumentException();
-                }
-                catch (ArgumentException)
-                {
-                    return Diag.Make(ResultCodes.ContentInvalid, "completion id must be non-empty without whitespace", "valid id", id);
-                }
-                if (reservedKeys == null) reservedKeys = EffectHandlerSupport.EventKeys(catalog);
-                if (reservedKeys.Contains(id))
-                    return Diag.Make(ResultCodes.ContentInvalid, "event completion keys are written only by event.complete together with the reward ledger", "non-event completion id", id);
-                problem = LoadCompleted();
-                if (problem != null) return problem;
-                if (!completedSet.Add(id))
-                    return Diag.Make(ResultCodes.ConditionFalse, "already completed", "not yet completed", id);
-                completed.Add(id);
+                if (!completedSet.Add(change.Id))
+                    return Diag.Make(ResultCodes.ConditionFalse, "already completed", "not yet completed", change.Id);
+                completed.Add(change.Id);
                 completedDirty = true;
                 return null;
             }
 
-            private Diagnostic ApplyCurrency(DataNode payload)
+            private Diagnostic ApplyCurrency(EffectChange change)
             {
-                var problem = Exact(payload, EffectOperations.CurrencyAdd, "amountCrowns");
-                if (problem != null) return problem;
-                var amount = payload.Members["amountCrowns"];
-                if (amount.Kind != DataKind.Integer)
-                    return Diag.Make(ResultCodes.ArgType, "amountCrowns must be an integer", "Integer", Diag.Value(amount));
-                if (amount.Integer <= 0 || amount.Integer > SaveTree.WalletLimit)
-                    return Diag.Make(ResultCodes.InvariantViolation, "amountCrowns must be positive and wallet-sized", "1.." + Diag.Num(SaveTree.WalletLimit), Diag.Num(amount.Integer));
                 if (!plan.Completion.HasValue || claimedKey == null || !claimedOnce || claimedKey != plan.Completion.Value.Value)
                     return Diag.Make(ResultCodes.TransactionMismatch, "currency.add requires the once event.complete ledger entry for the plan completion key in the same plan", "event.complete once + completion key", plan.Completion.HasValue ? plan.Completion.Value.Value : "no completion");
-                problem = LoadWallet();
+                var problem = LoadWallet();
                 if (problem != null) return problem;
-                if (amount.Integer > SaveTree.WalletLimit - crowns)
-                    return Diag.Make(ResultCodes.InvariantViolation, "wallet would overflow", "crowns <= " + Diag.Num(SaveTree.WalletLimit), Diag.Num(crowns) + " + " + Diag.Num(amount.Integer));
-                crowns += amount.Integer;
+                if (change.Crowns > SaveTree.WalletLimit - crowns)
+                    return Diag.Make(ResultCodes.InvariantViolation, "wallet would overflow", "crowns <= " + Diag.Num(SaveTree.WalletLimit), Diag.Num(crowns) + " + " + Diag.Num(change.Crowns));
+                crowns += change.Crowns;
                 walletDirty = true;
                 return null;
             }
 
-            private Diagnostic ApplyEventComplete(DataNode payload)
+            private Diagnostic ApplyEventComplete(EffectChange change)
             {
-                var problem = Exact(payload, EffectOperations.EventComplete, "eventId", "completionKey", "repeatPolicy");
-                if (problem != null) return problem;
-                string eventId;
-                string key;
-                string policyText;
-                problem = TextOf(payload, "eventId", out eventId);
-                if (problem != null) return problem;
-                problem = TextOf(payload, "completionKey", out key);
-                if (problem != null) return problem;
-                problem = TextOf(payload, "repeatPolicy", out policyText);
-                if (problem != null) return problem;
-                var definition = catalog.FindEvent(eventId);
+                var key = change.CompletionKey;
+                var definition = catalog.FindEvent(change.Id);
                 if (definition == null)
-                    return Diag.Make(ResultCodes.RefNotFound, "event is not in the catalog", "known event", eventId);
+                    return Diag.Make(ResultCodes.RefNotFound, "event is not in the catalog", "known event", change.Id);
                 var expectedKey = definition.Completion.HasValue ? definition.Completion.Value.Value : definition.Id;
                 if (key != expectedKey)
                     return Diag.Make(ResultCodes.TransactionMismatch, "completion key is not the event's shared key", expectedKey, key);
-                RepeatPolicy policy;
-                if (policyText == EffectOperations.Once) policy = RepeatPolicy.Once;
-                else if (policyText == EffectOperations.Practice) policy = RepeatPolicy.Practice;
-                else return Diag.Make(ResultCodes.ContentInvalid, "unknown repeat policy", "once|practice", policyText);
-                if (policy != definition.Repeat)
-                    return Diag.Make(ResultCodes.TransactionMismatch, "repeat policy differs from the catalog", definition.Repeat.ToString(), policy.ToString());
+                if (change.Policy != definition.Repeat)
+                    return Diag.Make(ResultCodes.TransactionMismatch, "repeat policy differs from the catalog", definition.Repeat.ToString(), change.Policy.ToString());
                 if (eventCompleteApplied)
                     return Diag.Make(ResultCodes.TransactionMismatch, "a plan carries at most one event.complete", "1", "2");
                 eventCompleteApplied = true;
-                if (policy == RepeatPolicy.Practice)
+                if (change.Policy == RepeatPolicy.Practice)
                 {
                     if (plan.Completion.HasValue)
                         return Diag.Make(ResultCodes.TransactionMismatch, "practice runs carry no completion key", "no completion", plan.Completion.Value.Value);
@@ -302,7 +215,7 @@ namespace MagicCampus.Transactions.Effects
                 }
                 if (!plan.Completion.HasValue || plan.Completion.Value.Value != key)
                     return Diag.Make(ResultCodes.TransactionMismatch, "plan completion must equal the event completion key", key, plan.Completion.HasValue ? plan.Completion.Value.Value : "no completion");
-                problem = LoadCompleted();
+                var problem = LoadCompleted();
                 if (problem != null) return problem;
                 problem = LoadLedger();
                 if (problem != null) return problem;

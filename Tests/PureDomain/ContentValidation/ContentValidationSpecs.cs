@@ -43,7 +43,7 @@ namespace MagicCampus.Tests.ContentValidation
       DictionarySpecs(e);
       NormalSpecs(e);
       HashSpecs(e);
-      ProviderSpecs(e);
+      DuplicateIdSpecs(e);
       NegativeSpecs(e);
       DetailSpecs(e);
       RealTransactionSpecs(e);
@@ -87,7 +87,7 @@ namespace MagicCampus.Tests.ContentValidation
       Check(new MagicCampus.Transactions.Conditions.ConditionEvaluator(cat).Evaluate(eventDefinition.When, before).Satisfied, "real intro condition");
       Check(actors.SetPosition("player", new Position("map.lounge", .5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual player projection setup");
       Check(actors.SetPosition("npc.serin", new Position("map.lounge", 4.5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual NPC projection setup");
-      var planner = new MagicCampus.Transactions.Effects.EventCommitPlanner(MagicCampus.Transactions.Effects.EffectPlanner.CreateMinimal(cat), clock, new MagicCampus.World.Movement.WorldStateProjector(actors), cat);
+      var planner = new MagicCampus.Transactions.Effects.EventCommitPlanner(clock, new MagicCampus.World.Movement.WorldStateProjector(actors), cat);
       var context = new EffectContext(before, new TransactionId("integration.snack.1"), null, null);
       var plan = planner.PlanCommit(eventDefinition, context);
       Check(plan.Succeeded, "full original transaction planning");
@@ -181,7 +181,7 @@ namespace MagicCampus.Tests.ContentValidation
 
     static void DictionarySpecs(Env e)
     {
-      var o = new FunctionDictionaryLoader().Load(e.Functions.Root);
+      var o = FunctionDictionary.Load(e.Functions.Root);
       Check(o.Succeeded, "function dictionary rejected");
       var d = o.Value;
       Check(ReferenceEquals(d.Source, e.Functions.Root), "dictionary must keep the full raw registry");
@@ -192,7 +192,7 @@ namespace MagicCampus.Tests.ContentValidation
       Check(d.Find(FunctionRole.ScheduleEntry, "420") != null && d.Find(FunctionRole.ScheduleEntry, "abc") == null && d.Find(FunctionRole.ScheduleEntry, "1440") == null, "schedule nameRule");
       var members = new List<KeyValuePair<string, DataNode>>();
       foreach (var kv in e.Functions.Root.Members) if (kv.Key != "columns") members.Add(kv);
-      var broken = new FunctionDictionaryLoader().Load(DataNode.FromObject(members));
+      var broken = FunctionDictionary.Load(DataNode.FromObject(members));
       Check(!broken.Succeeded && broken.Result.Details.Count > 0, "dictionary without columns must fail with diagnostics");
     }
 
@@ -248,22 +248,14 @@ namespace MagicCampus.Tests.ContentValidation
       }
     }
 
-    static void ProviderSpecs(Env e)
+    static void DuplicateIdSpecs(Env e)
     {
-      var provider = new CatalogProvider(e.Compiler);
-      Check(provider.Current == null, "provider starts empty");
-      var first = provider.TryReplace(e.Catalog, e.Runner, e.Functions, e.CatalogSchema, e.RunnerSchema);
-      Check(first.Succeeded && ReferenceEquals(provider.Current, first.Value), "valid bundle replaces Current");
-      var members = new List<KeyValuePair<string, DataNode>>(e.Catalog.Root.Members);
       var items = new List<DataNode>(e.Catalog.Root.Items.Count == 0 ? e.Catalog.Root.L("items") : new DataNode[0]);
       Check(items.Count > 1, "catalog items expected");
       items[1] = items[1].With("id", items[0].G("id"));
       var badRoot = e.Catalog.Root.With("items", DataNode.FromList(items));
-      var bad = provider.TryReplace(new ContentBundle(CatalogFile, badRoot, e.CatalogHash), e.Runner, e.Functions, e.CatalogSchema, e.RunnerSchema);
+      var bad = e.Compiler.Compile(new ContentBundle(CatalogFile, badRoot, e.CatalogHash), e.Runner, e.Functions, e.CatalogSchema, e.RunnerSchema);
       Check(!bad.Succeeded && bad.Result.Details.Any(d => d.Code == ContentCodes.DuplicateId), "duplicate id must be reported");
-      Check(ReferenceEquals(provider.Current, first.Value), "failed bundle must keep the previous valid catalog");
-      var again = provider.TryReplace(e.Catalog, e.Runner, e.Functions, e.CatalogSchema, e.RunnerSchema);
-      Check(again.Succeeded && ReferenceEquals(provider.Current, again.Value), "valid bundle replaces Current again");
     }
 
     // ------------------------------------------------------------------ captured negatives

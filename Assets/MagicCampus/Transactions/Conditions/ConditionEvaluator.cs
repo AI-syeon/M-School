@@ -14,16 +14,12 @@ namespace MagicCampus.Transactions.Conditions
 
         private delegate Eval Algorithm(CompiledCall call, Context context, int depth);
 
-        private readonly Func<ICatalog> catalogSource;
+        private readonly ICatalog catalog;
         private readonly Dictionary<string, Algorithm> algorithms;
 
-        public ConditionEvaluator(ICatalog catalog) : this(Constant(catalog)) { }
-
-        public ConditionEvaluator(ICatalogProvider provider) : this(Current(provider)) { }
-
-        private ConditionEvaluator(Func<ICatalog> source)
+        public ConditionEvaluator(ICatalog catalog)
         {
-            catalogSource = source;
+            this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             algorithms = new Dictionary<string, Algorithm>(StringComparer.Ordinal)
             {
                 { "eq", (c, x, d) => Compare(c, x, false) },
@@ -37,23 +33,11 @@ namespace MagicCampus.Transactions.Conditions
             };
         }
 
-        private static Func<ICatalog> Constant(ICatalog catalog)
-        {
-            if (catalog == null) throw new ArgumentNullException(nameof(catalog));
-            return () => catalog;
-        }
-
-        private static Func<ICatalog> Current(ICatalogProvider provider)
-        {
-            if (provider == null) throw new ArgumentNullException(nameof(provider));
-            return () => provider.Current;
-        }
-
         public ConditionReport Evaluate(IReadOnlyList<CompiledCall> when, StateSnapshot snapshot)
         {
             if (when == null) throw new ArgumentNullException(nameof(when));
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
-            var context = new Context(snapshot, catalogSource());
+            var context = new Context(snapshot, catalog);
             var result = EvaluateAll(when, context, 0);
             return new ConditionReport(result.Satisfied, snapshot.Revision, result.Reasons);
         }
