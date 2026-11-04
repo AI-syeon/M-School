@@ -42,6 +42,9 @@
 - 2-C 결과(-157줄): 틱을 값 하나로 줄이고 IRuntimeTick·ITickClock·IEventRunner·ICompletionPump·IReservationService·IScheduleService와 중복 ID 검사(RuntimeGuard, IdGuard)를 없앴다. FirstConnectionRuntime의 안 쓰는 공개 멤버를 비공개로 바꿨다. ICompletionLedger는 테스트 가짜가 있어 남겼다. 게임 종료 정리(Dispose) 중 NPC가 최대 0.3초 거리를 더 걸을 수 있으나 저장·커밋이 없는 시점이다.
 - 2-B·2-C 합친 뒤 검증: 순수 도메인 4종 통과, Unity 빌드 오류 0, probe 13개와 복원 4건이 기준과 같다.
 - 이벤트 진행 틱 비교: 첫 기준 실행은 success-notes fork.enter가 123틱이었고 리팩토링 후는 122틱이었다. 기준 커밋 f463071을 다시 빌드해 두 번 돌리니 122틱이 나와 첫 기준 실행의 흔들림으로 판단했다. 마지막 refused 단계는 같은 빌드에서도 1틱씩 흔들린다.
+- 2-A 결과(-200줄): 효과 검증을 EffectPlanner 한 곳으로 모으고, 저장 반영(EventEffectsParticipant)은 타입 있는 EffectChange를 그대로 적용한다. 효과 핸들러 플러그인, 카탈로그 실행 중 교체(TryReplace), ICallParser·ICatalogCompiler·IFunctionDictionary(Loader)·IEffectHandler·IEffectPlanner를 없앴다. 연습 실행의 돈 지급 거절은 같은 오류 코드(TRANSACTION_MISMATCH)로 남고 메시지 문구만 바뀌었다. 에이전트가 커밋 직전에 중단돼 코디네이터가 diff를 검토하고 커밋했다.
+- 2-A 합친 뒤 검증(2026-11-05): 순수 도메인 4종 통과, Unity 빌드 오류 0, probe 13개와 복원 4건이 기준과 같다. 이벤트 틱은 123/152/160으로 첫 기준 실행과 같다.
+- 테스트 실행 환경: Windows 앱 제어가 결정적 빌드의 일부 테스트 DLL을 해시로 차단해, run-all.ps1을 비결정적 빌드(-p:Deterministic=false)로 바꿨다.
 - 하지 않는 것: 테스트 프로젝트 4개 통합(가치가 낮음), DTO 생성자 검증 제거(테스트가 예외를 검사함, 효과 대비 변경이 큼).
 
 ## 진행 기록
