@@ -11,7 +11,8 @@ Push-Location $Root
 try {
   foreach ($x in "ContentIOTests", "Stage2Tests", "Stage3Tests", "Stage4Tests") {
     $log = Join-Path $outDir "$Tag-$x.log"
-    $build = & $dn build "Tests\PureDomain\MagicCampus.$x.csproj" -v q -nologo 2>&1 | Out-String
+    # A fresh MVID per build changes the file hash; Windows application control blocked some deterministic test DLLs by hash.
+    $build = & $dn build "Tests\PureDomain\MagicCampus.$x.csproj" -p:Deterministic=false -v q -nologo 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) {
       Set-Content -Path $log -Value $build
       Write-Output "$x BUILD-FAILED (see $log)"
