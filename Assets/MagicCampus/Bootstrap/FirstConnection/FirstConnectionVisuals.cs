@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using MagicCampus.Contracts;
 using MagicCampus.Presentation.Cutscene;
+using MagicCampus.UnityAdapters.ContentIO;
 using MagicCampus.UnityAdapters.Maps;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -670,9 +672,12 @@ namespace MagicCampus.Bootstrap.FirstConnection
             try
             {
                 var name = Path.GetFileName(set.ManifestPath);
-                var doc = Obj(JsonReader.Parse(File.ReadAllText(set.ManifestPath, Encoding.UTF8), name), name);
-                object ppu;
-                if (doc.TryGetValue("pixelsPerUnit", out ppu) && ppu != null && Int(ppu, name + ".pixelsPerUnit") != PixelsPerUnit)
+                var parsed = new JsonDataCodec().Parse(set.ManifestPath, File.ReadAllBytes(set.ManifestPath));
+                if (!parsed.Succeeded)
+                    throw new InvalidDataException("JSON error in " + name + ": " + string.Join("; ", parsed.Result.Details.Select(d => d.Message)));
+                var doc = Obj(parsed.Value.Root, name);
+                DataNode ppu;
+                if (Opt(doc, "pixelsPerUnit", out ppu) && Int(ppu, name + ".pixelsPerUnit") != PixelsPerUnit)
                     throw Bad(name + ".pixelsPerUnit", "must be " + PixelsPerUnit);
 
                 var tilesObj = Obj(Req(doc, "tiles", name), name + ".tiles");
@@ -708,12 +713,12 @@ namespace MagicCampus.Bootstrap.FirstConnection
             }
         }
 
-        private ActorArt ReadActor(ArtSet set, string id, Dictionary<string, object> entry, string ctx)
+        private ActorArt ReadActor(ArtSet set, string id, IReadOnlyDictionary<string, DataNode> entry, string ctx)
         {
             var tex = LoadTexture(set, entry, ctx);
             var pivot = new Vector2(0.5f, 0.0625f);
-            object pv;
-            if (entry.TryGetValue("pivot", out pv) && pv != null)
+            DataNode pv;
+            if (Opt(entry, "pivot", out pv))
             {
                 var pa = Arr(pv, ctx + ".pivot");
                 if (pa.Count != 2) throw Bad(ctx + ".pivot", "expected [x,y]");
@@ -730,16 +735,16 @@ namespace MagicCampus.Bootstrap.FirstConnection
                 var cc = ctx + ".animations[" + pair.Key + "]";
                 var clip = Obj(pair.Value, cc);
                 var fps = pair.Key == IdleClip ? 5f : pair.Key == WalkClip ? 9f : 8f;
-                object fv;
-                if (clip.TryGetValue("fps", out fv) && fv != null) fps = (float)Num(fv, cc + ".fps");
+                DataNode fv;
+                if (Opt(clip, "fps", out fv)) fps = (float)Num(fv, cc + ".fps");
                 if (fps <= 0f) throw Bad(cc + ".fps", "must be positive");
                 var loop = true;
-                object lv;
-                if (clip.TryGetValue("loop", out lv) && lv is bool) loop = (bool)lv;
+                DataNode lv;
+                if (Opt(clip, "loop", out lv) && lv.Kind == DataKind.Bool) loop = lv.Bool;
                 var frames = ReadSprites(set, tex, Arr(Req(clip, "rectangles", cc), cc + ".rectangles"), pivot, ActorWidthPixels, ActorHeightPixels, cc + ".rectangles", id + "." + pair.Key);
                 result.Clips[pair.Key] = new ClipArt { Fps = fps, Loop = loop, Frames = frames };
             }
-            object directions;
+            DataNode directions;
             if (entry.TryGetValue("directionAnimations", out directions))
                 foreach (var direction in Obj(directions, ctx + ".directionAnimations"))
                     foreach (var pair in Obj(direction.Value, ctx + "." + direction.Key))
@@ -753,7 +758,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         }
 
         // Rectangles are stored top-left in the manifest; Unity sprite rects are bottom-left.
-        private static Sprite[] ReadSprites(ArtSet set, Texture2D tex, List<object> rects, Vector2 pivot, int w, int h, string ctx, string name)
+        private static Sprite[] ReadSprites(ArtSet set, Texture2D tex, IReadOnlyList<DataNode> rects, Vector2 pivot, int w, int h, string ctx, string name)
         {
             if (rects.Count == 0) throw Bad(ctx, "no frames listed");
             var result = new Sprite[rects.Count];
@@ -776,7 +781,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
             return result;
         }
 
-        private Texture2D LoadTexture(ArtSet set, Dictionary<string, object> entry, string ctx)
+        private Texture2D LoadTexture(ArtSet set, IReadOnlyDictionary<string, DataNode> entry, string ctx)
         {
             var rel = Str(Req(entry, "image", ctx), ctx + ".image");
             var full = Path.GetFullPath(Path.Combine(set.Root, rel));
@@ -786,10 +791,10 @@ namespace MagicCampus.Bootstrap.FirstConnection
             if (!File.Exists(full)) throw new FileNotFoundException("Missing art image for " + ctx + ": " + rel + " (expected at " + full + ")", full);
 
             var bytes = File.ReadAllBytes(full);
-            object sha;
+            DataNode sha;
             if (verifyImageHashes && entry.TryGetValue("sha256", out sha))
             {
-                var expected = sha as string;
+                var expected = sha.Kind == DataKind.String ? sha.Text : null;
                 if (!string.IsNullOrEmpty(expected) && !string.Equals(Hex(bytes), expected, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Art image hash mismatch for " + ctx + ": " + full);
             }
@@ -869,204 +874,50 @@ namespace MagicCampus.Bootstrap.FirstConnection
             return new InvalidDataException("Art manifest " + ctx + ": " + message);
         }
 
-        private static Dictionary<string, object> Obj(object v, string ctx)
+        private static IReadOnlyDictionary<string, DataNode> Obj(DataNode v, string ctx)
         {
-            var d = v as Dictionary<string, object>;
-            if (d == null) throw Bad(ctx, "object expected");
-            return d;
+            if (v.Kind != DataKind.Object) throw Bad(ctx, "object expected");
+            return v.Members;
         }
 
-        private static List<object> Arr(object v, string ctx)
+        private static IReadOnlyList<DataNode> Arr(DataNode v, string ctx)
         {
-            var l = v as List<object>;
-            if (l == null) throw Bad(ctx, "array expected");
-            return l;
+            if (v.Kind != DataKind.List) throw Bad(ctx, "array expected");
+            return v.Items;
         }
 
-        private static object Req(Dictionary<string, object> d, string key, string ctx)
+        // JSON null counts as absent, as before.
+        private static bool Opt(IReadOnlyDictionary<string, DataNode> d, string key, out DataNode v)
         {
-            object v;
-            if (!d.TryGetValue(key, out v) || v == null) throw Bad(ctx + "." + key, "missing");
+            return d.TryGetValue(key, out v) && v.Kind != DataKind.Null;
+        }
+
+        private static DataNode Req(IReadOnlyDictionary<string, DataNode> d, string key, string ctx)
+        {
+            DataNode v;
+            if (!Opt(d, key, out v)) throw Bad(ctx + "." + key, "missing");
             return v;
         }
 
-        private static string Str(object v, string ctx)
+        private static string Str(DataNode v, string ctx)
         {
-            var s = v as string;
-            if (string.IsNullOrEmpty(s)) throw Bad(ctx, "non-empty string expected");
-            return s;
+            if (v.Kind != DataKind.String || v.Text.Length == 0) throw Bad(ctx, "non-empty string expected");
+            return v.Text;
         }
 
-        private static double Num(object v, string ctx)
+        private static double Num(DataNode v, string ctx)
         {
-            if (!(v is double)) throw Bad(ctx, "number expected");
-            return (double)v;
+            if (v.Kind == DataKind.Integer) return v.Integer;
+            if (v.Kind == DataKind.Number) return v.Number;
+            throw Bad(ctx, "number expected");
         }
 
-        private static int Int(object v, string ctx)
+        private static int Int(DataNode v, string ctx)
         {
             var n = Num(v, ctx);
             var i = (int)Math.Round(n);
             if (Math.Abs(n - i) > 1e-9) throw Bad(ctx, "integer expected");
             return i;
-        }
-
-        private sealed class JsonReader
-        {
-            private const char Quote = (char)34;
-            private const char Backslash = (char)92;
-            private readonly string text;
-            private readonly string name;
-            private int pos;
-
-            private JsonReader(string text, string name)
-            {
-                this.text = text;
-                this.name = name;
-            }
-
-            public static object Parse(string text, string name)
-            {
-                var r = new JsonReader(text, name);
-                r.SkipWs();
-                var v = r.ReadValue();
-                r.SkipWs();
-                if (r.pos != text.Length) throw r.Error("unexpected trailing content");
-                return v;
-            }
-
-            private InvalidDataException Error(string message)
-            {
-                return new InvalidDataException("JSON error in " + name + " at offset " + pos + ": " + message);
-            }
-
-            private char Peek()
-            {
-                return pos < text.Length ? text[pos] : (char)0;
-            }
-
-            private void SkipWs()
-            {
-                while (pos < text.Length && (char.IsWhiteSpace(text[pos]) || text[pos] == (char)0xFEFF)) pos++;
-            }
-
-            private void Expect(string word)
-            {
-                if (string.CompareOrdinal(text, pos, word, 0, word.Length) != 0) throw Error("expected " + word);
-                pos += word.Length;
-            }
-
-            private object ReadValue()
-            {
-                if (pos >= text.Length) throw Error("unexpected end");
-                switch (text[pos])
-                {
-                    case '{': return ReadObject();
-                    case '[': return ReadArray();
-                    case Quote: return ReadString();
-                    case 't': Expect("true"); return true;
-                    case 'f': Expect("false"); return false;
-                    case 'n': Expect("null"); return null;
-                    default: return ReadNumber();
-                }
-            }
-
-            private object ReadObject()
-            {
-                var d = new Dictionary<string, object>(StringComparer.Ordinal);
-                pos++;
-                SkipWs();
-                if (Peek() == '}')
-                {
-                    pos++;
-                    return d;
-                }
-                while (true)
-                {
-                    SkipWs();
-                    if (Peek() != Quote) throw Error("object key expected");
-                    var key = ReadString();
-                    SkipWs();
-                    if (Peek() != ':') throw Error("':' expected");
-                    pos++;
-                    SkipWs();
-                    d[key] = ReadValue();
-                    SkipWs();
-                    var c = Peek();
-                    pos++;
-                    if (c == ',') continue;
-                    if (c == '}') return d;
-                    throw Error("',' or '}' expected");
-                }
-            }
-
-            private object ReadArray()
-            {
-                var l = new List<object>();
-                pos++;
-                SkipWs();
-                if (Peek() == ']')
-                {
-                    pos++;
-                    return l;
-                }
-                while (true)
-                {
-                    SkipWs();
-                    l.Add(ReadValue());
-                    SkipWs();
-                    var c = Peek();
-                    pos++;
-                    if (c == ',') continue;
-                    if (c == ']') return l;
-                    throw Error("',' or ']' expected");
-                }
-            }
-
-            private object ReadNumber()
-            {
-                var start = pos;
-                while (pos < text.Length && "+-0123456789.eE".IndexOf(text[pos]) >= 0) pos++;
-                double v;
-                if (start == pos || !double.TryParse(text.Substring(start, pos - start), NumberStyles.Float, CultureInfo.InvariantCulture, out v))
-                    throw Error("invalid value");
-                return v;
-            }
-
-            private string ReadString()
-            {
-                var sb = new StringBuilder();
-                pos++;
-                while (true)
-                {
-                    if (pos >= text.Length) throw Error("unterminated string");
-                    var c = text[pos++];
-                    if (c == Quote) return sb.ToString();
-                    if (c != Backslash)
-                    {
-                        sb.Append(c);
-                        continue;
-                    }
-                    if (pos >= text.Length) throw Error("unterminated escape");
-                    var e = text[pos++];
-                    switch (e)
-                    {
-                        case 'n': sb.Append((char)10); break;
-                        case 't': sb.Append((char)9); break;
-                        case 'r': sb.Append((char)13); break;
-                        case 'b': sb.Append((char)8); break;
-                        case 'f': sb.Append((char)12); break;
-                        case 'u':
-                            int code;
-                            if (pos + 4 > text.Length || !int.TryParse(text.Substring(pos, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out code))
-                                throw Error("invalid unicode escape");
-                            sb.Append((char)code);
-                            pos += 4;
-                            break;
-                        default: sb.Append(e); break;
-                    }
-                }
-            }
         }
     }
 }
