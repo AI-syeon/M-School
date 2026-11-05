@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.Runtime;
 using MagicCampus.State;
+using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Timekeeping;
 using MagicCampus.Transactions.Core;
 
@@ -71,16 +73,16 @@ namespace MagicCampus.Tests.Time
 
         public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
         {
-            var flags = basis.Slice("flags");
+            var rows = new List<DataNode>(basis.Slice("flags").Items);
             foreach (var change in plan.Changes)
             {
                 if (change.ParticipantId != ParticipantId) continue;
                 if (change.Operation != "mark")
                     return Outcome<StateReplacement>.Fail(ResultCodes.Unregistered, basis.Revision, new Diagnostic("FAKE_OPERATION", "unknown operation", null, "mark", change.Operation));
-                flags = flags.With(change.Payload.Members["name"].Text, DataNode.True);
+                rows.Add(Nodes.Obj(Nodes.P("id", change.Payload.Members["name"]), Nodes.P("value", DataNode.True)));
             }
 
-            return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { Nodes.P("/flags", flags) }), basis.Revision);
+            return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { Nodes.P("/flags", DataNode.FromList(rows)) }), basis.Revision);
         }
     }
 
@@ -124,20 +126,23 @@ namespace MagicCampus.Tests.Time
 
         public static readonly string[] UntouchedFields = { "saveVersion", "player", "npcs", "inventory", "flags" };
 
-        public static DataNode BuildRoot(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending)
+        public static DataNode BuildRoot(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending, bool clockNote = false)
         {
-            return Nodes.Obj(
-                Nodes.P("saveVersion", Nodes.Int(2)),
-                Nodes.P("player", Nodes.Obj(Nodes.P("mapId", Nodes.Str("dorm")), Nodes.P("x", DataNode.FromNumber(3.5)), Nodes.P("y", Nodes.Int(4)))),
-                Nodes.P("npcs", Nodes.List(Nodes.Obj(Nodes.P("npcId", Nodes.Str("mina")), Nodes.P("mapId", Nodes.Str("hall")), Nodes.P("x", DataNode.FromNumber(1.25))))),
-                Nodes.P("inventory", Nodes.Obj(Nodes.P("herb", Nodes.Int(2)))),
-                Nodes.P("flags", Nodes.Obj()),
-                Nodes.P("clock", Nodes.Obj(
-                    Nodes.P("absoluteMinute", Nodes.Int(absoluteMinute)),
-                    Nodes.P("fraction", DataNode.FromNumber(fraction)),
-                    Nodes.P("note", Nodes.Str("preserved")))),
-                Nodes.P("dayJobs", Nodes.Strings(dayJobs)),
-                Nodes.P("returnPending", DataNode.FromBool(returnPending)));
+            var clock = new List<KeyValuePair<string, DataNode>> { Nodes.P("absoluteMinute", Nodes.Int(absoluteMinute)), Nodes.P("fraction", DataNode.FromNumber(fraction)) };
+            if (clockNote) clock.Add(Nodes.P("note", Nodes.Str("preserved")));
+            var m = new Dictionary<string, DataNode>(StringComparer.Ordinal)
+            {
+                { "saveVersion", Nodes.Int(2) },
+                { "player", Nodes.Obj(Nodes.P("mapId", Nodes.Str("dorm")), Nodes.P("x", DataNode.FromNumber(3.5)), Nodes.P("y", Nodes.Int(4))) },
+                { "npcs", Nodes.List(Nodes.Obj(Nodes.P("npcId", Nodes.Str("mina")), Nodes.P("mapId", Nodes.Str("hall")), Nodes.P("x", DataNode.FromNumber(1.25)))) },
+                { "inventory", Nodes.Obj(Nodes.P("herb", Nodes.Int(2))) },
+                { "flags", Nodes.List() },
+                { "clock", DataNode.FromObject(clock) },
+                { "dayJobs", Nodes.Strings(dayJobs) },
+                { "returnPending", DataNode.FromBool(returnPending) }
+            };
+            TypedFields.FillMissing(m);
+            return DataNode.FromObject(m);
         }
 
         public static TimeWorld Create(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending = false)
@@ -169,6 +174,7 @@ namespace MagicCampus.Tests.Time
 
         public long Minute { get { return Calendar.FromSnapshot(Store.Current).AbsoluteMinute; } }
         public double Fraction { get { return Calendar.FromSnapshot(Store.Current).Fraction; } }
+        public bool TypedFlag(string id) { return Store.Current.TypedState().Progress.Flags.TryGet(id, out var v) && v.IsBool && v.Bool; }
         public bool Pending { get { return Store.Current.Slice("returnPending").Bool; } }
 
         public List<string> Jobs

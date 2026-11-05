@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Timekeeping;
 
 namespace MagicCampus.Tests.Time
@@ -162,7 +164,9 @@ namespace MagicCampus.Tests.Time
             Check.Equal(900L, time.AbsoluteMinute, "snapshot minute");
             Check.Equal(0.5, time.Fraction, "snapshot fraction");
 
-            var integerFraction = new StateSnapshot(1, Nodes.Obj(Nodes.P("clock", Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)), Nodes.P("fraction", Nodes.Int(0))))));
+            var integerFractionRoot = new Dictionary<string, DataNode> { { "clock", Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)), Nodes.P("fraction", Nodes.Int(0))) } };
+            TypedFields.FillMissing(integerFractionRoot);
+            var integerFraction = new StateSnapshot(1, DataNode.FromObject(integerFractionRoot));
             Check.Equal(0.0, cal.FromSnapshot(integerFraction).Fraction, "integer zero fraction accepted");
 
             var broken = new[]

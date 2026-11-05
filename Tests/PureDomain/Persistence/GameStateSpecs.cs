@@ -199,6 +199,10 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Check(s.Progress.IsConsumed(key), "a key only in rewardLedger is consumed");
             var again = s.Progress.Claim(key);
             Check(!again.Succeeded && Code(again) == ResultCodes.ConditionFalse, "re-reward of a rewardLedger-only key is CONDITION_FALSE, got " + Code(again));
+            var ledger = new MagicCampus.Application.Reservations.StateCompletionLedger();
+            var snapshot = new StateSnapshot(1, SaveDocument.Write(s));
+            Check(ledger.IsCompleted(snapshot, key), "the snapshot ledger reads a rewardLedger-only key as completed");
+            Check(!ledger.IsCompleted(snapshot, new CompletionKey("event.snack")), "the snapshot ledger leaves an unconsumed key open");
         }
 
         private static void Midnight()

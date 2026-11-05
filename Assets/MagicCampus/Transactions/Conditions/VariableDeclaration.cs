@@ -183,10 +183,13 @@ namespace MagicCampus.Transactions.Conditions
             return true;
         }
 
-        public DataNode Current(FlagTable flags)
+        public DataNode Current(MagicCampus.State.Progress progress)
         {
-            DataNode stored;
-            if (flags.TryGet(Id, out stored) && TryAcceptKind(stored, out var ignored)) return stored;
+            if (progress.Flags.TryGet(Id, out var stored))
+            {
+                var node = stored.IsBool ? DataNode.FromBool(stored.Bool) : DataNode.FromInteger(stored.Int);
+                if (TryAcceptKind(node, out var ignored)) return node;
+            }
             return Default;
         }
     }

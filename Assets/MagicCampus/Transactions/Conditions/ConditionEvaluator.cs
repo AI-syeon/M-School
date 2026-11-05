@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
+using MagicCampus.State;
 
 namespace MagicCampus.Transactions.Conditions
 {
     /// <summary>
-    /// Pure lookup evaluator over a single StateSnapshot. Only the registered algorithms below run (eq, gte, completed,
+    /// Pure lookup evaluator over the typed state of a single StateSnapshot. Only the registered algorithms below run (eq, gte, completed,
     /// discovered, evidence, learned, caseCountGte, any); negation comes from CompiledCall.Negated. No parsing, eval or reflection.
     /// </summary>
     public sealed class ConditionEvaluator : IConditionEvaluator
@@ -24,10 +26,10 @@ namespace MagicCampus.Transactions.Conditions
             {
                 { "eq", (c, x, d) => Compare(c, x, false) },
                 { "gte", (c, x, d) => Compare(c, x, true) },
-                { "completed", (c, x, d) => Membership(c, x, SaveTree.Completed) },
-                { "discovered", (c, x, d) => Membership(c, x, SaveTree.Discovered) },
-                { "evidence", (c, x, d) => Membership(c, x, SaveTree.Evidence) },
-                { "learned", (c, x, d) => Membership(c, x, SaveTree.Learned) },
+                { "completed", (c, x, d) => Membership(c, x, SaveTree.Completed, s => s.Progress.Completed) },
+                { "discovered", (c, x, d) => Membership(c, x, SaveTree.Discovered, s => s.Known.DiscoveredCaseIds) },
+                { "evidence", (c, x, d) => Membership(c, x, SaveTree.Evidence, s => s.Known.Evidence) },
+                { "learned", (c, x, d) => Membership(c, x, SaveTree.Learned, s => s.Known.LearnedSpellIds) },
                 { "caseCountGte", (c, x, d) => CaseCount(c, x) },
                 { "any", Any }
             };
@@ -110,13 +112,13 @@ namespace MagicCampus.Transactions.Conditions
             var name = nameNode.Text;
             DataNode actual;
             Diagnostic error;
+            GameState state;
             if (name == VariableDeclaration.MinuteOfDay)
             {
-                long absolute;
-                if (!SaveTree.TryReadAbsoluteMinute(context.Snapshot, out absolute, out error)) return Fault(context, error);
+                if (!context.TryState(out state, out error)) return Fault(context, error);
                 if (expected.Kind != DataKind.Integer)
                     return Fault(context, Diag.Make(ResultCodes.ArgType, "clock.minute_of_day compares with an integer", "Integer", expected.Kind.ToString()));
-                actual = DataNode.FromInteger(absolute % GameTime.MinutesPerDay);
+                actual = DataNode.FromInteger(state.Clock.AbsoluteMinute % GameTime.MinutesPerDay);
             }
             else
             {
@@ -127,9 +129,8 @@ namespace MagicCampus.Transactions.Conditions
                 if (!declaration.TryAcceptKind(expected, out error)) return Fault(context, error);
                 if (ordered && declaration.Type != VariableType.Int)
                     return Fault(context, Diag.Make(ResultCodes.ArgType, "gte compares int variables only", "int variable", name));
-                FlagTable flags;
-                if (!context.TryFlags(out flags, out error)) return Fault(context, error);
-                actual = declaration.Current(flags);
+                if (!context.TryState(out state, out error)) return Fault(context, error);
+                actual = declaration.Current(state.Progress);
             }
             var holds = ordered ? actual.Integer >= expected.Integer : actual.Equals(expected);
             if (holds) return new Eval { Satisfied = true };
@@ -137,16 +138,17 @@ namespace MagicCampus.Transactions.Conditions
                 name + (ordered ? " >= " : " == ") + Diag.Value(expected), name + " = " + Diag.Value(actual)));
         }
 
-        private static Eval Membership(CompiledCall call, Context context, string field)
+        private static Eval Membership(CompiledCall call, Context context, string field, Func<GameState, KeySet> select)
         {
             DataNode idNode;
             if (!CallArgs.TryGet(call, 0, out idNode))
                 return Fault(context, Diag.Make(ResultCodes.ArgCount, call.Function.Name + " needs an id", "1 argument", "none"));
             if (idNode.Kind != DataKind.String)
                 return Fault(context, Diag.Make(ResultCodes.ArgType, "id must be a string", "string", idNode.Kind.ToString()));
-            List<string> values;
+            GameState state;
             Diagnostic error;
-            if (!SaveTree.TryReadStrings(context.Snapshot, field, out values, out error)) return Fault(context, error);
+            if (!context.TryState(out state, out error)) return Fault(context, error);
+            var values = select(state);
             if (values.Contains(idNode.Text)) return new Eval { Satisfied = true };
             return No(context, Diag.Make(ResultCodes.ConditionFalse, idNode.Text + " is not in " + SaveTree.Pointer(field),
                 field + " contains " + idNode.Text, field + " holds " + Diag.Num(values.Count) + " entries without it"));
@@ -159,18 +161,18 @@ namespace MagicCampus.Transactions.Conditions
                 return Fault(context, Diag.Make(ResultCodes.ArgCount, "caseCountGte needs a count", "1 argument", "none"));
             if (countNode.Kind != DataKind.Integer || countNode.Integer < 0)
                 return Fault(context, Diag.Make(ResultCodes.ArgType, "count must be a non-negative integer", "Integer >= 0", Diag.Value(countNode)));
-            List<string> order;
+            GameState state;
             Diagnostic error;
-            if (!SaveTree.TryReadStrings(context.Snapshot, SaveTree.CaseResolutionOrder, out order, out error)) return Fault(context, error);
-            var seen = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var id in order)
+            if (!context.TryState(out state, out error)) return Fault(context, error);
+            var order = state.Known.CaseResolutionOrder;
+            foreach (var id in order.Items)
             {
-                if (id.Length == 0 || !seen.Add(id))
-                    return Fault(context, Diag.Make(ResultCodes.ContentInvalid, "caseResolutionOrder must hold distinct non-empty case ids", "distinct ids", id.Length == 0 ? "empty id" : id));
+                if (id.Length == 0)
+                    return Fault(context, Diag.Make(ResultCodes.ContentInvalid, "caseResolutionOrder must hold distinct non-empty case ids", "distinct ids", "empty id"));
             }
-            if (seen.Count >= countNode.Integer) return new Eval { Satisfied = true };
+            if (order.Count >= countNode.Integer) return new Eval { Satisfied = true };
             return No(context, Diag.Make(ResultCodes.ConditionFalse, "not enough resolved cases",
-                "resolved cases >= " + Diag.Num(countNode.Integer), "resolved cases = " + Diag.Num(seen.Count)));
+                "resolved cases >= " + Diag.Num(countNode.Integer), "resolved cases = " + Diag.Num(order.Count)));
         }
 
         private Eval Any(CompiledCall call, Context context, int depth)
@@ -211,9 +213,6 @@ namespace MagicCampus.Transactions.Conditions
         {
             public readonly StateSnapshot Snapshot;
             public readonly ICatalog Catalog;
-            private FlagTable flags;
-            private Diagnostic flagsError;
-            private bool loaded;
 
             public Context(StateSnapshot snapshot, ICatalog catalog)
             {
@@ -221,16 +220,15 @@ namespace MagicCampus.Transactions.Conditions
                 Catalog = catalog;
             }
 
-            public bool TryFlags(out FlagTable table, out Diagnostic error)
+            public bool TryState(out GameState state, out Diagnostic error)
             {
-                if (!loaded)
+                if (Snapshot.TryTypedState(out state, out var refusal))
                 {
-                    loaded = true;
-                    FlagTable.TryParse(Snapshot.Slice(SaveTree.Flags), out flags, out flagsError);
+                    error = null;
+                    return true;
                 }
-                table = flags;
-                error = flagsError;
-                return flags != null;
+                error = Diag.Make(ResultCodes.ContentInvalid, "save state is not readable: " + refusal.Location.Pointer + " " + refusal.Message, "readable save v2 state", "malformed");
+                return false;
             }
 
             public Diagnostic Tag(Diagnostic d)

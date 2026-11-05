@@ -65,7 +65,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
 
             var inspection = rig.Service.Inspect(snapshot);
             Spec.Equal(0, inspection.Candidates.Count, "invalid rows are not candidates");
-            Spec.True(inspection.Diagnostics.Count >= 2, "each invalid row has a diagnostic");
+            Spec.True(inspection.Diagnostics.Count >= 1, "the unreadable appointments are reported");
 
             var prepared = Prepare(rig, snapshot, null, Kit.Accept("event.one", 5));
             Spec.Equal(ResultCodes.ContentInvalid, prepared.Result.Code, "participant refuses an invalid slice");

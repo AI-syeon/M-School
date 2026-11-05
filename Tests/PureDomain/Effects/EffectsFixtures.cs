@@ -1,4 +1,5 @@
 using System;
+using MagicCampus.Tests.PureDomain.Support;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
@@ -96,7 +97,8 @@ namespace MagicCampus.Tests.Effects
             m["caseResolutionOrder"] = Strings("case_a", "case_b");
             m["clock"] = Obj(P("absoluteMinute", I(1440 + 600)), P("fraction", DataNode.FromNumber(0.5)));
             m["appointments"] = List();
-            for (var i = 0; i < 35; i++) m["field_" + i.ToString("00")] = i % 2 == 0 ? I(i) : S("v" + i);
+            TypedFields.FillMissing(m);
+            for (var i = 0; i < 31; i++) m["field_" + i.ToString("00")] = i % 2 == 0 ? I(i) : S("v" + i);
             if (tweak != null) tweak(m);
             return DataNode.FromObject(m);
         }

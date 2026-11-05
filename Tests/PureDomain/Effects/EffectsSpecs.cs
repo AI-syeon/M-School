@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.Transactions.Conditions;
 using MagicCampus.Transactions.Effects;
 
@@ -154,10 +155,7 @@ namespace MagicCampus.Tests.Effects
 
         private static long AbsoluteMinute(Rig r)
         {
-            long minute;
-            Diagnostic error;
-            Require(SaveTree.TryReadAbsoluteMinute(r.Store.Current, out minute, out error), "clock readable");
-            return minute;
+            return r.Store.Current.TypedState().Clock.AbsoluteMinute;
         }
 
         private static string Sequence(StatePlan plan)

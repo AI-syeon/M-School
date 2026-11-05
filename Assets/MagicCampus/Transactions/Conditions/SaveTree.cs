@@ -9,7 +9,6 @@ namespace MagicCampus.Transactions.Conditions
     {
         public const string Flags = "flags", Completed = "completed", RewardLedger = "rewardLedger", Wallet = "wallet";
         public const string Discovered = "discoveredCaseIds", Evidence = "evidence", Learned = "learnedSpellIds";
-        public const string CaseResolutionOrder = "caseResolutionOrder", Clock = "clock", AbsoluteMinute = "absoluteMinute";
         public const string Crowns = "crowns", Appointments = "appointments";
         // Original closed save schema wallet.maximum, not the storage width of DataNode.Integer.
         public const long WalletLimit = int.MaxValue;
@@ -48,21 +47,6 @@ namespace MagicCampus.Transactions.Conditions
             var items = new List<DataNode>();
             foreach (var v in values) items.Add(DataNode.FromString(v));
             return DataNode.FromList(items);
-        }
-
-        public static bool TryReadAbsoluteMinute(StateSnapshot snapshot, out long minute, out Diagnostic error)
-        {
-            minute = 0;
-            var clock = snapshot.Slice(Clock);
-            DataNode value;
-            if (clock == null || clock.Kind != DataKind.Object || !clock.TryGet(AbsoluteMinute, out value) || value.Kind != DataKind.Integer || value.Integer < 0)
-            {
-                error = Diag.Make(ResultCodes.ContentInvalid, "/clock/absoluteMinute must be a non-negative integer", "integer >= 0", clock == null ? "absent" : Diag.Value(clock));
-                return false;
-            }
-            minute = value.Integer;
-            error = null;
-            return true;
         }
 
         public static bool TryReadWallet(StateSnapshot snapshot, out DataNode wallet, out long crowns, out Diagnostic error)

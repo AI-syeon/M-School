@@ -699,23 +699,14 @@ namespace MagicCampus.Bootstrap.FirstConnection
     List<ActorState> BuildActors(StateSnapshot s)
     {
       var list = new List<ActorState>();
-      var pl = s.Slice("player");
-      if (pl == null) throw new InvalidOperationException("save has no player slice");
-      list.Add(new ActorState(PlayerId, ReadPosition(pl, PlayerId), config.ActorRadius, config.PlayerSpeed));
-      var saved = new Dictionary<string, DataNode>(StringComparer.Ordinal);
-      var positions = s.Slice("npcPositions");
-      if (positions != null && positions.Kind == DataKind.List)
-      {
-        foreach (var entry in positions.Items)
-        {
-          DataNode idNode;
-          if (entry.Kind == DataKind.Object && entry.TryGet("npcId", out idNode) && idNode.Kind == DataKind.String) saved[idNode.Text] = entry;
-        }
-      }
+      var world = s.TypedState().World;
+      list.Add(new ActorState(PlayerId, world.Player.ToPosition(), config.ActorRadius, config.PlayerSpeed));
+      var saved = new Dictionary<string, Place>(StringComparer.Ordinal);
+      foreach (var row in world.Npcs) saved[row.NpcId] = row.At;
       foreach (var npc in activeNpcs)
       {
-        DataNode found;
-        var at = saved.TryGetValue(npc.Id, out found) ? ReadPosition(found, npc.Id) : npc.Home;
+        Place found;
+        var at = saved.TryGetValue(npc.Id, out found) ? found.ToPosition() : npc.Home;
         list.Add(new ActorState(npc.Id, at, config.ActorRadius, npc.Speed));
       }
       return list;
@@ -738,10 +729,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     string PlayerMapId()
     {
-      var pl = Store.Current.Slice("player");
-      DataNode map;
-      if (pl == null || !pl.TryGet("mapId", out map) || map.Kind != DataKind.String) throw new InvalidOperationException("save has no player mapId");
-      return map.Text;
+      return Store.Current.TypedState().World.Player.MapId;
     }
 
     static Position ReadPosition(DataNode n, string who)

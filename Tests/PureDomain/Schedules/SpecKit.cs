@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
+using MagicCampus.Tests.PureDomain.Support;
 
 namespace MagicCampus.Tests.PureDomain.Schedules
 {
@@ -43,7 +44,13 @@ namespace MagicCampus.Tests.PureDomain.Schedules
 
         internal static StateSnapshot Snapshot(long revision, params DataNode[] rows)
         {
-            return new StateSnapshot(revision, Obj(Kv("appointments", DataNode.FromList(rows)), Kv("marker", DataNode.FromInteger(revision))));
+            var root = new Dictionary<string, DataNode>(StringComparer.Ordinal)
+            {
+                { "appointments", DataNode.FromList(rows) },
+                { "marker", DataNode.FromInteger(revision) }
+            };
+            TypedFields.FillMissing(root);
+            return new StateSnapshot(revision, DataNode.FromObject(root));
         }
 
         internal static CompiledEvent Event(string id, string category = "interaction", string staging = "current", string completion = null,

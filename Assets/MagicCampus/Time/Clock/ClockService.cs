@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 
 namespace MagicCampus.Timekeeping
 {
@@ -36,10 +37,10 @@ namespace MagicCampus.Timekeeping
             if (pause == null) throw new ArgumentNullException(nameof(pause));
             var basis = store.Current;
 
-            if (!ClockStateReader.TryRead(basis, out var state, out var readProblems))
-                return Reject(default(GameTime), basis.Revision, ResultCodes.ContentInvalid, readProblems);
+            if (!basis.TryTypedState(out var state, out var readProblem))
+                return Reject(default(GameTime), basis.Revision, ResultCodes.ContentInvalid, new[] { readProblem });
 
-            var now = state.Time;
+            var now = state.Clock.Time;
             if (pause.Calendar) return Idle(now, basis.Revision, ClockAdvanceStatus.Paused);
 
             // 1 simulation-second = 1 game-minute
@@ -48,7 +49,7 @@ namespace MagicCampus.Timekeeping
                 return Reject(now, basis.Revision, ResultCodes.ContentInvalid, new[] { minutesProblem });
             if (minutes == 0) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
 
-            if (!TryBuild(state, minutes, out var advance, out var changes, out var problems))
+            if (!TryBuild(now, minutes, out var advance, out var changes, out var problems))
                 return Reject(now, basis.Revision, ResultCodes.ContentInvalid, problems);
             if (changes.Count == 0) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
 
@@ -57,24 +58,25 @@ namespace MagicCampus.Timekeeping
             var outcome = store.Commit(new StatePlan(transaction, null, basis.Revision, changes));
             if (!outcome.Succeeded) return Rejected(now, outcome.Result);
 
-            if (!ClockStateReader.TryRead(outcome.Value, out var after, out var afterProblems))
-                return Reject(now, outcome.Result.Revision, ResultCodes.InvariantViolation, afterProblems);
+            if (!outcome.Value.TryTypedState(out var afterState, out var afterProblem))
+                return Reject(now, outcome.Result.Revision, ResultCodes.InvariantViolation, new[] { afterProblem });
 
-            if (!after.Time.Equals(advance.To))
+            var after = afterState.Clock.Time;
+            if (!after.Equals(advance.To))
             {
                 var mismatch = TimeDiagnostics.Make("CLOCK_COMMIT_MISMATCH", ClockParticipant.ClockPointer, "committed time differs from the planned time",
-                    advance.To.AbsoluteMinute.ToString(CultureInfo.InvariantCulture), after.Time.AbsoluteMinute.ToString(CultureInfo.InvariantCulture));
+                    advance.To.AbsoluteMinute.ToString(CultureInfo.InvariantCulture), after.AbsoluteMinute.ToString(CultureInfo.InvariantCulture));
                 var failure = new Result(OperationStatus.Failed, ResultCodes.InvariantViolation, outcome.Result.Revision, new[] { mismatch });
                 LastStatus = ClockAdvanceStatus.Failed;
                 LastResult = failure;
                 LastFailure = failure;
-                return new ClockAdvance(now, after.Time, advance.Boundaries);
+                return new ClockAdvance(now, after, advance.Boundaries);
             }
 
             LastStatus = ClockAdvanceStatus.Advanced;
             LastResult = outcome.Result;
             LastFailure = null;
-            return new ClockAdvance(now, after.Time, advance.Boundaries);
+            return new ClockAdvance(now, after, advance.Boundaries);
         }
 
         /// <summary>
@@ -84,23 +86,23 @@ namespace MagicCampus.Timekeeping
         public Outcome<ChangeSet> PlanCost(StateSnapshot basis, double minutes)
         {
             if (basis == null) throw new ArgumentNullException(nameof(basis));
-            if (!ClockStateReader.TryRead(basis, out var state, out var readProblems))
-                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, TimeDiagnostics.ToArray(readProblems));
+            if (!basis.TryTypedState(out var state, out var readProblem))
+                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, readProblem);
             if (!Calendar.TryCheckMinutes(minutes, out var minutesProblem))
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, minutesProblem);
-            if (!TryBuild(state, minutes, out _, out var changes, out var problems))
+            if (!TryBuild(state.Clock.Time, minutes, out _, out var changes, out var problems))
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, problems);
             return Outcome<ChangeSet>.Ok(new ChangeSet(changes), basis.Revision);
         }
 
-        private bool TryBuild(ClockState state, double minutes, out ClockAdvance advance, out List<PlannedChange> changes, out Diagnostic[] problems)
+        private bool TryBuild(GameTime time, double minutes, out ClockAdvance advance, out List<PlannedChange> changes, out Diagnostic[] problems)
         {
             changes = new List<PlannedChange>();
             problems = new Diagnostic[0];
             advance = null;
             try
             {
-                advance = calendar.Plan(state.Time, minutes);
+                advance = calendar.Plan(time, minutes);
             }
             catch (ArgumentException ex)
             {

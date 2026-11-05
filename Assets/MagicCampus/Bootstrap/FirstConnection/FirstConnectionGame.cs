@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.Presentation.Dialogue;
+using MagicCampus.State;
 using MagicCampus.UnityAdapters.Input;
 using MagicCampus.UnityAdapters.Maps;
 using UnityEngine;
@@ -454,12 +456,12 @@ namespace MagicCampus.Bootstrap.FirstConnection
       if (Runtime == null || !Runtime.Ready) return;
       foreach (var c in Runtime.Reservations.Candidates(Runtime.Store.Current))
         if (!candidates.ContainsKey(c.EventId)) candidates[c.EventId] = c;
-      foreach (var row in Runtime.Store.Current.Slice("appointments").Items)
-      {
-        var id = row.Members["id"].Text;
-        if (row.Members["status"].Text == "Offered" && Runtime.Compiled.FindEvent(id) != null)
-          candidates[id] = new StartCandidate(id, id, ReservationStatus.Offered, 0, row.Members["acceptedAt"].Integer, 0);
-      }
+      GameState state;
+      Diagnostic unreadable;
+      if (!Runtime.Store.Current.TryTypedState(out state, out unreadable)) return;
+      foreach (var row in state.Appointments.Rows)
+        if (row.Status == ReservationStatus.Offered && Runtime.Compiled.FindEvent(row.Id) != null)
+          candidates[row.Id] = new StartCandidate(row.Id, row.Id, ReservationStatus.Offered, 0, row.AcceptedAt, 0);
     }
 
     // ------------------------------------------------------------------ bookkeeping
@@ -610,20 +612,9 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     static string WalletText(StateSnapshot s)
     {
-      foreach (var name in new[] { "wallet", "gold", "money" })
-      {
-        var n = s.Slice(name);
-        if (n == null) continue;
-        if (n.Kind == DataKind.Integer) return n.Integer.ToString();
-        if (n.Kind == DataKind.Number) return n.Number.ToString("0.##");
-        if (n.Kind == DataKind.Object)
-        {
-          var parts = new List<string>();
-          foreach (var kv in n.Members) if (kv.Value.Kind == DataKind.Integer) parts.Add(kv.Key + " " + kv.Value.Integer);
-          if (parts.Count > 0) return string.Join(", ", parts);
-        }
-      }
-      return "-";
+      GameState state;
+      Diagnostic unreadable;
+      return s.TryTypedState(out state, out unreadable) ? state.Progress.Wallet.Value.ToString() : "-";
     }
 
     void DrawHud(float w)

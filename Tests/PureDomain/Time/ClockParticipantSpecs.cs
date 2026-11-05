@@ -103,7 +103,7 @@ namespace MagicCampus.Tests.Time
 
         private static void ReplacementShape()
         {
-            var w = TimeWorld.Create(1430, 0.25, new[] { "legacy" });
+            var w = TimeWorld.Create(TimeWorld.BuildRoot(1430, 0.25, new[] { "legacy" }, false, clockNote: true), 1);
             var before = w.Store.Current;
             var outcome = w.Participant.Prepare(before, PlanOf(w, Nodes.Advance(40)));
             Check.True(outcome.Succeeded, "prepare succeeds");

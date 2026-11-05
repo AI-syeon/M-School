@@ -481,11 +481,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     long? Wallet()
     {
-      var n = Rt.Store.Current.Slice("wallet");
-      if (n == null) { DataNode r; if (!Rt.Store.Current.Root.TryGet("wallet", out r)) return null; n = r; }
-      if (n.Kind == DataKind.Integer) return n.Integer;
-      foreach (var kv in Pairs(n)) if (kv.Value != null && kv.Value.Kind == DataKind.Integer) return kv.Value.Integer;
-      return null;
+      return Rt.Store.Current.TypedState().Progress.Wallet.Value;
     }
 
     long? ClockMin()
@@ -502,9 +498,14 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     int Count(string slice, string id)
     {
-      var n = Rt.Store.Current.Slice(slice);
-      if (n == null) return -1;
-      return n.Items.Count(row => row.Kind == DataKind.String ? row.Text == id : row.Kind == DataKind.Object && row.Members.Values.Any(v => v.Kind == DataKind.String && v.Text == id));
+      var state = Rt.Store.Current.TypedState();
+      switch (slice)
+      {
+        case "completed": return state.Progress.Completed.Items.Count(k => k == id);
+        case "rewardLedger": return state.Progress.RewardLedger.Items.Count(k => k == id);
+        case "appointments": return state.Appointments.Rows.Count(a => a.Id == id);
+        default: return -1;
+      }
     }
 
     string ActorsPos()

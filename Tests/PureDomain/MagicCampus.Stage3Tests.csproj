@@ -3,7 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="../../MagicCampus.Contracts.csproj" />
     <ProjectReference Include="../../MagicCampus.Domain.csproj" />
-    <Compile Include="ProgramStage3.cs" /><Compile Include="ContentIO/**/*.cs" /><Compile Include="ContentValidation/**/*.cs" /><Compile Include="Movement/**/*.cs" /><Compile Include="Effects/**/*.cs" /><Compile Include="Time/**/*.cs" />
+    <Compile Include="ProgramStage3.cs" /><Compile Include="ContentIO/**/*.cs" /><Compile Include="ContentValidation/**/*.cs" /><Compile Include="Movement/**/*.cs" /><Compile Include="Effects/**/*.cs" /><Compile Include="Time/**/*.cs" /><Compile Include="Support/**/*.cs" />
     <Compile Include="../../Assets/MagicCampus/UnityAdapters/ContentIO/**/*.cs" />
     <Reference Include="JsonSchema.Net"><HintPath>../../Assets/MagicCampus/ThirdParty/JsonSchemaNet/JsonSchema.Net.dll</HintPath></Reference>
     <Reference Include="JsonPointer.Net"><HintPath>../../Assets/MagicCampus/ThirdParty/JsonSchemaNet/JsonPointer.Net.dll</HintPath></Reference>

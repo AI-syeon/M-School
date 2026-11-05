@@ -70,7 +70,7 @@ namespace MagicCampus.Tests.Time
             Check.Equal(1450L, w.Minute, "minute after midnight");
             Check.True(w.Pending, "return pending set");
             Check.Equal("legacy|boundary.day_d1", string.Join("|", w.Jobs), "dayJobs keep old entries and add the boundary key");
-            Check.Equal("preserved", w.Store.Current.Slice("clock").Members["note"].Text, "unknown clock members are kept");
+            Check.Equal(2, w.Store.Current.Slice("clock").Members.Count, "clock keeps exactly its two members");
             foreach (var field in TimeWorld.UntouchedFields)
                 Check.True(before.Slice(field).Equals(w.Store.Current.Slice(field)), "field " + field + " untouched");
             Check.Equal(DataKind.Integer, w.Store.Current.Slice("clock").Members["absoluteMinute"].Kind, "minute stays integer");
@@ -158,7 +158,7 @@ namespace MagicCampus.Tests.Time
             var first = w.Store.Commit(plan);
             Check.True(first.Succeeded, "event commit succeeds");
             Check.Equal(1490L, w.Minute, "cost applied once");
-            Check.True(w.Store.Current.Slice("flags").Members["class_done"].Bool, "event change in the same commit");
+            Check.True(w.TypedFlag("class_done"), "event change in the same commit");
             Check.Equal("boundary.day_d1", string.Join("|", w.Jobs), "boundary jobs recorded");
             Check.True(w.Pending, "return pending set by the cost");
             var committedRevision = w.Store.Current.Revision;

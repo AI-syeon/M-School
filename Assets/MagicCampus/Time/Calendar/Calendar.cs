@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 
 namespace MagicCampus.Timekeeping
 {
@@ -11,16 +12,11 @@ namespace MagicCampus.Timekeeping
     /// </summary>
     public sealed class Calendar : ICalendar
     {
-        /// <summary>Reads /clock of the snapshot. Throws InvalidOperationException when the clock tree is malformed (no silent default).</summary>
+        /// <summary>Reads the typed clock of the snapshot. Throws InvalidOperationException when the snapshot is not a readable save state (no silent default).</summary>
         public GameTime FromSnapshot(StateSnapshot snapshot)
         {
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
-            var clock = snapshot.Slice("clock");
-            if (clock == null || clock.Kind != DataKind.Object)
-                throw new InvalidOperationException("/clock must be an object");
-            if (!TryReadClock(clock, out var time, out var problem))
-                throw new InvalidOperationException(problem.Message);
-            return time;
+            return snapshot.TypedState().Clock.Time;
         }
 
         public static bool TryReadClock(DataNode clock, out GameTime time, out Diagnostic problem)
