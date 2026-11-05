@@ -199,7 +199,7 @@ namespace MagicCampus.Transactions.Effects
                 var definition = catalog.FindEvent(change.Id);
                 if (definition == null)
                     return Diag.Make(ResultCodes.RefNotFound, "event is not in the catalog", "known event", change.Id);
-                var expectedKey = definition.Completion.HasValue ? definition.Completion.Value.Value : definition.Id;
+                var expectedKey = definition.OnceKey.Value;
                 if (key != expectedKey)
                     return Diag.Make(ResultCodes.TransactionMismatch, "completion key is not the event's shared key", expectedKey, key);
                 if (change.Policy != definition.Repeat)

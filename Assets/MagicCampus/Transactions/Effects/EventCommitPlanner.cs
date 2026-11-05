@@ -11,11 +11,6 @@ namespace MagicCampus.Transactions.Effects
     /// </summary>
     public sealed class EventCommitPlanner : IEventCommitPlanner
     {
-        private static readonly HashSet<string> StagedDomains = new HashSet<string>(StringComparer.Ordinal)
-        {
-            "class", "encounter", "puzzle", "craft", "relationship", "project", "activity"
-        };
-
         private readonly EffectPlanner effects;
         private readonly IClockCostPlanner clock;
         private readonly IWorldStateProjector world;
@@ -46,7 +41,7 @@ namespace MagicCampus.Transactions.Effects
 
             var practice = definition.Repeat == RepeatPolicy.Practice;
             CompletionKey? completion = null;
-            if (!practice) completion = definition.Completion ?? new CompletionKey(definition.Id);
+            if (!practice) completion = definition.OnceKey;
             if (context.Completion.HasValue && (!completion.HasValue || !completion.Value.Equals(context.Completion.Value)))
                 return Refuse(revision, Diag.Make(ResultCodes.TransactionMismatch, "context completion differs from the event completion", completion.HasValue ? completion.Value.Value : "no completion", context.Completion.Value.Value));
 
@@ -61,11 +56,9 @@ namespace MagicCampus.Transactions.Effects
                     return Refuse(revision, Diag.Make(ResultCodes.ConditionFalse, "completion key already consumed; no reward or time is produced again", "unconsumed completion key", completion.Value.Value));
             }
 
-            long minutes;
-            Diagnostic costProblem;
-            if (!TryResolveMinutes(definition, context, out minutes, out costProblem)) return Refuse(revision, costProblem);
+            var minutes = practice ? 0 : definition.CostMinutes;
 
-            var effectContext = new EffectContext(basis, context.TransactionId, completion, context.Staged);
+            var effectContext = new EffectContext(basis, context.TransactionId, completion);
             var planned = effects.Plan(definition.Effects, effectContext);
             if (!planned.Succeeded) return Propagate(revision, planned);
             var changes = new List<PlannedChange>(planned.Value.Changes);
@@ -99,102 +92,6 @@ namespace MagicCampus.Transactions.Effects
 
             var plan = new StatePlan(context.TransactionId, completion, revision, changes);
             return Outcome<StatePlan>.Ok(plan, revision);
-        }
-
-        private bool TryResolveMinutes(CompiledEvent definition, EffectContext context, out long minutes, out Diagnostic problem)
-        {
-            minutes = 0;
-            problem = null;
-            long? otherCost = null;
-            long classMinutes = -1;
-            foreach (var result in context.Staged)
-            {
-                if (!StagedDomains.Contains(result.Domain))
-                {
-                    problem = Diag.Make(ResultCodes.Unregistered, "no registered operation domain '" + result.Domain + "'", "registered domain", result.Domain);
-                    return false;
-                }
-                long? staged = null;
-                if (result.Staged.Kind == DataKind.Object)
-                {
-                    DataNode cost;
-                    if (result.Staged.TryGet("costMinutes", out cost))
-                    {
-                        if (cost.Kind != DataKind.Integer || cost.Integer < 0)
-                        {
-                            problem = Diag.Make(ResultCodes.ContentInvalid, "staged costMinutes must be a nonnegative integer", "Integer >= 0", Diag.Value(cost));
-                            return false;
-                        }
-                        staged = cost.Integer;
-                    }
-                }
-                else if (result.Staged.Kind != DataKind.Null)
-                {
-                    problem = Diag.Make(ResultCodes.ContentInvalid, "staged result must be an object", "Object", result.Staged.Kind.ToString());
-                    return false;
-                }
-
-                if (result.Domain == "class")
-                {
-                    if (classMinutes >= 0 || context.Staged.Count != 1)
-                    {
-                        problem = Diag.Make(ResultCodes.TransactionMismatch, "a class perform yields exactly one staged result", "1 result", Diag.Num(context.Staged.Count));
-                        return false;
-                    }
-                    if (definition.CostMinutes != 0)
-                    {
-                        problem = Diag.Make(ResultCodes.TransactionMismatch, "event costMinutes must be 0 when the class duration is the time source", "0", Diag.Num(definition.CostMinutes));
-                        return false;
-                    }
-                    var row = catalog.FindDefinition("class", result.DefinitionId);
-                    if (row == null)
-                    {
-                        problem = Diag.Make(ResultCodes.RefNotFound, "class is not in the catalog", "known class", result.DefinitionId);
-                        return false;
-                    }
-                    DataNode duration;
-                    if (row.Kind != DataKind.Object || !row.TryGet("durationMinutes", out duration) || duration.Kind != DataKind.Integer || duration.Integer <= 0)
-                    {
-                        problem = Diag.Make(ResultCodes.ContentInvalid, "class.durationMinutes must be a positive integer", "Integer > 0", result.DefinitionId);
-                        return false;
-                    }
-                    if (!staged.HasValue || staged.Value != duration.Integer)
-                    {
-                        problem = Diag.Make(ResultCodes.TransactionMismatch, "staged costMinutes must equal the catalog class duration", Diag.Num(duration.Integer), staged.HasValue ? Diag.Num(staged.Value) : "absent");
-                        return false;
-                    }
-                    classMinutes = duration.Integer;
-                }
-                else if (staged.HasValue)
-                {
-                    if (otherCost.HasValue)
-                    {
-                        problem = Diag.Make(ResultCodes.TransactionMismatch, "several staged results carry a cost; costs are never summed", "one cost source", "several");
-                        return false;
-                    }
-                    otherCost = staged;
-                }
-            }
-
-            if (classMinutes >= 0)
-            {
-                minutes = classMinutes;
-            }
-            else if (otherCost.HasValue)
-            {
-                if (definition.CostMinutes != 0)
-                {
-                    problem = Diag.Make(ResultCodes.TransactionMismatch, "event and domain both carry a cost; exactly one source is allowed", "one cost source", "event + domain");
-                    return false;
-                }
-                minutes = otherCost.Value;
-            }
-            else
-            {
-                minutes = definition.CostMinutes;
-            }
-            if (definition.Repeat == RepeatPolicy.Practice) minutes = 0;
-            return true;
         }
 
         private static Diagnostic CheckClockChanges(ChangeSet set, long minutes)

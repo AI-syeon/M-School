@@ -646,6 +646,9 @@ namespace MagicCampus.Contracts
         public CompletionKey? Completion { get; }
         public DataNode Raw { get; }   // original Row, so no field is dropped (category, staging, pause, ...)
 
+        /// <summary>Shared completion key of a once event; without an explicit key the event completes under its own id.</summary>
+        public CompletionKey OnceKey => Completion ?? new CompletionKey(Id);
+
         public CompiledEvent(string id, ExecutionMode mode, RepeatPolicy repeat, IEnumerable<string> resources, CompiledCall trigger, IEnumerable<CompiledCall> when,
             int costMinutes, IEnumerable<CompiledCall> script, IEnumerable<KeyValuePair<string, IReadOnlyList<CompiledCall>>> forks, IEnumerable<CompiledCall> effects,
             CompletionKey? completion, DataNode raw)
@@ -716,28 +719,15 @@ namespace MagicCampus.Contracts
         public ChangeSet(IEnumerable<PlannedChange> changes) { Changes = PortGuard.Opt(changes, nameof(changes)); }
     }
 
-    /// <summary>Staged perform result. Nothing is persisted when it is produced; effects read it at commit time.</summary>
-    public sealed class OperationResult
-    {
-        public string Domain { get; }
-        public string DefinitionId { get; }
-        public DataNode Staged { get; }
-
-        public OperationResult(string domain, string definitionId, DataNode staged)
-        { Domain = Ids.Require(domain, nameof(domain)); DefinitionId = Ids.Require(definitionId, nameof(definitionId)); Staged = staged ?? DataNode.Null; }
-    }
-
     public sealed class EffectContext
     {
         public StateSnapshot Basis { get; }
         public TransactionId TransactionId { get; }
         public CompletionKey? Completion { get; }
-        public IReadOnlyList<OperationResult> Staged { get; }
 
-        public EffectContext(StateSnapshot basis, TransactionId transactionId, CompletionKey? completion, IEnumerable<OperationResult> staged)
+        public EffectContext(StateSnapshot basis, TransactionId transactionId, CompletionKey? completion)
         {
             Basis = PortGuard.Required(basis, nameof(basis)); TransactionId = transactionId; Completion = completion;
-            Staged = PortGuard.Opt(staged, nameof(staged));
         }
     }
 
@@ -860,13 +850,11 @@ namespace MagicCampus.Contracts
         public string EventId { get; }
         public CompletionKey? Completion { get; }
         public long CommittedRevision { get; }
-        public IReadOnlyList<OperationResult> Operations { get; }   // staged results consumed by the commit
 
-        public EventCompletion(string eventId, CompletionKey? completion, long committedRevision, IEnumerable<OperationResult> operations)
+        public EventCompletion(string eventId, CompletionKey? completion, long committedRevision)
         {
             EventId = Ids.Require(eventId, nameof(eventId)); Completion = completion;
             CommittedRevision = PortGuard.Min(committedRevision, 0, nameof(committedRevision));
-            Operations = PortGuard.Opt(operations, nameof(operations));
         }
     }
 

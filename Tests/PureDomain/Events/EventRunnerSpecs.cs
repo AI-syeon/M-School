@@ -285,12 +285,12 @@ namespace MagicCampus.Tests.Events
         private static void OnceGuardRefusesBeforeLeasing()
         {
             var rig = new Rig();
-            rig.Planner.FailCode = ResultCodes.ConditionFalse;
             rig.Catalog.Add(Ev("ev.o", ExecutionMode.Scene, new string[0], new CompiledCall[0], null, RepeatPolicy.Once));
+            rig.Completed.Add("done.ev.o");
             var h = rig.Start("ev.o");
-            Check(h.Terminal.Code == ResultCodes.ConditionFalse && rig.Planner.Contexts.Count == 1, "once ledger guard refuses via dry-run plan");
+            Check(h.Terminal.Code == ResultCodes.ConditionFalse && rig.Planner.Contexts.Count == 0, "once ledger guard refuses before planning");
             Check(rig.Leases.ActiveLeaseCount == 0 && rig.Recovery.Captures == 0, "nothing leased or captured");
-            rig.Planner.FailCode = null;
+            rig.Completed.Remove("done.ev.o");
             var ok = rig.Start("ev.o");
             rig.Until(() => ok.Terminal != null, "run");
             Check(ok.Terminal.Status == OperationStatus.Succeeded, "once event runs when not completed");
@@ -589,6 +589,7 @@ namespace MagicCampus.Tests.Events
         public readonly FakeLifetime Lifetime;
         public readonly TickClock Clock;
         public readonly FakePlanner Planner = new FakePlanner();
+        public readonly HashSet<string> Completed = new HashSet<string>(StringComparer.Ordinal);
         public readonly FakeProjector Projector;
         public readonly FakeRecovery Recovery;
         public readonly FakeBoundaries Boundaries;
@@ -637,6 +638,7 @@ namespace MagicCampus.Tests.Events
                 Staging = Staging,
                 Maps = Maps,
                 Handles = Handles,
+                RepeatBlocked = (e, s) => Completed.Contains(e.OnceKey.Value),
                 EventTimeoutSeconds = timeoutSeconds
             });
         }
@@ -880,13 +882,10 @@ namespace MagicCampus.Tests.Events
     internal sealed class FakePlanner : IEventCommitPlanner
     {
         public readonly List<EffectContext> Contexts = new List<EffectContext>();
-        public string FailCode;
 
         public Outcome<StatePlan> PlanCommit(CompiledEvent definition, EffectContext context)
         {
             Contexts.Add(context);
-            if (FailCode != null)
-                return Outcome<StatePlan>.Fail(FailCode, context.Basis.Revision, new Diagnostic(FailCode, "planner refused", null, "plan", "refusal"));
             var plan = new StatePlan(context.TransactionId, context.Completion, context.Basis.Revision, new[] { new PlannedChange("event-effects", "complete", DataNode.Null) });
             return Outcome<StatePlan>.Ok(plan, context.Basis.Revision);
         }

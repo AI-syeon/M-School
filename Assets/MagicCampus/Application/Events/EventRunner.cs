@@ -156,19 +156,8 @@ namespace MagicCampus.Events
             if (!TryPause(def, out pause, out pauseActual))
                 return Refuse(request, ResultCodes.ContentInvalid, "unknown pause policy", "standard|dialogue|none", pauseActual);
 
-            if (def.Repeat == RepeatPolicy.Once)
-            {
-                if (d.RepeatBlocked != null)
-                {
-                    if (d.RepeatBlocked(def, snapshot))
-                        return Refuse(request, ResultCodes.ConditionFalse, "once event already completed", "not completed", def.Id);
-                }
-                else
-                {
-                    var probe = d.CommitPlanner.PlanCommit(def, new EffectContext(snapshot, request.TransactionId, def.Completion, null));
-                    if (!probe.Succeeded) return Refuse(request, probe.Result.Code, probe.Result.Details);
-                }
-            }
+            if (def.Repeat == RepeatPolicy.Once && d.RepeatBlocked(def, snapshot))
+                return Refuse(request, ResultCodes.ConditionFalse, "once event already completed", "not completed", def.Id);
 
             var scene = def.Mode == ExecutionMode.Scene;
             var resources = new List<string>(def.Resources);
@@ -780,7 +769,7 @@ namespace MagicCampus.Events
                 });
                 return;
             }
-            var planned = d.CommitPlanner.PlanCommit(run.Def, new EffectContext(snapshot, run.Txn, run.Def.Completion, null));
+            var planned = d.CommitPlanner.PlanCommit(run.Def, new EffectContext(snapshot, run.Txn, run.Def.Completion));
             if (!planned.Succeeded) { Abort(run, FailureFrom(planned.Result)); return; }
             var plan = planned.Value;
             if (!plan.TransactionId.Equals(run.Txn) || plan.ExpectedRevision != snapshot.Revision)
@@ -804,8 +793,8 @@ namespace MagicCampus.Events
             run.Phase = Phase.Done;
             active.Remove(run);
             Guard(run, "notify boundary", () => d.Boundaries.Notify(run.Scene ? SafeBoundary.SceneComplete : SafeBoundary.RoomSafe, d.Store.Current));
-            CompletionKey? completion = run.Def.Repeat == RepeatPolicy.Once ? run.Def.Completion ?? new CompletionKey(run.Def.Id) : (CompletionKey?)null;
-            run.Handle.Succeed(new EventCompletion(run.Def.Id, completion, revision, null), revision);
+            CompletionKey? completion = run.Def.Repeat == RepeatPolicy.Once ? run.Def.OnceKey : (CompletionKey?)null;
+            run.Handle.Succeed(new EventCompletion(run.Def.Id, completion, revision), revision);
             AutoSave();
         }
 

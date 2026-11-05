@@ -88,7 +88,7 @@ namespace MagicCampus.Tests.ContentValidation
       Check(actors.SetPosition("player", new Position("map.lounge", .5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual player projection setup");
       Check(actors.SetPosition("npc.serin", new Position("map.lounge", 4.5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual NPC projection setup");
       var planner = new MagicCampus.Transactions.Effects.EventCommitPlanner(clock, new MagicCampus.World.Movement.WorldStateProjector(actors), cat);
-      var context = new EffectContext(before, new TransactionId("integration.snack.1"), null, null);
+      var context = new EffectContext(before, new TransactionId("integration.snack.1"), null);
       var plan = planner.PlanCommit(eventDefinition, context);
       Check(plan.Succeeded, "full original transaction planning");
       var committed = store.Commit(plan.Value);
@@ -103,7 +103,7 @@ namespace MagicCampus.Tests.ContentValidation
       Check(store.Current.Slice("player").S("mapId") == "map.lounge" && store.Current.Slice("player").S("name") == player.S("name"), "player position and identity preserved");
       var after = store.Current;
       Check(store.Commit(plan.Value).Succeeded && ReferenceEquals(store.Current, after), "transaction replay no second state replacement");
-      Check(!planner.PlanCommit(eventDefinition, new EffectContext(after, new TransactionId("integration.snack.2"), null, null)).Succeeded, "new transaction cannot repeat completed event");
+      Check(!planner.PlanCommit(eventDefinition, new EffectContext(after, new TransactionId("integration.snack.2"), null)).Succeeded, "new transaction cannot repeat completed event");
       Console.WriteLine("PASS original full-save real condition/effect/clock/world/store/schema transaction");
     }
 

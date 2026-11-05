@@ -88,7 +88,7 @@ namespace MagicCampus.Application.Reservations
             if (index >= 0 && rows[index].Status != ReservationStatus.Offered) return null;
 
             if (ReservationRules.IsCompleted(ev, basis, ledger))
-                return Reject(ResultCodes.ConditionFalse, basis, "the shared completion key is already completed", ev.Id, "not completed", ReservationRules.EffectiveKey(ev).Value);
+                return Reject(ResultCodes.ConditionFalse, basis, "the shared completion key is already completed", ev.Id, "not completed", ev.OnceKey.Value);
 
             if (index >= 0) rows[index] = rows[index].With(ReservationStatus.Accepted, acceptedAt);
             else rows.Add(new AppointmentRow(ev.Id, ReservationStatus.Accepted, acceptedAt, rows.Count));
@@ -97,7 +97,7 @@ namespace MagicCampus.Application.Reservations
 
         private Outcome<StateReplacement> Complete(StatePlan plan, StateSnapshot basis, CompiledEvent ev, List<AppointmentRow> rows, int index)
         {
-            CompletionKey? expected = ev.Repeat == RepeatPolicy.Once ? ReservationRules.EffectiveKey(ev) : (CompletionKey?)null;
+            CompletionKey? expected = ev.Repeat == RepeatPolicy.Once ? ev.OnceKey : (CompletionKey?)null;
             var matches = plan.Completion.HasValue == expected.HasValue
                 && (!expected.HasValue || plan.Completion.Value.Equals(expected.Value));
             if (!matches)

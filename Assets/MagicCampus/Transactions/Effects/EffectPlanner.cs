@@ -18,7 +18,7 @@ namespace MagicCampus.Transactions.Effects
         public EffectPlanner(ICatalog catalog)
         {
             this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
-            foreach (var e in catalog.Events) eventKeys.Add(e.Completion.HasValue ? e.Completion.Value.Value : e.Id);
+            foreach (var e in catalog.Events) eventKeys.Add(e.OnceKey.Value);
         }
 
         public Outcome<ChangeSet> Plan(IReadOnlyList<CompiledCall> effects, EffectContext context)

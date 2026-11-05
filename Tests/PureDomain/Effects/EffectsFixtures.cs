@@ -83,11 +83,6 @@ namespace MagicCampus.Tests.Effects
                 key == null ? (CompletionKey?)null : new CompletionKey(key), Obj());
         }
 
-        public static OperationResult Staged(string domain, string definitionId, DataNode staged)
-        {
-            return new OperationResult(domain, definitionId, staged);
-        }
-
         public static DataNode Root(Action<Dictionary<string, DataNode>> tweak = null)
         {
             var m = new Dictionary<string, DataNode>(StringComparer.Ordinal);
@@ -112,15 +107,13 @@ namespace MagicCampus.Tests.Effects
             c.Var("met_mentor", "bool");
             c.Var("gold_stars", "int", 0, 10);
             c.Var("note", "string");
-            c.Defs["class/class_alchemy"] = Obj(P("durationMinutes", I(60)));
-            c.Defs["class/class_broken"] = Obj(P("durationMinutes", I(0)));
             var met = Call(SetFn, false, P("variable", S("met_mentor")), P("value", B(true)));
             Func<string, CompiledCall> done = id => Call(CompleteFn, false, P("id", S(id)));
             Func<long, CompiledCall> pay = n => Call(CurrencyFn, false, P("amountCrowns", I(n)));
             c.EventList.Add(Event("evt_intro", RepeatPolicy.Once, null, 0, met, done("intro_seen"), pay(25)));
             c.EventList.Add(Event("evt_practice", RepeatPolicy.Practice, null, 0, met));
+            c.EventList.Add(Event("evt_practice_cost", RepeatPolicy.Practice, null, 30, met));
             c.EventList.Add(Event("evt_practice_reward", RepeatPolicy.Practice, null, 0, pay(5)));
-            c.EventList.Add(Event("evt_class", RepeatPolicy.Once, null, 0, met));
             c.EventList.Add(Event("evt_cost30", RepeatPolicy.Once, null, 30));
             c.EventList.Add(Event("evt_craft", RepeatPolicy.Once, null, 0));
             c.EventList.Add(Event("evt_order", RepeatPolicy.Once, null, 30, met, done("order_seen"), pay(5)));
@@ -239,9 +232,9 @@ namespace MagicCampus.Tests.Effects
             return new TransactionId("tx-" + counter);
         }
 
-        public EffectContext Context(params OperationResult[] staged)
+        public EffectContext Context()
         {
-            return new EffectContext(Store.Current, Tx(), null, staged);
+            return new EffectContext(Store.Current, Tx(), null);
         }
     }
 }

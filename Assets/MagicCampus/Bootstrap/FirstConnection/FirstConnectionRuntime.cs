@@ -280,7 +280,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
           Staging = Staging,
           Maps = Maps,
           Handles = Handles,
-          RepeatBlocked = (e, s) => ledger.IsCompleted(s, e.Completion ?? new CompletionKey(e.Id)),
+          RepeatBlocked = (e, s) => ledger.IsCompleted(s, e.OnceKey),
           Trace = OnRunnerTrace
         };
         Runner = new EventRunner(deps);

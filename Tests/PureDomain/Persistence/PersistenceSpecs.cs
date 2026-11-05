@@ -23,7 +23,6 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         public static void Run()
         {
             CodecChecks();
-            SanitizerChecks();
             PolicyChecks();
             MigrationChecks();
             RestorerChecks();
@@ -108,7 +107,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         }
 
         /// <summary>A complete save v2 object with all 45 root fields.</summary>
-        private static DataNode Full(long gen = 1, string safePoint = "world-safe", bool loan = false, string hash = null, long wallet = 200)
+        private static DataNode Full(long gen = 1, string safePoint = "world-safe", string hash = null, long wallet = 200)
         {
             var d = new Dictionary<string, DataNode>();
             foreach (var f in SaveFields.Root) d[f] = L();
@@ -121,10 +120,8 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
                 P("mapId", S("map.a")), P("x", N(1.5)), P("y", N(1.5)), P("quickSlots", L(S("spell.lantern"), DataNode.Null, DataNode.Null, DataNode.Null)));
             d["wallet"] = I(wallet);
             var stacks = new List<DataNode> { Stack("item.a", 2, "normal"), Stack("item.g", 3, "grant") };
-            if (loan) stacks.Add(Stack("item.l", 1, "loan"));
             d["stacks"] = DataNode.FromList(stacks);
             var att = new List<DataNode> { Stack("item.g", 1, "grant") };
-            if (loan) att.Add(Stack("item.l", 1, "loan"));
             d["mail"] = L(O(P("id", S("mail.a")), P("attachments", DataNode.FromList(att)), P("kind", S("info")), P("createdAt", I(420)), P("reservationId", DataNode.Null), P("state", S("unread"))));
             d["completed"] = L(S("node.old"));
             d["rewardLedger"] = L(S("reward.old"));
@@ -203,20 +200,6 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Check(!codec.Decode(Json.Serialize(node.With("saveVersion", N(2.5)))).Succeeded, "non integer version refused");
             Throws<InvalidOperationException>(() => codec.Seal(new StateSnapshot(1, O(P("saveVersion", I(2)))), 1), "incomplete snapshot is not sealed");
             Throws<InvalidOperationException>(() => codec.Seal(new StateSnapshot(1, Full().With("wallet", N(2.5))), 1), "fractional wallet is not sealed");
-        }
-
-        private static void SanitizerChecks()
-        {
-            var codec = new SaveCodec(Json);
-            var original = Full(loan: true);
-            var root = Json.Parse("p", codec.Seal(new StateSnapshot(1, original), 1).Payload).Value.Root;
-            var stacks = root.Members["stacks"].Items;
-            Check(stacks.Count == 2 && stacks.All(s => s.Members["provenance"].Text != "loan"), "loan stacks stripped");
-            Check(stacks.Any(s => s.Members["provenance"].Text == "normal") && stacks.Any(s => s.Members["provenance"].Text == "grant"), "normal and grant preserved");
-            var att = root.Members["mail"].Items[0].Members["attachments"].Items;
-            Check(att.Count == 1 && att[0].Members["provenance"].Text == "grant", "loan mail attachments stripped");
-            Check(root.Members.Count == 45, "no other field removed");
-            Eq(3, original.Members["stacks"].Items.Count, "source tree untouched by sanitizing");
         }
 
         // ------------------------------------------------------------------ safe boundary policy

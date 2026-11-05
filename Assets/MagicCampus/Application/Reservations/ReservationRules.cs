@@ -12,16 +12,10 @@ namespace MagicCampus.Application.Reservations
 
     internal static class ReservationRules
     {
-        /// <summary>Shared completion key of an event; events without an explicit key complete under their own id.</summary>
-        internal static CompletionKey EffectiveKey(CompiledEvent ev)
-        {
-            return ev.Completion ?? new CompletionKey(ev.Id);
-        }
-
         internal static bool IsCompleted(CompiledEvent ev, StateSnapshot snapshot, ICompletionLedger ledger)
         {
             if (ev.Repeat == RepeatPolicy.Practice) return false;
-            return ledger.IsCompleted(snapshot, EffectiveKey(ev));
+            return ledger.IsCompleted(snapshot, ev.OnceKey);
         }
 
         internal static int Priority(CompiledEvent ev)

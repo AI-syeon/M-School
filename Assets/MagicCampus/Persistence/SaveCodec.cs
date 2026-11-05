@@ -34,48 +34,6 @@ namespace MagicCampus.Persistence
         }
     }
 
-    /// <summary>Removes volatile loan items (provenance "loan") from stacks and mail attachments. Nothing else is touched.</summary>
-    public static class SaveSanitizer
-    {
-        public static DataNode Sanitize(DataNode root)
-        {
-            if (root == null) throw new ArgumentNullException(nameof(root));
-            var r = root;
-            DataNode stacks;
-            if (r.TryGet("stacks", out stacks) && stacks.Kind == DataKind.List)
-                r = r.With("stacks", DropLoans(stacks));
-            DataNode mail;
-            if (r.TryGet("mail", out mail) && mail.Kind == DataKind.List)
-            {
-                var items = new List<DataNode>();
-                foreach (var m in mail.Items)
-                {
-                    DataNode att;
-                    if (m.Kind == DataKind.Object && m.TryGet("attachments", out att) && att.Kind == DataKind.List)
-                        items.Add(m.With("attachments", DropLoans(att)));
-                    else
-                        items.Add(m);
-                }
-                r = r.With("mail", DataNode.FromList(items));
-            }
-            return r;
-        }
-
-        private static bool IsLoan(DataNode n)
-        {
-            DataNode p;
-            return n.Kind == DataKind.Object && n.TryGet("provenance", out p) && p.Kind == DataKind.String && p.Text == "loan";
-        }
-
-        private static DataNode DropLoans(DataNode list)
-        {
-            var kept = new List<DataNode>();
-            foreach (var n in list.Items)
-                if (!IsLoan(n)) kept.Add(n);
-            return kept.Count == list.Items.Count ? list : DataNode.FromList(kept);
-        }
-    }
-
     /// <summary>
     /// Envelope framing through the injected IDataCodec. File layout (UTF-8 JSON object, exactly six members):
     /// format, saveVersion, catalogHash, generation, checksum (lowercase SHA-256 hex of the payload bytes), payload (strict canonical base64
@@ -106,7 +64,7 @@ namespace MagicCampus.Persistence
                 throw new InvalidOperationException("only save version " + SaveFields.CurrentVersion + " can be sealed");
             if (hash.Kind != DataKind.String || hash.Text.Length == 0)
                 throw new InvalidOperationException("catalogHash must be a non-empty string");
-            var root = SaveSanitizer.Sanitize(snapshot.Root).With("generation", DataNode.FromInteger(generation));
+            var root = snapshot.Root.With("generation", DataNode.FromInteger(generation));
             var bytes = codec.Serialize(root).ToArray();
             return new SaveEnvelope(SaveFields.CurrentVersion, hash.Text, generation, SaveHash.Sha256Hex(bytes), bytes);
         }

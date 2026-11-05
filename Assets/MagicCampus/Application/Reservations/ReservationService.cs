@@ -90,7 +90,7 @@ namespace MagicCampus.Application.Reservations
             {
                 if (ReservationRules.IsCompleted(ev, basis, ledger))
                     return Outcome<PlannedChange>.Fail(ResultCodes.ConditionFalse, basis.Revision,
-                        ReservationRules.Diag(ResultCodes.ConditionFalse, "the shared completion key is already completed", AppointmentCodec.Pointer, reservationId, "not completed", ReservationRules.EffectiveKey(ev).Value));
+                        ReservationRules.Diag(ResultCodes.ConditionFalse, "the shared completion key is already completed", AppointmentCodec.Pointer, reservationId, "not completed", ev.OnceKey.Value));
                 acceptedAt = calendar.FromSnapshot(basis).AbsoluteMinute;
             }
 

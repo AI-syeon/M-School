@@ -23,8 +23,7 @@ namespace MagicCampus.Tests.Effects
             AllSlicesCommitAtomically();
             RevisionConflictThroughStore();
             RepeatedTransactionAndCompletionAddNothing();
-            ClassDurationHasSingleSource();
-            MalformedAndDuplicateCostsRejected();
+            EventCostIsTheOnlyTimeSource();
             MalformedCollaboratorPlansRejected();
             PracticeEarnsNothingAndCostsNothing();
             PlanOrderAndStoreRefusesUnregisteredParticipants();
@@ -91,7 +90,7 @@ namespace MagicCampus.Tests.Effects
 
         private static Outcome<ChangeSet> PlanCalls(Rig r, string completionKey, params CompiledCall[] calls)
         {
-            var context = new EffectContext(r.Store.Current, Rig.Tx(), completionKey == null ? (CompletionKey?)null : new CompletionKey(completionKey), null);
+            var context = new EffectContext(r.Store.Current, Rig.Tx(), completionKey == null ? (CompletionKey?)null : new CompletionKey(completionKey));
             return r.Effects.Plan(calls, context);
         }
 
@@ -452,58 +451,24 @@ namespace MagicCampus.Tests.Effects
 
         // ------------------------------------------------------------------ time sources
 
-        private static void ClassDurationHasSingleSource()
+        private static void EventCostIsTheOnlyTimeSource()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            var evt = r.Catalog.FindEvent("evt_class");
-            var staged = Fx.Staged("class", "class_alchemy", Fx.Obj(Fx.P("costMinutes", Fx.I(60))));
-            var planned = r.Planner.PlanCommit(evt, r.Context(staged));
-            Require(planned.Succeeded && r.Clock.Calls == 1 && r.Clock.LastMinutes == 60, "class duration 60 asked once");
+            var evt = r.Catalog.FindEvent("evt_cost30");
+            var planned = r.Planner.PlanCommit(evt, r.Context());
+            Require(planned.Succeeded && r.Clock.Calls == 1 && r.Clock.LastMinutes == 30, "event cost 30 asked once");
             var advances = 0;
             foreach (var c in planned.Value.Changes) if (c.ParticipantId == "clock" && c.Operation == "advance") advances++;
             Require(advances == 1, "exactly one clock advance");
             var start = AbsoluteMinute(r);
-            Require(r.Store.Commit(planned.Value).Succeeded, "class commit");
-            Require(AbsoluteMinute(r) == start + 60, "time applied once");
-            Require(r.Store.Commit(planned.Value).Succeeded && AbsoluteMinute(r) == start + 60, "replay adds no time");
-            var again = r.Planner.PlanCommit(evt, r.Context(staged));
-            Require(!again.Succeeded && r.Clock.Calls == 1, "completed class asks no further time");
+            Require(r.Store.Commit(planned.Value).Succeeded, "event commit");
+            Require(AbsoluteMinute(r) == start + 30, "time applied once");
+            Require(r.Store.Commit(planned.Value).Succeeded && AbsoluteMinute(r) == start + 30, "replay adds no time");
+            var again = r.Planner.PlanCommit(evt, r.Context());
+            Require(!again.Succeeded && r.Clock.Calls == 1, "completed event asks no further time");
 
-            var r2 = new Rig(Fx.DefaultCatalog());
-            Func<string, DataNode, OperationResult> classResult = (id, body) => Fx.Staged("class", id, body);
-            var good = Fx.Obj(Fx.P("costMinutes", Fx.I(60)));
-            Require(!r2.Planner.PlanCommit(r2.Catalog.FindEvent("evt_cost30"), r2.Context(classResult("class_alchemy", good))).Succeeded, "event cost plus class duration refused");
-            Require(!r2.Planner.PlanCommit(r2.Catalog.FindEvent("evt_class"), r2.Context(classResult("class_alchemy", Fx.Obj(Fx.P("costMinutes", Fx.I(45)))))).Succeeded, "staged cost mismatch refused");
-            Require(!r2.Planner.PlanCommit(r2.Catalog.FindEvent("evt_class"), r2.Context(classResult("class_alchemy", Fx.Obj()))).Succeeded, "missing staged cost refused");
-            Require(!r2.Planner.PlanCommit(r2.Catalog.FindEvent("evt_class"), r2.Context(classResult("class_alchemy", good), classResult("class_alchemy", good))).Succeeded, "two class results refused");
-            var unknown = r2.Planner.PlanCommit(r2.Catalog.FindEvent("evt_class"), r2.Context(classResult("class_ghost", good)));
-            Require(!unknown.Succeeded && unknown.Result.Code == ResultCodes.RefNotFound, "unknown class refused");
-            Require(!r2.Planner.PlanCommit(r2.Catalog.FindEvent("evt_class"), r2.Context(classResult("class_broken", Fx.Obj(Fx.P("costMinutes", Fx.I(0)))))).Succeeded, "non-positive catalog duration refused");
-            Require(r2.Clock.Calls == 0, "no refused plan reached the clock");
-        }
-
-        private static void MalformedAndDuplicateCostsRejected()
-        {
-            var r = new Rig(Fx.DefaultCatalog());
-            var craft = r.Catalog.FindEvent("evt_craft");
-            Func<DataNode, OperationResult> withCost = cost => Fx.Staged("craft", "recipe", Fx.Obj(Fx.P("costMinutes", cost)));
-            Require(!r.Planner.PlanCommit(craft, r.Context(withCost(Fx.S("60")))).Succeeded, "string cost refused");
-            Require(!r.Planner.PlanCommit(craft, r.Context(withCost(Fx.I(-1)))).Succeeded, "negative cost refused");
-            Require(!r.Planner.PlanCommit(craft, r.Context(withCost(DataNode.FromNumber(1.5)))).Succeeded, "fractional cost refused");
-            var longCostRig = new Rig(Fx.DefaultCatalog());
-            Require(longCostRig.Planner.PlanCommit(longCostRig.Catalog.FindEvent("evt_craft"), longCostRig.Context(withCost(Fx.I(115201)))).Succeeded && longCostRig.Clock.LastMinutes == 115201, "calendar cycle is not an event cost limit; clock planner owns advance limits");
-            Require(!r.Planner.PlanCommit(craft, r.Context(withCost(Fx.I(10)), withCost(Fx.I(10)))).Succeeded, "two costs are never summed");
-            Require(!r.Planner.PlanCommit(r.Catalog.FindEvent("evt_cost30"), r.Context(withCost(Fx.I(20)))).Succeeded, "event cost plus domain cost refused");
-            var wizard = r.Planner.PlanCommit(craft, r.Context(Fx.Staged("wizardry", "x", Fx.Obj())));
-            Require(!wizard.Succeeded && wizard.Result.Code == ResultCodes.Unregistered, "unknown staged domain is UNREGISTERED");
-            Require(r.Clock.Calls == 0, "refusals never reached the clock");
-
-            var single = r.Planner.PlanCommit(craft, r.Context(withCost(Fx.I(20))));
-            Require(single.Succeeded && r.Clock.Calls == 1 && r.Clock.LastMinutes == 20, "a single domain cost is used");
-            var eventOnly = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_cost30"), r.Context());
-            Require(eventOnly.Succeeded && r.Clock.Calls == 2 && r.Clock.LastMinutes == 30, "a single event cost is used");
-            var free = r.Planner.PlanCommit(craft, r.Context(Fx.Staged("craft", "recipe", Fx.Obj())));
-            Require(free.Succeeded && r.Clock.Calls == 2, "no cost means no clock change");
+            var free = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_craft"), r.Context());
+            Require(free.Succeeded && r.Clock.Calls == 1, "no cost means no clock change");
         }
 
         private static void MalformedCollaboratorPlansRejected()
@@ -536,7 +501,7 @@ namespace MagicCampus.Tests.Effects
             r.World.Result = new ChangeSet(new[] { change("world", "project", Fx.Obj()) });
             Require(r.Planner.PlanCommit(evt, r.Context()).Succeeded, "one projection accepted");
 
-            var wrongCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("someone_else"), null);
+            var wrongCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("someone_else"));
             Require(!r.Planner.PlanCommit(evt, wrongCompletion).Succeeded, "context completion mismatch refused");
         }
 
@@ -544,22 +509,24 @@ namespace MagicCampus.Tests.Effects
         {
             var r = new Rig(Fx.DefaultCatalog());
             var practice = r.Catalog.FindEvent("evt_practice");
-            var staged = Fx.Staged("class", "class_alchemy", Fx.Obj(Fx.P("costMinutes", Fx.I(60))));
             var before = r.Store.Current;
-            var planned = r.Planner.PlanCommit(practice, r.Context(staged));
+            var planned = r.Planner.PlanCommit(practice, r.Context());
             Require(planned.Succeeded && !planned.Value.Completion.HasValue, "practice carries no completion key");
             Require(r.Clock.Calls == 0, "practice costs no time");
             var sequence = Sequence(planned.Value);
             Require(!sequence.Contains("event.complete") && !sequence.Contains("currency.add"), "practice writes no ledger or reward");
             Require(r.Store.Commit(planned.Value).Succeeded, "practice commits");
-            var again = r.Planner.PlanCommit(practice, r.Context(staged));
+            var again = r.Planner.PlanCommit(practice, r.Context());
             Require(again.Succeeded && r.Store.Commit(again.Value).Succeeded, "practice can repeat");
             Require(Crowns(r) == 100 && r.Store.Current.Slice("rewardLedger").Equals(before.Slice("rewardLedger")) && r.Store.Current.Slice("completed").Equals(before.Slice("completed")), "practice leaves wallet and ledgers alone");
             Require(AbsoluteMinute(r) == 2040, "practice leaves the clock alone");
 
+            var priced = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_practice_cost"), r.Context());
+            Require(priced.Succeeded && r.Clock.Calls == 0 && !Sequence(priced.Value).Contains("clock/"), "practice drops the event time cost");
+
             var reward = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_practice_reward"), r.Context());
             Require(!reward.Succeeded, "practice reward refused");
-            var withCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("evt_practice"), null);
+            var withCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("evt_practice"));
             Require(!r.Planner.PlanCommit(practice, withCompletion).Succeeded, "practice with a completion key refused");
             Require(!r.Store.Commit(P(r, "evt_practice", Done("evt_practice", "evt_practice", RepeatPolicy.Practice))).Succeeded, "practice event.complete with a completion refused");
         }
@@ -588,13 +555,12 @@ namespace MagicCampus.Tests.Effects
         {
             var r = new Rig(Fx.DefaultCatalog());
             var before = r.Store.Current;
-            var evt = r.Catalog.FindEvent("evt_class");
-            var staged = Fx.Staged("class", "class_alchemy", Fx.Obj(Fx.P("costMinutes", Fx.I(60))));
-            var a = r.Planner.PlanCommit(evt, r.Context(staged));
-            var b = r.Planner.PlanCommit(evt, r.Context(staged));
+            var evt = r.Catalog.FindEvent("evt_cost30");
+            var a = r.Planner.PlanCommit(evt, r.Context());
+            var b = r.Planner.PlanCommit(evt, r.Context());
             Require(a.Succeeded && b.Succeeded && a.Value.Changes.Count == b.Value.Changes.Count, "planning is repeatable");
             Unchanged(r, before, "planning only");
-            Require(AbsoluteMinute(r) == 2040 && Crowns(r) == 100, "staged results persist nothing");
+            Require(AbsoluteMinute(r) == 2040 && Crowns(r) == 100, "planning persists nothing");
 
             var cancelled = new Rig(Fx.DefaultCatalog());
             var snapshot = cancelled.Store.Current;

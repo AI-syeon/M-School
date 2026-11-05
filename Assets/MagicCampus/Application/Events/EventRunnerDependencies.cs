@@ -33,7 +33,7 @@ namespace MagicCampus.Events
         }
     }
 
-    /// <summary>Dependency and option bag for EventRunner. Every port is required; options have defaults. EventRunner copies it at construction.</summary>
+    /// <summary>Dependency and option bag for EventRunner. Every port and RepeatBlocked are required; options have defaults. EventRunner copies it at construction.</summary>
     public sealed class EventRunnerDependencies
     {
         public ICatalogProvider Catalog { get; set; }
@@ -62,7 +62,7 @@ namespace MagicCampus.Events
         public long MaxInstructionsPerRun { get; set; } = 100000;
         public Action<EventTraceEntry> Trace { get; set; }
 
-        /// <summary>Optional authoritative once-ledger check. When null, a once event is dry-run planned by IEventCommitPlanner before leasing.</summary>
+        /// <summary>Authoritative once-ledger check, run before leasing. True when the once event is already consumed.</summary>
         public Func<CompiledEvent, StateSnapshot, bool> RepeatBlocked { get; set; }
 
         internal EventRunnerDependencies Validated()
@@ -85,6 +85,7 @@ namespace MagicCampus.Events
             Need(Staging, nameof(Staging));
             Need(Maps, nameof(Maps));
             Need(Handles, nameof(Handles));
+            Need(RepeatBlocked, nameof(RepeatBlocked));
             if (double.IsNaN(EventTimeoutSeconds) || double.IsInfinity(EventTimeoutSeconds) || EventTimeoutSeconds <= 0)
                 throw new ArgumentOutOfRangeException(nameof(EventTimeoutSeconds));
             if (MaxScriptDepth < 1) throw new ArgumentOutOfRangeException(nameof(MaxScriptDepth));
