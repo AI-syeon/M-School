@@ -301,7 +301,7 @@ namespace MagicCampus.Contracts
         IHandle Load(string mapId, string ownerToken);
     }
 
-    // ---------------------------------------------------------------- movement
+    // ---------------------------------------------------------------- movement target
 
     public sealed class Destination
     {
@@ -313,7 +313,7 @@ namespace MagicCampus.Contracts
         { DestinationId = Ids.Opt(destinationId); Target = PortGuard.Placed(target, nameof(target)); Tolerance = PortGuard.NonNegative(tolerance, nameof(tolerance)); }
     }
 
-    // ---------------------------------------------------------------- compiled calls, events, catalog
+    // ---------------------------------------------------------------- content bundle
 
     public sealed class ContentBundle
     {
