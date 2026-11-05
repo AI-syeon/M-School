@@ -9,6 +9,9 @@ using System.Text.Json.Nodes;
 using MagicCampus.Content.Catalog;
 using MagicCampus.Content.Compilation;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
+using MagicCampus.State;
+using MagicCampus.Tests.PureDomain.Support;
 
 namespace MagicCampus.Tests.ContentValidation
 {
@@ -74,8 +77,9 @@ namespace MagicCampus.Tests.ContentValidation
       });
       var pump = new MagicCampus.Runtime.CompletionPump();
       var calendar = new MagicCampus.Timekeeping.Calendar();
-      var invariant = new SaveStateValidator(cat, e.SaveSchema.Root, e.Schema);
-      var store = new MagicCampus.State.StateStore(new StateSnapshot(0, e.Save.Root), new[] { invariant }, pump);
+      var store = new GameStore(SnapshotTrees.Snapshot(0, e.Save.Root), pump);
+      var invalid = new List<string>();
+      CommitValidation.Watch(store, new SaveStateValidator(cat, e.SaveSchema.Root, e.Schema), invalid.Add);
       var before = store.Current;
       var clock = new MagicCampus.Timekeeping.ClockService(store, calendar);
       var eventDefinition = cat.FindEvent("event.snack");
@@ -86,9 +90,11 @@ namespace MagicCampus.Tests.ContentValidation
       var positions = new MagicCampus.World.Movement.WorldProjection(actors, geometry);
       Outcome<StateSnapshot> Complete(string txn) => store.Commit(new TransactionId(txn), s => rules.Complete(s, eventDefinition, positions.Capture().Value));
       var committed = Complete("integration.snack.1");
-      Check(committed.Succeeded, "full original save schema accepts combined effects/time/positions: " + Summ(committed.Result.Details));
-      Check(store.Current.Root.Members.Count == before.Root.Members.Count, "all original root fields retained");
-      Check(clock.Now.AbsoluteMinute == calendar.FromSnapshot(before).AbsoluteMinute + 10, "real clock event cost exactly ten");
+      Check(committed.Succeeded, "combined effects/time/positions commit: " + Summ(committed.Result.Details));
+      pump.AdvanceTick();
+      Check(invalid.Count == 0, "full original save schema accepts the committed state: " + string.Join("; ", invalid));
+      Check(store.Current.Tree().Members.Count == before.Tree().Members.Count, "all original root fields retained");
+      Check(clock.Now.AbsoluteMinute == before.State.Clock.AbsoluteMinute + 10, "real clock event cost exactly ten");
       Check(store.Current.Slice("flags").Items.Any(n => n.S("id") == "memory.snack_done" && n.G("value").Bool), "real declared flag set");
       Check(store.Current.Slice("completed").Items.Any(n => n.Text == "event.snack") && store.Current.Slice("rewardLedger").Items.Any(n => n.Text == "event.snack"), "completion and reward ledger atomic");
       Check(store.Current.Slice("npcPositions").Items.Count == before.Slice("npcPositions").Items.Count, "inactive NPC positions retained");
@@ -96,7 +102,7 @@ namespace MagicCampus.Tests.ContentValidation
         Check(store.Current.Slice("npcPositions").Items.Any(n => n.Equals(row)), "inactive NPC row unchanged");
       Check(store.Current.Slice("player").S("mapId") == "map.lounge" && store.Current.Slice("player").S("name") == player.S("name"), "player position and identity preserved");
       var after = store.Current;
-      Check(Complete("integration.snack.1").Succeeded && ReferenceEquals(store.Current, after), "transaction replay no second state replacement");
+      Check(Complete("integration.snack.1").Result.Code == ResultCodes.ConditionFalse && ReferenceEquals(store.Current, after), "resubmitted transaction refused, no second state replacement");
       Check(Complete("integration.snack.2").Result.Code == ResultCodes.ConditionFalse && ReferenceEquals(store.Current, after), "new transaction cannot repeat completed event");
       Console.WriteLine("PASS original full-save real condition/effect/clock/world/store/schema transaction");
     }
@@ -229,7 +235,7 @@ namespace MagicCampus.Tests.ContentValidation
       Check(await != null && await.Args["handles"].Kind == DataKind.List && await.Args["handles"].Items.All(x => x.Kind == DataKind.String), "await handles are a list of strings");
       Check(choice != null && choice.Args["options"].Items.All(x => x.Kind == DataKind.Object && x.G("fork") != null && x.G("label") != null), "choice options are {fork,label} objects");
       var v = new SaveStateValidator(cat, e.SaveSchema.Root, e.Schema);
-      var sd = v.Validate(new StateSnapshot(1, e.Save.Root));
+      var sd = v.Validate(e.Save.Root);
       Check(sd.Count == 0, "normal save rejected: " + Summ(sd));
     }
 
@@ -312,7 +318,7 @@ namespace MagicCampus.Tests.ContentValidation
       var all = new List<Diagnostic>();
       if (!o.Succeeded) all.AddRange(o.Result.Details);
       var basis = o.Succeeded ? o.Value : e.Baseline;
-      all.AddRange(new SaveStateValidator(basis, e.SaveSchema.Root, e.Schema).Validate(new StateSnapshot(1, save.Root)));
+      all.AddRange(new SaveStateValidator(basis, e.SaveSchema.Root, e.Schema).Validate(save.Root));
       return all;
     }
 

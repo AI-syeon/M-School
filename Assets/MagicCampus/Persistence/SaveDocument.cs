@@ -5,6 +5,13 @@ using MagicCampus.State;
 
 namespace MagicCampus.Persistence
 {
+    /// <summary>Full check of a complete save v2 tree (schema and catalog references), run when a save is loaded and before one is written.</summary>
+    public interface ISaveValidator
+    {
+        /// <summary>Empty when the tree may be stored and loaded.</summary>
+        IReadOnlyList<Diagnostic> Validate(DataNode tree);
+    }
+
     /// <summary>
     /// The one conversion between the save v2 tree and GameState, and the only code that knows save field names.
     /// Read and Write are exact inverses: Serialize(Write(Read(t))) == Serialize(t) for every tree Read accepts.
@@ -23,12 +30,12 @@ namespace MagicCampus.Persistence
         private const long ExactIntegerLimit = 1L << 53;
 
         /// <summary>The load boundary: root shape (45 fields, integer wallet), then the validator once (save schema and references), then Read.</summary>
-        public static Outcome<GameState> Admit(DataNode root, IStateInvariant validator)
+        public static Outcome<GameState> Admit(DataNode root, ISaveValidator validator)
         {
             if (validator == null) throw new ArgumentNullException(nameof(validator));
             var shape = SaveFields.CheckRoot(root);
             if (shape.Count > 0) return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0, new List<Diagnostic>(shape).ToArray());
-            var problems = validator.Validate(new StateSnapshot(0, root));
+            var problems = validator.Validate(root);
             if (problems != null && problems.Count > 0) return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0, new List<Diagnostic>(problems).ToArray());
             return Read(root);
         }
@@ -90,6 +97,16 @@ namespace MagicCampus.Persistence
             m["discoveredCaseIds"] = Strings(known.DiscoveredCaseIds);
             m["caseResolutionOrder"] = Strings(known.CaseResolutionOrder);
             return DataNode.FromObject(m);
+        }
+
+        /// <summary>The boundary the state was saved at (its safePoint field); WorldSafe when the field is absent or unknown.</summary>
+        public static SafeBoundary SafePoint(GameState state)
+        {
+            if (state == null) throw new ArgumentNullException(nameof(state));
+            DataNode sp;
+            SafeBoundary boundary;
+            return state.Preserved.TopLevel.TryGet("safePoint", out sp) && sp.Kind == DataKind.String && SaveFields.TryParseBoundary(sp.Text, out boundary)
+                ? boundary : SafeBoundary.WorldSafe;
         }
 
         private static GameState ReadState(DataNode root)

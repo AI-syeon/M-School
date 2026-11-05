@@ -193,51 +193,6 @@ namespace MagicCampus.Contracts
         }
     }
 
-    // ---------------------------------------------------------------- state snapshot and store
-
-    public sealed class StateSnapshot
-    {
-        public long Revision { get; }
-        public DataNode Root { get; }   // the complete save v2 object; there is no reduced format
-
-        public StateSnapshot(long revision, DataNode root)
-        {
-            Revision = PortGuard.Min(revision, 0, nameof(revision));
-            if (PortGuard.Required(root, nameof(root)).Kind != DataKind.Object) throw new ArgumentException("not an object", nameof(root));
-            Root = root;
-        }
-
-        /// <summary>Top-level save field, or null when absent.</summary>
-        public DataNode Slice(string name) => Root.TryGet(name, out var v) ? v : null;
-    }
-
-    public sealed class StateCommitted
-    {
-        public TransactionId TransactionId { get; }
-        public CompletionKey? Completion { get; }
-        public long PreviousRevision { get; }
-        public long Revision { get; }
-
-        public StateCommitted(TransactionId transactionId, CompletionKey? completion, long previousRevision, long revision)
-        {
-            TransactionId = transactionId; Completion = completion;
-            PreviousRevision = PortGuard.Min(previousRevision, 0, nameof(previousRevision));
-            Revision = PortGuard.Min(revision, previousRevision, nameof(revision));
-        }
-    }
-
-    public interface IStateReader { StateSnapshot Current { get; } }
-
-    /// <summary>The only commit authority. Commits run typed transitions (StateStore.Commit); this port exposes reads, full replacement and listeners.</summary>
-    public interface IStateStore : IStateReader
-    {
-        /// <summary>Full replacement for load/restore. The store assigns the new revision as Current.Revision + 1.</summary>
-        Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId);
-
-        /// <summary>Listeners run through ICompletionQueue after the replacement, in commit order.</summary>
-        void OnCommitted(Action<StateCommitted> listener);
-    }
-
     // ---------------------------------------------------------------- leases, pause, ticks
 
     public sealed class LeaseRequest
@@ -641,24 +596,6 @@ namespace MagicCampus.Contracts
         ICatalog Current { get; }
     }
 
-    // ---------------------------------------------------------------- conditions and effects
-
-    public sealed class ConditionReport
-    {
-        public bool Satisfied { get; }
-        public long Revision { get; }
-        public IReadOnlyList<Diagnostic> Reasons { get; }   // why false; includes UNREGISTERED for unknown functions
-
-        public ConditionReport(bool satisfied, long revision, IEnumerable<Diagnostic> reasons)
-        { Satisfied = satisfied; Revision = PortGuard.Min(revision, 0, nameof(revision)); Reasons = PortGuard.Opt(reasons, nameof(reasons)); }
-    }
-
-    public interface IConditionEvaluator
-    {
-        /// <summary>Pure read of one snapshot; call again with the newest snapshot just before commit.</summary>
-        ConditionReport Evaluate(IReadOnlyList<CompiledCall> when, StateSnapshot snapshot);
-    }
-
     // ---------------------------------------------------------------- presentation
 
     public sealed class ChoiceOption
@@ -743,7 +680,6 @@ namespace MagicCampus.Contracts
 
     public interface ICalendar
     {
-        GameTime FromSnapshot(StateSnapshot snapshot);
         /// <summary>Pure. Used for tick advance and for event time costs; the cost is applied only inside the success commit.</summary>
         ClockAdvance Plan(GameTime from, double minutes);
     }
@@ -789,23 +725,6 @@ namespace MagicCampus.Contracts
     // ---------------------------------------------------------------- safe snapshot, save, restore, file generations
 
     public enum SafeBoundary { WorldSafe, SceneEntry, SceneComplete, RoomSafe }
-
-    public sealed class SafeSnapshot
-    {
-        public SafeBoundary Boundary { get; }
-        public StateSnapshot Snapshot { get; }
-        public bool Saved { get; }
-        public SafeSnapshot(SafeBoundary boundary, StateSnapshot snapshot, bool saved)
-        { Boundary = boundary; Snapshot = PortGuard.Required(snapshot, nameof(snapshot)); Saved = saved; }
-    }
-
-    /// <summary>Decides which snapshot a save may use. Knows nothing about files.</summary>
-    public interface ISafeBoundaryPolicy
-    {
-        void Notify(SafeBoundary boundary, StateSnapshot snapshot);
-        SafeSnapshot Latest { get; }   // null until the first boundary
-        void MarkSaved(long revision);
-    }
 
     /// <summary>File bytes envelope. Checksum is lowercase hex SHA-256 of Payload (UTF-8 JSON of the full save v2 object).</summary>
     public sealed class SaveEnvelope

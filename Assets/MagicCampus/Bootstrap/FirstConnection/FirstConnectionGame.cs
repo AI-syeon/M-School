@@ -112,7 +112,8 @@ namespace MagicCampus.Bootstrap.FirstConnection
         MapConfig = new MapAdapterConfig(Visuals.TileFor, null),
         Trace = WriteTrace,
         ResumeFromDisk = !fresh,
-        PumpInStep = false
+        PumpInStep = false,
+        ValidateEveryCommit = probeCase != null
       };
       Runtime = new FirstConnectionRuntime(config);
       Dialogue.SpeakerDisplayName = id =>
@@ -456,10 +457,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       if (Runtime == null || !Runtime.Ready) return;
       foreach (var c in Runtime.Reservations.Candidates(Runtime.Store.Current))
         if (!candidates.ContainsKey(c.EventId)) candidates[c.EventId] = c;
-      GameState state;
-      Diagnostic unreadable;
-      if (!Runtime.Store.Current.TryTypedState(out state, out unreadable)) return;
-      foreach (var row in state.Appointments.Rows)
+      foreach (var row in Runtime.Store.Current.State.Appointments.Rows)
         if (row.Status == ReservationStatus.Offered && Runtime.Compiled.FindEvent(row.Id) != null)
           candidates[row.Id] = new StartCandidate(row.Id, row.Id, ReservationStatus.Offered, 0, row.AcceptedAt, 0);
     }
@@ -610,13 +608,6 @@ namespace MagicCampus.Bootstrap.FirstConnection
       if (menuOpen) DrawMenu(w, h);
     }
 
-    static string WalletText(StateSnapshot s)
-    {
-      GameState state;
-      Diagnostic unreadable;
-      return s.TryTypedState(out state, out unreadable) ? state.Progress.Wallet.Value.ToString() : "-";
-    }
-
     void DrawHud(float w)
     {
       var r = new Rect(4, 4, w - 8, hudH);
@@ -626,7 +617,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       GUILayout.Label("매직캠퍼스 · 첫 약속", bold);
       var t = Runtime.Now;
       var min = t.MinuteOfDay;
-      GUILayout.Label((t.Day + 1) + "일 " + (min / 60).ToString("00") + ":" + (min % 60).ToString("00") + " · 소지금 " + WalletText(Runtime.Store.Current) + " 크라운", label);
+      GUILayout.Label((t.Day + 1) + "일 " + (min / 60).ToString("00") + ":" + (min % 60).ToString("00") + " · 소지금 " + Runtime.Store.Current.State.Progress.Wallet.Value.ToString() + " 크라운", label);
       GUILayout.BeginHorizontal();
       var prev = GUI.contentColor;
       var unsaved = Runtime.Unsaved;

@@ -1,8 +1,32 @@
 using System;
 using MagicCampus.Contracts;
+using MagicCampus.State;
 
 namespace MagicCampus.Persistence
 {
+    public sealed class SafeSnapshot
+    {
+        public SafeBoundary Boundary { get; }
+        public StateSnapshot Snapshot { get; }
+        public bool Saved { get; }
+        public SafeSnapshot(SafeBoundary boundary, StateSnapshot snapshot, bool saved)
+        { Boundary = boundary; Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot)); Saved = saved; }
+    }
+
+    /// <summary>Decides which snapshot a save may use. Knows nothing about files.</summary>
+    public interface ISafeBoundaryPolicy
+    {
+        void Notify(SafeBoundary boundary, StateSnapshot snapshot);
+        SafeSnapshot Latest { get; }   // null until the first boundary
+        void MarkSaved(long revision);
+    }
+
+    /// <summary>Resumes normal safe-boundary tracking after load or an aborted scene, without publishing scene success.</summary>
+    public interface ISafeBoundaryRenewal : ISafeBoundaryPolicy
+    {
+        void Renew(SafeBoundary boundary, StateSnapshot snapshot, bool saved);
+    }
+
     /// <summary>
     /// Decides which snapshot a save may use. While a scene is active (SceneEntry until SceneComplete) WorldSafe and RoomSafe
     /// notifications never replace the scene entry. Older revisions are ignored. MarkSaved only flags the matching revision.

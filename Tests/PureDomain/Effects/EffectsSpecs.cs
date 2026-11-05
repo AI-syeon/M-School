@@ -4,6 +4,7 @@ using System.Linq;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;
+using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Timekeeping;
 using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
@@ -125,13 +126,14 @@ namespace MagicCampus.Tests.Effects
 
         private static void Unchanged(Rig r, StateSnapshot before, string what)
         {
-            Require(r.Store.Current.Revision == before.Revision && r.Store.Current.Root.Equals(before.Root), what + ": state changed");
+            Require(r.Store.Current.Revision == before.Revision && r.Store.Current.Tree().Equals(before.Tree()), what + ": state changed");
         }
 
         /// <summary>Top-level save fields whose value differs between two snapshots.</summary>
         private static string Changed(StateSnapshot before, StateSnapshot after)
         {
-            return string.Join(",", before.Root.Members.Keys.Where(k => !before.Root.Members[k].Equals(after.Root.Members[k])).OrderBy(k => k, StringComparer.Ordinal));
+            var a = before.Tree(); var b = after.Tree();
+            return string.Join(",", a.Members.Keys.Where(k => !a.Members[k].Equals(b.Members[k])).OrderBy(k => k, StringComparer.Ordinal));
         }
 
         private static long Crowns(Rig r)
@@ -141,7 +143,7 @@ namespace MagicCampus.Tests.Effects
 
         private static long AbsoluteMinute(Rig r)
         {
-            return r.Store.Current.TypedState().Clock.AbsoluteMinute;
+            return r.Store.Current.State.Clock.AbsoluteMinute;
         }
 
         // ------------------------------------------------------------------ conditions
@@ -282,11 +284,8 @@ namespace MagicCampus.Tests.Effects
             Require(Check(r, Cases(Fx.I(2))).Satisfied, "two resolved cases");
             var three = Check(r, Cases(Fx.I(3)));
             Require(!three.Satisfied && three.Reasons[0].Expected == "resolved cases >= 3" && three.Reasons[0].Actual == "resolved cases = 2", "case count explanation");
-            var dup = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["caseResolutionOrder"] = Fx.Strings("a", "a")));
-            Require(Check(dup, Cases(Fx.I(1))).Reasons[0].Code == ResultCodes.ContentInvalid, "duplicate case ids invalid");
-            Require(!Check(dup, Cases(Fx.I(1), true)).Satisfied, "negation does not repair invalid order");
-            var bad = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["caseResolutionOrder"] = Fx.List(Fx.I(1))));
-            Require(!Check(bad, Cases(Fx.I(0))).Satisfied, "non-string element invalid");
+            Require(SaveDocument.Read(Fx.Root(m => m["caseResolutionOrder"] = Fx.Strings("a", "a"))).Result.Code == ResultCodes.ContentInvalid, "duplicate case ids cannot be held in a state");
+            Require(SaveDocument.Read(Fx.Root(m => m["caseResolutionOrder"] = Fx.List(Fx.I(1)))).Result.Code == ResultCodes.ContentInvalid, "a non-string case id cannot be held in a state");
             Require(Check(r, Cases(Fx.I(-1))).Reasons[0].Code == ResultCodes.ArgType, "negative count invalid");
         }
 
@@ -354,7 +353,7 @@ namespace MagicCampus.Tests.Effects
             Require(now.Slice("completed").Equals(Fx.Strings("intro_seen", "evt_intro")), "completed written, completion defaults to the event id");
             Require(now.Slice("rewardLedger").Equals(Fx.Strings("evt_intro")), "ledger written");
             Require(Crowns(r) == 125, "wallet written");
-            Require(now.Root.Members.Count == 45 && before.Root.Members.Count == 45, "all 45 root fields survive");
+            Require(now.Tree().Members.Count == 45 && before.Tree().Members.Count == 45, "all 45 root fields survive");
             Require(Changed(before, now) == "completed,flags,rewardLedger,wallet", "only the effect fields change, got " + Changed(before, now));
         }
 
@@ -365,12 +364,12 @@ namespace MagicCampus.Tests.Effects
             var first = r.Run(intro, null, "tx-intro");
             Require(first.Succeeded, "first commit");
             var afterFirst = r.Store.Current;
-            var replay = r.Run(intro, null, "tx-intro");
-            Require(replay.Succeeded && replay.Result.Revision == first.Result.Revision, "replayed transaction returns the first result");
-            Unchanged(r, afterFirst, "replayed transaction");
+            var resubmitted = r.Run(intro, null, "tx-intro");
+            Require(!resubmitted.Succeeded && resubmitted.Result.Code == ResultCodes.ConditionFalse, "a resubmitted transaction is refused");
+            Unchanged(r, afterFirst, "resubmitted transaction");
             Require(Crowns(r) == 125, "reward paid once");
 
-            Require(EventRules.IsSpent(r.Store.Current.TypedState(), intro), "the claimed once event is spent");
+            Require(EventRules.IsSpent(r.Store.Current.State, intro), "the claimed once event is spent");
             var second = r.Run(intro);
             Require(!second.Succeeded && second.Result.Code == ResultCodes.ConditionFalse, "new transaction for a consumed completion is refused");
             Unchanged(r, afterFirst, "repeat");
@@ -383,7 +382,7 @@ namespace MagicCampus.Tests.Effects
             Unchanged(r, afterA, "shared key reuse");
 
             var ledgerOnly = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["rewardLedger"] = Fx.Strings("shared_key")));
-            Require(EventRules.IsSpent(ledgerOnly.Store.Current.TypedState(), ledgerOnly.Catalog.FindEvent("evt_shared_a")), "a key only in rewardLedger is spent");
+            Require(EventRules.IsSpent(ledgerOnly.Store.Current.State, ledgerOnly.Catalog.FindEvent("evt_shared_a")), "a key only in rewardLedger is spent");
             var before = ledgerOnly.Store.Current;
             Require(ledgerOnly.Run("evt_shared_a").Result.Code == ResultCodes.ConditionFalse, "a key only in rewardLedger is not paid again");
             Unchanged(ledgerOnly, before, "rewardLedger-only key");
@@ -402,7 +401,7 @@ namespace MagicCampus.Tests.Effects
             Require(r.Run("evt_cost30", null, "tx-cost").Succeeded, "event commit");
             Require(AbsoluteMinute(r) == start + 30, "time applied once");
             Require(Changed(before, r.Store.Current) == "clock,completed,rewardLedger", "the cost rides in the event commit, got " + Changed(before, r.Store.Current));
-            Require(r.Run("evt_cost30", null, "tx-cost").Succeeded && AbsoluteMinute(r) == start + 30, "replay adds no time");
+            Require(!r.Run("evt_cost30", null, "tx-cost").Succeeded && AbsoluteMinute(r) == start + 30, "a resubmitted transaction is refused and adds no time");
             var again = r.Run("evt_cost30");
             Require(!again.Succeeded && AbsoluteMinute(r) == start + 30, "completed event adds no further time");
 
@@ -411,7 +410,7 @@ namespace MagicCampus.Tests.Effects
 
             var late = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["clock"] = Fx.Obj(Fx.P("absoluteMinute", Fx.I(2870)), Fx.P("fraction", DataNode.FromNumber(0.5)))));
             Require(late.Run("evt_cost30").Succeeded, "cost across midnight");
-            var clock = late.Store.Current.TypedState().Clock;
+            var clock = late.Store.Current.State.Clock;
             Require(clock.AbsoluteMinute == 2900 && clock.DayJobs.Items.SequenceEqual(new[] { "boundary.day_d2" }) && clock.ReturnPending, "the crossed midnight is recorded with the cost");
         }
 
@@ -422,10 +421,10 @@ namespace MagicCampus.Tests.Effects
             var parsed = EventOutcome.Parse(r.Catalog, practice).Value;
             Require(!parsed.Claim.HasValue && parsed.Crowns == 0 && parsed.Minutes == 0 && parsed.Sets.Count == 1, "practice parses to flags only: no claim, no crowns, no minutes");
             var before = r.Store.Current;
-            Require(!EventRules.IsSpent(before.TypedState(), practice), "practice is never spent");
+            Require(!EventRules.IsSpent(before.State, practice), "practice is never spent");
             Require(r.Run(practice).Succeeded, "practice commits");
             Require(r.Run(practice).Succeeded, "practice can repeat");
-            Require(!EventRules.IsSpent(r.Store.Current.TypedState(), practice), "practice stays unspent after it ran");
+            Require(!EventRules.IsSpent(r.Store.Current.State, practice), "practice stays unspent after it ran");
             Require(Crowns(r) == 100 && r.Store.Current.Slice("rewardLedger").Equals(before.Slice("rewardLedger")) && r.Store.Current.Slice("completed").Equals(before.Slice("completed")), "practice leaves wallet and ledgers alone");
             Require(AbsoluteMinute(r) == 2040, "practice leaves the clock alone");
             Require(Changed(before, r.Store.Current) == "flags", "practice writes flags only, got " + Changed(before, r.Store.Current));
@@ -438,7 +437,7 @@ namespace MagicCampus.Tests.Effects
 
             var reserved = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["appointments"] = Fx.List(Appointment("evt_practice", 5))));
             Refused(reserved, reserved.Catalog.FindEvent("evt_practice"), ResultCodes.TransactionMismatch, "practice run with a reservation row (decision D4)");
-            Require(reserved.Store.Current.TypedState().Appointments.Find("evt_practice") != null, "the reservation row stays");
+            Require(reserved.Store.Current.State.Appointments.Find("evt_practice") != null, "the reservation row stays");
         }
 
         private static DataNode Appointment(string id, long at)
@@ -454,7 +453,7 @@ namespace MagicCampus.Tests.Effects
             var live = new WorldPlaces(new Position("map.b", 3.0, 4.5), new[] { new KeyValuePair<string, Position>("npc.x", new Position("map.b", 1.5, 1.5)) });
             var outcome = r.Run("evt_order", live);
             Require(outcome.Succeeded && r.Store.Current.Revision == before.Revision + 1, "one commit, one revision");
-            var s = r.Store.Current.TypedState();
+            var s = r.Store.Current.State;
             Require(s.Progress.Flags.TryGet("met_mentor", out var met) && met.Bool, "flag");
             Require(s.Progress.Completed.Items.SequenceEqual(new[] { "order_seen", "evt_order" }) && s.Progress.RewardLedger.Items.SequenceEqual(new[] { "evt_order" }), "complete id, then the claim in both ledgers");
             Require(s.Progress.Wallet.Value == 105 && s.Clock.AbsoluteMinute == 2070, "reward and time cost");
@@ -479,7 +478,7 @@ namespace MagicCampus.Tests.Effects
         {
             var r = new Rig(Fx.DefaultCatalog());
             var before = r.Store.Current;
-            var state = before.TypedState();
+            var state = before.State;
             var evt = r.Catalog.FindEvent("evt_cost30");
             var a = r.Rules.Complete(state, evt, Rig.Nobody);
             var b = r.Rules.Complete(state, evt, Rig.Nobody);

@@ -15,7 +15,7 @@ namespace MagicCampus.Tests.Time
             YearSeasonTermWeekday();
             FractionAccumulation();
             InvalidCosts();
-            SnapshotRead();
+            ClockRead();
         }
 
         private static void Midnight()
@@ -156,33 +156,37 @@ namespace MagicCampus.Tests.Time
             Check.Equal("CLOCK_OVERFLOW", overflowProblem.Code, "overflow diagnostic");
         }
 
-        private static void SnapshotRead()
+        private static void ClockRead()
         {
-            var cal = new Calendar();
-            var ok = new StateSnapshot(1, TimeWorld.BuildRoot(900, 0.5, new string[0], false));
-            var time = cal.FromSnapshot(ok);
-            Check.Equal(900L, time.AbsoluteMinute, "snapshot minute");
-            Check.Equal(0.5, time.Fraction, "snapshot fraction");
+            var time = Read(TimeWorld.BuildRoot(900, 0.5, new string[0], false)).Value.Clock.Time;
+            Check.Equal(900L, time.AbsoluteMinute, "state minute");
+            Check.Equal(0.5, time.Fraction, "state fraction");
 
             var integerFractionRoot = new Dictionary<string, DataNode> { { "clock", Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)), Nodes.P("fraction", Nodes.Int(0))) } };
             TypedFields.FillMissing(integerFractionRoot);
-            var integerFraction = new StateSnapshot(1, DataNode.FromObject(integerFractionRoot));
-            Check.Equal(0.0, cal.FromSnapshot(integerFraction).Fraction, "integer zero fraction accepted");
+            Check.Equal(0.0, Read(DataNode.FromObject(integerFractionRoot)).Value.Clock.Time.Fraction, "integer zero fraction accepted");
 
             var broken = new[]
             {
-                Nodes.Obj(),
-                Nodes.Obj(Nodes.P("clock", Nodes.Int(1))),
-                Nodes.Obj(Nodes.P("clock", Nodes.Obj(Nodes.P("absoluteMinute", DataNode.FromNumber(5.5)), Nodes.P("fraction", DataNode.FromNumber(0))))),
-                Nodes.Obj(Nodes.P("clock", Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(-1)), Nodes.P("fraction", DataNode.FromNumber(0))))),
-                Nodes.Obj(Nodes.P("clock", Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)), Nodes.P("fraction", DataNode.FromNumber(1.0))))),
-                Nodes.Obj(Nodes.P("clock", Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)))))
+                null,
+                Nodes.Int(1),
+                Nodes.Obj(Nodes.P("absoluteMinute", DataNode.FromNumber(5.5)), Nodes.P("fraction", DataNode.FromNumber(0))),
+                Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(-1)), Nodes.P("fraction", DataNode.FromNumber(0))),
+                Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)), Nodes.P("fraction", DataNode.FromNumber(1.0))),
+                Nodes.Obj(Nodes.P("absoluteMinute", Nodes.Int(5)))
             };
-            foreach (var root in broken)
+            foreach (var clock in broken)
             {
-                var snapshot = new StateSnapshot(1, root);
-                Check.Throws<InvalidOperationException>(() => cal.FromSnapshot(snapshot), "malformed clock is explicit");
+                var m = new Dictionary<string, DataNode>();
+                if (clock != null) m["clock"] = clock;
+                TypedFields.FillMissing(m);
+                if (clock == null) m.Remove("clock");
+                var read = Read(DataNode.FromObject(m));
+                Check.True(!read.Succeeded && read.Result.Code == ResultCodes.ContentInvalid && read.Result.Details[0].Location.Pointer.StartsWith("/clock", StringComparison.Ordinal),
+                    "malformed clock is refused when the state is read");
             }
         }
+
+        private static Outcome<MagicCampus.State.GameState> Read(DataNode tree) => MagicCampus.Persistence.SaveDocument.Read(tree);
     }
 }

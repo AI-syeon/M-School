@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.State;
 
 namespace MagicCampus.Persistence
 {
@@ -15,7 +16,7 @@ namespace MagicCampus.Persistence
         private readonly SaveCodec codec;
         private readonly IFileGenerationStore files;
         private readonly SaveRestorer restorer;
-        private readonly IStateStore store;
+        private readonly GameStore store;
         private readonly ICatalogProvider catalogs;
         private readonly IHandleFactory handles;
         private bool busy;
@@ -26,7 +27,7 @@ namespace MagicCampus.Persistence
         private Result lastLoad;
 
         public SaveService(ISafeBoundaryRenewal policy, SaveCodec codec, IFileGenerationStore files, SaveRestorer restorer,
-            IStateStore store, ICatalogProvider catalogs, IHandleFactory handles)
+            GameStore store, ICatalogProvider catalogs, IHandleFactory handles)
         {
             this.policy = policy ?? throw new ArgumentNullException(nameof(policy));
             this.codec = codec ?? throw new ArgumentNullException(nameof(codec));
@@ -77,9 +78,7 @@ namespace MagicCampus.Persistence
             if (latest == null)
                 return FailSave(h, ResultCodes.ConditionFalse, 0, new Diagnostic("NO_SAFE_BOUNDARY", "no safe boundary has been reached yet", null, "safe snapshot", "none"));
 
-            var captured = new StateSnapshot(latest.Snapshot.Revision,
-                latest.Snapshot.Root.With("safePoint", DataNode.FromString(SaveFields.BoundaryName(latest.Boundary))));
-            var rev = captured.Revision;
+            var rev = latest.Snapshot.Revision;
 
             long highest;
             lock (gate) highest = lastKnownGeneration;
@@ -91,7 +90,7 @@ namespace MagicCampus.Persistence
             ReadOnlyMemory<byte> bytes;
             try
             {
-                bytes = codec.Encode(codec.Seal(captured, generation));
+                bytes = codec.Encode(codec.Seal(latest.Snapshot.State, latest.Boundary, generation));
             }
             catch (Exception e) when (e is InvalidOperationException || e is ArgumentException)
             {
@@ -250,9 +249,8 @@ namespace MagicCampus.Persistence
                 var res = owner.restorer.Restore(dec.Value, catalog);
                 if (!res.Succeeded) { Skip(generation, "RESTORE_FAILED", res.Result.Code, res.Result.Details); return; }
 
-                var expected = owner.store.Current.Revision;
                 var tx = new TransactionId("load." + seq + ".g" + generation);
-                var rep = owner.store.ReplaceAll(res.Value, expected, tx);
+                var rep = owner.store.Replace(res.Value, tx);
                 if (!rep.Succeeded)
                 {
                     var d = new List<Diagnostic>(rep.Result.Details);
@@ -261,11 +259,7 @@ namespace MagicCampus.Persistence
                     return;
                 }
                 var loaded = rep.Value;
-                DataNode sp;
-                SafeBoundary boundary;
-                if (!(loaded.Root.TryGet("safePoint", out sp) && sp.Kind == DataKind.String && SaveFields.TryParseBoundary(sp.Text, out boundary)))
-                    boundary = SafeBoundary.WorldSafe;
-                owner.policy.Renew(boundary, loaded, true);
+                owner.policy.Renew(SaveDocument.SafePoint(loaded.State), loaded, true);
                 lock (owner.gate)
                 {
                     owner.busy = false;

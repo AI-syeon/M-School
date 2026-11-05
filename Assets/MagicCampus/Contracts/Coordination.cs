@@ -90,21 +90,6 @@ namespace MagicCampus.Contracts
         MapGeometry Find(string mapId);
     }
 
-    // Injected into the store; checked before any state replacement.
-    public interface IStateInvariant
-    {
-        IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate);
-    }
-
-    // Scene-entry recovery only: owns the entry snapshot plus volatile actor positions (IActorWorld)
-    // and retains Accepted reservations. Not file IO and not a global room rollback.
-    public interface ISceneRecovery
-    {
-        Result CaptureEntry(StateSnapshot acceptedSnapshot, string ownerToken);
-        Outcome<StateSnapshot> RestoreEntry(string ownerToken);
-        Result ClearEntry(string ownerToken);
-    }
-
     public interface IDataCodec
     {
         // File hashes are computed by the caller on the exact original bytes, never on re-serialized DataNode output.

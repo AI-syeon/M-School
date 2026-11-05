@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Events;
+using MagicCampus.Persistence;
 using MagicCampus.Runtime;
+using MagicCampus.State;
+using MagicCampus.Tests.PureDomain.Support;
+using MagicCampus.Transactions.Conditions;
 
 namespace MagicCampus.Tests.Events
 {
@@ -125,7 +129,7 @@ namespace MagicCampus.Tests.Events
             rig.Until(() => h.Terminal != null, "abort");
             Check(h.Terminal.Status == OperationStatus.Failed && h.Terminal.Code == "DISK_ERROR", "entry save failure fails the event");
             Check(rig.Moves.Pending.Count == 0 && rig.Staging.Count == 0 && rig.Store.Commits.Count == 0, "nothing ran");
-            Check(rig.Recovery.Restores == 1 && rig.Store.Replaces.Count == 1, "entry recovered");
+            Check(rig.Recovery.Restores == 1 && rig.Store.ReplaceCount == 1, "entry recovered");
             rig.AssertClean();
         }
 
@@ -318,7 +322,7 @@ namespace MagicCampus.Tests.Events
             flip.Conditions.Value = false;
             flip.Until(() => f.Terminal != null, "abort");
             Check(f.Terminal.Status == OperationStatus.Failed && f.Terminal.Code == ResultCodes.ConditionFalse, "changed condition aborts before commit");
-            Check(flip.Store.Commits.Count == 0 && flip.Recovery.Restores == 1 && flip.Store.Replaces.Count == 1, "no commit, entry recovered");
+            Check(flip.Store.Commits.Count == 0 && flip.Recovery.Restores == 1 && flip.Store.ReplaceCount == 1, "no commit, entry recovered");
             flip.AssertClean();
         }
 
@@ -332,7 +336,7 @@ namespace MagicCampus.Tests.Events
             Check(h.Terminal.Status == OperationStatus.Succeeded, "memory success is kept");
             rig.Until(() => rig.Runner.LastSaveResult != null, "autosave result");
             Check(rig.Runner.LastSaveResult.Status == OperationStatus.Failed && rig.Runner.Unsaved, "disk failure exposed as unsaved");
-            Check(rig.Store.Replaces.Count == 0 && rig.Store.Commits.Count == 1, "no rollback after the commit");
+            Check(rig.Store.ReplaceCount == 0 && rig.Store.Commits.Count == 1, "no rollback after the commit");
             CheckOrder(rig.Log, "commit:tx.s1", "clear", "lifetime.close", "pause.release", "lease.release", "notify:SceneComplete", "save.request");
 
             var again = rig.Start("ev.s", "owner.a", 1, "tx.s2");
@@ -349,8 +353,8 @@ namespace MagicCampus.Tests.Events
             rig.Catalog.Add(Ev("ev.a", ExecutionMode.Scene, new string[0], new[] { Move("ev.a", 1, null) }));
             var h = rig.Start("ev.a");
             rig.Until(() => rig.Moves.Pending.Count == 1, "move");
-            var appointments = DataNode.FromList(new[] { Obj(A("id", S("ev.later")), A("state", S("Accepted"))) });
-            rig.Recovery.RestoreOverride = new StateSnapshot(1, rig.Store.Current.Root.With("appointments", appointments));
+            var appointments = DataNode.FromList(new[] { Obj(A("id", S("ev.later")), A("status", S("Accepted")), A("acceptedAt", DataNode.FromInteger(3))) });
+            rig.Recovery.RestoreOverride = SnapshotTrees.Snapshot(1, rig.Store.Current.Tree().With("appointments", appointments));
             rig.Maps.ActiveMapId = "map.b";
             h.Cancel("player");
             rig.Until(() => rig.Maps.Loads.Count == 1, "entry map load");
@@ -359,9 +363,8 @@ namespace MagicCampus.Tests.Events
             rig.Maps.Loads[0].Succeed(null, 0);
             rig.Until(() => h.Terminal != null, "cancel completes");
             Check(h.Terminal.Status == OperationStatus.Cancelled, "cancelled status");
-            CheckOrder(rig.Log, "load:map.a", "restore", "replace", "clear", "pause.release", "lease.release");
-            DataNode kept;
-            Check(rig.Store.Current.Root.TryGet("appointments", out kept) && kept.Items.Count == 1, "accepted reservation preserved by the restore");
+            CheckOrder(rig.Log, "load:map.a", "restore", "clear", "pause.release", "lease.release");
+            Check(rig.Store.ReplaceCount == 1 && rig.Store.Current.State.Appointments.Find("ev.later") != null, "one replacement keeps the accepted reservation");
             Check(rig.Store.Commits.Count == 0 && rig.Runner.CleanupDiagnostics.Count == 0, "no commit, clean recovery");
             Check(rig.Log.Contains("renew:WorldSafe"), "cancel renews normal safe snapshot tracking without publishing success");
             rig.AssertClean();
@@ -397,7 +400,7 @@ namespace MagicCampus.Tests.Events
             foreach (var diag in rig.Runner.CleanupDiagnostics)
                 if (diag.Code == ResultCodes.MapLoadFailed) seen = true;
             Check(seen, "map restore failure exposed");
-            Check(rig.Store.Replaces.Count == 1 && rig.Recovery.Clears == 1, "state and recovery still cleaned up");
+            Check(rig.Store.ReplaceCount == 1 && rig.Recovery.Clears == 1, "state and recovery still cleaned up");
             rig.AssertClean();
         }
 
@@ -411,7 +414,7 @@ namespace MagicCampus.Tests.Events
             h.Cancel("leave");
             rig.Until(() => h.Terminal != null, "cancel");
             Check(h.Terminal.Status == OperationStatus.Cancelled, "cancelled");
-            Check(rig.Store.Replaces.Count == 0 && rig.Recovery.Captures == 0 && rig.Recovery.Restores == 0 && rig.Recovery.Clears == 0 && rig.Maps.Loads.Count == 0, "no global rollback for rooms");
+            Check(rig.Store.ReplaceCount == 0 && rig.Recovery.Captures == 0 && rig.Recovery.Restores == 0 && rig.Recovery.Clears == 0 && rig.Maps.Loads.Count == 0, "no global rollback for rooms");
             Check(rig.Lifetime.Closed == 1, "display closed");
             rig.AssertClean();
         }
@@ -605,7 +608,7 @@ namespace MagicCampus.Tests.Events
         {
             Handles = new HandleFactory(Pump);
             Leases = new LoggingLeases(new LeaseService(), Log);
-            Store = new FakeStore(Log);
+            Store = new FakeStore(Log, Pump);
             Pauses = new FakePauses(Log);
             Moves = new FakeMoves(Handles, Log);
             Presentation = new FakePresentation(Handles, Log);
@@ -628,7 +631,7 @@ namespace MagicCampus.Tests.Events
                 Presentation = Presentation,
                 PresentationLifetime = Lifetime,
                 Clock = Clock,
-                Store = Store,
+                Store = Store.Inner,
                 CommitEvent = Store.CommitEvent,
                 ProjectWorld = Projector.Project,
                 Recovery = Recovery,
@@ -692,19 +695,25 @@ namespace MagicCampus.Tests.Events
         public Result Release(string leaseId) { log.Add("lease.release"); return inner.Release(leaseId); }
     }
 
-    internal sealed class FakeStore : IStateStore
+    internal sealed class FakeStore
     {
         private readonly List<string> log;
         public readonly List<TransactionId> Commits = new List<TransactionId>();
         public readonly List<long> EventBases = new List<long>();
-        public readonly List<StateSnapshot> Replaces = new List<StateSnapshot>();
-        public StateSnapshot Current { get; private set; }
+        public readonly GameStore Inner;
 
-        public FakeStore(List<string> log)
+        public FakeStore(List<string> log, ICompletionQueue queue)
         {
             this.log = log;
-            Current = new StateSnapshot(1, DataNode.FromObject(new Dictionary<string, DataNode>()));
+            var root = new Dictionary<string, DataNode>(StringComparer.Ordinal);
+            TypedFields.FillMissing(root);
+            Inner = new GameStore(SnapshotTrees.Snapshot(1, DataNode.FromObject(root)), queue);
         }
+
+        public StateSnapshot Current { get { return Inner.Current; } }
+
+        /// <summary>Every commit here changes the state, so the revisions not explained by commits are replacements.</summary>
+        public int ReplaceCount { get { return (int)(Current.Revision - 1) - Commits.Count; } }
 
         public Outcome<StateSnapshot> CommitEvent(CompiledEvent definition, TransactionId transaction)
         {
@@ -716,19 +725,8 @@ namespace MagicCampus.Tests.Events
         {
             Commits.Add(transaction);
             log.Add("commit:" + transaction);
-            Current = new StateSnapshot(Current.Revision + 1, Current.Root);
-            return Outcome<StateSnapshot>.Ok(Current, Current.Revision);
+            return Inner.Commit(transaction, s => Outcome<GameState>.Ok(s.With(s.Clock), 0));
         }
-
-        public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
-        {
-            Replaces.Add(candidate);
-            log.Add("replace");
-            Current = new StateSnapshot(Current.Revision + 1, candidate.Root);
-            return Outcome<StateSnapshot>.Ok(Current, Current.Revision);
-        }
-
-        public void OnCommitted(Action<StateCommitted> listener) { }
     }
 
     internal sealed class FakeConditions : IConditionEvaluator

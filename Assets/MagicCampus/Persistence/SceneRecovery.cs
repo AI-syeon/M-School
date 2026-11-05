@@ -1,13 +1,25 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.State;
 
 namespace MagicCampus.Persistence
 {
     /// <summary>
+    /// Scene-entry recovery only: owns the entry snapshot plus volatile actor positions (IActorWorld)
+    /// and retains Accepted reservations. Not file IO and not a global room rollback.
+    /// </summary>
+    public interface ISceneRecovery
+    {
+        Result CaptureEntry(StateSnapshot acceptedSnapshot, string ownerToken);
+        Outcome<StateSnapshot> RestoreEntry(string ownerToken);
+        Result ClearEntry(string ownerToken);
+    }
+
+    /// <summary>
     /// Scene-entry recovery: keeps the accepted entry snapshot (unchanged, including Accepted reservations) plus the immutable actor
     /// states seen at capture, once per owner. RestoreEntry puts the actors back through IActorWorld.Restore and returns the snapshot;
-    /// it never touches the state store. The runner restores the real map first and then calls IStateStore.ReplaceAll itself.
+    /// it never touches the state store. The runner restores the real map first and then calls GameStore.Replace itself.
     /// Room activities do not use this class.
     /// </summary>
     public sealed class SceneRecovery : ISceneRecovery

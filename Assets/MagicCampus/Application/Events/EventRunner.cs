@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
+using MagicCampus.State;
 
 namespace MagicCampus.Events
 {
@@ -876,8 +878,8 @@ namespace MagicCampus.Events
             {
                 var restored = d.Recovery.RestoreEntry(run.Owner);
                 if (!restored.Succeeded) { Note(run, restored.Result, "RestoreEntry"); return; }
-                var replaced = d.Store.ReplaceAll(restored.Value, d.Store.Current.Revision, new TransactionId(run.Txn.Value + ".restore"));
-                if (!replaced.Succeeded) Note(run, replaced.Result, "ReplaceAll");
+                var replaced = d.Store.Replace(restored.Value.State, new TransactionId(run.Txn.Value + ".restore"));
+                if (!replaced.Succeeded) Note(run, replaced.Result, "Replace");
                 else if (d.Boundaries is ISafeBoundaryRenewal renewal) renewal.Renew(SafeBoundary.WorldSafe, replaced.Value, false);
             });
             Guard(run, "clear entry", () => Note(run, d.Recovery.ClearEntry(run.Owner), "ClearEntry"));

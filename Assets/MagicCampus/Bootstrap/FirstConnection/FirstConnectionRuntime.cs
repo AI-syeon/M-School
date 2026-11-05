@@ -49,6 +49,8 @@ namespace MagicCampus.Bootstrap.FirstConnection
     public double ManualMoveTimeoutSeconds = 60;
     public double ActorRadius = 0.2;
     public double PlayerSpeed = 3;
+    /// <summary>Probe runs only (decision D9): run the full save validation after every commit and list each refused state in InvalidCommits.</summary>
+    public bool ValidateEveryCommit;
   }
 
   public enum RuntimePhase { Starting, Ready, Loading, Faulted, Disposed }
@@ -66,6 +68,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
     readonly FirstConnectionRuntimeConfig config;
     readonly List<string> diagnostics = new List<string>();
     readonly List<string> traceLog = new List<string>();
+    readonly List<string> invalidCommits = new List<string>();
     readonly List<ActiveNpc> activeNpcs = new List<ActiveNpc>();
     readonly Dictionary<string, Dictionary<string, Position>> recipes = new Dictionary<string, Dictionary<string, Position>>(StringComparer.Ordinal);
     readonly DataNode saveSchema;
@@ -97,7 +100,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
     public LeaseService Leases { get; }
     public TickClock Ticks { get; }
     MoveService Moves { get; }
-    public StateStore Store { get; }
+    public GameStore Store { get; }
     Tk.ClockService Clock { get; }
     WorldProjection Positions { get; }
     public CatalogDestinationResolver Destinations { get; }
@@ -136,6 +139,11 @@ namespace MagicCampus.Bootstrap.FirstConnection
     public IReadOnlyList<string> Diagnostics { get { return diagnostics.ToArray(); } }
     public IReadOnlyList<string> TraceLog { get { return traceLog.ToArray(); } }
     public GameTime Now { get { return Clock.Now; } }
+    /// <summary>Commits that failed full validation; filled only when ValidateEveryCommit is set.</summary>
+    public IReadOnlyList<string> InvalidCommits { get { return invalidCommits.ToArray(); } }
+
+    /// <summary>The current state as the complete save v2 tree, for evidence dumps.</summary>
+    public DataNode StateTree() { return SaveDocument.Write(Store.Current.State); }
 
     // Token / leak counts (all zero when idle).
     public int ActiveLeaseCount { get { return Leases.ActiveLeaseCount; } }
@@ -198,11 +206,9 @@ namespace MagicCampus.Bootstrap.FirstConnection
         var savePath = Path.Combine(variantDir, config.InitialSave);
         if (!File.Exists(savePath)) savePath = Path.Combine(baseDir, config.InitialSave);
         if (!File.Exists(savePath)) throw new FileNotFoundException("initial save not found", config.InitialSave);
-        var initial = new StateSnapshot(0, ReadBundle(savePath).Root);
-        var shape = SaveFields.CheckRoot(initial.Root);
-        if (shape.Count > 0) throw new InvalidOperationException("initial save is not the 45-field v2 object: " + shape[0].Code + " " + shape[0].Actual);
-        var problems = new SaveStateValidator(Compiled, saveSchema, Schema).Validate(initial);
-        if (problems.Count > 0) throw new InvalidOperationException("initial save invalid: " + problems[0].Code + " " + problems[0].Message);
+        var validator = new SaveStateValidator(Compiled, saveSchema, Schema);
+        var initial = SaveDocument.Admit(ReadBundle(savePath).Root, validator);
+        if (!initial.Succeeded) throw new InvalidOperationException("initial save invalid: " + initial.Result.Details[0].Code + " " + initial.Result.Details[0].Message);
 
         Pump = new CompletionPump();
         Handles = new HandleFactory(Pump);
@@ -216,12 +222,13 @@ namespace MagicCampus.Bootstrap.FirstConnection
           return userMap == null || userMap.LoadVerifier == null ? null : userMap.LoadVerifier(mapId, go);
         }));
         CollisionPort = new GridCollisionPort(Layout);
-        Actors = new ActorWorld(Maps, BuildActors(initial));
+        Actors = new ActorWorld(Maps, BuildActors(initial.Value));
         Moves = new MoveService(Actors, CollisionPort, Maps, Maps, Handles, Pause, isSceneOwner: IsSceneOwner, revisionSource: () => Store.Current.Revision, requiresVisibleMap: NeedsVisibleMap);
 
         var calendar = new Tk.Calendar();
-        Store = new StateStore(initial, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump);
+        Store = new GameStore(new StateSnapshot(0, initial.Value), Pump);
         Store.OnCommitted(c => { if (!c.TransactionId.Value.StartsWith("clock.advance", StringComparison.Ordinal)) Emit("commit txn=" + c.TransactionId.Value + " " + c.PreviousRevision + "->" + c.Revision); });
+        if (config.ValidateEveryCommit) CommitValidation.Watch(Store, validator, m => { invalidCommits.Add(m); Emit("commit.invalid " + m); });
         Clock = new Tk.ClockService(Store, calendar);
         Positions = new WorldProjection(Actors, Maps);
         Destinations = new CatalogDestinationResolver(Provider);
@@ -229,8 +236,8 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
         Disk = new FileGenerationStore(config.SaveDirectory, Handles, 0, ctx => { if (FailDisk && ctx.Phase == StorageFaultPhase.CreateTemp) throw new IOException("injected disk failure"); });
         Policy = new SafeBoundaryPolicy();
-        var restorer = new SaveRestorer(Codec, Schema, saveSchema, c => new SaveStateValidator(c, saveSchema, Schema));
-        Saves = new SaveService(Policy, new SaveCodec(Codec), Disk, restorer, Store, Provider, Handles);
+        var restorer = new SaveRestorer(Codec, c => new SaveStateValidator(c, saveSchema, Schema));
+        Saves = new SaveService(Policy, new SaveCodec(Codec, validator), Disk, restorer, Store, Provider, Handles);
 
         var lookup = Compiled as ICompiledContentLookup;
         if (lookup == null) throw new InvalidOperationException("compiled catalog does not expose compiled call lookup");
@@ -276,7 +283,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
           Staging = Staging,
           Maps = Maps,
           Handles = Handles,
-          RepeatBlocked = (e, s) => EventRules.IsSpent(s.TypedState(), e),
+          RepeatBlocked = (e, s) => EventRules.IsSpent(s.State, e),
           Trace = OnRunnerTrace
         };
         Runner = new EventRunner(deps);
@@ -648,7 +655,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
           return;
         }
         Result restored;
-        try { restored = Actors.Restore(BuildActors(Store.Current)); }
+        try { restored = Actors.Restore(BuildActors(Store.Current.State)); }
         catch (Exception e) { restored = Failure("ACTOR_REBUILD_FAILED", e.Message); }
         if (restored.Status != OperationStatus.Succeeded)
         {
@@ -686,10 +693,10 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     // ------------------------------------------------------------------ world rebuild
 
-    List<ActorState> BuildActors(StateSnapshot s)
+    List<ActorState> BuildActors(GameState state)
     {
       var list = new List<ActorState>();
-      var world = s.TypedState().World;
+      var world = state.World;
       list.Add(new ActorState(PlayerId, world.Player.ToPosition(), config.ActorRadius, config.PlayerSpeed));
       var saved = new Dictionary<string, Place>(StringComparer.Ordinal);
       foreach (var row in world.Npcs) saved[row.NpcId] = row.At;
@@ -719,7 +726,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     string PlayerMapId()
     {
-      return Store.Current.TypedState().World.Player.MapId;
+      return Store.Current.State.World.Player.MapId;
     }
 
     static Position ReadPosition(DataNode n, string who)

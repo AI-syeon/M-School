@@ -8,6 +8,7 @@ public static class ProgramStage4
         Run("Persistence", MagicCampus.Tests.PureDomain.PersistenceTests.PersistenceSpecs.Run);
         Run("SaveDocumentRoundTrip", MagicCampus.Tests.PureDomain.PersistenceTests.GameStateSpecs.RunRoundTrip);
         Run("GameStateTransitions", MagicCampus.Tests.PureDomain.PersistenceTests.GameStateSpecs.RunTransitions);
+        Run("PreservedFieldsSourceCheck", MagicCampus.Tests.PureDomain.PersistenceTests.GameStateSpecs.RunPreservedSourceCheck);
         Run("Schedules", MagicCampus.Tests.PureDomain.Schedules.SchedulesSpecs.Run);
         Run("Events", MagicCampus.Tests.Events.EventRunnerSpecs.Run);
         Run("FirstConnectionData", MagicCampus.Tests.FirstConnectionData.FirstConnectionDataSpecs.Run);

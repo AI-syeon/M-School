@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 
 namespace MagicCampus.Content.Catalog
 {
   // Pure read-only static validation of an existing full save v2 tree: strict schema, references and invariants.
-  // Not persistence and not migration: older versions are rejected here and must be migrated before they reach the store.
-  public sealed class SaveStateValidator : IStateInvariant
+  // Not persistence and not migration: older versions are rejected here and must be migrated before they reach SaveDocument.Admit.
+  public sealed class SaveStateValidator : ISaveValidator
   {
     public const int SupportedSaveVersion = 2;
     readonly ICatalog catalog;
@@ -38,11 +39,10 @@ namespace MagicCampus.Content.Catalog
       return null;
     }
 
-    public IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate)
+    public IReadOnlyList<Diagnostic> Validate(DataNode root)
     {
-      if (candidate == null) throw new ArgumentNullException(nameof(candidate));
+      if (root == null) throw new ArgumentNullException(nameof(root));
       var d = new List<Diagnostic>();
-      var root = candidate.Root;
       d.AddRange(schema.Validate(saveSchema, root, "save"));
 
       void Bad(string code, string ptr, string msg) { d.Add(Diags.Make(code, "save", ptr, "", "", 0, msg, null, null)); }

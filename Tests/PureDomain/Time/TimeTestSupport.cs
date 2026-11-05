@@ -55,7 +55,7 @@ namespace MagicCampus.Tests.Time
 
     internal sealed class TimeWorld
     {
-        public StateStore Store;
+        public GameStore Store;
         public CompletionPump Pump;
         public Calendar Calendar;
         public ClockService Clock;
@@ -85,26 +85,26 @@ namespace MagicCampus.Tests.Time
             return Create(BuildRoot(absoluteMinute, fraction, dayJobs, returnPending), 1);
         }
 
-        public static TimeWorld Create(DataNode root, long revision, IStateInvariant[] invariants = null)
+        public static TimeWorld Create(DataNode root, long revision)
         {
             var w = new TimeWorld();
             w.Calendar = new Calendar();
             w.Pump = new CompletionPump();
-            w.Store = new StateStore(new StateSnapshot(revision, root), invariants ?? new IStateInvariant[0], w.Pump);
+            w.Store = new GameStore(SnapshotTrees.Snapshot(revision, root), w.Pump);
             w.Clock = new ClockService(w.Store, w.Calendar);
             return w;
         }
 
-        public long Minute { get { return Calendar.FromSnapshot(Store.Current).AbsoluteMinute; } }
-        public double Fraction { get { return Calendar.FromSnapshot(Store.Current).Fraction; } }
-        public bool Pending { get { return Store.Current.Slice("returnPending").Bool; } }
+        public long Minute { get { return Store.Current.State.Clock.AbsoluteMinute; } }
+        public double Fraction { get { return Store.Current.State.Clock.Fraction.Value; } }
+        public bool Pending { get { return Store.Current.State.Clock.ReturnPending; } }
 
         public List<string> Jobs
         {
             get
             {
                 var jobs = new List<string>();
-                foreach (var item in Store.Current.Slice("dayJobs").Items) jobs.Add(item.Text);
+                jobs.AddRange(Store.Current.State.Clock.DayJobs.Items);
                 return jobs;
             }
         }
@@ -112,7 +112,7 @@ namespace MagicCampus.Tests.Time
         public void AssertUnchanged(StateSnapshot before, string what)
         {
             Check.Equal(before.Revision, Store.Current.Revision, what + ": revision");
-            Check.True(before.Root.Equals(Store.Current.Root), what + ": root");
+            Check.True(ReferenceEquals(before.State, Store.Current.State), what + ": state");
         }
     }
 }

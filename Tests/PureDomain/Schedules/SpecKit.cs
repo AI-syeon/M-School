@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
+using MagicCampus.State;
 using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Transactions;
 
@@ -43,7 +44,9 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             return Obj(Kv("id", Str(id)), Kv("status", Str(status)), Kv("acceptedAt", DataNode.FromInteger(acceptedAt)));
         }
 
-        internal static StateSnapshot Snapshot(long revision, params DataNode[] rows)
+        internal static StateSnapshot Snapshot(long revision, params DataNode[] rows) => SnapshotTrees.Snapshot(revision, Tree(revision, rows));
+
+        internal static DataNode Tree(long revision, params DataNode[] rows)
         {
             var root = new Dictionary<string, DataNode>(StringComparer.Ordinal)
             {
@@ -51,7 +54,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
                 { "marker", DataNode.FromInteger(revision) }
             };
             TypedFields.FillMissing(root);
-            return new StateSnapshot(revision, DataNode.FromObject(root));
+            return DataNode.FromObject(root);
         }
 
         internal static CompiledEvent Event(string id, string category = "interaction", string staging = "current", string completion = null,
@@ -123,8 +126,6 @@ namespace MagicCampus.Tests.PureDomain.Schedules
 
     internal sealed class FakeCalendar : ICalendar
     {
-        internal long Minute;
-        public GameTime FromSnapshot(StateSnapshot snapshot) { return new GameTime(Minute, 0); }
         public ClockAdvance Plan(GameTime from, double minutes) { throw new NotSupportedException(); }
     }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using MagicCampus.Contracts;
-using MagicCampus.Persistence;
 using MagicCampus.State;
 
 namespace MagicCampus.Timekeeping
@@ -16,11 +15,11 @@ namespace MagicCampus.Timekeeping
     /// </summary>
     public sealed class ClockService : IClockService
     {
-        private readonly StateStore store;
+        private readonly GameStore store;
         private readonly ICalendar calendar;
         private long sequence;
 
-        public ClockService(StateStore store, ICalendar calendar)
+        public ClockService(GameStore store, ICalendar calendar)
         {
             this.store = store ?? throw new ArgumentNullException(nameof(store));
             this.calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
@@ -30,17 +29,13 @@ namespace MagicCampus.Timekeeping
         public Result LastResult { get; private set; }
         public Result LastFailure { get; private set; }
 
-        public GameTime Now => calendar.FromSnapshot(store.Current);
+        public GameTime Now => store.Current.State.Clock.Time;
 
         public ClockAdvance Advance(double simulationSeconds, IPausePolicy pause)
         {
             if (pause == null) throw new ArgumentNullException(nameof(pause));
             var basis = store.Current;
-
-            if (!basis.TryTypedState(out var state, out var readProblem))
-                return Reject(default(GameTime), basis.Revision, ResultCodes.ContentInvalid, readProblem);
-
-            var now = state.Clock.Time;
+            var now = basis.State.Clock.Time;
             if (pause.Calendar) return Idle(now, basis.Revision, ClockAdvanceStatus.Paused);
 
             // 1 simulation-second = 1 game-minute

@@ -9,6 +9,8 @@ using System.Threading;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.Runtime;
+using MagicCampus.State;
+using MagicCampus.Tests.PureDomain.Support;
 
 namespace MagicCampus.Tests.PureDomain.PersistenceTests
 {
@@ -35,7 +37,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         {
             if (storeFactory == null) throw new ArgumentNullException(nameof(storeFactory));
             var rig = new Rig(storeFactory);
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full(wallet: 321)));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full(wallet: 321)));
             var s1 = rig.Service.SaveLatestSafe();
             Await(rig.Pump, s1);
             Check(s1.Terminal != null && s1.Terminal.Status == OperationStatus.Succeeded, "real disk: first save succeeds");
@@ -47,7 +49,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             var ld = rig.Service.LoadLatest();
             Await(rig.Pump, ld);
             Check(ld.Terminal != null && ld.Terminal.Status == OperationStatus.Succeeded, "real disk: load succeeds");
-            Check(rig.Store.ReplaceCalls == 1 && rig.Store.Current.Root.Members["wallet"].Integer == 321, "real disk: single replace with saved state");
+            Check(rig.Replaces == 1 && rig.Store.Current.State.Progress.Wallet.Value == 321, "real disk: single replace with saved state");
             Check(ld.Value.Generation == s2.Value.Generation, "real disk: newest generation loaded");
         }
 
@@ -72,7 +74,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             throw new InvalidOperationException("PersistenceSpecs failed: expected exception " + what);
         }
 
-        private static void Fails(Outcome<StateSnapshot> o, string code, string detailCode, string what)
+        private static void Fails<T>(Outcome<T> o, string code, string detailCode, string what) where T : class
         {
             Check(!o.Succeeded && o.Result.Code == code && o.Result.Details.Any(d => d.Code == detailCode), what + " (got " + o.Result.Code + ")");
         }
@@ -163,16 +165,19 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
 
         private static void Seed(Rig rig, long gen, DataNode root)
         {
-            rig.Files.Put(gen, rig.Codec.Encode(rig.Codec.Seal(new StateSnapshot(1, root), gen)).ToArray());
+            var state = SnapshotTrees.State(root);
+            rig.Files.Put(gen, rig.Codec.Encode(rig.Codec.Seal(state, SaveDocument.SafePoint(state), gen)).ToArray());
         }
 
         // ------------------------------------------------------------------ codec, sealing, tamper
 
         private static void CodecChecks()
         {
-            var codec = new SaveCodec(Json);
-            var snap = new StateSnapshot(7, Full());
-            var env = codec.Seal(snap, 3);
+            var validator = new FakeValidator();
+            var codec = new SaveCodec(Json, validator);
+            var snap = SnapshotTrees.Snapshot(7, Full());
+            var env = codec.Seal(snap.State, SafeBoundary.SceneEntry, 3);
+            Check(validator.Calls == 1 && validator.Last.Members["generation"].Integer == 3 && validator.Last.Members["safePoint"].Text == "scene-entry", "seal validates the tree it writes");
             Check(env.Generation == 3 && env.SaveVersion == 2 && env.CatalogHash == H64, "envelope metadata");
             Eq(SaveHash.Sha256Hex(env.Payload.ToArray()), env.Checksum, "checksum is SHA-256 of the exact payload bytes");
             var bytes = codec.Encode(env);
@@ -182,9 +187,10 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             var payload = Json.Parse("p", env.Payload).Value.Root;
             Check(SaveFields.Root.Count == 45 && payload.Members.Count == 45, "payload keeps all 45 root fields");
             Eq(3, payload.Members["generation"].Integer, "generation sealed into payload");
-            Eq(1, snap.Root.Members["generation"].Integer, "seal does not mutate the snapshot tree");
+            Eq(1, snap.Tree().Members["generation"].Integer, "seal does not change the state");
+            Eq("scene-entry", payload.Members["safePoint"].Text, "the boundary is sealed into the payload");
             Check(payload.Members["wallet"].Kind == DataKind.Integer && payload.Members["wallet"].Integer == 200, "wallet stays an integer");
-            Check(payload.Members["settings"].Equals(snap.Root.Members["settings"]), "nested values survive without truncation");
+            Check(payload.Members["settings"].Equals(snap.Tree().Members["settings"]), "nested values survive without truncation");
 
             var copy = env.Payload.ToArray();
             copy[0] ^= 0xFF;
@@ -198,8 +204,10 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Check(!codec.Decode(Encoding.UTF8.GetBytes("not json")).Succeeded, "garbage refused");
             Check(!codec.Decode(Json.Serialize(node.With("payload", S("@@@")))).Succeeded, "non base64 payload refused");
             Check(!codec.Decode(Json.Serialize(node.With("saveVersion", N(2.5)))).Succeeded, "non integer version refused");
-            Throws<InvalidOperationException>(() => codec.Seal(new StateSnapshot(1, O(P("saveVersion", I(2)))), 1), "incomplete snapshot is not sealed");
-            Throws<InvalidOperationException>(() => codec.Seal(new StateSnapshot(1, Full().With("wallet", N(2.5))), 1), "fractional wallet is not sealed");
+            Throws<InvalidOperationException>(() => codec.Seal(SnapshotTrees.State(Without(Full(), "mail")), SafeBoundary.WorldSafe, 1), "incomplete state is not sealed");
+            Check(!SaveDocument.Read(Full().With("wallet", N(2.5))).Succeeded, "a fractional wallet cannot be held in a state");
+            validator.Next.Add(Dx("SCHEMA_FAULT"));
+            Throws<InvalidOperationException>(() => codec.Seal(snap.State, SafeBoundary.WorldSafe, 4), "a state the validator refuses is not sealed");
         }
 
         // ------------------------------------------------------------------ safe boundary policy
@@ -208,30 +216,30 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         {
             var p = new SafeBoundaryPolicy();
             Check(p.Latest == null, "no boundary yet");
-            p.Notify(SafeBoundary.WorldSafe, new StateSnapshot(5, Full()));
+            p.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(5, Full()));
             Check(p.Latest.Boundary == SafeBoundary.WorldSafe && !p.Latest.Saved, "world safe accepted");
-            var entry = new StateSnapshot(6, Full(2, "scene-entry"));
+            var entry = SnapshotTrees.Snapshot(6, Full(2, "scene-entry"));
             p.Notify(SafeBoundary.SceneEntry, entry);
-            p.Notify(SafeBoundary.WorldSafe, new StateSnapshot(7, Full()));
-            p.Notify(SafeBoundary.RoomSafe, new StateSnapshot(8, Full()));
+            p.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(7, Full()));
+            p.Notify(SafeBoundary.RoomSafe, SnapshotTrees.Snapshot(8, Full()));
             Check(ReferenceEquals(p.Latest.Snapshot, entry) && p.Latest.Boundary == SafeBoundary.SceneEntry, "mid-scene world-safe and room-safe do not replace the entry");
-            p.Notify(SafeBoundary.SceneComplete, new StateSnapshot(9, Full()));
+            p.Notify(SafeBoundary.SceneComplete, SnapshotTrees.Snapshot(9, Full()));
             Check(p.Latest.Boundary == SafeBoundary.SceneComplete && p.Latest.Snapshot.Revision == 9 && !p.SceneActive, "scene complete replaces entry");
-            p.Notify(SafeBoundary.WorldSafe, new StateSnapshot(10, Full()));
-            p.Notify(SafeBoundary.RoomSafe, new StateSnapshot(11, Full()));
+            p.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(10, Full()));
+            p.Notify(SafeBoundary.RoomSafe, SnapshotTrees.Snapshot(11, Full()));
             Check(p.Latest.Boundary == SafeBoundary.RoomSafe && p.Latest.Snapshot.Revision == 11, "room safe is independent of scene recovery");
-            p.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full()));
+            p.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full()));
             Eq(11, p.Latest.Snapshot.Revision, "older revision ignored");
             p.MarkSaved(10);
             Check(!p.Latest.Saved, "mark saved for another revision is ignored");
             p.MarkSaved(11);
             Check(p.Latest.Saved, "matching revision marked saved");
-            p.Notify(SafeBoundary.WorldSafe, new StateSnapshot(12, Full()));
+            p.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(12, Full()));
             Check(!p.Latest.Saved, "newer boundary starts unsaved");
-            p.Notify(SafeBoundary.SceneEntry, new StateSnapshot(13, Full()));
-            p.Renew(SafeBoundary.WorldSafe, new StateSnapshot(14, Full()), true);
+            p.Notify(SafeBoundary.SceneEntry, SnapshotTrees.Snapshot(13, Full()));
+            p.Renew(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(14, Full()), true);
             Check(p.Latest.Saved && !p.SceneActive, "renew replaces latest and clears the scene flag");
-            p.Notify(SafeBoundary.WorldSafe, new StateSnapshot(15, Full()));
+            p.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(15, Full()));
             Eq(15, p.Latest.Snapshot.Revision, "world safe accepted after renew");
         }
 
@@ -260,35 +268,34 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
 
         private static void RestorerChecks()
         {
-            var codec = new SaveCodec(Json);
-            var schema = new FakeSchema();
-            var refs = new FakeInvariant();
-            var rs = new SaveRestorer(Json, schema, O(), c => refs);
+            var codec = new SaveCodec(Json, new FakeValidator());
+            var refs = new FakeValidator();
+            var rs = new SaveRestorer(Json, c => refs);
             var cat = new FakeCatalog(H64);
 
-            var good = codec.Seal(new StateSnapshot(1, Full(3)), 3);
+            var good = codec.Seal(SnapshotTrees.State(Full(3)), SafeBoundary.WorldSafe, 3);
             var ok = rs.Restore(good, cat);
-            Check(ok.Succeeded && ok.Value.Root.Members.Count == 45 && schema.Calls == 1 && refs.Calls == 1, "valid save passes every stage");
+            Check(ok.Succeeded && SaveDocument.Write(ok.Value).Members.Count == 45 && refs.Calls == 1, "valid save passes every stage, the validator once");
 
             Fails(rs.Restore(good, new FakeCatalog(new string('b', 64))), ResultCodes.SaveIncompatible, "CATALOG_HASH_MISMATCH", "catalog hash mismatch");
             Fails(rs.Restore(Env(Full(), 3, new string('b', 64), 1), cat), ResultCodes.SaveIncompatible, "VERSION_UNSUPPORTED", "newer version refused before the hash is considered");
             Fails(rs.Restore(Env(Full(1), 2, H64, 5), cat), ResultCodes.ContentInvalid, "ENVELOPE_PAYLOAD_MISMATCH", "envelope/payload generation mismatch");
             Fails(rs.Restore(Env(Full(1, hash: new string('c', 64)), 2, H64, 1), cat), ResultCodes.ContentInvalid, "ENVELOPE_PAYLOAD_MISMATCH", "envelope/payload hash mismatch");
+            refs.Calls = 0;
             Fails(rs.Restore(Env(Full().With("extra", I(1)), 2, H64, 1), cat), ResultCodes.ContentInvalid, "SAVE_FIELD_UNKNOWN", "unknown field refused, not dropped");
+            Check(refs.Calls == 0, "the validator is not run after a root shape fault");
             Fails(rs.Restore(Env(Without(Full(), "wallet"), 2, H64, 1), cat), ResultCodes.ContentInvalid, "SAVE_FIELD_MISSING", "missing field refused");
             Fails(rs.Restore(Env(Full().With("wallet", N(1.5)), 2, H64, 1), cat), ResultCodes.ContentInvalid, "SAVE_WALLET_NOT_INTEGER", "fractional wallet refused");
 
-            refs.Calls = 0;
-            schema.Next.Add(Dx("SCHEMA_FAULT"));
+            refs.Next.Add(Dx("SCHEMA_FAULT"));
             Fails(rs.Restore(good, cat), ResultCodes.ContentInvalid, "SCHEMA_FAULT", "schema fault");
-            Check(refs.Calls == 0, "later stages are not run after a schema fault");
-            schema.Next.Clear();
+            refs.Next.Clear();
             refs.Next.Add(Dx("REF_NOT_FOUND"));
             Fails(rs.Restore(good, cat), ResultCodes.ContentInvalid, "REF_NOT_FOUND", "reference fault");
             refs.Next.Clear();
 
             var v1 = rs.Restore(Env(V1Of(Full()), 1, H64, 1), cat);
-            Check(v1.Succeeded && v1.Value.Root.Members.Count == 45 && v1.Value.Root.Members["saveVersion"].Integer == 2, "v1 envelope restores as v2");
+            Check(v1.Succeeded && SaveDocument.Write(v1.Value).Members.Count == 45 && SaveDocument.Write(v1.Value).Members["saveVersion"].Integer == 2, "v1 envelope restores as v2");
         }
 
         // ------------------------------------------------------------------ save service
@@ -297,7 +304,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
         {
             // success, generations above the highest on disk
             var rig = new Rig();
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full()));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full()));
             var h = rig.Service.SaveLatestSafe();
             Await(rig.Pump, h);
             Check(h.Terminal != null && h.Terminal.Status == OperationStatus.Succeeded && h.Terminal.Revision == 3 && h.Value.Generation == 1, "first save succeeds as generation 1");
@@ -315,10 +322,10 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             // async write finishing after a newer boundary
             rig = new Rig();
             rig.Files.Manual = true;
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full()));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full()));
             h = rig.Service.SaveLatestSafe();
             Check(h.Terminal == null, "manual write is pending");
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(4, Full()));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(4, Full()));
             var busy = rig.Service.SaveLatestSafe();
             Check(busy.Terminal != null && busy.Terminal.Code == ResultCodes.ResourceBusy, "second save while one is running is refused");
             Check(rig.Service.LoadLatest().Terminal.Code == ResultCodes.ResourceBusy, "load while saving is refused");
@@ -330,12 +337,12 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             // disk failure keeps memory
             rig = new Rig();
             rig.Files.FailWrites = true;
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full()));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full()));
             var before = rig.Store.Current.Revision;
             h = rig.Service.SaveLatestSafe();
             Await(rig.Pump, h);
             Check(h.Terminal.Status == OperationStatus.Failed && h.Terminal.Code == "DISK_FULL", "write failure surfaces");
-            Check(rig.Store.Current.Revision == before && rig.Store.ReplaceCalls == 0, "memory state unchanged by write failure");
+            Check(rig.Store.Current.Revision == before && rig.Replaces == 0, "memory state unchanged by write failure");
             Check(!rig.Policy.Latest.Saved && rig.Service.LastSaveResult.Status == OperationStatus.Failed, "unsaved flag and last error exposed");
             rig.Files.FailWrites = false;
             h = rig.Service.SaveLatestSafe();
@@ -349,7 +356,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             // cancellation
             rig = new Rig();
             rig.Files.Manual = true;
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full()));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full()));
             h = rig.Service.SaveLatestSafe();
             h.Cancel("user");
             Check(h.Terminal == null, "cancel waits for the child to terminate");
@@ -358,7 +365,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             rig = new Rig();
             rig.Files.Manual = true;
             rig.Files.CommitOnCancel = true;
-            rig.Policy.Notify(SafeBoundary.WorldSafe, new StateSnapshot(3, Full()));
+            rig.Policy.Notify(SafeBoundary.WorldSafe, SnapshotTrees.Snapshot(3, Full()));
             h = rig.Service.SaveLatestSafe();
             h.Cancel("late");
             Await(rig.Pump, h);
@@ -372,7 +379,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             h = rig.Service.LoadLatest();
             Await(rig.Pump, h);
             Check(h.Terminal.Status == OperationStatus.Succeeded && h.Value.Generation == 2, "newest generation loaded");
-            Check(rig.Store.ReplaceCalls == 1 && rig.Store.Current.Root.Members["wallet"].Integer == 222 && rig.Store.Current.Revision == before + 1, "exactly one ReplaceAll with the newest state");
+            Check(rig.Replaces == 1 && rig.Store.Current.State.Progress.Wallet.Value == 222 && rig.Store.Current.Revision == before + 1, "exactly one Replace with the newest state");
             Check(rig.Policy.Latest.Saved && rig.Policy.Latest.Snapshot.Revision == rig.Store.Current.Revision && rig.Service.LastKnownGeneration == 2, "load renews boundary and generation");
             h = rig.Service.SaveLatestSafe();
             Await(rig.Pump, h);
@@ -385,8 +392,8 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             rig.Files.Put(2, Tamper(rig.Files.Disk[2]));
             h = rig.Service.LoadLatest();
             Await(rig.Pump, h);
-            Check(h.Terminal.Status == OperationStatus.Succeeded && h.Value.Generation == 1 && rig.Store.Current.Root.Members["wallet"].Integer == 111, "invalid newest falls back to older valid");
-            Check(rig.Store.ReplaceCalls == 1 && rig.Service.LastLoadResult.Details.Any(d => d.Code == "GENERATION_REJECTED"), "rejected generation reported, one replace");
+            Check(h.Terminal.Status == OperationStatus.Succeeded && h.Value.Generation == 1 && rig.Store.Current.State.Progress.Wallet.Value == 111, "invalid newest falls back to older valid");
+            Check(rig.Replaces == 1 && rig.Service.LastLoadResult.Details.Any(d => d.Code == "GENERATION_REJECTED"), "rejected generation reported, one replace");
 
             // everything invalid
             rig = new Rig();
@@ -397,7 +404,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             before = rig.Store.Current.Revision;
             h = rig.Service.LoadLatest();
             Await(rig.Pump, h);
-            Check(h.Terminal.Status == OperationStatus.Failed && rig.Store.ReplaceCalls == 0 && rig.Store.Current.Revision == before, "all invalid: nothing replaced");
+            Check(h.Terminal.Status == OperationStatus.Failed && rig.Replaces == 0 && rig.Store.Current.Revision == before, "all invalid: nothing replaced");
             Check(rig.Service.LastLoadResult.Details.Count(d => d.Code == "GENERATION_REJECTED") == 2, "all rejections kept for the UI");
 
             // no saves, catalog mismatch
@@ -407,14 +414,15 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             rig.Catalogs.Current = new FakeCatalog(new string('d', 64));
             Eq(ResultCodes.SaveIncompatible, Settle(rig, rig.Service.LoadLatest()).Code, "catalog mismatch fails the load");
 
-            // CAS failure: no fallback, no retry
+            // refused replace: no fallback, no retry (the load finishes while a commit holds the store)
             rig = new Rig();
             Seed(rig, 1, Full(1));
             Seed(rig, 2, Full(2));
-            rig.Store.FailCode = ResultCodes.RevisionConflict;
-            h = rig.Service.LoadLatest();
-            Await(rig.Pump, h);
-            Check(h.Terminal.Status == OperationStatus.Failed && h.Terminal.Code == ResultCodes.RevisionConflict && rig.Store.ReplaceCalls == 1, "replace conflict fails the load without trying an older generation");
+            IHandle<FileGeneration> held = null;
+            var holder = rig;
+            rig.Store.Commit(new TransactionId("hold"), s => { held = holder.Service.LoadLatest(); Await(holder.Pump, held); return Outcome<GameState>.Ok(s, 0); });
+            Check(held.Terminal.Status == OperationStatus.Failed && held.Terminal.Code == ResultCodes.InvariantViolation && rig.Replaces == 0, "a refused replace fails the load");
+            Check(rig.Service.LastLoadResult.Details.Any(d => d.Code == "REENTRANT_COMMIT") && !rig.Service.LastLoadResult.Details.Any(d => d.Code == "GENERATION_REJECTED"), "no older generation is tried after a refused replace");
 
             // load cancellation
             rig = new Rig();
@@ -425,7 +433,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             h.Cancel("user");
             Check(h.Terminal == null, "load cancel waits for the child read");
             Await(rig.Pump, h);
-            Check(h.Terminal.Status == OperationStatus.Cancelled && rig.Store.ReplaceCalls == 0, "cancelled load replaces nothing");
+            Check(h.Terminal.Status == OperationStatus.Cancelled && rig.Replaces == 0, "cancelled load replaces nothing");
             rig.Files.HoldReads = false;
             h = rig.Service.LoadLatest();
             Await(rig.Pump, h);
@@ -448,10 +456,10 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
                 new ActorState("pc", new Position("map.a", 2, 2), 0.3, 2)
             });
             var rec = new SceneRecovery(world);
-            var accepted = new StateSnapshot(5, Full());
+            var accepted = SnapshotTrees.Snapshot(5, Full());
             Check(rec.CaptureEntry(accepted, "scene.1").Status == OperationStatus.Succeeded, "capture entry");
             world.SetPosition("npc.a", new Position("map.b", 5, 5), "tok");
-            var dup = rec.CaptureEntry(new StateSnapshot(6, Full()), "scene.1");
+            var dup = rec.CaptureEntry(SnapshotTrees.Snapshot(6, Full()), "scene.1");
             Check(dup.Status == OperationStatus.Failed && dup.Code == ResultCodes.ResourceBusy, "capture only once per owner");
 
             world.FailRestore = true;
@@ -464,7 +472,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Eq("Accepted", ok.Value.Slice("appointments").Items[0].Members["status"].Text, "accepted reservation retained");
             Check(rec.RestoreEntry("scene.1").Succeeded, "entry stays available until cleared");
 
-            Check(rec.CaptureEntry(new StateSnapshot(7, Full()), "scene.2").Status == OperationStatus.Succeeded, "other owner captures independently");
+            Check(rec.CaptureEntry(SnapshotTrees.Snapshot(7, Full()), "scene.2").Status == OperationStatus.Succeeded, "other owner captures independently");
             Check(rec.ClearEntry("scene.1").Status == OperationStatus.Succeeded && rec.ClearEntry("scene.1").Status == OperationStatus.Succeeded, "clear is idempotent");
             var gone = rec.RestoreEntry("scene.1");
             Check(!gone.Succeeded && gone.Result.Code == ResultCodes.RefNotFound, "cleared entry cannot be restored");
@@ -473,7 +481,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             // room-safe boundaries neither use nor disturb scene recovery
             var policy = new SafeBoundaryPolicy();
             policy.Notify(SafeBoundary.SceneEntry, accepted);
-            policy.Notify(SafeBoundary.RoomSafe, new StateSnapshot(9, Full()));
+            policy.Notify(SafeBoundary.RoomSafe, SnapshotTrees.Snapshot(9, Full()));
             Check(ReferenceEquals(policy.Latest.Snapshot, accepted) && rec.RestoreEntry("scene.2").Succeeded, "room safe leaves the scene entry alone");
         }
 
@@ -485,20 +493,24 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             public readonly IHandleFactory Handles;
             public readonly FakeFiles Files;
             public readonly IFileGenerationStore FilePort;
-            public readonly FakeStore Store = new FakeStore(new StateSnapshot(10, Full()));
+            public readonly GameStore Store;
             public readonly SafeBoundaryPolicy Policy = new SafeBoundaryPolicy();
-            public readonly SaveCodec Codec = new SaveCodec(Json);
+            public readonly SaveCodec Codec = new SaveCodec(Json, new FakeValidator());
             public readonly FakeCatalogs Catalogs = new FakeCatalogs { Current = new FakeCatalog(H64) };
             public readonly SaveService Service;
 
             public Rig(Func<IHandleFactory, IFileGenerationStore> factory = null)
             {
                 Handles = new HandleFactory(Pump);
+                Store = new GameStore(SnapshotTrees.Snapshot(10, Full()), Pump);
                 if (factory == null) { Files = new FakeFiles(Handles); FilePort = Files; }
                 else FilePort = factory(Handles);
-                var restorer = new SaveRestorer(Json, new FakeSchema(), O(), c => new FakeInvariant());
+                var restorer = new SaveRestorer(Json, c => new FakeValidator());
                 Service = new SaveService(Policy, Codec, FilePort, restorer, Store, Catalogs, Handles);
             }
+
+            /// <summary>Nothing here commits, so every revision past the initial 10 is a replacement.</summary>
+            public int Replaces { get { return (int)(Store.Current.Revision - 10); } }
         }
 
         private sealed class JsonCodec : IDataCodec
@@ -596,45 +608,17 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             }
         }
 
-        private sealed class FakeSchema : ISchemaValidationPort
+        private sealed class FakeValidator : ISaveValidator
         {
             public readonly List<Diagnostic> Next = new List<Diagnostic>();
             public int Calls;
-            public IReadOnlyList<Diagnostic> Validate(DataNode schema, DataNode instance, string file)
+            public DataNode Last;
+            public IReadOnlyList<Diagnostic> Validate(DataNode tree)
             {
                 Calls++;
+                Last = tree;
                 return Next.ToArray();
             }
-        }
-
-        private sealed class FakeInvariant : IStateInvariant
-        {
-            public readonly List<Diagnostic> Next = new List<Diagnostic>();
-            public int Calls;
-            public IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate)
-            {
-                Calls++;
-                return Next.ToArray();
-            }
-        }
-
-        private sealed class FakeStore : IStateStore
-        {
-            public FakeStore(StateSnapshot initial) { Current = initial; }
-            public StateSnapshot Current { get; private set; }
-            public int ReplaceCalls;
-            public string FailCode;
-
-            public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
-            {
-                ReplaceCalls++;
-                if (FailCode != null) return Outcome<StateSnapshot>.Fail(FailCode, Current.Revision, Dx("CAS"));
-                if (expectedRevision != Current.Revision) return Outcome<StateSnapshot>.Fail(ResultCodes.RevisionConflict, Current.Revision, Dx("CAS"));
-                Current = new StateSnapshot(Current.Revision + 1, candidate.Root);
-                return Outcome<StateSnapshot>.Ok(Current, Current.Revision);
-            }
-
-            public void OnCommitted(Action<StateCommitted> listener) { }
         }
 
         private sealed class FakeFiles : IFileGenerationStore

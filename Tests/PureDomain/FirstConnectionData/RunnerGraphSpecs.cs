@@ -14,6 +14,7 @@ using MagicCampus.Transactions.Conditions;
 using MagicCampus.Application.Schedules;
 using MagicCampus.World.Movement;
 using MagicCampus.Persistence;
+using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Events;
 using MagicCampus.Tests.Movement;
 
@@ -47,7 +48,7 @@ namespace MagicCampus.Tests.FirstConnectionData
             {
                 var compiled=Compile("base/runner-bundle.json").Value;
                 var provider=new CatalogProvider(compiled);
-                var initial=new StateSnapshot(0,Read(Root+"base/save-accepted.json").Root);
+                var initial=SnapshotTrees.Snapshot(0,Read(Root+"base/save-accepted.json").Root);
                 var pump=new CompletionPump();var handles=new HandleFactory(pump);var pause=new PauseService();var leases=new LeaseService();var ticks=new TickClock(handles);
                 var grid=new TestWorld();var maps=new TestMapPort(handles,"map.courtyard");
                 foreach(var row in compiled.FindDefinition("runner","root").Members["maps"].Items)
@@ -64,13 +65,14 @@ namespace MagicCampus.Tests.FirstConnectionData
                 var actors=new ActorWorld(grid,new[]{new ActorState("player",Pos(initial.Slice("player")),.2,3),new ActorState("npc.serin",Pos(serin),.2,3)});
                 var moves=new MoveService(actors,grid,maps,grid,handles,pause,o=>o=="graph.scene",requiresVisibleMap:r=>true);
                 var calendar=new MagicCampus.Timekeeping.Calendar();
-                var store=new StateStore(initial,new[]{new SaveStateValidator(compiled,SchemaRoot,Schema)},pump);
+                var validator=new SaveStateValidator(compiled,SchemaRoot,Schema);
+                var store=new GameStore(initial,pump);var invalid=new List<string>();CommitValidation.Watch(store,validator,invalid.Add);
                 var clock=new MagicCampus.Timekeeping.ClockService(store,calendar);var positions=new WorldProjection(actors,grid);var rules=new EventRules(compiled,calendar);var resolver=new CatalogDestinationResolver(provider);var target=resolver.Resolve("npc.serin","dest.snack").Value;
                 var dir=Path.GetFullPath("Tests/Results/stage4-graph-"+Guid.NewGuid().ToString("N"));var disk=new FileGenerationStore(dir,handles,0);var policy=new SafeBoundaryPolicy();
-                var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema));
-                var saves=new SaveService(policy,new SaveCodec(Codec),disk,restorer,store,provider,handles);var ui=new GraphPresentation(handles,actors,target);bool hidden=false;
+                var restorer=new SaveRestorer(Codec,c=>new SaveStateValidator(c,SchemaRoot,Schema));
+                var saves=new SaveService(policy,new SaveCodec(Codec,validator),disk,restorer,store,provider,handles);var ui=new GraphPresentation(handles,actors,target);bool hidden=false;
                 var staging=new ReservedStagingService(actors,maps,grid,handles,(definition,lease)=>Outcome<ReservedJoinPlan>.Ok(new ReservedJoinPlan("map.lounge",new[]{new ReservedActorPlacement("player",new Position("map.lounge",.5,2.5)),new ReservedActorPlacement("npc.serin",new Position("map.lounge",.5,2.5))}),store.Current.Revision),value=>{if(value)Check(disk.ListCandidates().Count>0,"entry physically saved before hiding/staging");hidden=value;},null);
-                var runner=new EventRunner(new EventRunnerDependencies{Catalog=provider,Conditions=new ConditionEvaluator(compiled),Leases=leases,Pauses=pause,Moves=moves,Destinations=resolver,Presentation=ui,PresentationLifetime=ui,Clock=ticks,Store=store,CommitEvent=(def,txn)=>store.Commit(txn,s=>rules.Complete(s,def,positions.Capture().Value)),ProjectWorld=txn=>store.Commit(txn,positions.Project),Recovery=new SceneRecovery(actors),Boundaries=policy,Saves=saves,Staging=staging,Maps=maps,Handles=handles,RepeatBlocked=(e,s)=>EventRules.IsSpent(s.TypedState(),e)});
+                var runner=new EventRunner(new EventRunnerDependencies{Catalog=provider,Conditions=new ConditionEvaluator(compiled),Leases=leases,Pauses=pause,Moves=moves,Destinations=resolver,Presentation=ui,PresentationLifetime=ui,Clock=ticks,Store=store,CommitEvent=(def,txn)=>store.Commit(txn,s=>rules.Complete(s,def,positions.Capture().Value)),ProjectWorld=txn=>store.Commit(txn,positions.Project),Recovery=new SceneRecovery(actors),Boundaries=policy,Saves=saves,Staging=staging,Maps=maps,Handles=handles,RepeatBlocked=(e,s)=>EventRules.IsSpent(s.State,e)});
                 var handle=runner.Start(new EventStartRequest("event.snack","graph.scene",1,new TransactionId("graph.start")));
                 void Frame(){pump.AdvanceTick();ticks.Advance(.1);disk.Tick();staging.Tick(.1);moves.Tick(.1);runner.Tick(.1);}
                 for(int i=0;i<600 && ui.Choice==null && handle.Terminal==null;i++)Frame();
@@ -93,6 +95,7 @@ namespace MagicCampus.Tests.FirstConnectionData
                     Check(!runner.Unsaved && policy.Latest.Saved && handle.Value.Completion.Value.Value=="event.snack","real graph autosave/effective completion");
                     var reload=saves.LoadLatest();for(int i=0;i<100&&reload.Terminal==null;i++)Frame();Check(reload.Status==OperationStatus.Succeeded && store.Current.Slice("wallet").Integer==220,"real graph whole saved reload");
                 }
+                Check(invalid.Count==0,"every commit and replacement passes full validation: "+string.Join("; ",invalid));
                 File.WriteAllText(Path.Combine(dir,"verification.txt"),"PASS real production Runner + MoveService + staging + conditions + effects + clock + world + reservations + scene recovery + safe policy + real save service/disk, display/map geometry ports are test doubles; cancel="+cancel);
             }
             Console.WriteLine("PASS production Runner graph success/cancel with physical saves and full schema");

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Contracts;
-using MagicCampus.Persistence;
 
 namespace MagicCampus.Timekeeping
 {
@@ -12,46 +11,6 @@ namespace MagicCampus.Timekeeping
     /// </summary>
     public sealed class Calendar : ICalendar
     {
-        /// <summary>Reads the typed clock of the snapshot. Throws InvalidOperationException when the snapshot is not a readable save state (no silent default).</summary>
-        public GameTime FromSnapshot(StateSnapshot snapshot)
-        {
-            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
-            return snapshot.TypedState().Clock.Time;
-        }
-
-        public static bool TryReadClock(DataNode clock, out GameTime time, out Diagnostic problem)
-        {
-            time = default(GameTime);
-            problem = null;
-            if (clock == null || clock.Kind != DataKind.Object)
-            {
-                problem = TimeDiagnostics.Make("CLOCK_INVALID", "/clock", "/clock must be an object", "object", "missing or wrong kind");
-                return false;
-            }
-
-            if (!clock.TryGet("absoluteMinute", out var minuteNode) || minuteNode.Kind != DataKind.Integer || minuteNode.Integer < 0)
-            {
-                problem = TimeDiagnostics.Make("CLOCK_INVALID", "/clock/absoluteMinute", "absoluteMinute must be a non-negative integer", "integer >= 0", "missing or invalid");
-                return false;
-            }
-
-            if (!clock.TryGet("fraction", out var fractionNode) || (fractionNode.Kind != DataKind.Number && fractionNode.Kind != DataKind.Integer))
-            {
-                problem = TimeDiagnostics.Make("CLOCK_INVALID", "/clock/fraction", "fraction must be a number", "number in [0,1)", "missing or wrong kind");
-                return false;
-            }
-
-            var fraction = fractionNode.Kind == DataKind.Integer ? (double)fractionNode.Integer : fractionNode.Number;
-            if (double.IsNaN(fraction) || fraction < 0 || fraction >= 1)
-            {
-                problem = TimeDiagnostics.Make("CLOCK_INVALID", "/clock/fraction", "fraction must be in [0,1)", "number in [0,1)", fraction.ToString("R", CultureInfo.InvariantCulture));
-                return false;
-            }
-
-            time = new GameTime(minuteNode.Integer, fraction);
-            return true;
-        }
-
         /// <summary>Validates a cost or delta in game-minutes: finite, not negative, within CalendarLimits.</summary>
         public static bool TryCheckMinutes(double minutes, out Diagnostic problem)
         {

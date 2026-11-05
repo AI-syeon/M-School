@@ -1,32 +1,28 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.State;
 
 namespace MagicCampus.Persistence
 {
     /// <summary>
-    /// Order: version, catalog hash, payload parse + envelope/payload consistency, migration, root shape (45 fields, integer wallet),
-    /// strict schema (injected port), references (injected validator factory, e.g. the catalog save validator).
+    /// Order: version, catalog hash, payload parse + envelope/payload consistency, migration, then SaveDocument.Admit
+    /// (root shape, the catalog validator once for schema and references, typed read).
     /// The envelope checksum is verified once, by SaveCodec.Decode, and is not repeated here.
-    /// The first failing stage ends the restore. Nothing is applied here; the caller uses IStateStore.ReplaceAll.
+    /// The first failing stage ends the restore. Nothing is applied here; the caller uses GameStore.Replace.
     /// </summary>
     public sealed class SaveRestorer
     {
         private readonly IDataCodec codec;
-        private readonly ISchemaValidationPort schemaPort;
-        private readonly DataNode saveSchema;
-        private readonly Func<ICatalog, IStateInvariant> referenceValidatorFactory;
+        private readonly Func<ICatalog, ISaveValidator> validatorFor;
 
-        public SaveRestorer(IDataCodec codec, ISchemaValidationPort schemaPort, DataNode saveSchema,
-            Func<ICatalog, IStateInvariant> referenceValidatorFactory)
+        public SaveRestorer(IDataCodec codec, Func<ICatalog, ISaveValidator> validatorFor)
         {
             this.codec = codec ?? throw new ArgumentNullException(nameof(codec));
-            this.schemaPort = schemaPort ?? throw new ArgumentNullException(nameof(schemaPort));
-            this.saveSchema = saveSchema ?? throw new ArgumentNullException(nameof(saveSchema));
-            this.referenceValidatorFactory = referenceValidatorFactory ?? throw new ArgumentNullException(nameof(referenceValidatorFactory));
+            this.validatorFor = validatorFor ?? throw new ArgumentNullException(nameof(validatorFor));
         }
 
-        public Outcome<StateSnapshot> Restore(SaveEnvelope envelope, ICatalog catalog)
+        public Outcome<GameState> Restore(SaveEnvelope envelope, ICatalog catalog)
         {
             if (envelope == null) throw new ArgumentNullException(nameof(envelope));
             if (catalog == null) throw new ArgumentNullException(nameof(catalog));
@@ -52,23 +48,9 @@ namespace MagicCampus.Persistence
             {
                 var d = new List<Diagnostic>(migrated.Result.Details);
                 if (d.Count == 0) d.Add(D("MIGRATION_FAILED", "migration refused the save", "migratable save", migrated.Result.Code));
-                return Outcome<StateSnapshot>.Fail(migrated.Result.Code, 0, d.ToArray());
+                return Bad(migrated.Result.Code, d.ToArray());
             }
-            var m = migrated.Value;
-
-            var shape = SaveFields.CheckRoot(m);
-            if (shape.Count > 0) return Bad(ResultCodes.ContentInvalid, new List<Diagnostic>(shape).ToArray());
-
-            var schemaDiagnostics = schemaPort.Validate(saveSchema, m, "save");
-            if (schemaDiagnostics != null && schemaDiagnostics.Count > 0)
-                return Bad(ResultCodes.ContentInvalid, new List<Diagnostic>(schemaDiagnostics).ToArray());
-
-            var candidate = new StateSnapshot(0, m);
-            var refDiagnostics = referenceValidatorFactory(catalog).Validate(candidate);
-            if (refDiagnostics != null && refDiagnostics.Count > 0)
-                return Bad(ResultCodes.ContentInvalid, new List<Diagnostic>(refDiagnostics).ToArray());
-
-            return Outcome<StateSnapshot>.Ok(candidate, 0);
+            return SaveDocument.Admit(migrated.Value, validatorFor(catalog));
         }
 
         private static Diagnostic[] CheckMetadata(DataNode root, SaveEnvelope envelope)
@@ -86,9 +68,9 @@ namespace MagicCampus.Persistence
             return new Diagnostic(code, message, null, expected, actual);
         }
 
-        private static Outcome<StateSnapshot> Bad(string code, params Diagnostic[] details)
+        private static Outcome<GameState> Bad(string code, params Diagnostic[] details)
         {
-            return Outcome<StateSnapshot>.Fail(code, 0, details);
+            return Outcome<GameState>.Fail(code, 0, details);
         }
     }
 }

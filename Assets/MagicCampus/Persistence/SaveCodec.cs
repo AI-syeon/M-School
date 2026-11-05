@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using MagicCampus.Contracts;
+using MagicCampus.State;
 
 namespace MagicCampus.Persistence
 {
@@ -44,27 +45,37 @@ namespace MagicCampus.Persistence
         public const string Format = "magic-campus.save-envelope.v1";
 
         private readonly IDataCodec codec;
+        private readonly ISaveValidator validator;
 
-        public SaveCodec(IDataCodec dataCodec)
+        public SaveCodec(IDataCodec dataCodec, ISaveValidator validator)
         {
             codec = dataCodec ?? throw new ArgumentNullException(nameof(dataCodec));
+            this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        /// <summary>Throws InvalidOperationException when the snapshot is not a complete save v2 object.</summary>
-        public SaveEnvelope Seal(StateSnapshot snapshot, long generation)
+        /// <summary>
+        /// Writes the state as the save v2 tree of the given boundary and generation and validates it the way a load would.
+        /// Throws InvalidOperationException when the tree is incomplete or refused: a save that could not be loaded is never written.
+        /// </summary>
+        public SaveEnvelope Seal(GameState state, SafeBoundary boundary, long generation)
         {
-            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+            if (state == null) throw new ArgumentNullException(nameof(state));
             if (generation < 0) throw new ArgumentOutOfRangeException(nameof(generation));
-            var shape = SaveFields.CheckRoot(snapshot.Root);
-            if (shape.Count > 0) throw new InvalidOperationException("snapshot is not a complete save v2 object: " + shape[0].Code + " " + shape[0].Actual);
+            var root = SaveDocument.Write(state)
+                .With("safePoint", DataNode.FromString(SaveFields.BoundaryName(boundary)))
+                .With("generation", DataNode.FromInteger(generation));
+            var shape = SaveFields.CheckRoot(root);
+            if (shape.Count > 0) throw new InvalidOperationException("state is not a complete save v2 object: " + shape[0].Code + " " + shape[0].Actual);
             DataNode version, hash;
-            snapshot.Root.TryGet("saveVersion", out version);
-            snapshot.Root.TryGet("catalogHash", out hash);
+            root.TryGet("saveVersion", out version);
+            root.TryGet("catalogHash", out hash);
             if (version.Kind != DataKind.Integer || version.Integer != SaveFields.CurrentVersion)
                 throw new InvalidOperationException("only save version " + SaveFields.CurrentVersion + " can be sealed");
             if (hash.Kind != DataKind.String || hash.Text.Length == 0)
                 throw new InvalidOperationException("catalogHash must be a non-empty string");
-            var root = snapshot.Root.With("generation", DataNode.FromInteger(generation));
+            var problems = validator.Validate(root);
+            if (problems.Count > 0)
+                throw new InvalidOperationException("state fails save validation (" + problems.Count + "): " + problems[0].Code + " " + problems[0].Message);
             var bytes = codec.Serialize(root).ToArray();
             return new SaveEnvelope(SaveFields.CurrentVersion, hash.Text, generation, SaveHash.Sha256Hex(bytes), bytes);
         }

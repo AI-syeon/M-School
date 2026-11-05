@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
-using MagicCampus.Persistence;
 using MagicCampus.State;
 using MagicCampus.Transactions;
 
@@ -41,11 +40,7 @@ namespace MagicCampus.Application.Reservations
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
             var diagnostics = new List<Diagnostic>();
             var list = new List<StartCandidate>();
-            if (!snapshot.TryTypedState(out var state, out var refusal))
-            {
-                diagnostics.Add(refusal);
-                return new ReservationInspection(list, diagnostics);
-            }
+            var state = snapshot.State;
             var current = catalog.Current;
 
             var rows = state.Appointments.Rows;

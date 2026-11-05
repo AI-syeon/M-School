@@ -3,6 +3,7 @@ using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;
 using MagicCampus.Tests.Effects;
+using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Transactions;
 using MagicCampus.Timekeeping;
 
@@ -17,7 +18,6 @@ namespace MagicCampus.Tests.Time
             PausePolicies();
             MidnightRecordsBoundary();
             ZeroAndInvalidDelta();
-            InvariantsWatchTheTick();
             ReloadLikeDayJobs();
             EventCostSuccessOnceAndCancelledNone();
             InvalidEventCost();
@@ -103,29 +103,6 @@ namespace MagicCampus.Tests.Time
             Check.Equal(421L, w.Minute, "valid advance after failures");
         }
 
-        private static void InvariantsWatchTheTick()
-        {
-            var w = TimeWorld.Create(TimeWorld.BuildRoot(1430, 0, new string[0], false), 1, new IStateInvariant[] { new NoReturnPending() });
-            var before = w.Store.Current;
-            var refused = w.Clock.Advance(20, PauseSet.None);
-            Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "midnight tick refused by the commit invariant");
-            Check.Equal(ResultCodes.InvariantViolation, w.Clock.LastFailure.Code, "invariant refusal code");
-            Check.True(refused.From.Equals(refused.To), "refused tick reports no progress");
-            w.AssertUnchanged(before, "refused tick");
-
-            w.Clock.Advance(5, PauseSet.None);
-            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "tick the invariant accepts");
-            Check.Equal(1435L, w.Minute, "accepted tick applied");
-        }
-
-        private sealed class NoReturnPending : IStateInvariant
-        {
-            public IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate)
-            {
-                return candidate.Slice("returnPending").Bool ? new[] { new Diagnostic("TEST_RETURN_PENDING", "returnPending refused by the test invariant", null, "false", "true") } : new Diagnostic[0];
-            }
-        }
-
         private static void ReloadLikeDayJobs()
         {
             var done = TimeWorld.Create(1430, 0, new[] { "legacy", "boundary.day_d1" });
@@ -135,7 +112,7 @@ namespace MagicCampus.Tests.Time
             Check.True(done.Pending, "return pending still derived");
 
             // Rebuild a world from the committed state (reload-like): same day adds nothing, next midnight adds day 2 only.
-            var reloaded = TimeWorld.Create(done.Store.Current.Root, 7);
+            var reloaded = TimeWorld.Create(done.Store.Current.Tree(), 7);
             reloaded.Clock.Advance(100, PauseSet.None);
             Check.Equal("legacy|boundary.day_d1", string.Join("|", reloaded.Jobs), "jobs unchanged within the day");
             reloaded.Clock.Advance(1440, PauseSet.None);
@@ -167,7 +144,7 @@ namespace MagicCampus.Tests.Time
             var first = Complete(w, rules, ev, "evt.class.1");
             Check.True(first.Succeeded, "event commit succeeds");
             Check.Equal(1490L, w.Minute, "cost applied once");
-            Check.True(w.Store.Current.TypedState().Progress.IsConsumed(ev.OnceKey), "event completion in the same commit");
+            Check.True(w.Store.Current.State.Progress.IsConsumed(ev.OnceKey), "event completion in the same commit");
             Check.Equal("boundary.day_d1", string.Join("|", w.Jobs), "boundary jobs recorded");
             Check.True(w.Pending, "return pending set by the cost");
             var committedRevision = w.Store.Current.Revision;

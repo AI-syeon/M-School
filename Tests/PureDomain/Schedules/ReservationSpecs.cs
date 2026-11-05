@@ -4,6 +4,7 @@ using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;
+using MagicCampus.Tests.PureDomain.Support;
 
 namespace MagicCampus.Tests.PureDomain.Schedules
 {
@@ -39,19 +40,15 @@ namespace MagicCampus.Tests.PureDomain.Schedules
 
         private static void RejectsInvalidRowsExplicitly()
         {
-            var rig = new ReservationRig(Kit.Event("event.one"));
             var extra = Kit.Obj(Kit.Kv("id", Kit.Str("event.one")), Kit.Kv("status", Kit.Str("Accepted")),
                 Kit.Kv("acceptedAt", DataNode.FromInteger(1)), Kit.Kv("expiresAt", DataNode.FromInteger(9)));
-            var snapshot = Kit.Snapshot(1, extra, Kit.Row("event.one", "Waiting", 1));
-
-            var inspection = rig.Service.Inspect(snapshot);
-            Spec.Equal(0, inspection.Candidates.Count, "invalid rows are not candidates");
-            Spec.True(inspection.Diagnostics.Count >= 1, "the unreadable appointments are reported");
+            Spec.Equal(ResultCodes.ContentInvalid, SaveDocument.Read(Kit.Tree(1, extra)).Result.Code, "a row with an unknown member cannot be held in a state");
+            Spec.Equal(ResultCodes.ContentInvalid, SaveDocument.Read(Kit.Tree(1, Kit.Row("event.one", "Waiting", 1))).Result.Code, "a row with an unknown status cannot be held in a state");
         }
 
         private static StateSnapshot Spent(StateSnapshot snapshot, string ledger, string key)
         {
-            return new StateSnapshot(snapshot.Revision, snapshot.Root.With(ledger, DataNode.FromList(new[] { Kit.Str(key) })));
+            return SnapshotTrees.Snapshot(snapshot.Revision, snapshot.Tree().With(ledger, DataNode.FromList(new[] { Kit.Str(key) })));
         }
 
         private static string Rows(GameState state)
@@ -65,15 +62,15 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         {
             var rig = new ReservationRig(Kit.Event("event.one"), Kit.Event("event.done", completion: "node.done"),
                 Kit.Event("event.drill", completion: "node.done", repeat: RepeatPolicy.Practice));
-            var empty = Kit.Snapshot(1).TypedState();
+            var empty = Kit.Snapshot(1).State;
 
             var created = rig.Service.Accept(empty, "event.one");
             Spec.Equal("event.one:Accepted:420", Rows(created.Value), "new row is Accepted at the current absolute minute");
 
-            var offered = Kit.Snapshot(2, Kit.Row("event.one", "Offered", 3)).TypedState();
+            var offered = Kit.Snapshot(2, Kit.Row("event.one", "Offered", 3)).State;
             Spec.Equal("event.one:Accepted:420", Rows(rig.Service.Accept(offered, "event.one").Value), "offered becomes accepted in place");
 
-            var accepted = Kit.Snapshot(3, Kit.Row("event.one", "Ready", 100), Kit.Row("event.done", "Accepted", 7)).TypedState();
+            var accepted = Kit.Snapshot(3, Kit.Row("event.one", "Ready", 100), Kit.Row("event.done", "Accepted", 7)).State;
             Spec.Equal("event.one:Ready:100,event.done:Accepted:7", Rows(rig.Service.Accept(accepted, "event.one").Value), "accept is idempotent and keeps the original time");
 
             Spec.Equal(ResultCodes.RefNotFound, rig.Service.Accept(empty, "event.nope").Result.Code, "unknown event");
@@ -81,7 +78,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
 
             foreach (var ledger in new[] { "completed", "rewardLedger" })
             {
-                var spent = Spent(Kit.Snapshot(4), ledger, "node.done").TypedState();
+                var spent = Spent(Kit.Snapshot(4), ledger, "node.done").State;
                 Spec.Equal(ResultCodes.ConditionFalse, rig.Service.Accept(spent, "event.done").Result.Code, "a key consumed in " + ledger + " blocks the accept");
                 Spec.Equal("event.drill:Accepted:420", Rows(rig.Service.Accept(spent, "event.drill").Value), "practice events never spend their key (" + ledger + ")");
             }
@@ -92,7 +89,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         private static void CompleteRemovesOnlyTheMatchingReservation()
         {
             var rig = new ReservationRig(Kit.Event("event.one", completion: "node.a"), Kit.Event("event.two"), Kit.Event("event.drill", repeat: RepeatPolicy.Practice));
-            var state = Kit.Snapshot(5, Kit.Row("event.one", "Accepted", 5), Kit.Row("event.two", "Accepted", 6), Kit.Row("event.drill", "Accepted", 7)).TypedState();
+            var state = Kit.Snapshot(5, Kit.Row("event.one", "Accepted", 5), Kit.Row("event.two", "Accepted", 6), Kit.Row("event.drill", "Accepted", 7)).State;
             var catalog = rig.Catalog.Current;
 
             var ok = rig.Rules.Complete(state, catalog.FindEvent("event.one"), Nobody);
@@ -106,7 +103,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             Spec.Equal(ResultCodes.TransactionMismatch, practice.Result.Code, "a practice run with a reservation row is refused (decision D4)");
             Spec.Equal("event.one:Accepted:5,event.two:Accepted:6,event.drill:Accepted:7", Rows(state), "a refused completion leaves every row");
 
-            var unreserved = Kit.Snapshot(6).TypedState();
+            var unreserved = Kit.Snapshot(6).State;
             Spec.True(ReferenceEquals(rig.Rules.Complete(unreserved, catalog.FindEvent("event.drill"), Nobody).Value, unreserved), "a practice run without a row and without effects changes nothing");
         }
     }

@@ -65,7 +65,7 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Check(fixtures.Count == 12, "12 committed fixture saves, found " + fixtures.Count);
             foreach (var f in fixtures) RoundTrip(f, ReadJson(f));
 
-            var envelopes = new SaveCodec(Codec);
+            var envelopes = new SaveCodec(Codec, new NoValidation());
             int decoded = 0, unreadable = 0;
             var frames = new List<string>();
             foreach (var dir in new[] { "Tests/Results", "design/implementation-tasks/execution" })
@@ -124,6 +124,33 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Check(Code(ledger) == ResultCodes.ContentInvalid, "read refuses a duplicate rewardLedger entry");
             var big = SaveDocument.Read(offered.With("wallet", DataNode.FromInteger(Crowns.Limit + 1)));
             Check(Code(big) == ResultCodes.ContentInvalid, "read refuses a wallet over 2147483647");
+        }
+
+        /// <summary>
+        /// Only SaveDocument opens the preserved fields (design Q1): a rule that wrote them would reach the disk with no typed check.
+        /// GameState.cs declares them and passes them through its With copies.
+        /// </summary>
+        public static void RunPreservedSourceCheck()
+        {
+            var allowed = new HashSet<string>(StringComparer.Ordinal) { "Assets/MagicCampus/State/GameState.cs", "Assets/MagicCampus/Persistence/SaveDocument.cs" };
+            var token = new System.Text.RegularExpressions.Regex(@"\b(Preserved|PreservedFields|TopLevel|PlayerRest)\b");
+            var files = Directory.GetFiles("Assets/MagicCampus", "*.cs", SearchOption.AllDirectories);
+            Check(files.Length > 50, "game sources found: " + files.Length);
+            var offenders = new List<string>();
+            foreach (var file in files)
+            {
+                var path = file.Replace(Path.DirectorySeparatorChar, (char)47);
+                if (allowed.Contains(path)) continue;
+                var lines = File.ReadAllLines(file);
+                for (var i = 0; i < lines.Length; i++)
+                    if (token.IsMatch(lines[i])) offenders.Add(path + ":" + (i + 1));
+            }
+            Check(offenders.Count == 0, "preserved save fields are touched outside SaveDocument: " + string.Join(", ", offenders));
+        }
+
+        private sealed class NoValidation : ISaveValidator
+        {
+            public IReadOnlyList<Diagnostic> Validate(DataNode tree) => new Diagnostic[0];
         }
 
         public static void RunTransitions()
@@ -199,9 +226,9 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             Check(s.Progress.IsConsumed(key), "a key only in rewardLedger is consumed");
             var again = s.Progress.Claim(key);
             Check(!again.Succeeded && Code(again) == ResultCodes.ConditionFalse, "re-reward of a rewardLedger-only key is CONDITION_FALSE, got " + Code(again));
-            var bridged = new StateSnapshot(1, SaveDocument.Write(s)).TypedState().Progress;
-            Check(bridged.IsConsumed(key), "the snapshot bridge reads a rewardLedger-only key as consumed");
-            Check(!bridged.IsConsumed(new CompletionKey("event.snack")), "the snapshot bridge leaves an unconsumed key open");
+            var reloaded = SaveDocument.Read(SaveDocument.Write(s)).Value.Progress;
+            Check(reloaded.IsConsumed(key), "a saved and reloaded state reads a rewardLedger-only key as consumed");
+            Check(!reloaded.IsConsumed(new CompletionKey("event.snack")), "a saved and reloaded state leaves an unconsumed key open");
         }
 
         private static void Midnight()

@@ -71,7 +71,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       Require(Rt.Ready, "runtime ready: " + Rt.LastError);
       ev = Arg("event") ?? (mode == "a10" ? "event.mira_snack" : "event.snack");
       cost = mode == "a10" ? 30 : 20;
-      initialDump = Dump(Rt.Store.Current.Root);
+      initialDump = Dump(Rt.StateTree());
       Write("initial.json", initialDump);
       Check("codec.tree.enumerable", !initialDump.Contains("<unenumerable>"), "initial.json length " + initialDump.Length);
       Check("game.visuals-dialogue", game.Visuals != null && game.Dialogue != null, "promised public properties");
@@ -189,14 +189,14 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     IEnumerator IntroFalse()
     {
-      var before = Dump(Rt.Store.Current.Root); var cand = Rt.Disk.ListCandidates().Count;
+      var before = Dump(Rt.StateTree()); var cand = Rt.Disk.ListCandidates().Count;
       evHandle = Rt.StartEvent(ev); Rec("StartEvent(no accept)", "public Runtime command");
       yield return Until(() => evHandle.Terminal != null, "intro-false terminal");
       var t = evHandle.Terminal;
       var text = string.Join(" ", t.Details.Select(d => d.Code + " " + d.Message).ToArray());
       Check("intro-false.condition-false", t.Status == OperationStatus.Failed && t.Code == ResultCodes.ConditionFalse, t.Status + ":" + t.Code);
       Check("intro-false.diagnostics", text.IndexOf("false", StringComparison.OrdinalIgnoreCase) >= 0, text);
-      Check("intro-false.state-unchanged", Dump(Rt.Store.Current.Root) == before && Rt.Disk.ListCandidates().Count == cand, "candidates " + cand);
+      Check("intro-false.state-unchanged", Dump(Rt.StateTree()) == before && Rt.Disk.ListCandidates().Count == cand, "candidates " + cand);
       Check("intro-false.no-saves", Rt.PendingSaveCount == 0 && Rt.PendingDiskOperations == 0, Rt.TokenReport());
       Leaks("intro-false");
       yield break;
@@ -234,7 +234,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       Check("checkpoint.candidates", Rt.Disk.ListCandidates().Count > 0, "before staging");
       var stop = mode == "kill-move" ? "move" : mode == "kill-say" ? "say" : "choose";
       yield return DriveScene(stop, hint, null, false);
-      Write("entry.json", Dump(Rt.Policy.Latest.Snapshot.Root));
+      Write("entry.json", Dump(SaveDocument.Write(Rt.Policy.Latest.Snapshot.State)));
       yield return Shot("checkpoint");
       if (mode != "inspect-choice")
       {
@@ -264,7 +264,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         foreach (var s in new[] { "player", "npcPositions" })
         {
           DataNode e, c;
-          if (!parsed.Value.Root.TryGet(s, out e) || !Rt.Store.Current.Root.TryGet(s, out c) || Dump(e) != Dump(c)) same = false;
+          if (!parsed.Value.Root.TryGet(s, out e) || !Rt.StateTree().TryGet(s, out c) || Dump(e) != Dump(c)) same = false;
         }
         Check("reload.matches-entry", same, exp);
       }
@@ -290,7 +290,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       {
         if (kv.Key == "generation" || kv.Key == "safePoint") continue;
         DataNode actual;
-        Check("reload.state:" + kv.Key, Rt.Store.Current.Root.TryGet(kv.Key, out actual) && Dump(actual) == Dump(kv.Value), "persisted full slice " + kv.Key);
+        Check("reload.state:" + kv.Key, Rt.StateTree().TryGet(kv.Key, out actual) && Dump(actual) == Dump(kv.Value), "persisted full slice " + kv.Key);
       }
       evHandle = Rt.StartEvent(ev); Rec("StartEvent(replay)", "public Runtime command");
       yield return Until(() => evHandle.Terminal != null, "replay terminal");
@@ -481,7 +481,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     long? Wallet()
     {
-      return Rt.Store.Current.TypedState().Progress.Wallet.Value;
+      return Rt.Store.Current.State.Progress.Wallet.Value;
     }
 
     long? ClockMin()
@@ -498,7 +498,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     int Count(string slice, string id)
     {
-      var state = Rt.Store.Current.TypedState();
+      var state = Rt.Store.Current.State;
       switch (slice)
       {
         case "completed": return state.Progress.Completed.Items.Count(k => k == id);
@@ -523,8 +523,9 @@ namespace MagicCampus.Bootstrap.FirstConnection
 
     int Mismatch()
     {
-      var bad = Differs(FirstConnectionRuntime.PlayerId, Rt.Store.Current.Slice("player"));
-      var np = Rt.Store.Current.Slice("npcPositions");
+      var tree = Rt.StateTree();
+      var bad = Differs(FirstConnectionRuntime.PlayerId, tree.Members["player"]);
+      var np = tree.Members["npcPositions"];
       if (np != null && np.Kind == DataKind.List)
         foreach (var e in np.Items) { DataNode id; if (e.Kind == DataKind.Object && e.TryGet("npcId", out id)) bad += Differs(id.Text, e); }
       return bad;
@@ -793,8 +794,10 @@ void SafeTrace()
 
 void WriteResult()
 {
-    try { if (Rt != null) WriteAtomic("final.json", Dump(Rt.Store.Current.Root)); }
+    try { if (Rt != null) WriteAtomic("final.json", Dump(Rt.StateTree())); }
     catch (Exception e) { errors.Add("final.json: " + e.Message); }
+    try { if (Rt != null) foreach (var m in Rt.InvalidCommits) errors.Add("commit failed full validation: " + m); }
+    catch (Exception e) { errors.Add("invalid commits: " + e.Message); }
 
     object hash = null, tokens = null;
     try { hash = Rt?.Compiled?.CatalogHash; } catch (Exception x) { errors.Add("catalogHash: " + x.Message); }

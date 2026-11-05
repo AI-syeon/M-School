@@ -1,6 +1,9 @@
 using System;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.Runtime;
+using MagicCampus.State;
+using MagicCampus.Transactions.Conditions;
 
 namespace MagicCampus.Events
 {
@@ -45,7 +48,7 @@ namespace MagicCampus.Events
         public IPresentationPort Presentation { get; set; }
         public IPresentationLifetime PresentationLifetime { get; set; }
         public TickClock Clock { get; set; }
-        public IStateStore Store { get; set; }
+        public GameStore Store { get; set; }
         /// <summary>Commits the success of one event under the given transaction: its rules, time cost, the live actor positions and its reservation row, captured and committed in this one call.</summary>
         public Func<CompiledEvent, TransactionId, Outcome<StateSnapshot>> CommitEvent { get; set; }
         /// <summary>Commits the live actor positions under the given transaction; capture and commit happen in this one call.</summary>

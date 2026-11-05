@@ -164,14 +164,14 @@ namespace MagicCampus.Tests.Effects
         public static readonly WorldPlaces Nobody = new WorldPlaces(null, new KeyValuePair<string, Position>[0]);
 
         public readonly FakeCatalog Catalog;
-        public readonly StateStore Store;
+        public readonly GameStore Store;
         public readonly EventRules Rules;
         public readonly ConditionEvaluator Conditions;
 
         public Rig(FakeCatalog catalog, DataNode root = null)
         {
             Catalog = catalog;
-            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), new IStateInvariant[0], new CompletionPump());
+            Store = new GameStore(SnapshotTrees.Snapshot(0, root ?? Fx.Root()), new CompletionPump());
             Rules = new EventRules(catalog, new Calendar());
             Conditions = new ConditionEvaluator(catalog);
         }
