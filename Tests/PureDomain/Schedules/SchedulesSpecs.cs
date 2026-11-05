@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Application.Schedules;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
+using MagicCampus.Timekeeping;
 
 namespace MagicCampus.Tests.PureDomain.Schedules
 {

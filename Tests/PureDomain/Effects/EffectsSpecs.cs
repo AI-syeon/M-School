@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Compilation;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;

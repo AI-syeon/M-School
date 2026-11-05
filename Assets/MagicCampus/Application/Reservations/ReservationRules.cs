@@ -1,3 +1,4 @@
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Application.Reservations

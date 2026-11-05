@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Compilation;
 using MagicCampus.Contracts;
 using MagicCampus.State;
+using MagicCampus.Timekeeping;
 
 namespace MagicCampus.Transactions.Conditions
 {

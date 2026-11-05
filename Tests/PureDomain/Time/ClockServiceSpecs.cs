@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;

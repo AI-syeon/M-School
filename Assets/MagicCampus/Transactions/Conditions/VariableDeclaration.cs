@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Transactions.Conditions

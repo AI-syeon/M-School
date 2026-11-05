@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Parsing;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Content.Compilation

@@ -118,28 +118,6 @@ namespace MagicCampus.Contracts
         }
     }
 
-    /// <summary>Validated opaque id: non-empty, no whitespace/control characters.</summary>
-    public readonly struct TransactionId : IEquatable<TransactionId>
-    {
-        public string Value { get; }
-        public TransactionId(string value) { Value = Ids.Require(value, nameof(value)); }
-        public bool Equals(TransactionId o) => Value == o.Value;
-        public override bool Equals(object obj) => obj is TransactionId t && Equals(t);
-        public override int GetHashCode() => Value?.GetHashCode() ?? 0;
-        public override string ToString() => Value ?? string.Empty;
-    }
-
-    /// <summary>Validated key identifying one completion (same rules as TransactionId).</summary>
-    public readonly struct CompletionKey : IEquatable<CompletionKey>
-    {
-        public string Value { get; }
-        public CompletionKey(string value) { Value = Ids.Require(value, nameof(value)); }
-        public bool Equals(CompletionKey o) => Value == o.Value;
-        public override bool Equals(object obj) => obj is CompletionKey k && Equals(k);
-        public override int GetHashCode() => Value?.GetHashCode() ?? 0;
-        public override string ToString() => Value ?? string.Empty;
-    }
-
     public interface ICancelable
     {
         /// <summary>Idempotent request to cancel. Has no effect once the operation is terminal.</summary>
@@ -159,26 +137,6 @@ namespace MagicCampus.Contracts
         OperationStatus Status { get; }
         Result Terminal { get; }
         void OnTerminal(Action<Result> callback);
-    }
-
-    public interface ICompletionQueue
-    {
-        /// <summary>Runs action on the next tick, never synchronously inside Post.</summary>
-        void Post(Action action);
-    }
-
-    public sealed class Lease
-    {
-        public string LeaseId { get; }
-        public string Owner { get; }
-        public IReadOnlyList<string> Resources { get; }   // defensive copy, read-only
-
-        public Lease(string leaseId, string owner, IEnumerable<string> resources)
-        {
-            LeaseId = Ids.Require(leaseId, nameof(leaseId));
-            Owner = Ids.Require(owner, nameof(owner));
-            Resources = Ids.Copy(resources, nameof(resources));
-        }
     }
 
     /// <summary>Per-channel pause flags; true means the channel is paused.</summary>

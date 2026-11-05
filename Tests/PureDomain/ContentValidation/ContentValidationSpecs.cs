@@ -12,6 +12,8 @@ using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;
 using MagicCampus.Tests.PureDomain.Support;
+using MagicCampus.Transactions;
+using MagicCampus.World.Movement;
 
 namespace MagicCampus.Tests.ContentValidation
 {

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Parsing;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.Content.Compilation

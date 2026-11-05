@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Runtime;
+using MagicCampus.Transactions;
 
 namespace MagicCampus.State
 {

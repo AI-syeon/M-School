@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using MagicCampus.Contracts;
 using MagicCampus.State;
+using MagicCampus.Transactions;
 
 namespace MagicCampus.Timekeeping
 {

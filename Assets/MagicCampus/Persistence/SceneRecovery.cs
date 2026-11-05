@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.State;
+using MagicCampus.World.Movement;
 
 namespace MagicCampus.Persistence
 {

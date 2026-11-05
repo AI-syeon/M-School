@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.Runtime;
 using MagicCampus.UnityAdapters.Storage;
 

@@ -1,4 +1,6 @@
 using System;
+using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Compilation;
 using MagicCampus.Tests.PureDomain.Support;
 using System.Collections.Generic;
 using MagicCampus.Contracts;

@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using MagicCampus.Application.Reservations;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.Presentation.Dialogue;
 using MagicCampus.State;
 using MagicCampus.UnityAdapters.Input;
 using MagicCampus.UnityAdapters.Maps;
+using MagicCampus.World.Movement;
 using UnityEngine;
 
 namespace MagicCampus.Bootstrap.FirstConnection

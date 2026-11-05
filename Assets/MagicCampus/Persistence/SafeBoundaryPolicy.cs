@@ -1,5 +1,4 @@
 using System;
-using MagicCampus.Contracts;
 using MagicCampus.State;
 
 namespace MagicCampus.Persistence

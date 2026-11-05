@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
 using MagicCampus.State;
 

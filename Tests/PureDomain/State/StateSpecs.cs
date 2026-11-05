@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
+using MagicCampus.Runtime;
 using MagicCampus.State;
 using MagicCampus.Tests.PureDomain.Support;
+using MagicCampus.Transactions;
 
 namespace MagicCampus.Tests.State
 {

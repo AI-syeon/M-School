@@ -1,5 +1,4 @@
 using System;
-using MagicCampus.Contracts;
 
 namespace MagicCampus.Content.Catalog
 {

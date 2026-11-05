@@ -6,11 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.Runtime;
 using MagicCampus.State;
 using MagicCampus.Tests.PureDomain.Support;
+using MagicCampus.Transactions;
+using MagicCampus.World.Movement;
 
 namespace MagicCampus.Tests.PureDomain.PersistenceTests
 {

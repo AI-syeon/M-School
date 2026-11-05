@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Compilation;
 using MagicCampus.Contracts;
+using MagicCampus.Timekeeping;
+using MagicCampus.World.Movement;
 
 namespace MagicCampus.Application.Schedules
 {

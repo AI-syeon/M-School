@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
+using MagicCampus.Timekeeping;
+using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
 
 namespace MagicCampus.State

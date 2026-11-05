@@ -17,6 +17,7 @@ using MagicCampus.Presentation.Cutscene;
 using MagicCampus.Presentation.Dialogue;
 using MagicCampus.Runtime;
 using MagicCampus.State;
+using MagicCampus.Timekeeping;
 using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
 using MagicCampus.UnityAdapters.Collision;

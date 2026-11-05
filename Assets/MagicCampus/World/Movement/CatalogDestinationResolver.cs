@@ -1,4 +1,5 @@
 using System;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 
 namespace MagicCampus.World.Movement

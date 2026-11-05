@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Application.Reservations;
+using MagicCampus.Content.Catalog;
+using MagicCampus.Content.Compilation;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
 using MagicCampus.State;
 using MagicCampus.Tests.PureDomain.Support;
+using MagicCampus.Timekeeping;
 using MagicCampus.Transactions;
+using MagicCampus.World.Movement;
 
 namespace MagicCampus.Tests.PureDomain.Schedules
 {

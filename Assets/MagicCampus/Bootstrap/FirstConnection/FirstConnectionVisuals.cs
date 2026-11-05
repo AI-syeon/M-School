@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 using MagicCampus.Presentation.Cutscene;
 using MagicCampus.UnityAdapters.ContentIO;
 using MagicCampus.UnityAdapters.Maps;
+using MagicCampus.World.Movement;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 

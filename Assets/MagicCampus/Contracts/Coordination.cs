@@ -20,46 +20,9 @@ namespace MagicCampus.Contracts
         IHandleController<T> Create<T>(string operationId);
     }
 
-    public sealed class ActorState
-    {
-        public ActorState(string actorId, Position position, double radius, double speed)
-        {
-            Ids.Require(actorId, nameof(actorId));
-            PortGuard.Placed(position, nameof(position));
-            PortGuard.NonNegative(radius, nameof(radius));
-            PortGuard.Positive(speed, nameof(speed));
-            if (double.IsNaN(radius) || double.IsInfinity(radius))
-                throw new ArgumentOutOfRangeException(nameof(radius));
-            if (double.IsNaN(speed) || double.IsInfinity(speed))
-                throw new ArgumentOutOfRangeException(nameof(speed));
-            ActorId = actorId;
-            Position = position;
-            Radius = radius;
-            Speed = speed;
-        }
-
-        public string ActorId { get; }
-        public Position Position { get; }
-        public double Radius { get; }
-        public double Speed { get; }
-
-        public ActorState WithPosition(Position position)
-        {
-            return new ActorState(ActorId, position, Radius, Speed);
-        }
-    }
-
     // Implemented by World/Movement (stage 3). Only MoveService writes simulation positions.
     // Readers see the latest immutable simulation snapshot. Persistence is projected only at a safe boundary.
     // A failed SetPosition keeps the last valid position.
-    public interface IActorWorld
-    {
-        ActorState Find(string id);
-        IReadOnlyList<ActorState> All { get; }
-        Result SetPosition(string actorId, Position position, string ownerToken);
-        // Initialization/restore only, and only at a safe boundary.
-        Result Restore(IReadOnlyList<ActorState> actors);
-    }
 
     public sealed class MapGeometry
     {

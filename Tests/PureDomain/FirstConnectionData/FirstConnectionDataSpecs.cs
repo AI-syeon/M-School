@@ -6,6 +6,8 @@ using MagicCampus.Contracts;
 using MagicCampus.Content.Catalog;
 using MagicCampus.Content.Compilation;
 using MagicCampus.Content.Parsing;
+using MagicCampus.Timekeeping;
+using MagicCampus.Transactions;
 using MagicCampus.UnityAdapters.ContentIO;
 using MagicCampus.UnityAdapters.Storage;
 using MagicCampus.Runtime;

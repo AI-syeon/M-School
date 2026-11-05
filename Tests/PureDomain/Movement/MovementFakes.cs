@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
 using MagicCampus.World.Movement;

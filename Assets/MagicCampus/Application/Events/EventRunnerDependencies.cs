@@ -1,9 +1,12 @@
 using System;
+using MagicCampus.Content.Catalog;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.Runtime;
 using MagicCampus.State;
+using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
+using MagicCampus.World.Movement;
 
 namespace MagicCampus.Events
 {

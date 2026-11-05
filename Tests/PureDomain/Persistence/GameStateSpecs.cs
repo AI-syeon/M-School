@@ -8,6 +8,7 @@ using MagicCampus.Content.Parsing;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;
+using MagicCampus.Transactions;
 using MagicCampus.UnityAdapters.ContentIO;
 using MagicCampus.UnityAdapters.Storage;
 
