@@ -7,6 +7,7 @@ namespace MagicCampus.Tests.Time
         {
             CalendarSpecs.Run();
             ClockServiceSpecs.Run();
+            ClockParitySpecs.Run();
             ClockParticipantSpecs.Run();
         }
     }

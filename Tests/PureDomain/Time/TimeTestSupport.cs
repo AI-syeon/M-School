@@ -86,39 +86,9 @@ namespace MagicCampus.Tests.Time
         }
     }
 
-    /// <summary>Delegating store that runs one hook right before the next commit, to simulate a competing writer.</summary>
-    internal sealed class InterferingStore : IStateStore
-    {
-        private readonly IStateStore inner;
-        private Action hook;
-
-        public InterferingStore(IStateStore inner, Action hook) { this.inner = inner; this.hook = hook; }
-
-        public StateSnapshot Current { get { return inner.Current; } }
-
-        public Outcome<StateSnapshot> Commit(StatePlan plan)
-        {
-            if (hook != null)
-            {
-                var run = hook;
-                hook = null;
-                run();
-            }
-
-            return inner.Commit(plan);
-        }
-
-        public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
-        {
-            return inner.ReplaceAll(candidate, expectedRevision, transactionId);
-        }
-
-        public void OnCommitted(Action<StateCommitted> listener) { inner.OnCommitted(listener); }
-    }
-
     internal sealed class TimeWorld
     {
-        public IStateStore Store;
+        public StateStore Store;
         public CompletionPump Pump;
         public Calendar Calendar;
         public ClockParticipant Participant;
@@ -150,7 +120,7 @@ namespace MagicCampus.Tests.Time
             return Create(BuildRoot(absoluteMinute, fraction, dayJobs, returnPending), 1);
         }
 
-        public static TimeWorld Create(DataNode root, long revision)
+        public static TimeWorld Create(DataNode root, long revision, IStateInvariant[] invariants = null)
         {
             var w = new TimeWorld();
             w.Calendar = new Calendar();
@@ -162,7 +132,7 @@ namespace MagicCampus.Tests.Time
             registry.Seal();
 
             w.Pump = new CompletionPump();
-            w.Store = new StateStore(new StateSnapshot(revision, root), registry, new IStateInvariant[0], w.Pump);
+            w.Store = new StateStore(new StateSnapshot(revision, root), registry, invariants ?? new IStateInvariant[0], w.Pump);
             w.Clock = new ClockService(w.Store, w.Calendar);
             return w;
         }

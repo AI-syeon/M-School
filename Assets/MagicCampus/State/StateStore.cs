@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.Transactions.Core;
 
 namespace MagicCampus.State
@@ -67,6 +68,16 @@ namespace MagicCampus.State
         {
             if (plan == null) throw new ArgumentNullException(nameof(plan));
             return Run(plan.TransactionId, false, () => CommitCore(plan));
+        }
+
+        /// <summary>
+        /// Runs a pure transition on the current typed state and stores SaveDocument.Write of its result under the same invariants as a plan.
+        /// A transition that returns the state it was given changes nothing and keeps the revision.
+        /// </summary>
+        public Outcome<StateSnapshot> Commit(TransactionId transactionId, Func<GameState, Outcome<GameState>> transition)
+        {
+            if (transition == null) throw new ArgumentNullException(nameof(transition));
+            return Run(transactionId, false, () => CommitTransition(transactionId, transition));
         }
 
         public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
@@ -158,15 +169,22 @@ namespace MagicCampus.State
                 root = next;
             }
 
-            var candidate = new StateSnapshot(basis.Revision + 1, root);
-            var problems = Validate(candidate);
-            if (problems.Length > 0) return Outcome<StateSnapshot>.Fail(ResultCodes.InvariantViolation, basis.Revision, problems);
+            return Install(new StateSnapshot(basis.Revision + 1, root), plan.TransactionId, plan.Completion);
+        }
 
-            var ok = Outcome<StateSnapshot>.Ok(candidate, candidate.Revision);
-            var committed = new StateCommitted(plan.TransactionId, plan.Completion, basis.Revision, candidate.Revision);
-            current = candidate;
-            Notify(committed);
-            return ok;
+        private Outcome<StateSnapshot> CommitTransition(TransactionId transactionId, Func<GameState, Outcome<GameState>> transition)
+        {
+            var basis = current;
+            if (!basis.TryTypedState(out var state, out var unreadable))
+                return Fail(ResultCodes.ContentInvalid, unreadable);
+
+            var next = transition(state);
+            if (next == null)
+                return Fail(ResultCodes.InvariantViolation, Diag("TRANSITION_NULL_OUTCOME", "the transition returned no outcome", null, "", ""));
+            if (!next.Succeeded) return Fail(next.Result.Code, new List<Diagnostic>(next.Result.Details).ToArray());
+            if (ReferenceEquals(next.Value, state)) return Outcome<StateSnapshot>.Ok(basis, basis.Revision);
+
+            return Install(new StateSnapshot(basis.Revision + 1, SaveDocument.Write(next.Value)), transactionId, null);
         }
 
         private Outcome<StateSnapshot> ReplaceAllCore(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
@@ -175,15 +193,18 @@ namespace MagicCampus.State
             if (expectedRevision != basis.Revision)
                 return Fail(ResultCodes.RevisionConflict, Diag("REVISION_CONFLICT", "replacement was prepared on a different revision", null, L(expectedRevision), L(basis.Revision)));
 
-            var rebased = new StateSnapshot(basis.Revision + 1, candidate.Root);
-            var problems = Validate(rebased);
+            return Install(new StateSnapshot(basis.Revision + 1, candidate.Root), transactionId, null);
+        }
+
+        private Outcome<StateSnapshot> Install(StateSnapshot candidate, TransactionId transactionId, CompletionKey? completion)
+        {
+            var basis = current;
+            var problems = Validate(candidate);
             if (problems.Length > 0) return Outcome<StateSnapshot>.Fail(ResultCodes.InvariantViolation, basis.Revision, problems);
 
-            var ok = Outcome<StateSnapshot>.Ok(rebased, rebased.Revision);
-            var committed = new StateCommitted(transactionId, null, basis.Revision, rebased.Revision);
-            current = rebased;
-            Notify(committed);
-            return ok;
+            current = candidate;
+            Notify(new StateCommitted(transactionId, completion, basis.Revision, candidate.Revision));
+            return Outcome<StateSnapshot>.Ok(candidate, candidate.Revision);
         }
 
         private Diagnostic[] Validate(StateSnapshot candidate)

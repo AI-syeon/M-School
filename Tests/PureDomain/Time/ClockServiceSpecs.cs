@@ -13,7 +13,7 @@ namespace MagicCampus.Tests.Time
             PausePolicies();
             MidnightRecordsBoundary();
             ZeroAndInvalidDelta();
-            ConflictPreservesTime();
+            InvariantsWatchTheTick();
             ReloadLikeDayJobs();
             EventCostSuccessOnceAndCancelledNone();
             InvalidPlanCost();
@@ -99,26 +99,27 @@ namespace MagicCampus.Tests.Time
             Check.Equal(421L, w.Minute, "valid advance after failures");
         }
 
-        private static void ConflictPreservesTime()
+        private static void InvariantsWatchTheTick()
         {
-            var w = TimeWorld.Create(1400, 0, new string[0]);
-            var inner = w.Store;
-            var wrapped = new InterferingStore(inner, () =>
-                inner.Commit(new StatePlan(new TransactionId("direct.clock.1"), null, inner.Current.Revision, new[] { Nodes.Advance(5) })));
-            var service = new ClockService(wrapped, w.Calendar);
+            var w = TimeWorld.Create(TimeWorld.BuildRoot(1430, 0, new string[0], false), 1, new IStateInvariant[] { new NoReturnPending() });
+            var before = w.Store.Current;
+            var refused = w.Clock.Advance(20, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Failed, w.Clock.LastStatus, "midnight tick refused by the commit invariant");
+            Check.Equal(ResultCodes.InvariantViolation, w.Clock.LastFailure.Code, "invariant refusal code");
+            Check.True(refused.From.Equals(refused.To), "refused tick reports no progress");
+            w.AssertUnchanged(before, "refused tick");
 
-            var advance = service.Advance(60, PauseSet.None);
-            Check.Equal(ClockAdvanceStatus.Failed, service.LastStatus, "conflict is a failure");
-            Check.Equal(ResultCodes.RevisionConflict, service.LastFailure.Code, "conflict code");
-            Check.True(advance.From.Equals(advance.To) && advance.Boundaries.Count == 0, "failed advance reports no progress");
-            Check.Equal(1405L, w.Minute, "only the direct advance applied, no double time");
-            Check.True(!w.Pending, "no return pending leaked");
-            Check.Equal(0, w.Jobs.Count, "no jobs leaked");
+            w.Clock.Advance(5, PauseSet.None);
+            Check.Equal(ClockAdvanceStatus.Advanced, w.Clock.LastStatus, "tick the invariant accepts");
+            Check.Equal(1435L, w.Minute, "accepted tick applied");
+        }
 
-            service.Advance(60, PauseSet.None);
-            Check.Equal(ClockAdvanceStatus.Advanced, service.LastStatus, "next advance uses the fresh revision");
-            Check.Equal(1465L, w.Minute, "time after retry");
-            Check.True(w.Pending, "midnight crossed on retry");
+        private sealed class NoReturnPending : IStateInvariant
+        {
+            public IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate)
+            {
+                return candidate.Slice("returnPending").Bool ? new[] { new Diagnostic("TEST_RETURN_PENDING", "returnPending refused by the test invariant", null, "false", "true") } : new Diagnostic[0];
+            }
         }
 
         private static void ReloadLikeDayJobs()

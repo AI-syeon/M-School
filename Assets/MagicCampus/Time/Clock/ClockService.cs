@@ -1,26 +1,26 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
+using MagicCampus.State;
 
 namespace MagicCampus.Timekeeping
 {
     public enum ClockAdvanceStatus { None, Advanced, Paused, ZeroDelta, Failed }
 
     /// <summary>
-    /// Reads the current time from the state store and advances it only by committing a clock.advance plan.
+    /// Reads the current time from the state store and advances it only by committing ClockState.Advance as a store transition.
     /// Event time costs are only planned by PlanCost; the caller commits them together with the event's other changes.
     /// IClockService.Advance has no failure channel, so every call records LastStatus/LastResult and LastFailure
     /// (LastFailure is null unless the most recent call failed).
     /// </summary>
     public sealed class ClockService : IClockService, IClockCostPlanner
     {
-        private readonly IStateStore store;
+        private readonly StateStore store;
         private readonly ICalendar calendar;
         private long sequence;
 
-        public ClockService(IStateStore store, ICalendar calendar)
+        public ClockService(StateStore store, ICalendar calendar)
         {
             this.store = store ?? throw new ArgumentNullException(nameof(store));
             this.calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
@@ -38,7 +38,7 @@ namespace MagicCampus.Timekeeping
             var basis = store.Current;
 
             if (!basis.TryTypedState(out var state, out var readProblem))
-                return Reject(default(GameTime), basis.Revision, ResultCodes.ContentInvalid, new[] { readProblem });
+                return Reject(default(GameTime), basis.Revision, ResultCodes.ContentInvalid, readProblem);
 
             var now = state.Clock.Time;
             if (pause.Calendar) return Idle(now, basis.Revision, ClockAdvanceStatus.Paused);
@@ -46,37 +46,24 @@ namespace MagicCampus.Timekeeping
             // 1 simulation-second = 1 game-minute
             var minutes = simulationSeconds;
             if (!Calendar.TryCheckMinutes(minutes, out var minutesProblem))
-                return Reject(now, basis.Revision, ResultCodes.ContentInvalid, new[] { minutesProblem });
+                return Reject(now, basis.Revision, ResultCodes.ContentInvalid, minutesProblem);
             if (minutes == 0) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
-
-            if (!TryBuild(now, minutes, out var advance, out var changes, out var problems))
-                return Reject(now, basis.Revision, ResultCodes.ContentInvalid, problems);
-            if (changes.Count == 0) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
 
             sequence++;
             var transaction = new TransactionId("clock.advance.r" + basis.Revision.ToString(CultureInfo.InvariantCulture) + ".n" + sequence.ToString(CultureInfo.InvariantCulture));
-            var outcome = store.Commit(new StatePlan(transaction, null, basis.Revision, changes));
-            if (!outcome.Succeeded) return Rejected(now, outcome.Result);
-
-            if (!outcome.Value.TryTypedState(out var afterState, out var afterProblem))
-                return Reject(now, outcome.Result.Revision, ResultCodes.InvariantViolation, new[] { afterProblem });
-
-            var after = afterState.Clock.Time;
-            if (!after.Equals(advance.To))
+            ClockAdvance step = null;
+            var outcome = store.Commit(transaction, s =>
             {
-                var mismatch = TimeDiagnostics.Make("CLOCK_COMMIT_MISMATCH", ClockParticipant.ClockPointer, "committed time differs from the planned time",
-                    advance.To.AbsoluteMinute.ToString(CultureInfo.InvariantCulture), after.AbsoluteMinute.ToString(CultureInfo.InvariantCulture));
-                var failure = new Result(OperationStatus.Failed, ResultCodes.InvariantViolation, outcome.Result.Revision, new[] { mismatch });
-                LastStatus = ClockAdvanceStatus.Failed;
-                LastResult = failure;
-                LastFailure = failure;
-                return new ClockAdvance(now, after, advance.Boundaries);
-            }
+                if (!TryPlan(s.Clock.Time, minutes, out step, out var problem)) return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0, problem);
+                return Outcome<GameState>.Ok(step.To.Equals(step.From) ? s : s.With(s.Clock.Advance(step)), 0);
+            });
+            if (!outcome.Succeeded) return Rejected(now, outcome.Result);
+            if (outcome.Value.Revision == basis.Revision) return Idle(now, basis.Revision, ClockAdvanceStatus.ZeroDelta);
 
             LastStatus = ClockAdvanceStatus.Advanced;
             LastResult = outcome.Result;
             LastFailure = null;
-            return new ClockAdvance(now, after, advance.Boundaries);
+            return step;
         }
 
         /// <summary>
@@ -90,35 +77,31 @@ namespace MagicCampus.Timekeeping
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, readProblem);
             if (!Calendar.TryCheckMinutes(minutes, out var minutesProblem))
                 return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, minutesProblem);
-            if (!TryBuild(state.Clock.Time, minutes, out _, out var changes, out var problems))
-                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, problems);
+            if (!TryPlan(state.Clock.Time, minutes, out var step, out var problem))
+                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, problem);
+            var changes = step.To.Equals(step.From) ? new PlannedChange[0] : new[] { ClockParticipant.CreateAdvanceChange(minutes) };
             return Outcome<ChangeSet>.Ok(new ChangeSet(changes), basis.Revision);
         }
 
-        private bool TryBuild(GameTime time, double minutes, out ClockAdvance advance, out List<PlannedChange> changes, out Diagnostic[] problems)
+        private bool TryPlan(GameTime time, double minutes, out ClockAdvance step, out Diagnostic problem)
         {
-            changes = new List<PlannedChange>();
-            problems = new Diagnostic[0];
-            advance = null;
+            problem = null;
             try
             {
-                advance = calendar.Plan(time, minutes);
+                step = calendar.Plan(time, minutes);
+                return true;
             }
             catch (ArgumentException ex)
             {
-                problems = new[] { TimeDiagnostics.Make("CLOCK_MINUTES_INVALID", string.Empty, ex.Message, "plannable minutes", minutes.ToString("R", CultureInfo.InvariantCulture)) };
+                step = null;
+                problem = TimeDiagnostics.Make("CLOCK_MINUTES_INVALID", string.Empty, ex.Message, "plannable minutes", minutes.ToString("R", CultureInfo.InvariantCulture));
                 return false;
             }
-
-            if (advance.To.Equals(advance.From)) return true;
-
-            changes.Add(ClockParticipant.CreateAdvanceChange(minutes));
-            return true;
         }
 
-        private ClockAdvance Reject(GameTime now, long revision, string code, IReadOnlyList<Diagnostic> details)
+        private ClockAdvance Reject(GameTime now, long revision, string code, Diagnostic detail)
         {
-            return Rejected(now, new Result(OperationStatus.Failed, code, revision, details));
+            return Rejected(now, new Result(OperationStatus.Failed, code, revision, new[] { detail }));
         }
 
         private ClockAdvance Rejected(GameTime now, Result failure)
