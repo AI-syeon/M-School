@@ -122,3 +122,13 @@
   - 루트 MonoBehaviour(입력·HUD·초대 패널·메뉴), 월드 그리기(타일·스프라이트·카메라, 지금 Visuals에서 가져옴), 대화창(지금 IMGUI 렌더러에서 가져옴), probe, 에디터 빌드 메뉴.
 - 테스트: `Tests/Core/`의 dotnet 프로젝트 하나. 콘텐츠 규칙 테스트(실린 모든 번들의 명령 이름·인자 수·참조 id가 맞는지, R3의 근거), 이벤트 흐름, 취소 복원, 일정, 경로, 하루 넘김과 저장 왕복.
 - probe 시나리오: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save`(하루 넘김 저장 → 재시작 뒤 유지, 이벤트 재실행 거절) `ui-long` `ui-200`. 지우는 것: `validation`(테스트로 감), `map-fail` `closed` `blocked` `disk-fail` `kill-*` `reload-entry`(장치가 없어짐).
+
+### 4단계 결과
+
+- 4-1(`f48fda5`): `Core`(Unity 없는 상태·규칙, 724줄)와 `Tests/Core`(67개 검사)를 옛 코드 옆에 세웠다. 콘텐츠 규칙 테스트가 실린 번들 3종(base, a10-mira, dest-moved)을 통과시키고 `variants/invalid` 5종과 `unregistered-effect`를 거절한다(R3의 근거). 이벤트 뒤 NPC가 지금 일정 장소로 걸어 돌아가는 옛 동작은 코디네이터가 `Game.EndEvent`로 맞췄다.
+- 4-2: Unity 쪽 `Game`(1,213줄: `GameRoot` 입력·HUD·패널·메뉴, `WorldView` 타일·스프라이트·카메라, `DialogueBox`, `Probe`, `Editor/GameBuild`)을 Core 위에 세우고 옛 코드를 한 번에 지웠다. Application·Bootstrap·Content·Contracts·Persistence·Presentation·Runtime·State·Time·Transactions·UnityAdapters·World·ThirdParty(JsonSchema.Net DLL), 루트 csproj 2개, `Tests/PureDomain`, `Tools/ContractsReduction`, `Tools/SchemaPackages`, 옛 저장 픽스처·스키마·`full-catalog.json`·`variants/injections`. verify-magiccampus 스킬을 새 probe 9개로 고쳤다.
+- 크기: 게임 C# 16,695 → 1,937줄(Core 724 + Game 1,213), 파일 93 → 12개, asmdef 6 → 3개. 테스트 C# 7,768 → 362줄.
+- 검증(2026-11-06, 코디네이터가 다시 실행): `Tests/Core` 67개 통과. Unity 빌드 오류 0·경고 0, doctor `fresh OK`. probe 9개(`s4-coord`) 모두 통과: success-notes·success-tea·moved 15검사, a10 13, intro-false 3, cancel 8, day-save 7(하루 마치기 → `save.json`에 day 1·지갑 220·완료 기록 → 새 Game으로 다시 읽음 → 재실행 거절), ui-long·ui-200 5. 스크린샷(초대 패널, 라운지 대사, 긴 대사 넘김)을 열어 옛 화면과 같은 타일·스프라이트·대화창임을 확인했다.
+- 바뀐 플레이 동작: 이벤트·초대 수락 때 저장하지 않고 하루가 끝날 때만 저장한다(E2). F5·저장 표시·저장 재시도가 없다. 메뉴에 "하루 마치기 (저장)"가 있다. 문은 걸어 들어가면 넘어간다(E로 문 쓰기 없음). Esc는 패널·메뉴 닫기 → 이벤트 취소 → 메뉴 열기 순이다. 선택지는 숫자키로도 고른다. 게임패드 입력과 방향키 길게 누르기 반복이 없어졌다. 초대 패널은 가까운 NPC의 약속만 보여 준다. 글자 2배가 HUD와 대화창을 함께 키운다. 화면 가림은 한 프레임 전체 검은 화면이다.
+- 확인하지 않은 것: 사람이 직접 하는 플레이, 프로세스를 새로 띄워 저장을 읽는 검사(probe는 같은 프로세스에서 새 Game을 만든다), 게임패드.
+- 남은 것: 아트가 16×16 타일이라 32×32 규칙(AGENTS.md)과 어긋난다(이번 작업 전부터). `build-fixtures.cjs`와 `manifest.json`·`repro-manifest.json`은 지운 파일을 가리킨다(README에 적음). `Docs/System-Architecture.html`(미추적)은 옛 구조를 설명한다. `design/systems/`는 E3에 따라 그대로다.

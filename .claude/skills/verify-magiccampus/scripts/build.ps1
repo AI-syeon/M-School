@@ -11,7 +11,7 @@ if ($editors) { throw "Unity editor already has this project open (pid $($editor
 
 $logDir = New-RunDir ("build-" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 $log = Join-Path $logDir 'unity-build.log'
-$unityArgs = @('-batchmode','-quit','-projectPath',"`"$Project`"",'-executeMethod','MagicCampus.Bootstrap.Editor.FirstConnectionBuild.Build','-logFile',"`"$log`"",'--stage5-build-name',$Build)
+$unityArgs = @('-batchmode','-quit','-projectPath',"`"$Project`"",'-executeMethod','MagicCampus.Game.Editor.GameBuild.Build','-logFile',"`"$log`"",'--stage5-build-name',$Build)
 Write-Output "building $Build ; log $log"
 $p = Start-Process -FilePath $UnityExe -ArgumentList $unityArgs -PassThru -WindowStyle Hidden
 $p.Id | Set-Content (Join-Path $logDir 'unity-pid.txt')

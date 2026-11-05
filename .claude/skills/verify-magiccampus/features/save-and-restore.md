@@ -1,37 +1,29 @@
-# 저장과 복원
+# 하루 마치기 저장과 불러오기
 
-게임은 수락·장면 진입·장면 종료 때 자동 저장한다. 디스크 쓰기가 실패하면 "미저장"으로 표시되고 재시도할 수 있다. 장면 도중 게임이 강제로 꺼지면 다음 실행은 장면 진입 직전 상태로 돌아온다. 완료한 이벤트와 보상은 재시작 뒤에도 유지된다.
+게임은 하루를 마칠 때만 저장한다(메뉴의 `하루 마치기` 또는 자정). 다음 날 07:00으로 넘어가고, NPC는 일정 위치에 선다. 저장은 임시 파일에 쓴 뒤 교체하고 이전 저장 하나를 `.bak`으로 둔다. `F9`는 마지막 저장을 새 게임 객체로 다시 읽는다. 저장이 없으면 시작 상태로 돌아간다.
 
 ## Sub-features
 
-- `save-auto`: 수락과 장면 경계마다 디스크에 저장 세대가 생긴다.
-- `save-disk-fail`: 저장 실패 시 보상은 메모리에 남고 `미저장` 상태가 된다. 재시도하면 저장되고, 다시 불러와도 보상이 한 번뿐이다.
-- `restore-after-kill`: 이동·대사·선택지 시점에 강제 종료해도 새 프로세스가 장면 진입 상태(수락됨, 200 크라운, 미완료)로 복원한다.
-- `restore-completed`: 완료 뒤 재시작해도 상태 전체가 같고, 이벤트 재실행은 막힌다.
-- `save-manual`: `F5` 저장, `F9` 불러오기, 메뉴의 `저장 (F5)`·`불러오기 (F9)`, 미저장일 때 나오는 `저장 재시도` 버튼.
+- `day-end-save`: `하루 마치기`가 날짜 +1, 07:00, 소지금·완료·약속을 `save.json`에 쓴다.
+- `reload-f9`: `F9`가 저장 파일에서 새 `Core.Game`을 만든다. 소지금과 완료가 유지되고, 완료한 이벤트는 다시 시작되지 않는다.
+- `midnight`: 자정이 되면 같은 방식으로 다음 날이 되고 저장된다(`Tests/Core`가 검사한다. probe 케이스는 없다).
 
 ## How to get to it (user POV)
 
-- 자동 저장은 플레이 중 저절로 일어난다. 상단에 `● 저장됨` 또는 `● 미저장`이 표시된다.
-- `F5`/`F9` 키, 또는 `Esc` 메뉴의 버튼을 쓴다.
-- 게임 창을 강제로 닫은 뒤 `MagicCampus.exe`를 다시 실행한다. 기본 저장 폴더는 `%USERPROFILE%\AppData\LocalLow\MagicCampus\MagicCampus\Stage5`다.
+- `Esc` → `하루 마치기 (저장)`. 이벤트 중에는 비활성이다.
+- `F9` 또는 메뉴의 `마지막 저장 불러오기 (F9)`.
+- 기본 저장 파일은 `%USERPROFILE%\AppData\LocalLow\MagicCampus\MagicCampus\Stage5\save.json`이다.
 
 ## Driving it with verify-magiccampus scripts
 
 Preconditions:
 
 - `scripts\doctor.ps1 -Build Stage5-verify`의 종료 코드가 0이다.
-- 완료 복원을 보려면 같은 빌드로 `success-notes`를 먼저 돌린 run-id가 있어야 한다.
 
-- **디스크 실패.** `scripts\run-probe.ps1 -Cases disk-fail -Run <id>`를 실행한다. `disk-fail.memory-reward`, `disk-fail.retry-saved`, `disk-fail.reload-no-extra`가 통과여야 한다.
-- **강제 종료 후 복원.** `scripts\run-restart.ps1 -Phases move,say,choice -Run <id>`. 시점마다 `kill-<phase> -> reload pass=True exit=0 checks=11`이 나와야 한다(2026-11-03 실측: say, choice). `reload-<phase>\process-result.json`의 `distinct`가 `true`여야 한다. 강제 종료한 PID와 복원한 PID가 다르다는 뜻이다.
-- **완료 복원.** `scripts\run-restart.ps1 -Phases none -SuccessFrom <success-notes run-id> -Run <id>`. 출력은 `reload-success-notes pass=True exit=0 checks=52`(2026-11-03 실측)이어야 한다. 이 케이스는 원본 저장을 복사해서 쓴다.
-- **증거.** `kill-<phase>\checkpoint.json`(시점, PID, 리비전), `termination.json`(종료 방법), `entry.json`(기대 상태), `reload-<phase>\reload-entry.png`.
-- **F5/F9 사람 입력.** `scripts\play.ps1 -Action start -Run <id>`로 띄우고 사용자에게 이동 → `F5` → 더 이동 → `F9`를 부탁한다. `-Action status`로 좌표가 F5 시점으로 돌아왔는지와 `unsaved:false`를 확인한다.
+- **하루 저장과 다시 읽기.** `scripts\run-probe.ps1 -Cases day-save -Run <id>`. 서린 이벤트를 노트 분기로 마친 뒤 `GameRoot.EndDay`(메뉴 버튼과 같은 메서드)를 부르고 `F9`를 누른다. `day-save.file`, `day-save.contents`, `day-save.reloaded-new-game`, `day-save.event-refused`가 통과여야 한다.
+- **저장 증거.** 케이스 폴더의 `save\save.json`을 연다. `day: 1`, `minute: 420`, `wallet: 220`, `completed`에 `event.snack`이 있어야 한다.
 
 ## Gotchas
 
-- `disk-fail`은 `Rt.FailDisk` 스위치로 디스크 실패를 주입한다. 실제 디스크 꽉 참이나 권한 오류를 재현한 것이 아니다.
-- `run-restart.ps1`에서 강제 종료 시점을 건너뛰려면 `-Phases none`을 넘긴다. `-Phases`를 생략하면 세 시점을 모두 돈다.
-- kill probe는 checkpoint를 쓴 뒤 일부러 멈춰 있다. 스크립트 밖에서 띄웠다면 그 PID를 직접 종료해야 한다. 이름으로 일괄 종료하지 않는다.
-- `F5`/`F9`는 InputSystem의 `Keyboard.current`를 직접 읽는다. probe의 가상 키보드로는 이 경로를 증명하지 않았다.
+- 다시 읽기는 같은 프로세스 안에서 새 `Core.Game`을 만든다. 프로세스를 다시 띄워 읽는 검사는 없다. 필요하면 `play.ps1`로 같은 `--save-dir`을 주고 `--fresh` 없이 띄운다(스크립트 지원 없음).
+- 이벤트 도중 게임을 끄면 그날 시작 전의 마지막 저장에서 다시 시작한다. 이것은 의도된 동작이다.

@@ -22,7 +22,7 @@ switch ($Action) {
         while (-not (Test-Path "$dir\initial-state.json") -and -not $p.HasExited -and [DateTime]::UtcNow -lt $deadline) { Start-Sleep -Milliseconds 250 }
         if (-not (Test-Path "$dir\initial-state.json")) { Write-Output "NOT READY pid=$($p.Id) exited=$($p.HasExited); read $dir\player.log"; exit 1 }
         $s = Get-Content "$dir\initial-state.json" -Raw -Encoding UTF8 | ConvertFrom-Json
-        Write-Output "READY pid=$($p.Id) phase=$($s.phase) map=$($s.mapId) evidence=$dir"
+        Write-Output "READY pid=$($p.Id) map=$($s.mapId) day=$($s.day) minute=$($s.minute) evidence=$dir"
     }
     'status' {
         $procId = [int](Get-Content $pidFile)

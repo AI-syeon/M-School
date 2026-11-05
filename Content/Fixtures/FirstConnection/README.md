@@ -1,5 +1,13 @@
 # FirstConnection fixtures (stage 4-4)
 
+## Current state (2026-11-06, refactoring stage 4)
+
+- The game (`Assets/MagicCampus/Core`) reads only `runner-bundle.json`, `staging-recipes.json` and the `start-*.json` start states. It does not read schemas, `full-catalog.json` or the manifests, and it does not validate content at run time. `Tests/Core` checks every shipped bundle instead.
+- `start-*.json` are written by hand in the new save format. `build-fixtures.cjs` does not own them.
+- `build-fixtures.cjs` is stale. It still writes the old `save-*.json`, `base/schemas/`, `base/full-catalog.json` and `variants/injections/`, which were deleted, and `manifest.json` and `repro-manifest.json` still list them. Do not run it without first updating it to the new layout.
+
+The rest of this file describes the stage 4-4 generator as it was.
+
 Real JSON fixtures for the first connected play path: two playable maps (courtyard, lounge), one active NPC, one reserved-staging relationship event. Everything under `generated/` is produced by `build-fixtures.cjs`; nothing is hand edited and nothing outside this folder is written.
 
 ## Run
