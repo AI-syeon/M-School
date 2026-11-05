@@ -1,0 +1,26 @@
+{
+  "day": 0,
+  "minute": 420,
+  "player": {
+    "id": "player",
+    "mapId": "map.courtyard",
+    "x": 1.5,
+    "y": 1.5,
+    "facing": "south"
+  },
+  "wallet": 200,
+  "flags": {
+    "story.intro_done": true,
+    "memory.snack_done": false,
+    "world.stage_ready": false,
+    "notice.lunch_done": false,
+    "memory.snack_later_done": false,
+    "memory.mira_done": false
+  },
+  "completed": [],
+  "appointments": {
+    "event.snack": "Offered",
+    "event.snack_later": "Offered",
+    "event.mira_snack": "Offered"
+  }
+}
