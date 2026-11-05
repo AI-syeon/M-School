@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
+using MagicCampus.State;
+using MagicCampus.Timekeeping;
+using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
-using MagicCampus.Transactions.Effects;
 
 namespace MagicCampus.Tests.Effects
 {
@@ -20,15 +23,13 @@ namespace MagicCampus.Tests.Effects
             OnlyDeclaredTypedVariables();
             CaseCountUsesValidatedOrder();
             UnknownEffectRefusesWholeList();
-            ParticipantRefusalsLeaveStateUntouched();
+            EventRefusalsLeaveStateUntouched();
             AllSlicesCommitAtomically();
-            RevisionConflictThroughStore();
             RepeatedTransactionAndCompletionAddNothing();
             EventCostIsTheOnlyTimeSource();
-            MalformedCollaboratorPlansRejected();
             PracticeEarnsNothingAndCostsNothing();
-            PlanOrderAndStoreRefusesUnregisteredParticipants();
-            PlanningAndCancellationWriteNothing();
+            OneCommitWritesEffectsTimeWorldAndReservation();
+            TransitionsWriteNothingUntilCommitted();
         }
 
         // ------------------------------------------------------------------ helpers
@@ -79,29 +80,6 @@ namespace MagicCampus.Tests.Effects
             return new Rig(Fx.DefaultCatalog(), Fx.Root(m => FullState(m)));
         }
 
-        private static StatePlan P(Rig r, string key, params PlannedChange[] changes)
-        {
-            return new StatePlan(Rig.Tx(), key == null ? (CompletionKey?)null : new CompletionKey(key), r.Store.Current.Revision, changes);
-        }
-
-        private static PlannedChange Ch(string op, DataNode payload)
-        {
-            return new PlannedChange(EffectOperations.ParticipantId, op, payload);
-        }
-
-        private static Outcome<ChangeSet> PlanCalls(Rig r, string completionKey, params CompiledCall[] calls)
-        {
-            var context = new EffectContext(r.Store.Current, Rig.Tx(), completionKey == null ? (CompletionKey?)null : new CompletionKey(completionKey));
-            return r.Effects.Plan(calls, context);
-        }
-
-        private static PlannedChange PlanOne(Rig r, string completionKey, CompiledCall call)
-        {
-            var planned = PlanCalls(r, completionKey, call);
-            Require(planned.Succeeded && planned.Value.Changes.Count == 1, "test effect plans");
-            return planned.Value.Changes[0];
-        }
-
         private static CompiledCall SetCall(string variable, DataNode value)
         {
             return Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S(variable)), Fx.P("value", value));
@@ -117,35 +95,43 @@ namespace MagicCampus.Tests.Effects
             return Fx.Call(Fx.CurrencyFn, false, Fx.P("amountCrowns", amount));
         }
 
-        private static PlannedChange Setc(Rig r, string variable, DataNode value)
+        private static CompiledCall Met()
         {
-            return PlanOne(r, null, SetCall(variable, value));
+            return SetCall("met_mentor", Fx.B(true));
         }
 
-        private static PlannedChange Comp(Rig r, string id)
+        private static int cases;
+
+        /// <summary>Adds an event with these effects to the rig catalog and returns it.</summary>
+        private static CompiledEvent Ev(Rig r, RepeatPolicy repeat, int cost, params CompiledCall[] effects)
         {
-            return PlanOne(r, null, CompleteCall(id));
+            var ev = Fx.Event("evt_case_" + (++cases), repeat, null, cost, effects);
+            r.Catalog.EventList.Add(ev);
+            return ev;
         }
 
-        private static PlannedChange Cur(Rig r, long amount)
+        private static Outcome<EventOutcome> Parse(Rig r, params CompiledCall[] effects)
         {
-            return PlanOne(r, "evt_intro", CurrencyCall(Fx.I(amount)));
+            return EventOutcome.Parse(r.Catalog, Fx.Event("evt_parse", RepeatPolicy.Once, null, 0, effects));
         }
 
-        private static PlannedChange Done(string eventId, string key, RepeatPolicy policy)
+        private static void Refused(Rig r, CompiledEvent ev, string code, string what)
         {
-            return EffectChange.EventComplete(eventId, key, policy);
-        }
-
-        private static void PlanRefused(Rig r, string completionKey, string code, string what, params CompiledCall[] calls)
-        {
-            var planned = PlanCalls(r, completionKey, calls);
-            Require(!planned.Succeeded && planned.Result.Code == code && planned.Value == null, what + " must be refused at planning with " + code);
+            var before = r.Store.Current;
+            var outcome = r.Run(ev);
+            Require(!outcome.Succeeded && outcome.Result.Code == code && outcome.Value == null, what + " must be refused with " + code + ", got " + outcome.Result.Code);
+            Unchanged(r, before, what);
         }
 
         private static void Unchanged(Rig r, StateSnapshot before, string what)
         {
             Require(r.Store.Current.Revision == before.Revision && r.Store.Current.Root.Equals(before.Root), what + ": state changed");
+        }
+
+        /// <summary>Top-level save fields whose value differs between two snapshots.</summary>
+        private static string Changed(StateSnapshot before, StateSnapshot after)
+        {
+            return string.Join(",", before.Root.Members.Keys.Where(k => !before.Root.Members[k].Equals(after.Root.Members[k])).OrderBy(k => k, StringComparer.Ordinal));
         }
 
         private static long Crowns(Rig r)
@@ -158,24 +144,16 @@ namespace MagicCampus.Tests.Effects
             return r.Store.Current.TypedState().Clock.AbsoluteMinute;
         }
 
-        private static string Sequence(StatePlan plan)
-        {
-            var parts = new List<string>();
-            foreach (var c in plan.Changes) parts.Add(c.ParticipantId + "/" + c.Operation);
-            return string.Join(",", parts);
-        }
-
         // ------------------------------------------------------------------ conditions
 
         private static void ConstructorGuards()
         {
-            Throws<ArgumentNullException>(() => new ConditionEvaluator(null));
-            Throws<ArgumentNullException>(() => new EventEffectsParticipant(null));
-            Throws<ArgumentNullException>(() => new EffectPlanner(null));
             var catalog = Fx.DefaultCatalog();
-            Throws<ArgumentNullException>(() => new EventCommitPlanner(null, new FakeWorldProjector(), catalog));
-            Throws<ArgumentNullException>(() => new EventCommitPlanner(new FakeClockPlanner(), null, catalog));
-            Throws<ArgumentNullException>(() => new EventCommitPlanner(new FakeClockPlanner(), new FakeWorldProjector(), null));
+            Throws<ArgumentNullException>(() => new ConditionEvaluator(null));
+            Throws<ArgumentNullException>(() => new EventRules(null, new Calendar()));
+            Throws<ArgumentNullException>(() => new EventRules(catalog, null));
+            Throws<ArgumentNullException>(() => EventOutcome.Parse(null, catalog.FindEvent("evt_intro")));
+            Throws<ArgumentNullException>(() => EventOutcome.Parse(catalog, null));
         }
 
         private static void ConditionFalseReportsReasons()
@@ -263,6 +241,7 @@ namespace MagicCampus.Tests.Effects
             Require(!inAny.Satisfied && !Check(r, Fx.AnyCall(true, new[] { Fx.Call(Fx.MysteryFn, false, Fx.P("id", Fx.S("x"))) })).Satisfied, "unknown inside any never becomes true");
         }
 
+
         private static void ClockVariableIsDerivedAndReadOnly()
         {
             var r = new Rig(Fx.DefaultCatalog());
@@ -273,26 +252,24 @@ namespace MagicCampus.Tests.Effects
             Require(!Check(r, Eq("clock.minute_of_day", Fx.B(true))).Satisfied, "clock compares integers");
             Require(Check(r, Eq("clock.other", Fx.I(1))).Reasons[0].Code == ResultCodes.RefNotFound, "unknown derived variable");
 
-            var call = Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S("clock.minute_of_day")), Fx.P("value", Fx.I(5)));
-            Require(!r.Effects.Plan(new[] { call }, r.Context()).Succeeded, "set on clock refused by planner");
+            Require(!Parse(r, SetCall("clock.minute_of_day", Fx.I(5))).Succeeded, "set on clock refused by the rules");
             Require(AbsoluteMinute(r) == 2040, "absolute minute untouched");
         }
 
         private static void OnlyDeclaredTypedVariables()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            Func<string, DataNode, bool> plans = (name, value) =>
-                r.Effects.Plan(new[] { Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S(name)), Fx.P("value", value)) }, r.Context()).Succeeded;
-            Require(!plans("ghost", Fx.B(true)), "undeclared variable refused");
-            Require(!plans("note", Fx.S("hi")), "string variable refused");
-            Require(!plans("met_mentor", Fx.I(1)), "int for bool refused");
-            Require(!plans("gold_stars", Fx.B(true)), "bool for int refused");
-            Require(!plans("gold_stars", Fx.I(99)), "above declared max refused");
-            Require(!plans("gold_stars", Fx.I(-1)), "below declared min refused");
-            Require(!plans("gold_stars", DataNode.FromNumber(1.5)), "number for int refused");
-            Require(plans("met_mentor", Fx.B(true)) && plans("gold_stars", Fx.I(10)) && plans("gold_stars", Fx.I(0)), "declared values accepted");
-            var planned = r.Effects.Plan(new[] { Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S("gold_stars")), Fx.P("value", Fx.I(7))) }, r.Context());
-            Require(planned.Value.Changes.Count == 1 && planned.Value.Changes[0].ParticipantId == "event-effects" && planned.Value.Changes[0].Operation == "set", "set plans one event-effects change");
+            Func<string, DataNode, bool> parses = (name, value) => Parse(r, SetCall(name, value)).Succeeded;
+            Require(!parses("ghost", Fx.B(true)), "undeclared variable refused");
+            Require(!parses("note", Fx.S("hi")), "string variable refused");
+            Require(!parses("met_mentor", Fx.I(1)), "int for bool refused");
+            Require(!parses("gold_stars", Fx.B(true)), "bool for int refused");
+            Require(!parses("gold_stars", Fx.I(99)), "above declared max refused");
+            Require(!parses("gold_stars", Fx.I(-1)), "below declared min refused");
+            Require(!parses("gold_stars", DataNode.FromNumber(1.5)), "number for int refused");
+            Require(parses("met_mentor", Fx.B(true)) && parses("gold_stars", Fx.I(10)) && parses("gold_stars", Fx.I(0)), "declared values accepted");
+            var parsed = Parse(r, SetCall("gold_stars", Fx.I(7)));
+            Require(parsed.Value.Sets.Count == 1 && parsed.Value.Sets[0].Key == "gold_stars" && parsed.Value.Sets[0].Value.Equals(FlagValue.Of(7)), "set reads one typed flag value");
             Require(Check(r, Eq("ghost", Fx.B(true))).Reasons[0].Code == ResultCodes.RefNotFound, "eq on undeclared");
             Require(Check(r, Eq("note", Fx.S("x"))).Reasons[0].Code == ResultCodes.ContentInvalid, "eq on string variable");
             Require(Check(r, Eq("gold_stars", Fx.B(true))).Reasons[0].Code == ResultCodes.ArgType, "eq with wrong value type");
@@ -313,138 +290,106 @@ namespace MagicCampus.Tests.Effects
             Require(Check(r, Cases(Fx.I(-1))).Reasons[0].Code == ResultCodes.ArgType, "negative count invalid");
         }
 
+
         // ------------------------------------------------------------------ effects
 
         private static void UnknownEffectRefusesWholeList()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            var before = r.Store.Current;
-            var bad = r.Catalog.FindEvent("evt_bad");
-            var planned = r.Planner.PlanCommit(bad, r.Context());
-            Require(!planned.Succeeded && planned.Result.Code == ResultCodes.Unregistered && planned.Value == null, "unknown effect refuses the commit plan");
-            Require(r.Clock.Calls == 0 && r.World.Calls == 0, "no time or world planning after refusal");
-            Unchanged(r, before, "unknown effect");
-            var direct = r.Effects.Plan(bad.Effects, r.Context());
-            Require(!direct.Succeeded && direct.Result.Code == ResultCodes.Unregistered && direct.Value == null, "valid effects before an unknown one are discarded");
-            var met = Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S("met_mentor")), Fx.P("value", Fx.B(true)));
+            Refused(r, r.Catalog.FindEvent("evt_bad"), ResultCodes.Unregistered, "unknown effect refuses the whole event");
             var grant = Fx.Call(Fx.ItemGrantFn, false, Fx.P("item", Fx.S("potion")), Fx.P("quantity", Fx.I(1)));
-            Require(!r.Effects.Plan(new[] { grant, met }, r.Context()).Succeeded, "order does not matter");
-            Require(r.Effects.Plan(new[] { met }, r.Context()).Succeeded, "valid effect alone plans");
+            var direct = Parse(r, Met(), grant);
+            Require(!direct.Succeeded && direct.Result.Code == ResultCodes.Unregistered && direct.Value == null, "valid effects before an unknown one are discarded");
+            Require(Parse(r, grant, Met()).Result.Code == ResultCodes.Unregistered, "order does not matter");
+            Require(Parse(r, grant, CurrencyCall(Fx.I(0))).Result.Code == ResultCodes.Unregistered, "an unknown effect outranks other problems");
+            Require(Parse(r, Met()).Succeeded, "valid effect alone parses");
         }
 
-        private static void ParticipantRefusalsLeaveStateUntouched()
+        private static void EventRefusalsLeaveStateUntouched()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            Action<string, StatePlan> refuse = (name, plan) =>
-            {
-                var before = r.Store.Current;
-                var outcome = r.Store.Commit(plan);
-                Require(!outcome.Succeeded, name + " must be refused");
-                Unchanged(r, before, name);
-            };
-            PlanRefused(r, "evt_intro", ResultCodes.InvariantViolation, "zero currency", CurrencyCall(Fx.I(0)));
-            PlanRefused(r, "evt_intro", ResultCodes.InvariantViolation, "negative currency", CurrencyCall(Fx.I(-5)));
-            PlanRefused(r, "evt_intro", ResultCodes.ArgType, "fractional currency", CurrencyCall(DataNode.FromNumber(2.5)));
-            PlanRefused(r, "evt_intro", ResultCodes.InvariantViolation, "wallet schema maximum overflow", CurrencyCall(Fx.I(int.MaxValue)));
-            PlanRefused(r, null, ResultCodes.TransactionMismatch, "reward without completion", CurrencyCall(Fx.I(5)));
-            PlanRefused(r, null, ResultCodes.ContentInvalid, "forged event completion key", CompleteCall("evt_intro"));
-            PlanRefused(r, null, ResultCodes.RefNotFound, "undeclared flag", SetCall("ghost_flag", Fx.B(true)));
-            Require(!PlanCalls(r, null, SetCall("gold_stars", Fx.B(true))).Succeeded, "flag type mismatch must be refused at planning");
-            Require(!PlanCalls(r, null, SetCall("gold_stars", Fx.I(99))).Succeeded, "flag range must be refused at planning");
-            Require(!PlanCalls(r, null, SetCall("clock.minute_of_day", Fx.I(5))).Succeeded, "clock flag must be refused at planning");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CurrencyCall(Fx.I(0))), ResultCodes.InvariantViolation, "zero currency");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CurrencyCall(Fx.I(-5))), ResultCodes.InvariantViolation, "negative currency");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CurrencyCall(DataNode.FromNumber(2.5))), ResultCodes.ArgType, "fractional currency");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CurrencyCall(Fx.I(int.MaxValue))), ResultCodes.InvariantViolation, "wallet schema maximum overflow");
+            Refused(r, Ev(r, RepeatPolicy.Practice, 0, CurrencyCall(Fx.I(5))), ResultCodes.TransactionMismatch, "practice reward");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CompleteCall("evt_intro")), ResultCodes.ContentInvalid, "forged event completion key");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, SetCall("ghost_flag", Fx.B(true))), ResultCodes.RefNotFound, "undeclared flag");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, SetCall("gold_stars", Fx.B(true))), ResultCodes.ArgType, "flag type mismatch");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, SetCall("gold_stars", Fx.I(99))), ResultCodes.InvariantViolation, "flag range");
+            Require(!r.Run(Ev(r, RepeatPolicy.Once, 0, SetCall("clock.minute_of_day", Fx.I(5)))).Succeeded, "clock flag refused");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, Fx.Call(Fx.SetFn, true, Fx.P("variable", Fx.S("met_mentor")), Fx.P("value", Fx.B(true)))), ResultCodes.ContentInvalid, "negated effect");
+            var withAlternatives = new CompiledCall(Fx.SetFn, 1, "", false, new[] { Fx.P("variable", Fx.S("met_mentor")), Fx.P("value", Fx.B(true)) },
+                new IReadOnlyList<CompiledCall>[] { new[] { Met() } }, new SourceLocation("test.json", "/events/0", "evt", "evt#1", 0));
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, withAlternatives), ResultCodes.ContentInvalid, "effect with alternatives");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CurrencyCall(Fx.I((long)int.MaxValue + 1))), ResultCodes.InvariantViolation, "amount above the wallet maximum");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, Fx.Call(Fx.SetFn, false, Fx.P("variable", Fx.S("met_mentor")))), ResultCodes.ArgCount, "set without a value");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, Fx.Call(Fx.CompleteFn, false, Fx.P("id", Fx.I(3)))), ResultCodes.ArgType, "complete with a number");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, Fx.Call(Fx.CurrencyFn, false)), ResultCodes.ArgCount, "currency.add without an amount");
 
-            refuse("reward without ledger entry", P(r, "evt_intro", Cur(r, 5)));
-            refuse("reward without plan completion", P(r, null, Cur(r, 5), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
-            refuse("wrong completion key", P(r, "evt_intro", Done("evt_intro", "other_key", RepeatPolicy.Once)));
-            refuse("unknown event", P(r, "ghost", Done("ghost", "ghost", RepeatPolicy.Once)));
-            refuse("policy mismatch", P(r, "evt_intro", Done("evt_intro", "evt_intro", RepeatPolicy.Practice)));
-            refuse("duplicate event.complete", P(r, "evt_intro", Done("evt_intro", "evt_intro", RepeatPolicy.Once), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
-            refuse("duplicate completion inside one plan", P(r, null, Comp(r, "intro_seen2"), Comp(r, "intro_seen2")));
-            var early = Comp(r, "recorded_later");
-            Require(r.Store.Commit(P(r, null, Comp(r, "recorded_later"))).Succeeded, "completion recorded");
-            refuse("completion already recorded", P(r, null, early));
-            refuse("summed rewards overflow the wallet", P(r, "evt_intro", Cur(r, int.MaxValue - 100), Cur(r, int.MaxValue - 100), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
-            refuse("unplanned operation", P(r, null, Ch("item.grant", Fx.Obj())));
-            refuse("unplanned known operation", P(r, null, Ch(EffectOperations.Set, Fx.Obj(Fx.P("variable", Fx.S("met_mentor")), Fx.P("value", Fx.B(true))))));
-            refuse("valid changes followed by an unknown one", P(r, "evt_intro", Setc(r, "met_mentor", Fx.B(true)), Comp(r, "intro_seen"), Ch("spell.learn", Fx.Obj())));
-            refuse("foreign revision", new StatePlan(Rig.Tx(), null, r.Store.Current.Revision + 7, new[] { Setc(r, "met_mentor", Fx.B(true)) }));
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CompleteCall("intro_seen2"), CompleteCall("intro_seen2")), ResultCodes.ConditionFalse, "duplicate completion inside one event");
+            Require(r.Run(Ev(r, RepeatPolicy.Once, 0, CompleteCall("recorded_later"))).Succeeded, "completion recorded");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CompleteCall("recorded_later")), ResultCodes.ConditionFalse, "completion already recorded");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, CurrencyCall(Fx.I(int.MaxValue - 100)), CurrencyCall(Fx.I(int.MaxValue - 100))), ResultCodes.InvariantViolation, "summed rewards overflow the wallet");
+            Refused(r, Ev(r, RepeatPolicy.Once, 0, Met(), CompleteCall("intro_seen"), Fx.Call(Fx.ItemGrantFn, false, Fx.P("item", Fx.S("potion")), Fx.P("quantity", Fx.I(1)))), ResultCodes.Unregistered, "valid effects followed by an unknown one");
+            Refused(r, Fx.Event("ghost", RepeatPolicy.Once, null, 0), ResultCodes.RefNotFound, "event not in the catalog");
 
-            var ok = r.Store.Commit(P(r, "evt_intro", Setc(r, "met_mentor", Fx.B(true)), Comp(r, "intro_seen"), Cur(r, 25), Done("evt_intro", "evt_intro", RepeatPolicy.Once)));
-            Require(ok.Succeeded && Crowns(r) == 125, "the same rig accepts a valid plan");
+            var keyed = Fx.Event("evt_practice_keyed", RepeatPolicy.Practice, "evt_practice_keyed", 0, Met());
+            r.Catalog.EventList.Add(keyed);
+            Refused(r, keyed, ResultCodes.TransactionMismatch, "practice with a completion key");
+
+            var ok = r.Run("evt_intro");
+            Require(ok.Succeeded && Crowns(r) == 125, "the same rig accepts a valid event");
         }
 
         private static void AllSlicesCommitAtomically()
         {
             var r = new Rig(Fx.DefaultCatalog());
             var before = r.Store.Current;
-            var planned = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_intro"), r.Context());
-            Require(planned.Succeeded, "intro plans");
-            Require(planned.Value.Completion.Value.Value == "evt_intro" && planned.Value.ExpectedRevision == before.Revision, "completion defaults to the event id");
-            Require(r.Clock.Calls == 0, "zero cost asks no clock");
-            Unchanged(r, before, "planning");
-            var outcome = r.Store.Commit(planned.Value);
+            var outcome = r.Run("evt_intro");
             Require(outcome.Succeeded, "commit succeeds");
             var now = r.Store.Current;
-            Require(now.Revision > before.Revision && now.Revision == outcome.Result.Revision, "one new revision");
+            Require(now.Revision == before.Revision + 1 && now.Revision == outcome.Result.Revision, "one new revision");
             Require(now.Slice("flags").Equals(Fx.List(Fx.Flag("met_mentor", Fx.B(true)))), "flag written");
-            Require(now.Slice("completed").Equals(Fx.Strings("intro_seen", "evt_intro")), "completed written");
+            Require(now.Slice("completed").Equals(Fx.Strings("intro_seen", "evt_intro")), "completed written, completion defaults to the event id");
             Require(now.Slice("rewardLedger").Equals(Fx.Strings("evt_intro")), "ledger written");
             Require(Crowns(r) == 125, "wallet written");
             Require(now.Root.Members.Count == 45 && before.Root.Members.Count == 45, "all 45 root fields survive");
-            var owned = new HashSet<string> { "flags", "completed", "rewardLedger", "wallet" };
-            foreach (var member in before.Root.Members)
-            {
-                if (owned.Contains(member.Key)) continue;
-                Require(now.Root.Members[member.Key].Equals(member.Value), "field " + member.Key + " preserved");
-            }
-        }
-
-        private static void RevisionConflictThroughStore()
-        {
-            var r = new Rig(Fx.DefaultCatalog());
-            var stale = P(r, null, Setc(r, "met_mentor", Fx.B(true)));
-            Require(r.Store.Commit(P(r, null, Setc(r, "gold_stars", Fx.I(2)))).Succeeded, "first commit");
-            var mid = r.Store.Current;
-            var outcome = r.Store.Commit(stale);
-            Require(!outcome.Succeeded && outcome.Result.Code == ResultCodes.RevisionConflict, "stale plan conflicts");
-            Unchanged(r, mid, "stale plan");
-
-            var oldContext = r.Context();
-            var plan = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_intro"), oldContext).Value;
-            Require(r.Store.Commit(P(r, null, Setc(r, "gold_stars", Fx.I(3)))).Succeeded, "interleaved commit");
-            var afterInterleave = r.Store.Current;
-            var conflict = r.Store.Commit(plan);
-            Require(!conflict.Succeeded && conflict.Result.Code == ResultCodes.RevisionConflict, "event plan from an old basis conflicts");
-            Unchanged(r, afterInterleave, "stale event plan");
-            Require(Crowns(r) == 100, "no reward from a stale plan");
+            Require(Changed(before, now) == "completed,flags,rewardLedger,wallet", "only the effect fields change, got " + Changed(before, now));
         }
 
         private static void RepeatedTransactionAndCompletionAddNothing()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            var evt = r.Catalog.FindEvent("evt_intro");
-            var plan = r.Planner.PlanCommit(evt, r.Context()).Value;
-            var first = r.Store.Commit(plan);
+            var intro = r.Catalog.FindEvent("evt_intro");
+            var first = r.Run(intro, null, "tx-intro");
             Require(first.Succeeded, "first commit");
             var afterFirst = r.Store.Current;
-            var replay = r.Store.Commit(plan);
+            var replay = r.Run(intro, null, "tx-intro");
             Require(replay.Succeeded && replay.Result.Revision == first.Result.Revision, "replayed transaction returns the first result");
             Unchanged(r, afterFirst, "replayed transaction");
             Require(Crowns(r) == 125, "reward paid once");
 
-            var second = r.Planner.PlanCommit(evt, r.Context());
-            Require(!second.Succeeded && second.Result.Code == ResultCodes.ConditionFalse, "new transaction for a consumed completion is refused at planning");
-            var forced = P(r, "evt_intro", Cur(r, 25), Done("evt_intro", "evt_intro", RepeatPolicy.Once));
-            Require(!r.Store.Commit(forced).Succeeded, "participant refuses a forced repeat");
-            Unchanged(r, afterFirst, "forced repeat");
+            Require(EventRules.IsSpent(r.Store.Current.TypedState(), intro), "the claimed once event is spent");
+            var second = r.Run(intro);
+            Require(!second.Succeeded && second.Result.Code == ResultCodes.ConditionFalse, "new transaction for a consumed completion is refused");
+            Unchanged(r, afterFirst, "repeat");
             Require(r.Store.Current.Slice("rewardLedger").Items.Count == 1, "ledger has one entry");
 
-            var a = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_shared_a"), r.Context());
-            Require(a.Succeeded && r.Store.Commit(a.Value).Succeeded && Crowns(r) == 135, "shared key first use pays");
+            Require(r.Run("evt_shared_a").Succeeded && Crowns(r) == 135, "shared key first use pays");
             var afterA = r.Store.Current;
-            var b = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_shared_b"), r.Context());
+            var b = r.Run("evt_shared_b");
             Require(!b.Succeeded && b.Result.Code == ResultCodes.ConditionFalse, "shared key is consumed for every event");
             Unchanged(r, afterA, "shared key reuse");
+
+            var ledgerOnly = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["rewardLedger"] = Fx.Strings("shared_key")));
+            Require(EventRules.IsSpent(ledgerOnly.Store.Current.TypedState(), ledgerOnly.Catalog.FindEvent("evt_shared_a")), "a key only in rewardLedger is spent");
+            var before = ledgerOnly.Store.Current;
+            Require(ledgerOnly.Run("evt_shared_a").Result.Code == ResultCodes.ConditionFalse, "a key only in rewardLedger is not paid again");
+            Unchanged(ledgerOnly, before, "rewardLedger-only key");
+
+            var spentBad = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["completed"] = Fx.Strings("evt_bad")));
+            Require(spentBad.Run("evt_bad").Result.Code == ResultCodes.ConditionFalse, "a spent once event is refused as spent before its effects are read");
         }
 
         // ------------------------------------------------------------------ time sources
@@ -452,118 +397,95 @@ namespace MagicCampus.Tests.Effects
         private static void EventCostIsTheOnlyTimeSource()
         {
             var r = new Rig(Fx.DefaultCatalog());
-            var evt = r.Catalog.FindEvent("evt_cost30");
-            var planned = r.Planner.PlanCommit(evt, r.Context());
-            Require(planned.Succeeded && r.Clock.Calls == 1 && r.Clock.LastMinutes == 30, "event cost 30 asked once");
-            var advances = 0;
-            foreach (var c in planned.Value.Changes) if (c.ParticipantId == "clock" && c.Operation == "advance") advances++;
-            Require(advances == 1, "exactly one clock advance");
             var start = AbsoluteMinute(r);
-            Require(r.Store.Commit(planned.Value).Succeeded, "event commit");
+            var before = r.Store.Current;
+            Require(r.Run("evt_cost30", null, "tx-cost").Succeeded, "event commit");
             Require(AbsoluteMinute(r) == start + 30, "time applied once");
-            Require(r.Store.Commit(planned.Value).Succeeded && AbsoluteMinute(r) == start + 30, "replay adds no time");
-            var again = r.Planner.PlanCommit(evt, r.Context());
-            Require(!again.Succeeded && r.Clock.Calls == 1, "completed event asks no further time");
+            Require(Changed(before, r.Store.Current) == "clock,completed,rewardLedger", "the cost rides in the event commit, got " + Changed(before, r.Store.Current));
+            Require(r.Run("evt_cost30", null, "tx-cost").Succeeded && AbsoluteMinute(r) == start + 30, "replay adds no time");
+            var again = r.Run("evt_cost30");
+            Require(!again.Succeeded && AbsoluteMinute(r) == start + 30, "completed event adds no further time");
 
-            var free = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_craft"), r.Context());
-            Require(free.Succeeded && r.Clock.Calls == 1, "no cost means no clock change");
-        }
+            Require(r.Run("evt_craft").Succeeded && AbsoluteMinute(r) == start + 30, "no cost means no clock change");
+            Refused(r, Ev(r, RepeatPolicy.Once, 6000000), ResultCodes.ContentInvalid, "a cost past the per-advance limit");
 
-        private static void MalformedCollaboratorPlansRejected()
-        {
-            var r = new Rig(Fx.DefaultCatalog());
-            var evt = r.Catalog.FindEvent("evt_cost30");
-            Func<string, string, DataNode, PlannedChange> change = (p, o, d) => new PlannedChange(p, o, d);
-            Func<double, DataNode, PlannedChange> advance = (m, d) => change("clock", "advance", d);
-
-            r.Clock.Override = m => new ChangeSet(new[] { change("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.I(29)))) });
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "wrong minutes refused");
-            r.Clock.Override = m => new ChangeSet(null);
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "missing clock advance refused");
-            r.Clock.Override = m => new ChangeSet(new[] { change("event-effects", "set", Fx.Obj()), change("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.I(30)))) });
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "clock planner writing event-effects refused");
-            r.Clock.Override = m => new ChangeSet(new[] { change("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.I(30)))), change("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.I(30)))) });
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "two advances refused");
-            r.Clock.Override = m => new ChangeSet(new[] { change("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.S("30")))) });
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "non-numeric minutes refused");
-
-            r.Clock.Override = m => new ChangeSet(new[] { change("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.I(30)))), change("dayJobs", "consume", Fx.Obj()) });
-            var withConsumer = r.Planner.PlanCommit(evt, r.Context());
-            Require(withConsumer.Succeeded && Sequence(withConsumer.Value).Contains("clock/advance,dayJobs/consume"), "boundary consumer changes travel with the clock change");
-            r.Clock.Override = null;
-
-            r.World.Result = new ChangeSet(new[] { change("clock", "project", Fx.Obj()) });
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "world projector writing clock refused");
-            r.World.Result = new ChangeSet(new[] { change("world", "project", Fx.Obj()), change("world", "project", Fx.Obj()) });
-            Require(!r.Planner.PlanCommit(evt, r.Context()).Succeeded, "two projections refused");
-            r.World.Result = new ChangeSet(new[] { change("world", "project", Fx.Obj()) });
-            Require(r.Planner.PlanCommit(evt, r.Context()).Succeeded, "one projection accepted");
-
-            var wrongCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("someone_else"));
-            Require(!r.Planner.PlanCommit(evt, wrongCompletion).Succeeded, "context completion mismatch refused");
+            var late = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["clock"] = Fx.Obj(Fx.P("absoluteMinute", Fx.I(2870)), Fx.P("fraction", DataNode.FromNumber(0.5)))));
+            Require(late.Run("evt_cost30").Succeeded, "cost across midnight");
+            var clock = late.Store.Current.TypedState().Clock;
+            Require(clock.AbsoluteMinute == 2900 && clock.DayJobs.Items.SequenceEqual(new[] { "boundary.day_d2" }) && clock.ReturnPending, "the crossed midnight is recorded with the cost");
         }
 
         private static void PracticeEarnsNothingAndCostsNothing()
         {
             var r = new Rig(Fx.DefaultCatalog());
             var practice = r.Catalog.FindEvent("evt_practice");
+            var parsed = EventOutcome.Parse(r.Catalog, practice).Value;
+            Require(!parsed.Claim.HasValue && parsed.Crowns == 0 && parsed.Minutes == 0 && parsed.Sets.Count == 1, "practice parses to flags only: no claim, no crowns, no minutes");
             var before = r.Store.Current;
-            var planned = r.Planner.PlanCommit(practice, r.Context());
-            Require(planned.Succeeded && !planned.Value.Completion.HasValue, "practice carries no completion key");
-            Require(r.Clock.Calls == 0, "practice costs no time");
-            var sequence = Sequence(planned.Value);
-            Require(!sequence.Contains("event.complete") && !sequence.Contains("currency.add"), "practice writes no ledger or reward");
-            Require(r.Store.Commit(planned.Value).Succeeded, "practice commits");
-            var again = r.Planner.PlanCommit(practice, r.Context());
-            Require(again.Succeeded && r.Store.Commit(again.Value).Succeeded, "practice can repeat");
+            Require(!EventRules.IsSpent(before.TypedState(), practice), "practice is never spent");
+            Require(r.Run(practice).Succeeded, "practice commits");
+            Require(r.Run(practice).Succeeded, "practice can repeat");
+            Require(!EventRules.IsSpent(r.Store.Current.TypedState(), practice), "practice stays unspent after it ran");
             Require(Crowns(r) == 100 && r.Store.Current.Slice("rewardLedger").Equals(before.Slice("rewardLedger")) && r.Store.Current.Slice("completed").Equals(before.Slice("completed")), "practice leaves wallet and ledgers alone");
             Require(AbsoluteMinute(r) == 2040, "practice leaves the clock alone");
+            Require(Changed(before, r.Store.Current) == "flags", "practice writes flags only, got " + Changed(before, r.Store.Current));
 
-            var priced = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_practice_cost"), r.Context());
-            Require(priced.Succeeded && r.Clock.Calls == 0 && !Sequence(priced.Value).Contains("clock/"), "practice drops the event time cost");
+            var priced = r.Catalog.FindEvent("evt_practice_cost");
+            Require(EventOutcome.Parse(r.Catalog, priced).Value.Minutes == 0, "practice drops the event time cost");
+            Require(r.Run(priced).Succeeded && AbsoluteMinute(r) == 2040, "a priced practice run leaves the clock alone");
 
-            var reward = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_practice_reward"), r.Context());
-            Require(!reward.Succeeded, "practice reward refused");
-            var withCompletion = new EffectContext(r.Store.Current, Rig.Tx(), new CompletionKey("evt_practice"));
-            Require(!r.Planner.PlanCommit(practice, withCompletion).Succeeded, "practice with a completion key refused");
-            Require(!r.Store.Commit(P(r, "evt_practice", Done("evt_practice", "evt_practice", RepeatPolicy.Practice))).Succeeded, "practice event.complete with a completion refused");
+            Refused(r, r.Catalog.FindEvent("evt_practice_reward"), ResultCodes.TransactionMismatch, "practice reward");
+
+            var reserved = new Rig(Fx.DefaultCatalog(), Fx.Root(m => m["appointments"] = Fx.List(Appointment("evt_practice", 5))));
+            Refused(reserved, reserved.Catalog.FindEvent("evt_practice"), ResultCodes.TransactionMismatch, "practice run with a reservation row (decision D4)");
+            Require(reserved.Store.Current.TypedState().Appointments.Find("evt_practice") != null, "the reservation row stays");
         }
 
-        private static void PlanOrderAndStoreRefusesUnregisteredParticipants()
+        private static DataNode Appointment(string id, long at)
         {
-            var root = Fx.Root(m => m["appointments"] = Fx.List(Fx.Obj(Fx.P("id", Fx.S("evt_order")))));
+            return Fx.Obj(Fx.P("id", Fx.S(id)), Fx.P("status", Fx.S("Accepted")), Fx.P("acceptedAt", Fx.I(at)));
+        }
+
+        private static void OneCommitWritesEffectsTimeWorldAndReservation()
+        {
+            var root = Fx.Root(m => m["appointments"] = Fx.List(Appointment("evt_order", 5), Appointment("evt_other", 6)));
             var r = new Rig(Fx.DefaultCatalog(), root);
-            r.World.Result = new ChangeSet(new[] { new PlannedChange("world", "project", Fx.Obj()) });
-            var planned = r.Planner.PlanCommit(r.Catalog.FindEvent("evt_order"), r.Context());
-            Require(planned.Succeeded, "order event plans");
-            Require(Sequence(planned.Value) == "event-effects/set,event-effects/complete,event-effects/currency.add,event-effects/event.complete,clock/advance,world/project,reservations/complete",
-                "effects, event.complete, time, world, reservations.complete in one plan");
             var before = r.Store.Current;
-            var outcome = r.Store.Commit(planned.Value);
-            Require(!outcome.Succeeded && outcome.Result.Code == ResultCodes.Unregistered, "unregistered participants refuse the whole plan");
-            Unchanged(r, before, "unregistered participant");
+            var live = new WorldPlaces(new Position("map.b", 3.0, 4.5), new[] { new KeyValuePair<string, Position>("npc.x", new Position("map.b", 1.5, 1.5)) });
+            var outcome = r.Run("evt_order", live);
+            Require(outcome.Succeeded && r.Store.Current.Revision == before.Revision + 1, "one commit, one revision");
+            var s = r.Store.Current.TypedState();
+            Require(s.Progress.Flags.TryGet("met_mentor", out var met) && met.Bool, "flag");
+            Require(s.Progress.Completed.Items.SequenceEqual(new[] { "order_seen", "evt_order" }) && s.Progress.RewardLedger.Items.SequenceEqual(new[] { "evt_order" }), "complete id, then the claim in both ledgers");
+            Require(s.Progress.Wallet.Value == 105 && s.Clock.AbsoluteMinute == 2070, "reward and time cost");
+            Require(s.World.Player.MapId == "map.b" && s.World.Player.X.Value == 3.0 && s.World.Npcs.Any(n => n.NpcId == "npc.x"), "live positions projected");
+            Require(string.Join(",", s.Appointments.Rows.Select(a => a.Id)) == "evt_other", "only the matching reservation row is removed");
+            Require(Changed(before, r.Store.Current) == "appointments,clock,completed,flags,npcPositions,player,rewardLedger,wallet", "every write in one commit, got " + Changed(before, r.Store.Current));
 
             var plain = new Rig(Fx.DefaultCatalog());
-            var noReservation = plain.Planner.PlanCommit(plain.Catalog.FindEvent("evt_order"), plain.Context());
-            Require(noReservation.Succeeded && !Sequence(noReservation.Value).Contains("reservations/complete"), "no reservation, no reservations.complete");
-            Require(Sequence(noReservation.Value).EndsWith("clock/advance"), "empty world projection adds nothing");
+            var start = plain.Store.Current;
+            Require(plain.Run("evt_order").Succeeded, "event without a reservation row");
+            Require(Changed(start, plain.Store.Current) == "clock,completed,flags,rewardLedger,wallet", "no reservation and no live actor write neither field, got " + Changed(start, plain.Store.Current));
+
+            var empty = new Rig(Fx.DefaultCatalog());
+            var untouched = empty.Store.Current;
+            var nothing = Fx.Event("evt_nothing", RepeatPolicy.Practice, null, 0);
+            empty.Catalog.EventList.Add(nothing);
+            var same = empty.Run(nothing);
+            Require(same.Succeeded && ReferenceEquals(empty.Store.Current, untouched), "an event that writes nothing keeps the revision");
         }
 
-        private static void PlanningAndCancellationWriteNothing()
+        private static void TransitionsWriteNothingUntilCommitted()
         {
             var r = new Rig(Fx.DefaultCatalog());
             var before = r.Store.Current;
+            var state = before.TypedState();
             var evt = r.Catalog.FindEvent("evt_cost30");
-            var a = r.Planner.PlanCommit(evt, r.Context());
-            var b = r.Planner.PlanCommit(evt, r.Context());
-            Require(a.Succeeded && b.Succeeded && a.Value.Changes.Count == b.Value.Changes.Count, "planning is repeatable");
-            Unchanged(r, before, "planning only");
-            Require(AbsoluteMinute(r) == 2040 && Crowns(r) == 100, "planning persists nothing");
-
-            var cancelled = new Rig(Fx.DefaultCatalog());
-            var snapshot = cancelled.Store.Current;
-            Require(cancelled.Clock.Calls == 0 && cancelled.World.Calls == 0, "a cancelled perform never reaches the planners");
-            Unchanged(cancelled, snapshot, "cancelled perform");
+            var a = r.Rules.Complete(state, evt, Rig.Nobody);
+            var b = r.Rules.Complete(state, evt, Rig.Nobody);
+            Require(a.Succeeded && b.Succeeded && SaveDocument.Write(a.Value).Equals(SaveDocument.Write(b.Value)), "the transition is a pure function of the state");
+            Unchanged(r, before, "transition only");
+            Require(AbsoluteMinute(r) == 2040 && Crowns(r) == 100 && state.Clock.AbsoluteMinute == 2040, "an uncommitted transition persists nothing and leaves its input alone");
         }
     }
 }

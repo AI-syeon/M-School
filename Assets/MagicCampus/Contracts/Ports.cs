@@ -193,7 +193,7 @@ namespace MagicCampus.Contracts
         }
     }
 
-    // ---------------------------------------------------------------- state snapshot, change plans, participants, store
+    // ---------------------------------------------------------------- state snapshot and store
 
     public sealed class StateSnapshot
     {
@@ -211,48 +211,6 @@ namespace MagicCampus.Contracts
         public DataNode Slice(string name) => Root.TryGet(name, out var v) ? v : null;
     }
 
-    /// <summary>One domain operation addressed to a registered participant; Payload is validated by that participant only.</summary>
-    public class PlannedChange
-    {
-        public string ParticipantId { get; }
-        public string Operation { get; }
-        public DataNode Payload { get; }
-
-        public PlannedChange(string participantId, string operation, DataNode payload)
-        {
-            ParticipantId = Ids.Require(participantId, nameof(participantId));
-            Operation = Ids.Require(operation, nameof(operation));
-            Payload = payload ?? DataNode.Null;
-        }
-    }
-
-    /// <summary>Replacement values keyed by canonical JSON Pointer paths, prepared without touching the store.
-    /// Arrays are replaced as units; no array-index writes. Ancestor/descendant ownership overlap is rejected.</summary>
-    public sealed class StateReplacement
-    {
-        public IReadOnlyDictionary<string, DataNode> Slices { get; }
-        public StateReplacement(IEnumerable<KeyValuePair<string, DataNode>> slices) { Slices = PortGuard.Map(slices, nameof(slices)); }
-    }
-
-    /// <summary>A plan that failed is never reused; build a new plan with a new expected revision.</summary>
-    public sealed class StatePlan
-    {
-        public TransactionId TransactionId { get; }
-        public CompletionKey? Completion { get; }
-        public long ExpectedRevision { get; }
-        public IReadOnlyList<PlannedChange> Changes { get; }
-
-        public StatePlan(TransactionId transactionId, CompletionKey? completion, long expectedRevision, IEnumerable<PlannedChange> changes)
-        {
-            if (transactionId.Value == null) throw new ArgumentException("default id", nameof(transactionId));
-            if (completion.HasValue && completion.Value.Value == null) throw new ArgumentException("default key", nameof(completion));
-            TransactionId = transactionId;
-            Completion = completion;
-            ExpectedRevision = PortGuard.Min(expectedRevision, 0, nameof(expectedRevision));
-            Changes = PortGuard.Opt(changes, nameof(changes));
-        }
-    }
-
     public sealed class StateCommitted
     {
         public TransactionId TransactionId { get; }
@@ -268,23 +226,11 @@ namespace MagicCampus.Contracts
         }
     }
 
-    /// <summary>Domain owner of canonical JSON Pointer paths. Prepare never writes the store.
-    /// Replacements must be within an OwnedSlices prefix; disjoint /player fields may have different owners.</summary>
-    public interface IStateParticipant
-    {
-        string ParticipantId { get; }
-        IReadOnlyList<string> OwnedSlices { get; }
-        Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan);
-    }
-
     public interface IStateReader { StateSnapshot Current { get; } }
 
-    /// <summary>The only commit authority. Order: expectedRevision check, every participant prepares, slice ownership and invariants verified, one replacement, listeners.</summary>
+    /// <summary>The only commit authority. Commits run typed transitions (StateStore.Commit); this port exposes reads, full replacement and listeners.</summary>
     public interface IStateStore : IStateReader
     {
-        /// <summary>All-or-nothing. A repeated TransactionId returns the first result without applying again. Success Result.Revision is the new revision.</summary>
-        Outcome<StateSnapshot> Commit(StatePlan plan);
-
         /// <summary>Full replacement for load/restore. The store assigns the new revision as Current.Revision + 1.</summary>
         Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId);
 
@@ -711,24 +657,6 @@ namespace MagicCampus.Contracts
     {
         /// <summary>Pure read of one snapshot; call again with the newest snapshot just before commit.</summary>
         ConditionReport Evaluate(IReadOnlyList<CompiledCall> when, StateSnapshot snapshot);
-    }
-
-    public sealed class ChangeSet
-    {
-        public IReadOnlyList<PlannedChange> Changes { get; }
-        public ChangeSet(IEnumerable<PlannedChange> changes) { Changes = PortGuard.Opt(changes, nameof(changes)); }
-    }
-
-    public sealed class EffectContext
-    {
-        public StateSnapshot Basis { get; }
-        public TransactionId TransactionId { get; }
-        public CompletionKey? Completion { get; }
-
-        public EffectContext(StateSnapshot basis, TransactionId transactionId, CompletionKey? completion)
-        {
-            Basis = PortGuard.Required(basis, nameof(basis)); TransactionId = transactionId; Completion = completion;
-        }
     }
 
     // ---------------------------------------------------------------- presentation

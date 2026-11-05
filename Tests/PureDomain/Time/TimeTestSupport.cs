@@ -6,7 +6,6 @@ using MagicCampus.Runtime;
 using MagicCampus.State;
 using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.Timekeeping;
-using MagicCampus.Transactions.Core;
 
 namespace MagicCampus.Tests.Time
 {
@@ -52,38 +51,6 @@ namespace MagicCampus.Tests.Time
             foreach (var v in values) items.Add(DataNode.FromString(v));
             return DataNode.FromList(items);
         }
-
-        /// <summary>Hand-built frozen clock.advance {minutes}, independent of the production helper.</summary>
-        public static PlannedChange Advance(double minutes)
-        {
-            var value = minutes == Math.Floor(minutes) ? Int((long)minutes) : DataNode.FromNumber(minutes);
-            return new PlannedChange("clock", "advance", Obj(P("minutes", value)));
-        }
-
-        public static PlannedChange Mark(string name)
-        {
-            return new PlannedChange("fake-event", "mark", Obj(P("name", Str(name))));
-        }
-    }
-
-    internal sealed class FakeEventParticipant : IStateParticipant
-    {
-        public string ParticipantId { get { return "fake-event"; } }
-        public IReadOnlyList<string> OwnedSlices { get; } = new[] { "/flags" };
-
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
-        {
-            var rows = new List<DataNode>(basis.Slice("flags").Items);
-            foreach (var change in plan.Changes)
-            {
-                if (change.ParticipantId != ParticipantId) continue;
-                if (change.Operation != "mark")
-                    return Outcome<StateReplacement>.Fail(ResultCodes.Unregistered, basis.Revision, new Diagnostic("FAKE_OPERATION", "unknown operation", null, "mark", change.Operation));
-                rows.Add(Nodes.Obj(Nodes.P("id", change.Payload.Members["name"]), Nodes.P("value", DataNode.True)));
-            }
-
-            return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { Nodes.P("/flags", DataNode.FromList(rows)) }), basis.Revision);
-        }
     }
 
     internal sealed class TimeWorld
@@ -91,15 +58,13 @@ namespace MagicCampus.Tests.Time
         public StateStore Store;
         public CompletionPump Pump;
         public Calendar Calendar;
-        public ClockParticipant Participant;
         public ClockService Clock;
 
         public static readonly string[] UntouchedFields = { "saveVersion", "player", "npcs", "inventory", "flags" };
 
-        public static DataNode BuildRoot(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending, bool clockNote = false)
+        public static DataNode BuildRoot(long absoluteMinute, double fraction, IEnumerable<string> dayJobs, bool returnPending)
         {
             var clock = new List<KeyValuePair<string, DataNode>> { Nodes.P("absoluteMinute", Nodes.Int(absoluteMinute)), Nodes.P("fraction", DataNode.FromNumber(fraction)) };
-            if (clockNote) clock.Add(Nodes.P("note", Nodes.Str("preserved")));
             var m = new Dictionary<string, DataNode>(StringComparer.Ordinal)
             {
                 { "saveVersion", Nodes.Int(2) },
@@ -124,27 +89,14 @@ namespace MagicCampus.Tests.Time
         {
             var w = new TimeWorld();
             w.Calendar = new Calendar();
-            w.Participant = new ClockParticipant(w.Calendar);
-
-            var registry = new StateParticipantRegistry();
-            RegisterOk(registry, w.Participant);
-            RegisterOk(registry, new FakeEventParticipant());
-            registry.Seal();
-
             w.Pump = new CompletionPump();
-            w.Store = new StateStore(new StateSnapshot(revision, root), registry, invariants ?? new IStateInvariant[0], w.Pump);
+            w.Store = new StateStore(new StateSnapshot(revision, root), invariants ?? new IStateInvariant[0], w.Pump);
             w.Clock = new ClockService(w.Store, w.Calendar);
             return w;
         }
 
-        private static void RegisterOk(StateParticipantRegistry registry, IStateParticipant participant)
-        {
-            Check.True(registry.Register(participant).Status == OperationStatus.Succeeded, "participant " + participant.ParticipantId + " registers");
-        }
-
         public long Minute { get { return Calendar.FromSnapshot(Store.Current).AbsoluteMinute; } }
         public double Fraction { get { return Calendar.FromSnapshot(Store.Current).Fraction; } }
-        public bool TypedFlag(string id) { return Store.Current.TypedState().Progress.Flags.TryGet(id, out var v) && v.IsBool && v.Bool; }
         public bool Pending { get { return Store.Current.Slice("returnPending").Bool; } }
 
         public List<string> Jobs
@@ -155,11 +107,6 @@ namespace MagicCampus.Tests.Time
                 foreach (var item in Store.Current.Slice("dayJobs").Items) jobs.Add(item.Text);
                 return jobs;
             }
-        }
-
-        public Outcome<StateSnapshot> Commit(string transaction, params PlannedChange[] changes)
-        {
-            return Store.Commit(new StatePlan(new TransactionId(transaction), null, Store.Current.Revision, changes));
         }
 
         public void AssertUnchanged(StateSnapshot before, string what)

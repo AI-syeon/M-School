@@ -26,10 +26,10 @@ namespace MagicCampus.Transactions.Conditions
             {
                 { "eq", (c, x, d) => Compare(c, x, false) },
                 { "gte", (c, x, d) => Compare(c, x, true) },
-                { "completed", (c, x, d) => Membership(c, x, SaveTree.Completed, s => s.Progress.Completed) },
-                { "discovered", (c, x, d) => Membership(c, x, SaveTree.Discovered, s => s.Known.DiscoveredCaseIds) },
-                { "evidence", (c, x, d) => Membership(c, x, SaveTree.Evidence, s => s.Known.Evidence) },
-                { "learned", (c, x, d) => Membership(c, x, SaveTree.Learned, s => s.Known.LearnedSpellIds) },
+                { "completed", (c, x, d) => Membership(c, x, "completed", s => s.Progress.Completed) },
+                { "discovered", (c, x, d) => Membership(c, x, "discoveredCaseIds", s => s.Known.DiscoveredCaseIds) },
+                { "evidence", (c, x, d) => Membership(c, x, "evidence", s => s.Known.Evidence) },
+                { "learned", (c, x, d) => Membership(c, x, "learnedSpellIds", s => s.Known.LearnedSpellIds) },
                 { "caseCountGte", (c, x, d) => CaseCount(c, x) },
                 { "any", Any }
             };
@@ -150,7 +150,7 @@ namespace MagicCampus.Transactions.Conditions
             if (!context.TryState(out state, out error)) return Fault(context, error);
             var values = select(state);
             if (values.Contains(idNode.Text)) return new Eval { Satisfied = true };
-            return No(context, Diag.Make(ResultCodes.ConditionFalse, idNode.Text + " is not in " + SaveTree.Pointer(field),
+            return No(context, Diag.Make(ResultCodes.ConditionFalse, idNode.Text + " is not in /" + field,
                 field + " contains " + idNode.Text, field + " holds " + Diag.Num(values.Count) + " entries without it"));
         }
 

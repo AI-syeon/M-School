@@ -9,7 +9,7 @@ namespace MagicCampus.Events
     /// Runs compiled events. Scene events lease declared resources plus snapshot.world, pause, project the actual world, capture the entry,
     /// notify SceneEntry and wait for a real SaveLatestSafe success before staging and script. Room activities add neither the world resource
     /// nor entry capture/restore. All async work is awaited through handles (callbacks arrive next tick); at most 64 immediate instructions run
-    /// between two runner ticks. Success is one IEventCommitPlanner plan and one IStateStore.Commit after a latest-revision condition recheck.
+    /// between two runner ticks. Success is one CommitEvent call after a latest-revision condition recheck.
     /// Failure, cancel and timeout cancel children, wait for every child to be terminal, close owned display, restore the entry map and state
     /// (scene only) and release pause then lease last. A commit that already happened is never undone.
     /// </summary>
@@ -762,15 +762,7 @@ namespace MagicCampus.Events
                 });
                 return;
             }
-            var planned = d.CommitPlanner.PlanCommit(run.Def, new EffectContext(snapshot, run.Txn, run.Def.Completion));
-            if (!planned.Succeeded) { Abort(run, FailureFrom(planned.Result)); return; }
-            var plan = planned.Value;
-            if (!plan.TransactionId.Equals(run.Txn) || plan.ExpectedRevision != snapshot.Revision)
-            {
-                Abort(run, Fail(ResultCodes.TransactionMismatch, "planned commit does not match the run", null, run.Txn.Value + "@" + snapshot.Revision.ToString(CultureInfo.InvariantCulture), plan.TransactionId.Value + "@" + plan.ExpectedRevision.ToString(CultureInfo.InvariantCulture)));
-                return;
-            }
-            var committed = d.Store.Commit(plan);
+            var committed = d.CommitEvent(run.Def, run.Txn);
             if (!committed.Succeeded) { Abort(run, FailureFrom(committed.Result)); return; }
             CompleteSuccess(run, committed.Result.Revision);
         }

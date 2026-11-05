@@ -1,5 +1,9 @@
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
+using MagicCampus.State;
+using MagicCampus.Tests.Effects;
+using MagicCampus.Transactions;
 using MagicCampus.Timekeeping;
 
 namespace MagicCampus.Tests.Time
@@ -16,7 +20,7 @@ namespace MagicCampus.Tests.Time
             InvariantsWatchTheTick();
             ReloadLikeDayJobs();
             EventCostSuccessOnceAndCancelledNone();
-            InvalidPlanCost();
+            InvalidEventCost();
         }
 
         private static void BasicAdvance()
@@ -138,66 +142,69 @@ namespace MagicCampus.Tests.Time
             Check.Equal("legacy|boundary.day_d1|boundary.day_d2", string.Join("|", reloaded.Jobs), "day 2 appended once");
         }
 
+        private static readonly WorldPlaces Nobody = new WorldPlaces(null, new KeyValuePair<string, Position>[0]);
+
+        private static Outcome<StateSnapshot> Complete(TimeWorld w, EventRules rules, CompiledEvent ev, string transaction)
+        {
+            return w.Store.Commit(new TransactionId(transaction), s => rules.Complete(s, ev, Nobody));
+        }
+
         private static void EventCostSuccessOnceAndCancelledNone()
         {
             var w = TimeWorld.Create(1400, 0, new string[0]);
+            var catalog = new FakeCatalog();
+            var ev = Fx.Event("evt.class", RepeatPolicy.Once, null, 90);
+            catalog.EventList.Add(ev);
+            var rules = new EventRules(catalog, w.Calendar);
             var start = w.Store.Current;
-            var cost = w.Clock.PlanCost(start, 90);
-            Check.True(cost.Succeeded, "cost planned");
-            Check.Equal(1, cost.Value.Changes.Count, "one clock change");
-            Check.Equal("clock", cost.Value.Changes[0].ParticipantId, "clock change");
 
-            // Cancelled event: the plan is dropped, nothing advanced.
+            // Cancelled event: no commit, nothing advanced.
             w.AssertUnchanged(start, "cancelled event cost");
             Check.Equal(1400L, w.Minute, "cancelled cost leaves time");
             Check.True(!w.Pending, "cancelled cost leaves returnPending");
 
-            // Successful event: one StatePlan carries the event change and the clock change.
-            var changes = new List<PlannedChange> { Nodes.Mark("class_done") };
-            changes.AddRange(cost.Value.Changes);
-            var plan = new StatePlan(new TransactionId("evt.class.1"), null, start.Revision, changes);
-            var first = w.Store.Commit(plan);
+            // Successful event: one commit carries the completion and the clock change.
+            var first = Complete(w, rules, ev, "evt.class.1");
             Check.True(first.Succeeded, "event commit succeeds");
             Check.Equal(1490L, w.Minute, "cost applied once");
-            Check.True(w.TypedFlag("class_done"), "event change in the same commit");
+            Check.True(w.Store.Current.TypedState().Progress.IsConsumed(ev.OnceKey), "event completion in the same commit");
             Check.Equal("boundary.day_d1", string.Join("|", w.Jobs), "boundary jobs recorded");
             Check.True(w.Pending, "return pending set by the cost");
             var committedRevision = w.Store.Current.Revision;
-            Check.Equal(first.Value.Revision, committedRevision, "commit revision");
+            Check.Equal(start.Revision + 1, committedRevision, "one commit revision");
 
             // Repeating the same transaction never applies the cost again.
-            w.Store.Commit(plan);
+            Complete(w, rules, ev, "evt.class.1");
             Check.Equal(1490L, w.Minute, "repeated transaction does not double the cost");
             Check.Equal(committedRevision, w.Store.Current.Revision, "repeated transaction keeps the revision");
 
-            // A stale plan under a new transaction id is refused.
-            var stale = w.Store.Commit(new StatePlan(new TransactionId("evt.class.2"), null, start.Revision, changes));
-            Check.True(!stale.Succeeded, "stale plan refused");
-            Check.Equal(ResultCodes.RevisionConflict, stale.Result.Code, "stale plan code");
-            Check.Equal(1490L, w.Minute, "stale plan does not change time");
+            // The same once event under a new transaction id is refused.
+            var again = Complete(w, rules, ev, "evt.class.2");
+            Check.True(!again.Succeeded, "spent event refused");
+            Check.Equal(ResultCodes.ConditionFalse, again.Result.Code, "spent event code");
+            Check.Equal(1490L, w.Minute, "spent event does not change time");
         }
 
-        private static void InvalidPlanCost()
+        private static void InvalidEventCost()
         {
             var w = TimeWorld.Create(420, 0, new string[0]);
+            var catalog = new FakeCatalog();
+            var huge = Fx.Event("evt.huge", RepeatPolicy.Once, null, (int)CalendarLimits.MaxMinutesPerAdvance + 1);
+            var free = Fx.Event("evt.free", RepeatPolicy.Once, null, 0);
+            catalog.EventList.Add(huge);
+            catalog.EventList.Add(free);
+            var rules = new EventRules(catalog, w.Calendar);
             var start = w.Store.Current;
-            foreach (var minutes in new[] { -1.0, double.NaN, double.PositiveInfinity, 1e300 })
-            {
-                var cost = w.Clock.PlanCost(start, minutes);
-                Check.True(!cost.Succeeded, "cost refused for " + minutes);
-                Check.Equal(ResultCodes.ContentInvalid, cost.Result.Code, "cost code for " + minutes);
-                Check.True(cost.Result.Details.Count > 0, "cost diagnostics for " + minutes);
-                Check.True(cost.Value == null, "no partial change set for " + minutes);
-            }
 
-            var zero = w.Clock.PlanCost(start, 0);
-            Check.True(zero.Succeeded && zero.Value.Changes.Count == 0, "zero cost plans nothing");
+            var refused = Complete(w, rules, huge, "evt.huge.1");
+            Check.True(!refused.Succeeded, "cost past the per-advance limit refused");
+            Check.Equal(ResultCodes.ContentInvalid, refused.Result.Code, "cost code");
+            Check.Equal("CLOCK_MINUTES_INVALID", refused.Result.Details[0].Code, "cost diagnostic");
+            w.AssertUnchanged(start, "invalid cost");
 
-            var malformed = new StateSnapshot(1, Nodes.Obj(Nodes.P("dayJobs", Nodes.List())));
-            var broken = w.Clock.PlanCost(malformed, 5);
-            Check.True(!broken.Succeeded, "malformed basis refused");
-            Check.Equal(ResultCodes.ContentInvalid, broken.Result.Code, "malformed basis code");
-            w.AssertUnchanged(start, "invalid costs");
+            Check.True(Complete(w, rules, free, "evt.free.1").Succeeded, "zero cost commits");
+            Check.Equal(420L, w.Minute, "zero cost moves no time");
+            Check.True(w.Store.Current.Slice("clock").Equals(start.Slice("clock")), "zero cost leaves the clock bytes");
         }
     }
 }

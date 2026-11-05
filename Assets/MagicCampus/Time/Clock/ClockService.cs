@@ -10,11 +10,11 @@ namespace MagicCampus.Timekeeping
 
     /// <summary>
     /// Reads the current time from the state store and advances it only by committing ClockState.Advance as a store transition.
-    /// Event time costs are only planned by PlanCost; the caller commits them together with the event's other changes.
+    /// Event time costs are applied by EventRules in the event success commit, through the same TryPlan.
     /// IClockService.Advance has no failure channel, so every call records LastStatus/LastResult and LastFailure
     /// (LastFailure is null unless the most recent call failed).
     /// </summary>
-    public sealed class ClockService : IClockService, IClockCostPlanner
+    public sealed class ClockService : IClockService
     {
         private readonly StateStore store;
         private readonly ICalendar calendar;
@@ -54,7 +54,7 @@ namespace MagicCampus.Timekeeping
             ClockAdvance step = null;
             var outcome = store.Commit(transaction, s =>
             {
-                if (!TryPlan(s.Clock.Time, minutes, out step, out var problem)) return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0, problem);
+                if (!TryPlan(calendar, s.Clock.Time, minutes, out step, out var problem)) return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0, problem);
                 return Outcome<GameState>.Ok(step.To.Equals(step.From) ? s : s.With(s.Clock.Advance(step)), 0);
             });
             if (!outcome.Succeeded) return Rejected(now, outcome.Result);
@@ -66,24 +66,7 @@ namespace MagicCampus.Timekeeping
             return step;
         }
 
-        /// <summary>
-        /// Plans the clock change for the minutes of an event time cost.
-        /// Nothing is applied; a plan that is never committed advances nothing.
-        /// </summary>
-        public Outcome<ChangeSet> PlanCost(StateSnapshot basis, double minutes)
-        {
-            if (basis == null) throw new ArgumentNullException(nameof(basis));
-            if (!basis.TryTypedState(out var state, out var readProblem))
-                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, readProblem);
-            if (!Calendar.TryCheckMinutes(minutes, out var minutesProblem))
-                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, minutesProblem);
-            if (!TryPlan(state.Clock.Time, minutes, out var step, out var problem))
-                return Outcome<ChangeSet>.Fail(ResultCodes.ContentInvalid, basis.Revision, problem);
-            var changes = step.To.Equals(step.From) ? new PlannedChange[0] : new[] { ClockParticipant.CreateAdvanceChange(minutes) };
-            return Outcome<ChangeSet>.Ok(new ChangeSet(changes), basis.Revision);
-        }
-
-        private bool TryPlan(GameTime time, double minutes, out ClockAdvance step, out Diagnostic problem)
+        internal static bool TryPlan(ICalendar calendar, GameTime time, double minutes, out ClockAdvance step, out Diagnostic problem)
         {
             problem = null;
             try

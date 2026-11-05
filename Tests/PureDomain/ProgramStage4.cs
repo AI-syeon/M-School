@@ -11,7 +11,6 @@ public static class ProgramStage4
         Run("Schedules", MagicCampus.Tests.PureDomain.Schedules.SchedulesSpecs.Run);
         Run("Events", MagicCampus.Tests.Events.EventRunnerSpecs.Run);
         Run("FirstConnectionData", MagicCampus.Tests.FirstConnectionData.FirstConnectionDataSpecs.Run);
-        Run("WorldProjectionParity", MagicCampus.Tests.FirstConnectionData.FirstConnectionDataSpecs.RunWorldParity);
         if(Array.IndexOf(args,"--real-disk")>=0){Run("ProductionDisk",MagicCampus.Tests.FirstConnectionData.FirstConnectionDataSpecs.RunDisk);Run("RunnerGraph",MagicCampus.Tests.FirstConnectionData.FirstConnectionDataSpecs.RunGraph);}
         return failures == 0 ? 0 : 1;
     }

@@ -17,9 +17,8 @@ using MagicCampus.Presentation.Cutscene;
 using MagicCampus.Presentation.Dialogue;
 using MagicCampus.Runtime;
 using MagicCampus.State;
+using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
-using MagicCampus.Transactions.Core;
-using MagicCampus.Transactions.Effects;
 using MagicCampus.UnityAdapters.Collision;
 using MagicCampus.UnityAdapters.ContentIO;
 using MagicCampus.UnityAdapters.Maps;
@@ -221,19 +220,12 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Moves = new MoveService(Actors, CollisionPort, Maps, Maps, Handles, Pause, isSceneOwner: IsSceneOwner, revisionSource: () => Store.Current.Revision, requiresVisibleMap: NeedsVisibleMap);
 
         var calendar = new Tk.Calendar();
-        var ledger = new StateCompletionLedger();
-        var registry = new StateParticipantRegistry();
-        registry.Register(new EventEffectsParticipant(Compiled));
-        registry.Register(new WorldCommitParticipant(Actors, Maps));
-        registry.Register(new Tk.ClockParticipant(calendar));
-        registry.Register(new ReservationParticipant(Provider, ledger));
-        registry.Seal();
-        Store = new StateStore(initial, registry, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump);
+        Store = new StateStore(initial, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump);
         Store.OnCommitted(c => { if (!c.TransactionId.Value.StartsWith("clock.advance", StringComparison.Ordinal)) Emit("commit txn=" + c.TransactionId.Value + " " + c.PreviousRevision + "->" + c.Revision); });
         Clock = new Tk.ClockService(Store, calendar);
         Positions = new WorldProjection(Actors, Maps);
         Destinations = new CatalogDestinationResolver(Provider);
-        Reservations = new ReservationService(Provider, calendar, ledger);
+        Reservations = new ReservationService(Provider);
 
         Disk = new FileGenerationStore(config.SaveDirectory, Handles, 0, ctx => { if (FailDisk && ctx.Phase == StorageFaultPhase.CreateTemp) throw new IOException("injected disk failure"); });
         Policy = new SafeBoundaryPolicy();
@@ -259,7 +251,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Staging = new ReservedStagingService(Actors, Maps, CollisionPort, Handles, PlanJoin, SetHidden, ids => Scheduler.StopActors(ids));
         LoadRecipes(variantDir, baseDir);
 
-        var planner = new EventCommitPlanner(Clock, new WorldStateProjector(Actors), Compiled);
+        var rules = new EventRules(Compiled, calendar);
         var deps = new EventRunnerDependencies
         {
           Catalog = Provider,
@@ -271,8 +263,12 @@ namespace MagicCampus.Bootstrap.FirstConnection
           Presentation = config.DialogueUi,
           PresentationLifetime = config.DialogueUi,
           Clock = Ticks,
-          CommitPlanner = planner,
           Store = Store,
+          CommitEvent = (def, txn) => Store.Commit(txn, s =>
+          {
+            var live = Positions.Capture();
+            return live.Succeeded ? rules.Complete(s, def, live.Value) : Outcome<GameState>.Fail(live.Result.Code, 0, live.Result.Details.ToArray());
+          }),
           ProjectWorld = txn => Store.Commit(txn, Positions.Project),
           Recovery = new SceneRecovery(Actors),
           Boundaries = Policy,
@@ -280,7 +276,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
           Staging = Staging,
           Maps = Maps,
           Handles = Handles,
-          RepeatBlocked = (e, s) => ledger.IsCompleted(s, e.OnceKey),
+          RepeatBlocked = (e, s) => EventRules.IsSpent(s.TypedState(), e),
           Trace = OnRunnerTrace
         };
         Runner = new EventRunner(deps);

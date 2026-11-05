@@ -90,7 +90,7 @@ namespace MagicCampus.Contracts
         MapGeometry Find(string mapId);
     }
 
-    // Injected into the store separately from slice participants; checked before any state replacement.
+    // Injected into the store; checked before any state replacement.
     public interface IStateInvariant
     {
         IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate);

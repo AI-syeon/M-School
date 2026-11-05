@@ -73,25 +73,19 @@ namespace MagicCampus.Tests.ContentValidation
         new ActorState("player", PositionOf(player), .2, 3), new ActorState("npc.serin", PositionOf(serin), .2, 3)
       });
       var pump = new MagicCampus.Runtime.CompletionPump();
-      var registry = new MagicCampus.Transactions.Core.StateParticipantRegistry();
       var calendar = new MagicCampus.Timekeeping.Calendar();
-      Check(registry.Register(new MagicCampus.Transactions.Effects.EventEffectsParticipant(cat)).Status == OperationStatus.Succeeded, "effects registration");
-      Check(registry.Register(new MagicCampus.Timekeeping.ClockParticipant(calendar)).Status == OperationStatus.Succeeded, "clock registration");
-      Check(registry.Register(new MagicCampus.World.Movement.WorldCommitParticipant(actors, geometry)).Status == OperationStatus.Succeeded, "world registration");
-      registry.Seal();
       var invariant = new SaveStateValidator(cat, e.SaveSchema.Root, e.Schema);
-      var store = new MagicCampus.State.StateStore(new StateSnapshot(0, e.Save.Root), registry, new[] { invariant }, pump);
+      var store = new MagicCampus.State.StateStore(new StateSnapshot(0, e.Save.Root), new[] { invariant }, pump);
       var before = store.Current;
       var clock = new MagicCampus.Timekeeping.ClockService(store, calendar);
       var eventDefinition = cat.FindEvent("event.snack");
       Check(new MagicCampus.Transactions.Conditions.ConditionEvaluator(cat).Evaluate(eventDefinition.When, before).Satisfied, "real intro condition");
       Check(actors.SetPosition("player", new Position("map.lounge", .5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual player projection setup");
       Check(actors.SetPosition("npc.serin", new Position("map.lounge", 4.5, 3.5), "integration").Status == OperationStatus.Succeeded, "actual NPC projection setup");
-      var planner = new MagicCampus.Transactions.Effects.EventCommitPlanner(clock, new MagicCampus.World.Movement.WorldStateProjector(actors), cat);
-      var context = new EffectContext(before, new TransactionId("integration.snack.1"), null);
-      var plan = planner.PlanCommit(eventDefinition, context);
-      Check(plan.Succeeded, "full original transaction planning");
-      var committed = store.Commit(plan.Value);
+      var rules = new MagicCampus.Transactions.EventRules(cat, calendar);
+      var positions = new MagicCampus.World.Movement.WorldProjection(actors, geometry);
+      Outcome<StateSnapshot> Complete(string txn) => store.Commit(new TransactionId(txn), s => rules.Complete(s, eventDefinition, positions.Capture().Value));
+      var committed = Complete("integration.snack.1");
       Check(committed.Succeeded, "full original save schema accepts combined effects/time/positions: " + Summ(committed.Result.Details));
       Check(store.Current.Root.Members.Count == before.Root.Members.Count, "all original root fields retained");
       Check(clock.Now.AbsoluteMinute == calendar.FromSnapshot(before).AbsoluteMinute + 10, "real clock event cost exactly ten");
@@ -102,8 +96,8 @@ namespace MagicCampus.Tests.ContentValidation
         Check(store.Current.Slice("npcPositions").Items.Any(n => n.Equals(row)), "inactive NPC row unchanged");
       Check(store.Current.Slice("player").S("mapId") == "map.lounge" && store.Current.Slice("player").S("name") == player.S("name"), "player position and identity preserved");
       var after = store.Current;
-      Check(store.Commit(plan.Value).Succeeded && ReferenceEquals(store.Current, after), "transaction replay no second state replacement");
-      Check(!planner.PlanCommit(eventDefinition, new EffectContext(after, new TransactionId("integration.snack.2"), null)).Succeeded, "new transaction cannot repeat completed event");
+      Check(Complete("integration.snack.1").Succeeded && ReferenceEquals(store.Current, after), "transaction replay no second state replacement");
+      Check(Complete("integration.snack.2").Result.Code == ResultCodes.ConditionFalse && ReferenceEquals(store.Current, after), "new transaction cannot repeat completed event");
       Console.WriteLine("PASS original full-save real condition/effect/clock/world/store/schema transaction");
     }
 

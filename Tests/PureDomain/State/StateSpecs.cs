@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
 using MagicCampus.State;
-using MagicCampus.Transactions.Core;
+using MagicCampus.Tests.PureDomain.Support;
 
 namespace MagicCampus.Tests.State
 {
@@ -12,22 +13,15 @@ namespace MagicCampus.Tests.State
         {
             var tests = new List<KeyValuePair<string, Action>>
             {
-                new KeyValuePair<string, Action>("JsonPointerDecoding", JsonPointerDecoding),
                 new KeyValuePair<string, Action>("CommitAdvancesRevisionAndNotifiesNextTick", CommitAdvancesRevisionAndNotifiesNextTick),
-                new KeyValuePair<string, Action>("ConflictingRevisions", ConflictingRevisions),
-                new KeyValuePair<string, Action>("ParticipantFailureAndThrowLeaveStateUntouched", ParticipantFailureAndThrowLeaveStateUntouched),
+                new KeyValuePair<string, Action>("TransitionFailureAndThrowLeaveStateUntouched", TransitionFailureAndThrowLeaveStateUntouched),
                 new KeyValuePair<string, Action>("InvariantRejection", InvariantRejection),
                 new KeyValuePair<string, Action>("SameTransactionReplay", SameTransactionReplay),
-                new KeyValuePair<string, Action>("DisjointParticipantsCommitAtomically", DisjointParticipantsCommitAtomically),
-                new KeyValuePair<string, Action>("OwnershipAndOverlapRejected", OwnershipAndOverlapRejected),
-                new KeyValuePair<string, Action>("MalformedAndArrayPaths", MalformedAndArrayPaths),
-                new KeyValuePair<string, Action>("RegistryRefusesConflicts", RegistryRefusesConflicts),
+                new KeyValuePair<string, Action>("MissingTransactionIdRefused", MissingTransactionIdRefused),
                 new KeyValuePair<string, Action>("OldSnapshotsStayIntact", OldSnapshotsStayIntact),
                 new KeyValuePair<string, Action>("ReplaceAllSuccessAndFailure", ReplaceAllSuccessAndFailure),
-                new KeyValuePair<string, Action>("CompletionReplayUsesPersistedLedger", CompletionReplayUsesPersistedLedger),
-                new KeyValuePair<string, Action>("UnregisteredParticipantRefusesWholePlan", UnregisteredParticipantRefusesWholePlan),
                 new KeyValuePair<string, Action>("NotificationsAreFifoAndCapturedAtCommit", NotificationsAreFifoAndCapturedAtCommit),
-                new KeyValuePair<string, Action>("EmptyPlanDoesNotAdvance", EmptyPlanDoesNotAdvance),
+                new KeyValuePair<string, Action>("UnchangedStateDoesNotAdvance", UnchangedStateDoesNotAdvance),
                 new KeyValuePair<string, Action>("ReentrantCommitRefused", ReentrantCommitRefused),
             };
 
@@ -43,32 +37,10 @@ namespace MagicCampus.Tests.State
 
         // ------------------------------------------------------------------ tests
 
-        private static void JsonPointerDecoding()
-        {
-            var p = JsonPointer.Parse("/a~1b/c~0d/~01");
-            Check.Equal(3, p.Tokens.Count, "token count");
-            Check.Equal("a/b", p.Tokens[0], "~1 decodes to slash");
-            Check.Equal("c~d", p.Tokens[1], "~0 decodes to tilde");
-            Check.Equal("~1", p.Tokens[2], "~01 decodes to literal ~1");
-
-            var bad = new[] { null, "", "a", "/", "/a/", "/a//b", "/a~", "/a~2", "/a~x/b" };
-            foreach (var b in bad)
-                Check.True(!JsonPointer.TryParse(b, out var _, out var err) && !string.IsNullOrEmpty(err), "must be malformed: " + (b ?? "null"));
-
-            var parent = JsonPointer.Parse("/player");
-            var child = JsonPointer.Parse("/player/hp");
-            var other = JsonPointer.Parse("/players");
-            Check.True(parent.IsPrefixOf(child) && parent.Overlaps(child) && child.Overlaps(parent), "ancestor overlap");
-            Check.True(!child.IsPrefixOf(parent), "child is not a prefix of parent");
-            Check.True(!parent.Overlaps(other), "token wise, not string wise");
-            Check.True(parent.IsPrefixOf(parent), "equal path is a prefix");
-        }
-
         private static void CommitAdvancesRevisionAndNotifiesNextTick()
         {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, Set(P("/wallet", I(20))));
-            var f = Build(null, wallet);
-            var o = f.Store.Commit(Plan("t1", 0, "wallet"));
+            var f = Build(null);
+            var o = f.Store.Commit(new TransactionId("t1"), Earn(10));
             Check.True(o.Succeeded, "commit succeeds");
             Check.Equal(1L, o.Result.Revision, "result revision");
             Check.Equal(1L, f.Store.Current.Revision, "current revision");
@@ -82,182 +54,64 @@ namespace MagicCampus.Tests.State
             Check.Equal("t1", f.Seen[0].TransactionId.Value, "transaction id");
         }
 
-        private static void ConflictingRevisions()
+        private static void TransitionFailureAndThrowLeaveStateUntouched()
         {
-            var a = new FakeParticipant("a", new[] { "/wallet" }, Set(P("/wallet", I(11))));
-            var b = new FakeParticipant("b", new[] { "/flags" }, Set(P("/flags/x", I(1))));
-            var f = Build(null, a, b);
-            var first = f.Store.Commit(Plan("t1", 0, "a"));
-            var stale = Plan("t2", 0, "b");
-            var second = f.Store.Commit(stale);
-            Check.True(first.Succeeded, "first wins");
-            Check.True(!second.Succeeded, "second conflicts");
-            Check.Equal(ResultCodes.RevisionConflict, second.Result.Code, "conflict code");
-            Check.Equal(0, b.Calls, "stale plan never reaches its participant");
-            Check.Equal(0, f.Store.Current.Slice("flags").Members.Count, "flags untouched");
-            Check.Node(I(11), f.Store.Current.Slice("wallet"), "first change kept");
-
-            var retry = f.Store.Commit(Plan("t3", 1, "b"));
-            Check.True(retry.Succeeded, "new plan on new revision succeeds");
-            Check.Equal(2L, f.Store.Current.Revision, "revision 2");
-            Check.Node(I(1), f.Store.Current.Slice("flags").Members["x"], "member added under owned prefix");
-        }
-
-        private static void ParticipantFailureAndThrowLeaveStateUntouched()
-        {
-            var ok = new FakeParticipant("a", new[] { "/wallet" }, Set(P("/wallet", I(99))));
-            var failing = new FakeParticipant("b", new[] { "/flags" },
-                b => Outcome<StateReplacement>.Fail(ResultCodes.ConditionFalse, b.Revision, new Diagnostic("NOPE", "no", null, "", "")));
-            var throwing = new FakeParticipant("c", new[] { "/completed" }, b => throw new InvalidOperationException("boom"));
-            var f = Build(null, ok, failing, throwing);
-
-            var o1 = ExpectFail(f, Plan("t1", 0, "a", "b"), ResultCodes.ConditionFalse, "participant failure");
-            Check.True(HasDiag(o1, "NOPE"), "participant diagnostic propagated");
-            var o2 = ExpectFail(f, Plan("t2", 0, "a", "c"), ResultCodes.InvariantViolation, "participant throw");
-            Check.True(HasDiag(o2, "PARTICIPANT_EXCEPTION"), "throw becomes diagnostic");
-            Check.Node(I(10), f.Store.Current.Slice("wallet"), "healthy participant's change not applied");
+            var f = Build(null);
+            var o1 = ExpectFail(f, "t1", s => Outcome<GameState>.Fail(ResultCodes.ConditionFalse, 0, new Diagnostic("NOPE", "no", null, "", "")), ResultCodes.ConditionFalse, "transition failure");
+            Check.True(HasDiag(o1, "NOPE"), "transition diagnostic propagated");
+            var o2 = ExpectFail(f, "t2", s => throw new InvalidOperationException("boom"), ResultCodes.InvariantViolation, "transition throw");
+            Check.True(HasDiag(o2, "STORE_EXCEPTION"), "throw becomes diagnostic");
+            Check.Node(I(10), f.Store.Current.Slice("wallet"), "nothing applied");
             Check.Equal(0, f.Queue.Pending, "no notification for failures");
         }
 
         private static void InvariantRejection()
         {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, Set(P("/wallet", I(-1))));
-            var f = Build(new IStateInvariant[] { new WalletNonNegative() }, wallet);
-            var o = ExpectFail(f, Plan("t1", 0, "wallet"), ResultCodes.InvariantViolation, "invariant");
-            Check.True(HasDiag(o, "WALLET_NEGATIVE"), "invariant diagnostic");
+            var f = Build(new IStateInvariant[] { new WalletAtMost(25) });
+            var o = ExpectFail(f, "t1", Earn(20), ResultCodes.InvariantViolation, "invariant");
+            Check.True(HasDiag(o, "WALLET_TOO_RICH"), "invariant diagnostic");
             Check.Equal(0L, f.Store.Current.Revision, "revision unchanged");
             Check.Equal(0, f.Queue.Pending, "no notification");
         }
 
         private static void SameTransactionReplay()
         {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, Set(P("/wallet", I(20))));
-            var failing = new FakeParticipant("bad", new[] { "/flags" },
-                b => Outcome<StateReplacement>.Fail(ResultCodes.ConditionFalse, b.Revision, new Diagnostic("NOPE", "no", null, "", "")));
-            var f = Build(null, wallet, failing);
-
-            var first = f.Store.Commit(Plan("t1", 0, "wallet"));
-            var again = f.Store.Commit(Plan("t1", 0, "wallet"));
+            var f = Build(null);
+            var calls = 0;
+            Func<GameState, Outcome<GameState>> earn = s => { calls++; return Earn(10)(s); };
+            var first = f.Store.Commit(new TransactionId("t1"), earn);
+            var again = f.Store.Commit(new TransactionId("t1"), earn);
             Check.True(ReferenceEquals(first, again), "same outcome object returned");
-            Check.Equal(1, wallet.Calls, "applied once");
+            Check.Equal(1, calls, "applied once");
             Check.Equal(1L, f.Store.Current.Revision, "revision advanced once");
             Check.Equal(1, f.Queue.Pending, "one notification");
 
-            var fail1 = f.Store.Commit(Plan("tf", 1, "bad"));
-            var fail2 = f.Store.Commit(Plan("tf", 1, "bad"));
+            var failing = 0;
+            Func<GameState, Outcome<GameState>> refuse = s => { failing++; return Outcome<GameState>.Fail(ResultCodes.ConditionFalse, 0, new Diagnostic("NOPE", "no", null, "", "")); };
+            var fail1 = f.Store.Commit(new TransactionId("tf"), refuse);
+            var fail2 = f.Store.Commit(new TransactionId("tf"), refuse);
             Check.True(!fail1.Succeeded && ReferenceEquals(fail1, fail2), "failure is replayed as first result");
-            Check.Equal(1, failing.Calls, "failed plan not prepared again");
+            Check.Equal(1, failing, "failed transition not run again");
         }
 
-        private static void DisjointParticipantsCommitAtomically()
+        private static void MissingTransactionIdRefused()
         {
-            var world = new FakeParticipant("world", new[] { "/player/x", "/player/y" }, Set(P("/player/x", DataNode.FromNumber(3.5)), P("/player/y", I(4))));
-            var vitals = new FakeParticipant("vitals", new[] { "/player/hp" }, Set(P("/player/hp", I(90))));
-            var f = Build(null, world, vitals);
-            var start = f.Store.Current;
-
-            var o = f.Store.Commit(Plan("t1", 0, "world", "vitals"));
-            Check.True(o.Succeeded, "commit");
-            Check.Equal(1L, f.Store.Current.Revision, "exactly one revision advance");
-            Check.True(ReferenceEquals(world.Bases[0], start) && ReferenceEquals(vitals.Bases[0], start), "all participants saw the same basis");
-            var player = f.Store.Current.Slice("player");
-            Check.Node(DataNode.FromNumber(3.5), player.Members["x"], "x");
-            Check.Node(I(4), player.Members["y"], "y");
-            Check.Node(I(90), player.Members["hp"], "hp");
-            Check.Node(I(50), player.Members["focus"], "unowned sibling preserved");
-            Check.Node(S("A"), player.Members["name"], "unowned sibling preserved");
-            f.Queue.Drain();
-            Check.Equal(1, f.Seen.Count, "one notification for the whole commit");
-
-            var broken = new FakeParticipant("broken", new[] { "/wallet" }, b => throw new InvalidOperationException("x"));
-            var g = Build(null, new FakeParticipant("world", new[] { "/player/x" }, Set(P("/player/x", I(1)))), broken);
-            ExpectFail(g, Plan("t1", 0, "world", "broken"), ResultCodes.InvariantViolation, "second participant throws");
-            Check.Node(DataNode.FromNumber(7.5), g.Store.Current.Slice("player").Members["x"], "first participant's write not applied");
-        }
-
-        private static void OwnershipAndOverlapRejected()
-        {
-            var wrongOwner = new FakeParticipant("p", new[] { "/wallet" }, Set(P("/flags/x", I(1))));
-            ExpectFail(Build(null, wrongOwner), Plan("t1", 0, "p"), ResultCodes.OutOfScope, "unowned path");
-
-            var ancestor = new FakeParticipant("p", new[] { "/player/hp" }, Set(P("/player", Obj())));
-            ExpectFail(Build(null, ancestor), Plan("t1", 0, "p"), ResultCodes.OutOfScope, "ancestor of owned path");
-
-            var sibling = new FakeParticipant("p", new[] { "/player/hp" }, Set(P("/player/hpx", I(1))));
-            ExpectFail(Build(null, sibling), Plan("t1", 0, "p"), ResultCodes.OutOfScope, "prefix match is token wise");
-
-            var self = new FakeParticipant("p", new[] { "/player" }, Set(P("/player", Obj()), P("/player/hp", I(1))));
-            ExpectFail(Build(null, self), Plan("t1", 0, "p"), ResultCodes.SliceOverlap, "overlap inside one participant");
-        }
-
-        private static void MalformedAndArrayPaths()
-        {
-            var owned = new[] { "/wallet", "/quickSlots", "/weird", "/flags" };
-            var cases = new[]
-            {
-                new[] { "wallet", ResultCodes.ParseError },
-                new[] { "/wallet/", ResultCodes.ParseError },
-                new[] { "/weird/a~2b", ResultCodes.ParseError },
-                new[] { "/quickSlots/0", ResultCodes.ParseError },
-                new[] { "/quickSlots/-", ResultCodes.ParseError },
-                new[] { "/flags/missing/deeper", ResultCodes.RefNotFound },
-                new[] { "/wallet/x", ResultCodes.RefNotFound },
-                new[] { "/player/hp", ResultCodes.OutOfScope },
-            };
-            for (var i = 0; i < cases.Length; i++)
-            {
-                var p = new FakeParticipant("p", owned, Set(P(cases[i][0], I(1))));
-                ExpectFail(Build(null, p), Plan("t" + i, 0, "p"), cases[i][1], "path " + cases[i][0]);
-            }
-
-            var whole = new FakeParticipant("p", owned, Set(P("/quickSlots", Arr(S("a"), S("b"), S("c")))));
-            var f = Build(null, whole);
-            Check.True(f.Store.Commit(Plan("t1", 0, "p")).Succeeded, "array replaced as a unit");
-            Check.Equal(3, f.Store.Current.Slice("quickSlots").Items.Count, "array length");
-
-            var escaped = new FakeParticipant("p", owned, Set(P("/weird/a~1b", I(5)), P("/weird/m~0n", I(6))));
-            var g = Build(null, escaped);
-            Check.True(g.Store.Commit(Plan("t1", 0, "p")).Succeeded, "escaped keys");
-            var weird = g.Store.Current.Slice("weird");
-            Check.Node(I(5), weird.Members["a/b"], "a/b");
-            Check.Node(I(6), weird.Members["m~n"], "m~n");
-        }
-
-        private static void RegistryRefusesConflicts()
-        {
-            var reg = new StateParticipantRegistry();
-            var ownedList = new List<string> { "/player" };
-            var p1 = new FakeParticipant("p1", ownedList, Set());
-            Check.True(reg.Register(p1).Status == OperationStatus.Succeeded, "first registration");
-
-            Check.Equal(ResultCodes.SliceOverlap, reg.Register(new FakeParticipant("p2", new[] { "/player/hp" }, Set())).Code, "descendant overlap");
-            Check.Equal(ResultCodes.SliceOverlap, reg.Register(new FakeParticipant("p3", new[] { "/player" }, Set())).Code, "equal overlap");
-            Check.Equal(ResultCodes.HandleDuplicate, reg.Register(new FakeParticipant("p1", new[] { "/other" }, Set())).Code, "duplicate id");
-            Check.Equal(ResultCodes.ContentInvalid, reg.Register(new FakeParticipant("p4", new[] { "player" }, Set())).Code, "malformed owned pointer");
-            Check.Equal(ResultCodes.ContentInvalid, reg.Register(new FakeParticipant("p5", new string[0], Set())).Code, "no owned slices");
-            Check.Equal(ResultCodes.ContentInvalid, reg.Register(new FakeParticipant("bad id", new[] { "/q" }, Set())).Code, "invalid id");
-            Check.True(reg.Register(new FakeParticipant("p6", new[] { "/wallet" }, Set())).Status == OperationStatus.Succeeded, "disjoint participant");
-
-            ownedList.Add("/wallet");
-            Check.Equal(1, reg.Find("p1").Owned.Count, "ownership frozen at registration");
-
-            reg.Seal();
-            Check.Equal(ResultCodes.ContentInvalid, reg.Register(new FakeParticipant("p7", new[] { "/late" }, Set())).Code, "sealed registry");
-            Check.True(reg.Find("nope") == null && reg.Find(null) == null, "unknown id is null");
+            var f = Build(null);
+            var o = ExpectFail(f, null, Earn(10), ResultCodes.TransactionMismatch, "default transaction id");
+            Check.True(HasDiag(o, "TRANSACTION_ID_MISSING"), "missing id diagnostic");
         }
 
         private static void OldSnapshotsStayIntact()
         {
-            var vitals = new FakeParticipant("vitals", new[] { "/player/hp" }, Set(P("/player/hp", I(90))));
-            var f = Build(null, vitals);
+            var f = Build(null);
             var old = f.Store.Current;
-            Check.True(f.Store.Commit(Plan("t1", 0, "vitals")).Succeeded, "commit");
+            Check.True(f.Store.Commit(new TransactionId("t1"), Earn(80)).Succeeded, "commit");
             var now = f.Store.Current;
 
             Check.True(!ReferenceEquals(old, now) && !ReferenceEquals(old.Root, now.Root), "new snapshot and root");
             Check.Equal(0L, old.Revision, "old revision");
-            Check.Node(I(100), old.Slice("player").Members["hp"], "old hp intact");
-            Check.Node(I(90), now.Slice("player").Members["hp"], "new hp");
+            Check.Node(I(10), old.Slice("wallet"), "old wallet intact");
+            Check.Node(I(90), now.Slice("wallet"), "new wallet");
             Check.True(ReferenceEquals(old.Slice("shopState"), now.Slice("shopState")), "untouched branch shared");
             var dict = old.Root.Members as IDictionary<string, DataNode>;
             Check.True(dict == null || dict.IsReadOnly, "members are not writable");
@@ -265,9 +119,8 @@ namespace MagicCampus.Tests.State
 
         private static void ReplaceAllSuccessAndFailure()
         {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, Set(P("/wallet", I(20))));
-            var f = Build(new IStateInvariant[] { new WalletNonNegative() }, wallet);
-            Check.True(f.Store.Commit(Plan("t1", 0, "wallet")).Succeeded, "setup commit");
+            var f = Build(new IStateInvariant[] { new WalletAtMost(100) });
+            Check.True(f.Store.Commit(new TransactionId("t1"), Earn(10)).Succeeded, "setup commit");
             f.Queue.Drain();
             f.Seen.Clear();
 
@@ -286,13 +139,14 @@ namespace MagicCampus.Tests.State
             Check.True(ReferenceEquals(r, f.Store.ReplaceAll(cand, 1, new TransactionId("load1"))), "replay returns first result");
             Check.Equal(2L, f.Store.Current.Revision, "replay does not apply again");
 
-            var reuse = f.Store.Commit(Plan("t1", 2, "wallet"));
-            Check.True(reuse.Succeeded && wallet.Calls == 2, "memory replay cache was cleared by the full replacement");
+            var reuse = f.Store.Commit(new TransactionId("t1"), Earn(10));
+            Check.True(reuse.Succeeded, "memory replay cache was cleared by the full replacement");
             Check.Equal(3L, f.Store.Current.Revision, "ordinary commit after load");
+            Check.Node(I(87), f.Store.Current.Slice("wallet"), "commit runs on the replaced state");
             Check.Node(S("kept"), f.Store.Current.Slice("futureField"), "ordinary commit keeps unrelated state");
 
             var before = f.Store.Current;
-            var bad = new StateSnapshot(0, Initial().Root.With("wallet", I(-5)));
+            var bad = new StateSnapshot(0, Initial().Root.With("wallet", I(500)));
             var rejected = f.Store.ReplaceAll(bad, 3, new TransactionId("load2"));
             Check.Equal(ResultCodes.InvariantViolation, rejected.Result.Code, "invariant rejects candidate");
             Check.True(ReferenceEquals(before, f.Store.Current), "state untouched after failed replacement");
@@ -303,51 +157,25 @@ namespace MagicCampus.Tests.State
             Check.True(ReferenceEquals(before, f.Store.Current), "state untouched after conflict");
         }
 
-        private static void CompletionReplayUsesPersistedLedger()
-        {
-            var ev = new FakeParticipant("ev", new[] { "/wallet", "/completed", "/rewardLedger" },
-                Set(P("/wallet", I(50)), P("/completed", Arr(S("quest.q1"), S("quest.q2")))));
-            var f = Build(null, ev);
-
-            var done = ExpectFail(f, PlanWith("t1", 0, "quest.q1", "ev"), ResultCodes.ConditionFalse, "already completed key");
-            Check.True(HasDiag(done, "COMPLETION_ALREADY_RECORDED"), "replay diagnostic");
-            Check.Equal(0, ev.Calls, "participant not asked");
-
-            Check.True(f.Store.Commit(PlanWith("t2", 0, "quest.q2", "ev")).Succeeded, "fresh key commits");
-            ExpectFail(f, PlanWith("t3", 1, "quest.q2", "ev"), ResultCodes.ConditionFalse, "same key with a new transaction id");
-            Check.Equal(2, f.Store.Current.Slice("completed").Items.Count, "no transaction ids written into schema fields");
-            Check.Equal(0, f.Store.Current.Slice("rewardLedger").Items.Count, "ledger untouched");
-        }
-
-        private static void UnregisteredParticipantRefusesWholePlan()
-        {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, Set(P("/wallet", I(1))));
-            var f = Build(null, wallet);
-            ExpectFail(f, Plan("t1", 0, "wallet", "ghost"), ResultCodes.Unregistered, "unknown participant");
-            Check.Equal(0, wallet.Calls, "no participant prepared");
-        }
-
         private static void NotificationsAreFifoAndCapturedAtCommit()
         {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, b => Outcome<StateReplacement>.Ok(new StateReplacement(new[] { P("/wallet", I(b.Revision + 100)) }), b.Revision));
-            var f = Build(null, wallet);
+            var f = Build(null);
             var order = new List<string>();
             f.Store.OnCommitted(c => order.Add("early@" + c.Revision));
-            Check.True(f.Store.Commit(Plan("t1", 0, "wallet")).Succeeded, "first");
+            Check.True(f.Store.Commit(new TransactionId("t1"), Earn(1)).Succeeded, "first");
             f.Store.OnCommitted(c => order.Add("late@" + c.Revision));
-            Check.True(f.Store.Commit(Plan("t2", 1, "wallet")).Succeeded, "second");
+            Check.True(f.Store.Commit(new TransactionId("t2"), Earn(1)).Succeeded, "second");
             Check.Equal(0, order.Count, "nothing inline");
             f.Queue.Drain();
             Check.Equal("early@1,early@2,late@2", string.Join(",", order), "commit order, listeners captured at commit");
         }
 
-        private static void EmptyPlanDoesNotAdvance()
+        private static void UnchangedStateDoesNotAdvance()
         {
-            var wallet = new FakeParticipant("wallet", new[] { "/wallet" }, Set(P("/wallet", I(1))));
-            var f = Build(null, wallet);
+            var f = Build(null);
             var before = f.Store.Current;
-            var o = f.Store.Commit(new StatePlan(new TransactionId("t1"), null, 0, null));
-            Check.True(o.Succeeded, "empty plan succeeds");
+            var o = f.Store.Commit(new TransactionId("t1"), s => Outcome<GameState>.Ok(s, 0));
+            Check.True(o.Succeeded, "identity transition succeeds");
             Check.Equal(0L, o.Result.Revision, "no revision advance");
             Check.True(ReferenceEquals(before, f.Store.Current), "state untouched");
             Check.Equal(0, f.Queue.Pending, "no notification");
@@ -357,16 +185,16 @@ namespace MagicCampus.Tests.State
         {
             Fixture f = null;
             Outcome<StateSnapshot> inner = null;
-            var p = new FakeParticipant("wallet", new[] { "/wallet" }, b =>
+            f = Build(null);
+            Check.True(f.Store.Commit(new TransactionId("outer"), s =>
             {
-                inner = f.Store.Commit(Plan("inner", 0, "wallet"));
-                return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { P("/wallet", I(2)) }), b.Revision);
-            });
-            f = Build(null, p);
-            Check.True(f.Store.Commit(Plan("outer", 0, "wallet")).Succeeded, "outer commit");
+                inner = f.Store.Commit(new TransactionId("inner"), Earn(1));
+                return Earn(2)(s);
+            }).Succeeded, "outer commit");
             Check.True(inner != null && !inner.Succeeded && inner.Result.Code == ResultCodes.InvariantViolation, "inner refused");
             Check.True(HasDiag(inner, "REENTRANT_COMMIT"), "reentrancy diagnostic");
             Check.Equal(1L, f.Store.Current.Revision, "only the outer commit applied");
+            Check.Node(I(12), f.Store.Current.Slice("wallet"), "only the outer earn applied");
         }
 
         // ------------------------------------------------------------------ builders and fakes
@@ -375,65 +203,48 @@ namespace MagicCampus.Tests.State
         private static DataNode S(string v) => DataNode.FromString(v);
         private static KeyValuePair<string, DataNode> P(string k, DataNode v) => new KeyValuePair<string, DataNode>(k, v);
         private static DataNode Obj(params KeyValuePair<string, DataNode>[] members) => DataNode.FromObject(members);
-        private static DataNode Arr(params DataNode[] items) => DataNode.FromList(items);
 
+        private static Func<GameState, Outcome<GameState>> Earn(long crowns) => s =>
+        {
+            var earned = s.Progress.Earn(crowns);
+            return earned.Succeeded ? Outcome<GameState>.Ok(s.With(earned.Value), 0) : Outcome<GameState>.Fail(earned.Result.Code, 0, new List<Diagnostic>(earned.Result.Details).ToArray());
+        };
+
+        /// <summary>A readable save state with fields no rule reads (shopState) kept beside the typed ones.</summary>
         private static StateSnapshot Initial()
         {
-            return new StateSnapshot(0, Obj(
-                P("saveVersion", I(2)),
-                P("player", Obj(P("hp", I(100)), P("focus", I(50)), P("x", DataNode.FromNumber(7.5)), P("y", I(2)), P("name", S("A")))),
-                P("wallet", I(10)),
-                P("flags", Obj()),
-                P("completed", Arr(S("quest.q1"))),
-                P("rewardLedger", Arr()),
-                P("quickSlots", Arr(DataNode.Null, DataNode.Null)),
-                P("weird", Obj(P("a/b", I(1)), P("m~n", I(2)))),
-                P("shopState", Obj(P("open", DataNode.True)))));
+            var m = new Dictionary<string, DataNode>(StringComparer.Ordinal)
+            {
+                { "saveVersion", I(2) },
+                { "wallet", I(10) },
+                { "completed", DataNode.FromList(new[] { S("quest.q1") }) },
+                { "shopState", Obj(P("open", DataNode.True)) }
+            };
+            TypedFields.FillMissing(m);
+            var root = DataNode.FromObject(m);
+            Check.True(SaveDocument.Read(root).Succeeded, "initial tree is a readable state");
+            return new StateSnapshot(0, root);
         }
-
-        private static StatePlan Plan(string tx, long rev, params string[] participants)
-        {
-            var list = new List<PlannedChange>();
-            foreach (var p in participants) list.Add(new PlannedChange(p, "op", null));
-            return new StatePlan(new TransactionId(tx), null, rev, list);
-        }
-
-        private static StatePlan PlanWith(string tx, long rev, string completion, params string[] participants)
-        {
-            var list = new List<PlannedChange>();
-            foreach (var p in participants) list.Add(new PlannedChange(p, "op", null));
-            return new StatePlan(new TransactionId(tx), new CompletionKey(completion), rev, list);
-        }
-
-        private static Func<StateSnapshot, Outcome<StateReplacement>> Set(params KeyValuePair<string, DataNode>[] slices)
-            => b => Outcome<StateReplacement>.Ok(new StateReplacement(slices), b.Revision);
 
         private sealed class Fixture
         {
-            public StateParticipantRegistry Registry;
             public FakeQueue Queue;
             public StateStore Store;
             public readonly List<StateCommitted> Seen = new List<StateCommitted>();
         }
 
-        private static Fixture Build(IEnumerable<IStateInvariant> invariants, params FakeParticipant[] participants)
+        private static Fixture Build(IEnumerable<IStateInvariant> invariants)
         {
-            var f = new Fixture { Registry = new StateParticipantRegistry(), Queue = new FakeQueue() };
-            foreach (var p in participants)
-            {
-                var r = f.Registry.Register(p);
-                Check.True(r.Status == OperationStatus.Succeeded, "register " + p.ParticipantId);
-            }
-            f.Registry.Seal();
-            f.Store = new StateStore(Initial(), f.Registry, invariants, f.Queue);
+            var f = new Fixture { Queue = new FakeQueue() };
+            f.Store = new StateStore(Initial(), invariants, f.Queue);
             f.Store.OnCommitted(c => f.Seen.Add(c));
             return f;
         }
 
-        private static Outcome<StateSnapshot> ExpectFail(Fixture f, StatePlan plan, string code, string what)
+        private static Outcome<StateSnapshot> ExpectFail(Fixture f, string tx, Func<GameState, Outcome<GameState>> transition, string code, string what)
         {
             var before = f.Store.Current;
-            var o = f.Store.Commit(plan);
+            var o = f.Store.Commit(tx == null ? default(TransactionId) : new TransactionId(tx), transition);
             Check.True(!o.Succeeded, what + ": must fail");
             Check.Equal(code, o.Result.Code, what + ": code");
             Check.True(o.Value == null, what + ": no value");
@@ -449,29 +260,6 @@ namespace MagicCampus.Tests.State
             return false;
         }
 
-        private sealed class FakeParticipant : IStateParticipant
-        {
-            private readonly Func<StateSnapshot, Outcome<StateReplacement>> behavior;
-            public string ParticipantId { get; }
-            public IReadOnlyList<string> OwnedSlices { get; }
-            public int Calls;
-            public readonly List<StateSnapshot> Bases = new List<StateSnapshot>();
-
-            public FakeParticipant(string id, IReadOnlyList<string> owned, Func<StateSnapshot, Outcome<StateReplacement>> behavior)
-            {
-                ParticipantId = id;
-                OwnedSlices = owned;
-                this.behavior = behavior;
-            }
-
-            public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
-            {
-                Calls++;
-                Bases.Add(basis);
-                return behavior(basis);
-            }
-        }
-
         private sealed class FakeQueue : ICompletionQueue
         {
             private readonly List<Action> pending = new List<Action>();
@@ -485,13 +273,16 @@ namespace MagicCampus.Tests.State
             }
         }
 
-        private sealed class WalletNonNegative : IStateInvariant
+        private sealed class WalletAtMost : IStateInvariant
         {
+            private readonly long limit;
+            public WalletAtMost(long limit) { this.limit = limit; }
+
             public IReadOnlyList<Diagnostic> Validate(StateSnapshot candidate)
             {
                 var w = candidate.Slice("wallet");
-                if (w != null && w.Kind == DataKind.Integer && w.Integer < 0)
-                    return new[] { new Diagnostic("WALLET_NEGATIVE", "wallet must be >= 0", null, ">=0", w.Integer.ToString()) };
+                if (w != null && w.Kind == DataKind.Integer && w.Integer > limit)
+                    return new[] { new Diagnostic("WALLET_TOO_RICH", "wallet above the test limit", null, "<=" + limit, w.Integer.ToString()) };
                 return Array.Empty<Diagnostic>();
             }
         }

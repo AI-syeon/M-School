@@ -4,6 +4,7 @@ using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
 using MagicCampus.Tests.PureDomain.Support;
+using MagicCampus.Transactions;
 
 namespace MagicCampus.Tests.PureDomain.Schedules
 {
@@ -89,21 +90,6 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             }
             return list;
         }
-
-        internal static PlannedChange Accept(string eventId, long at)
-        {
-            return new PlannedChange(ReservationParticipant.Id, "accept", Obj(Kv("eventId", Str(eventId)), Kv("acceptedAt", DataNode.FromInteger(at))));
-        }
-
-        internal static PlannedChange Complete(string eventId)
-        {
-            return new PlannedChange(ReservationParticipant.Id, "complete", Obj(Kv("eventId", Str(eventId))));
-        }
-
-        internal static PlannedChange EventDone(string eventId, string key)
-        {
-            return new PlannedChange("event-effects", "event.complete", Obj(Kv("eventId", Str(eventId)), Kv("completionKey", Str(key)), Kv("repeatPolicy", Str("once"))));
-        }
     }
 
     internal sealed class FakeCatalog : ICatalog
@@ -135,12 +121,6 @@ namespace MagicCampus.Tests.PureDomain.Schedules
         }
     }
 
-    internal sealed class FakeLedger : ICompletionLedger
-    {
-        internal readonly HashSet<string> Done = new HashSet<string>(StringComparer.Ordinal);
-        public bool IsCompleted(StateSnapshot snapshot, CompletionKey key) { return Done.Contains(key.Value); }
-    }
-
     internal sealed class FakeCalendar : ICalendar
     {
         internal long Minute;
@@ -151,16 +131,15 @@ namespace MagicCampus.Tests.PureDomain.Schedules
     internal sealed class ReservationRig
     {
         internal readonly FakeProvider Catalog;
-        internal readonly FakeLedger Ledger = new FakeLedger();
         internal readonly FakeCalendar Calendar = new FakeCalendar();
         internal readonly ReservationService Service;
-        internal readonly ReservationParticipant Participant;
+        internal readonly EventRules Rules;
 
         internal ReservationRig(params CompiledEvent[] events)
         {
             Catalog = new FakeProvider(new FakeCatalog(events, null));
-            Service = new ReservationService(Catalog, Calendar, Ledger);
-            Participant = new ReservationParticipant(Catalog, Ledger);
+            Service = new ReservationService(Catalog);
+            Rules = new EventRules(Catalog.Current, Calendar);
         }
     }
 

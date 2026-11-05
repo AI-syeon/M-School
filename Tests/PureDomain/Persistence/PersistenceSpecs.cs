@@ -625,8 +625,6 @@ namespace MagicCampus.Tests.PureDomain.PersistenceTests
             public int ReplaceCalls;
             public string FailCode;
 
-            public Outcome<StateSnapshot> Commit(StatePlan plan) { throw new NotSupportedException(); }
-
             public Outcome<StateSnapshot> ReplaceAll(StateSnapshot candidate, long expectedRevision, TransactionId transactionId)
             {
                 ReplaceCalls++;

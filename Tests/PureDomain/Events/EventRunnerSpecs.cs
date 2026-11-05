@@ -288,7 +288,7 @@ namespace MagicCampus.Tests.Events
             rig.Catalog.Add(Ev("ev.o", ExecutionMode.Scene, new string[0], new CompiledCall[0], null, RepeatPolicy.Once));
             rig.Completed.Add("done.ev.o");
             var h = rig.Start("ev.o");
-            Check(h.Terminal.Code == ResultCodes.ConditionFalse && rig.Planner.Contexts.Count == 0, "once ledger guard refuses before planning");
+            Check(h.Terminal.Code == ResultCodes.ConditionFalse && rig.Store.Commits.Count == 0, "once ledger guard refuses before any commit");
             Check(rig.Leases.ActiveLeaseCount == 0 && rig.Recovery.Captures == 0, "nothing leased or captured");
             rig.Completed.Remove("done.ev.o");
             var ok = rig.Start("ev.o");
@@ -305,10 +305,10 @@ namespace MagicCampus.Tests.Events
             rig.Until(() => h.Terminal != null, "run");
             Check(h.Terminal.Status == OperationStatus.Succeeded, "run succeeds");
             var mine = 0;
-            foreach (var plan in rig.Store.Commits)
-                if (plan.TransactionId.Value == "tx.c") mine++;
+            foreach (var committed in rig.Store.Commits)
+                if (committed.Value == "tx.c") mine++;
             Check(mine == 1 && rig.Store.Commits.Count == 1, "exactly one commit");
-            Check(rig.Store.Commits[0].ExpectedRevision == rig.Planner.Contexts[0].Basis.Revision, "plan is based on the snapshot just rechecked");
+            Check(rig.Store.EventBases.Count == 1 && rig.Store.EventBases[0] == rig.Conditions.LastRevision, "the event commits on the revision whose conditions were just rechecked");
             rig.AssertClean();
 
             var flip = new Rig();
@@ -588,7 +588,6 @@ namespace MagicCampus.Tests.Events
         public readonly FakePresentation Presentation;
         public readonly FakeLifetime Lifetime;
         public readonly TickClock Clock;
-        public readonly FakePlanner Planner = new FakePlanner();
         public readonly HashSet<string> Completed = new HashSet<string>(StringComparer.Ordinal);
         public readonly FakeProjector Projector;
         public readonly FakeRecovery Recovery;
@@ -629,8 +628,8 @@ namespace MagicCampus.Tests.Events
                 Presentation = Presentation,
                 PresentationLifetime = Lifetime,
                 Clock = Clock,
-                CommitPlanner = Planner,
                 Store = Store,
+                CommitEvent = Store.CommitEvent,
                 ProjectWorld = Projector.Project,
                 Recovery = Recovery,
                 Boundaries = Boundaries,
@@ -696,7 +695,8 @@ namespace MagicCampus.Tests.Events
     internal sealed class FakeStore : IStateStore
     {
         private readonly List<string> log;
-        public readonly List<StatePlan> Commits = new List<StatePlan>();
+        public readonly List<TransactionId> Commits = new List<TransactionId>();
+        public readonly List<long> EventBases = new List<long>();
         public readonly List<StateSnapshot> Replaces = new List<StateSnapshot>();
         public StateSnapshot Current { get; private set; }
 
@@ -706,12 +706,16 @@ namespace MagicCampus.Tests.Events
             Current = new StateSnapshot(1, DataNode.FromObject(new Dictionary<string, DataNode>()));
         }
 
-        public Outcome<StateSnapshot> Commit(StatePlan plan)
+        public Outcome<StateSnapshot> CommitEvent(CompiledEvent definition, TransactionId transaction)
         {
-            if (plan.ExpectedRevision != Current.Revision)
-                return Outcome<StateSnapshot>.Fail(ResultCodes.RevisionConflict, Current.Revision, new Diagnostic(ResultCodes.RevisionConflict, "stale plan", null, Current.Revision.ToString(), plan.ExpectedRevision.ToString()));
-            Commits.Add(plan);
-            log.Add("commit:" + plan.TransactionId);
+            EventBases.Add(Current.Revision);
+            return Commit(transaction);
+        }
+
+        public Outcome<StateSnapshot> Commit(TransactionId transaction)
+        {
+            Commits.Add(transaction);
+            log.Add("commit:" + transaction);
             Current = new StateSnapshot(Current.Revision + 1, Current.Root);
             return Outcome<StateSnapshot>.Ok(Current, Current.Revision);
         }
@@ -731,9 +735,11 @@ namespace MagicCampus.Tests.Events
     {
         public bool Value = true;
         public Func<IReadOnlyList<CompiledCall>, bool> Rule;
+        public long LastRevision = -1;
 
         public ConditionReport Evaluate(IReadOnlyList<CompiledCall> when, StateSnapshot snapshot)
         {
+            LastRevision = snapshot.Revision;
             var ok = Rule != null ? Rule(when) : Value;
             return new ConditionReport(ok, snapshot.Revision, ok ? null : new[] { new Diagnostic(ResultCodes.ConditionFalse, "condition is false", null, "true", "false") });
         }
@@ -879,18 +885,6 @@ namespace MagicCampus.Tests.Events
         public void CloseOwner(string ownerToken) { Closed++; log.Add("lifetime.close"); }
     }
 
-    internal sealed class FakePlanner : IEventCommitPlanner
-    {
-        public readonly List<EffectContext> Contexts = new List<EffectContext>();
-
-        public Outcome<StatePlan> PlanCommit(CompiledEvent definition, EffectContext context)
-        {
-            Contexts.Add(context);
-            var plan = new StatePlan(context.TransactionId, context.Completion, context.Basis.Revision, new[] { new PlannedChange("event-effects", "complete", DataNode.Null) });
-            return Outcome<StatePlan>.Ok(plan, context.Basis.Revision);
-        }
-    }
-
     internal sealed class FakeProjector
     {
         private readonly List<string> log;
@@ -902,7 +896,7 @@ namespace MagicCampus.Tests.Events
         {
             log.Add("project");
             if (!Moved) return Outcome<StateSnapshot>.Ok(store.Current, store.Current.Revision);
-            return store.Commit(new StatePlan(txn, null, store.Current.Revision, new PlannedChange[0]));
+            return store.Commit(txn);
         }
     }
 

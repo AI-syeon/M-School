@@ -45,8 +45,9 @@ namespace MagicCampus.Events
         public IPresentationPort Presentation { get; set; }
         public IPresentationLifetime PresentationLifetime { get; set; }
         public TickClock Clock { get; set; }
-        public IEventCommitPlanner CommitPlanner { get; set; }
         public IStateStore Store { get; set; }
+        /// <summary>Commits the success of one event under the given transaction: its rules, time cost, the live actor positions and its reservation row, captured and committed in this one call.</summary>
+        public Func<CompiledEvent, TransactionId, Outcome<StateSnapshot>> CommitEvent { get; set; }
         /// <summary>Commits the live actor positions under the given transaction; capture and commit happen in this one call.</summary>
         public Func<TransactionId, Outcome<StateSnapshot>> ProjectWorld { get; set; }
         public ISceneRecovery Recovery { get; set; }
@@ -77,8 +78,8 @@ namespace MagicCampus.Events
             Need(Presentation, nameof(Presentation));
             Need(PresentationLifetime, nameof(PresentationLifetime));
             Need(Clock, nameof(Clock));
-            Need(CommitPlanner, nameof(CommitPlanner));
             Need(Store, nameof(Store));
+            Need(CommitEvent, nameof(CommitEvent));
             Need(ProjectWorld, nameof(ProjectWorld));
             Need(Recovery, nameof(Recovery));
             Need(Boundaries, nameof(Boundaries));

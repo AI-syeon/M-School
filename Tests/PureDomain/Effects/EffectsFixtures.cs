@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Runtime;
 using MagicCampus.State;
-using MagicCampus.Transactions.Core;
-using MagicCampus.Transactions.Effects;
+using MagicCampus.Timekeeping;
+using MagicCampus.Transactions;
 using MagicCampus.Transactions.Conditions;
 
 namespace MagicCampus.Tests.Effects
 {
-    /// <summary>Local fixtures: fake catalog, fake time/world planners and a fake clock participant. No unfinished Stage3 concrete classes are used.</summary>
+    /// <summary>Local fixtures: fake catalog, a save tree and a rig with the real store, event rules and condition evaluator.</summary>
     internal static class Fx
     {
         private static readonly SourceLocation Src = new SourceLocation("test.json", "/events/0", "evt", "evt#1", 0);
@@ -157,74 +157,22 @@ namespace MagicCampus.Tests.Effects
         }
     }
 
-    internal sealed class FakeClockPlanner : IClockCostPlanner
-    {
-        public int Calls;
-        public double LastMinutes;
-        public Func<double, ChangeSet> Override;
-
-        public Outcome<ChangeSet> PlanCost(StateSnapshot basis, double minutes)
-        {
-            Calls++;
-            LastMinutes = minutes;
-            if (Override != null) return Outcome<ChangeSet>.Ok(Override(minutes), basis.Revision);
-            var change = new PlannedChange("clock", "advance", Fx.Obj(Fx.P("minutes", Fx.I((long)minutes))));
-            return Outcome<ChangeSet>.Ok(new ChangeSet(new[] { change }), basis.Revision);
-        }
-    }
-
-    internal sealed class FakeWorldProjector : IWorldStateProjector
-    {
-        public int Calls;
-        public ChangeSet Result = new ChangeSet(null);
-
-        public Outcome<ChangeSet> PlanProjection(StateSnapshot basis)
-        {
-            Calls++;
-            return Outcome<ChangeSet>.Ok(Result, basis.Revision);
-        }
-    }
-
-    /// <summary>Local stand-in for the Time owner of /clock, only so a real StateStore can commit the time cost in tests.</summary>
-    internal sealed class FakeClockParticipant : IStateParticipant
-    {
-        public string ParticipantId { get { return "clock"; } }
-        public IReadOnlyList<string> OwnedSlices { get; } = new[] { "/clock" };
-
-        public Outcome<StateReplacement> Prepare(StateSnapshot basis, StatePlan plan)
-        {
-            long add = 0;
-            foreach (var change in plan.Changes)
-                if (change.ParticipantId == "clock" && change.Operation == "advance") add += change.Payload.Members["minutes"].Integer;
-            var clock = basis.Slice("clock");
-            var next = clock.With("absoluteMinute", Fx.I(clock.Members["absoluteMinute"].Integer + add));
-            return Outcome<StateReplacement>.Ok(new StateReplacement(new[] { Fx.P("/clock", next) }), basis.Revision);
-        }
-    }
-
-    /// <summary>Real Stage2 StateStore with the event-effects participant and the fake clock participant.</summary>
     internal sealed class Rig
     {
         private static int counter;
 
+        public static readonly WorldPlaces Nobody = new WorldPlaces(null, new KeyValuePair<string, Position>[0]);
+
         public readonly FakeCatalog Catalog;
         public readonly StateStore Store;
-        public readonly FakeClockPlanner Clock = new FakeClockPlanner();
-        public readonly FakeWorldProjector World = new FakeWorldProjector();
-        public readonly EffectPlanner Effects;
-        public readonly EventCommitPlanner Planner;
+        public readonly EventRules Rules;
         public readonly ConditionEvaluator Conditions;
 
         public Rig(FakeCatalog catalog, DataNode root = null)
         {
             Catalog = catalog;
-            var registry = new StateParticipantRegistry();
-            Fx.Require(registry.Register(new EventEffectsParticipant(catalog)).Status == OperationStatus.Succeeded, "register event-effects");
-            Fx.Require(registry.Register(new FakeClockParticipant()).Status == OperationStatus.Succeeded, "register fake clock");
-            registry.Seal();
-            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), registry, new IStateInvariant[0], new CompletionPump());
-            Effects = new EffectPlanner(catalog);
-            Planner = new EventCommitPlanner(Clock, World, catalog);
+            Store = new StateStore(new StateSnapshot(0, root ?? Fx.Root()), new IStateInvariant[0], new CompletionPump());
+            Rules = new EventRules(catalog, new Calendar());
             Conditions = new ConditionEvaluator(catalog);
         }
 
@@ -234,9 +182,15 @@ namespace MagicCampus.Tests.Effects
             return new TransactionId("tx-" + counter);
         }
 
-        public EffectContext Context()
+        /// <summary>Commits the success of the event under a fresh or the given transaction, with the given live positions.</summary>
+        public Outcome<StateSnapshot> Run(CompiledEvent definition, WorldPlaces live = null, string transaction = null)
         {
-            return new EffectContext(Store.Current, Tx(), null);
+            return Store.Commit(transaction == null ? Tx() : new TransactionId(transaction), s => Rules.Complete(s, definition, live ?? Nobody));
+        }
+
+        public Outcome<StateSnapshot> Run(string eventId, WorldPlaces live = null, string transaction = null)
+        {
+            return Run(Catalog.FindEvent(eventId), live, transaction);
         }
     }
 }

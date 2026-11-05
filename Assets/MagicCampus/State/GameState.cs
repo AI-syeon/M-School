@@ -36,7 +36,7 @@ namespace MagicCampus.State
 
     /// <summary>
     /// A saved number plus the JSON kind it is written with ("2" and "2.0" are different save bytes). The kind survives only while the
-    /// value is untouched; a changed value is written as a real number (today's WorldCommitParticipant.NumberLike rule).
+    /// value is untouched; a changed value is written as a real number.
     /// </summary>
     public readonly struct SaveNumber : IEquatable<SaveNumber>
     {
@@ -344,6 +344,13 @@ namespace MagicCampus.State
             var accepted = new Appointment(id, ReservationStatus.Accepted, minute);
             if (i < 0) rows.Add(accepted); else rows[i] = accepted;
             return new AppointmentBook(rows.AsReadOnly());
+        }
+
+        /// <summary>Drops the row with this id, keeping the order of the rest; returns this when there is none.</summary>
+        public AppointmentBook Remove(string id)
+        {
+            var rows = new List<Appointment>(Rows);
+            return rows.RemoveAll(r => r.Id == id) == 0 ? this : new AppointmentBook(rows.AsReadOnly());
         }
     }
 

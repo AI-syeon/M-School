@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
 using MagicCampus.State;
+using MagicCampus.Transactions;
 
 namespace MagicCampus.Application.Reservations
 {
@@ -22,14 +23,10 @@ namespace MagicCampus.Application.Reservations
     public sealed class ReservationService
     {
         private readonly ICatalogProvider catalog;
-        private readonly ICalendar calendar;
-        private readonly ICompletionLedger ledger;
 
-        public ReservationService(ICatalogProvider catalog, ICalendar calendar, ICompletionLedger ledger)
+        public ReservationService(ICatalogProvider catalog)
         {
             this.catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
-            this.calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
-            this.ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
         }
 
         /// <summary>Ordered by priority descending, ReservedAt, Sequence, EventId (ordinal). Accepted reservations stay candidates after a failed start, a missing lease or a failed move; only a successful completion commit removes them.</summary>
@@ -60,10 +57,10 @@ namespace MagicCampus.Application.Reservations
                 if (ev == null)
                 {
                     diagnostics.Add(ReservationRules.Diag(ResultCodes.RefNotFound, "appointment refers to an event that is not in the catalog",
-                        AppointmentCodec.Pointer + "/" + index + "/id", row.Id, "known event", row.Id));
+                        ReservationRules.Pointer + "/" + index + "/id", row.Id, "known event", row.Id));
                     continue;
                 }
-                if (IsSpent(ev, state)) continue;
+                if (EventRules.IsSpent(state, ev)) continue;
                 list.Add(new StartCandidate(row.Id, row.Id, row.Status, ReservationRules.Priority(ev), row.AcceptedAt, index));
             }
 
@@ -71,66 +68,26 @@ namespace MagicCampus.Application.Reservations
             return new ReservationInspection(list, diagnostics);
         }
 
-        public Outcome<PlannedChange> PlanAccept(string reservationId, StateSnapshot basis)
-        {
-            if (basis == null) throw new ArgumentNullException(nameof(basis));
-            if (!AppointmentCodec.IsValidId(reservationId))
-                return Outcome<PlannedChange>.Fail(ResultCodes.ContentInvalid, basis.Revision,
-                    ReservationRules.Diag(ResultCodes.ContentInvalid, "reservation id is not a valid event id", AppointmentCodec.Pointer, reservationId, "dotted lowercase event id", reservationId ?? "null"));
-
-            if (!basis.TryTypedState(out var state, out var refusal))
-                return Outcome<PlannedChange>.Fail(ResultCodes.ContentInvalid, basis.Revision, refusal);
-
-            var ev = catalog.Current.FindEvent(reservationId);
-            if (ev == null)
-                return Outcome<PlannedChange>.Fail(ResultCodes.RefNotFound, basis.Revision,
-                    ReservationRules.Diag(ResultCodes.RefNotFound, "event is not in the catalog", AppointmentCodec.Pointer, reservationId, "known event", reservationId));
-
-            var existing = state.Appointments.Find(reservationId);
-            long acceptedAt;
-            if (existing != null && existing.Status != ReservationStatus.Offered)
-            {
-                acceptedAt = existing.AcceptedAt;
-            }
-            else
-            {
-                if (ReservationRules.IsCompleted(ev, basis, ledger))
-                    return Outcome<PlannedChange>.Fail(ResultCodes.ConditionFalse, basis.Revision,
-                        ReservationRules.Diag(ResultCodes.ConditionFalse, "the shared completion key is already completed", AppointmentCodec.Pointer, reservationId, "not completed", ev.OnceKey.Value));
-                acceptedAt = calendar.FromSnapshot(basis).AbsoluteMinute;
-            }
-
-            var payload = DataNode.FromObject(new[]
-            {
-                new KeyValuePair<string, DataNode>("eventId", DataNode.FromString(reservationId)),
-                new KeyValuePair<string, DataNode>("acceptedAt", DataNode.FromInteger(acceptedAt))
-            });
-            return Outcome<PlannedChange>.Ok(new PlannedChange(ReservationParticipant.Id, ReservationParticipant.AcceptOperation, payload), basis.Revision);
-        }
-
         /// <summary>A new or Offered invitation becomes Accepted at the current minute unless its once key is consumed; an Accepted or Ready one keeps its time.</summary>
         public Outcome<GameState> Accept(GameState state, string reservationId)
         {
             if (state == null) throw new ArgumentNullException(nameof(state));
-            if (!AppointmentCodec.IsValidId(reservationId))
+            if (!ReservationRules.IsValidId(reservationId))
                 return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0,
-                    ReservationRules.Diag(ResultCodes.ContentInvalid, "reservation id is not a valid event id", AppointmentCodec.Pointer, reservationId, "dotted lowercase event id", reservationId ?? "null"));
+                    ReservationRules.Diag(ResultCodes.ContentInvalid, "reservation id is not a valid event id", ReservationRules.Pointer, reservationId, "dotted lowercase event id", reservationId ?? "null"));
 
             var ev = catalog.Current.FindEvent(reservationId);
             if (ev == null)
                 return Outcome<GameState>.Fail(ResultCodes.RefNotFound, 0,
-                    ReservationRules.Diag(ResultCodes.RefNotFound, "event is not in the catalog", AppointmentCodec.Pointer, reservationId, "known event", reservationId));
+                    ReservationRules.Diag(ResultCodes.RefNotFound, "event is not in the catalog", ReservationRules.Pointer, reservationId, "known event", reservationId));
 
             var existing = state.Appointments.Find(reservationId);
-            if ((existing == null || existing.Status == ReservationStatus.Offered) && IsSpent(ev, state))
+            if ((existing == null || existing.Status == ReservationStatus.Offered) && EventRules.IsSpent(state, ev))
                 return Outcome<GameState>.Fail(ResultCodes.ConditionFalse, 0,
-                    ReservationRules.Diag(ResultCodes.ConditionFalse, "the shared completion key is already completed", AppointmentCodec.Pointer, reservationId, "not completed", ev.OnceKey.Value));
+                    ReservationRules.Diag(ResultCodes.ConditionFalse, "the shared completion key is already completed", ReservationRules.Pointer, reservationId, "not completed", ev.OnceKey.Value));
 
             return Outcome<GameState>.Ok(state.With(state.Appointments.Accept(reservationId, state.Clock.AbsoluteMinute)), 0);
         }
-
-        /// <summary>The once rule for invitations: practice events never spend their key.</summary>
-        private static bool IsSpent(CompiledEvent ev, GameState state) => ev.Repeat != RepeatPolicy.Practice && state.Progress.IsConsumed(ev.OnceKey);
 
         private static int Compare(StartCandidate a, StartCandidate b)
         {

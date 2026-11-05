@@ -4,7 +4,7 @@ using MagicCampus.Contracts;
 
 namespace MagicCampus.Timekeeping
 {
-    /// <summary>Limits shared by the calendar, the clock service and the clock participant.</summary>
+    /// <summary>Limits shared by the calendar, the clock service and the event time cost.</summary>
     public static class CalendarLimits
     {
         /// <summary>A fraction this close below the next whole minute is carried, absorbing double round-off without losing or duplicating time.</summary>
