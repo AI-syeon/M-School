@@ -87,7 +87,7 @@ namespace MagicCampus.Tests.Events
         private static void ProjectionThenCaptureThenNotifyThenSave()
         {
             var rig = new Rig();
-            rig.Projector.Changes.Add(new PlannedChange("world", "project", DataNode.Null));
+            rig.Projector.Moved = true;
             rig.Catalog.Add(Ev("ev.p", ExecutionMode.Scene, new string[0], new CompiledCall[0]));
             var h = rig.Start("ev.p", "owner.a", 0, "tx.p");
             CheckOrder(rig.Log, "project", "commit:tx.p.project", "capture", "notify:SceneEntry", "save.request");
@@ -612,7 +612,7 @@ namespace MagicCampus.Tests.Events
             Presentation = new FakePresentation(Handles, Log);
             Lifetime = new FakeLifetime(Log);
             Clock = new TickClock(Handles);
-            Projector = new FakeProjector(Log);
+            Projector = new FakeProjector(Log, Store);
             Recovery = new FakeRecovery(Log);
             Boundaries = new FakeBoundaries(Log);
             Saves = new FakeSaves(Handles, Log);
@@ -631,7 +631,7 @@ namespace MagicCampus.Tests.Events
                 Clock = Clock,
                 CommitPlanner = Planner,
                 Store = Store,
-                Projector = Projector,
+                ProjectWorld = Projector.Project,
                 Recovery = Recovery,
                 Boundaries = Boundaries,
                 Saves = Saves,
@@ -891,16 +891,18 @@ namespace MagicCampus.Tests.Events
         }
     }
 
-    internal sealed class FakeProjector : IWorldStateProjector
+    internal sealed class FakeProjector
     {
         private readonly List<string> log;
-        public readonly List<PlannedChange> Changes = new List<PlannedChange>();
-        public FakeProjector(List<string> log) { this.log = log; }
+        private readonly FakeStore store;
+        public bool Moved;
+        public FakeProjector(List<string> log, FakeStore store) { this.log = log; this.store = store; }
 
-        public Outcome<ChangeSet> PlanProjection(StateSnapshot basis)
+        public Outcome<StateSnapshot> Project(TransactionId txn)
         {
             log.Add("project");
-            return Outcome<ChangeSet>.Ok(new ChangeSet(Changes), basis.Revision);
+            if (!Moved) return Outcome<StateSnapshot>.Ok(store.Current, store.Current.Revision);
+            return store.Commit(new StatePlan(txn, null, store.Current.Revision, new PlannedChange[0]));
         }
     }
 

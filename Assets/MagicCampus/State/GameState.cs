@@ -334,6 +334,17 @@ namespace MagicCampus.State
             foreach (var r in Rows) if (r.Id == id) return r;
             return null;
         }
+
+        /// <summary>An Offered row becomes Accepted in place, an unknown id is appended, an Accepted or Ready row keeps its time.</summary>
+        public AppointmentBook Accept(string id, long minute)
+        {
+            var rows = new List<Appointment>(Rows);
+            var i = rows.FindIndex(r => r.Id == id);
+            if (i >= 0 && rows[i].Status != ReservationStatus.Offered) return this;
+            var accepted = new Appointment(id, ReservationStatus.Accepted, minute);
+            if (i < 0) rows.Add(accepted); else rows[i] = accepted;
+            return new AppointmentBook(rows.AsReadOnly());
+        }
     }
 
     /// <summary>Read-only today: conditions read it, nothing writes it.</summary>

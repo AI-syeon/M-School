@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
+using MagicCampus.Tests.PureDomain.Support;
 using MagicCampus.World.Movement;
 
 namespace MagicCampus.Tests.Movement
@@ -14,6 +16,7 @@ namespace MagicCampus.Tests.Movement
             KeepsNumberKindsWhenUnchanged();
             RefusesStaleUnknownAndMalformedPlans();
             HandlesMissingAndBrokenSaveSlices();
+            CaptureRefusesUnknownPlacesAndProjectKeepsAnEmptyWorld();
         }
 
         private static DataNode Npc(string id, string map, DataNode x, DataNode y, params KeyValuePair<string, DataNode>[] extra)
@@ -159,6 +162,35 @@ namespace MagicCampus.Tests.Movement
 
             var brokenRow = Basis(Player(Dn.N(1.5), Dn.I(2)), Dn.L(Dn.S("junk")));
             Expect.True(participant.Prepare(brokenRow, PlanOf(projector.PlanProjection(brokenRow).Value.Changes, brokenRow)).Result.Code == ResultCodes.ContentInvalid, "non-object rows are refused");
+        }
+
+        private static void CaptureRefusesUnknownPlacesAndProjectKeepsAnEmptyWorld()
+        {
+            var world = World();
+            var captured = new WorldProjection(world, Rig.StandardWorld()).Capture();
+            Expect.True(captured.Succeeded && captured.Value.Player.Value.Equals(Rig.Pos("hall", 2.5, 2.5)), "player captured");
+            Expect.True(string.Join(",", captured.Value.Npcs.Select(n => n.Key + "@" + n.Value.MapId)) == "ben@yard,cy@hall", "npcs captured in actor order");
+
+            var hallOnly = new TestWorld();
+            hallOnly.Add(new TestGrid("hall", "##########", "#........#", "#........#", "#........#", "#........#", "##########"));
+            var unknownMap = new WorldProjection(world, hallOnly).Capture();
+            Expect.True(!unknownMap.Succeeded && unknownMap.Result.Code == ResultCodes.ContentInvalid && unknownMap.Result.Details[0].Code == "POSITION_INVALID", "npc on an unknown map is refused");
+
+            var narrow = new TestWorld();
+            narrow.Add(new TestGrid("hall", "....", "...."));
+            narrow.Add(new TestGrid("yard", "....", "....", "....", "...."));
+            var outside = new WorldProjection(world, narrow).Capture();
+            Expect.True(!outside.Succeeded && outside.Result.Details[0].Message.Contains("player"), "out of bounds player is refused before any npc");
+
+            var root = new Dictionary<string, DataNode>(StringComparer.Ordinal);
+            TypedFields.FillMissing(root);
+            var state = SaveDocument.Read(DataNode.FromObject(root)).Value;
+            var none = new WorldProjection(new ActorWorld(Rig.StandardWorld(), new ActorState[0]), Rig.StandardWorld()).Project(state);
+            Expect.True(none.Succeeded && ReferenceEquals(none.Value, state), "no active actor leaves the state untouched");
+            var moved = new WorldProjection(world, Rig.StandardWorld()).Project(state);
+            Expect.True(moved.Succeeded && moved.Value.World.Player.MapId == "hall" && moved.Value.World.Npcs.Count == 2, "player and npcs projected into the state");
+            var refused = new WorldProjection(world, hallOnly).Project(state);
+            Expect.True(!refused.Succeeded && refused.Result.Code == ResultCodes.ContentInvalid && refused.Value == null, "a refused capture refuses the transition");
         }
     }
 }

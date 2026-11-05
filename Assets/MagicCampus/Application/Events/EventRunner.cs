@@ -308,15 +308,8 @@ namespace MagicCampus.Events
         private void BeginEntry(Run run)
         {
             Trace(run, EventPhases.EntryProject, string.Empty);
-            var basis = d.Store.Current;
-            var projection = d.Projector.PlanProjection(basis);
-            if (!projection.Succeeded) { Abort(run, FailureFrom(projection.Result)); return; }
-            if (projection.Value.Changes.Count > 0)
-            {
-                var plan = new StatePlan(new TransactionId(run.Txn.Value + ".project"), null, basis.Revision, projection.Value.Changes);
-                var projected = d.Store.Commit(plan);
-                if (!projected.Succeeded) { Abort(run, FailureFrom(projected.Result)); return; }
-            }
+            var projected = d.ProjectWorld(new TransactionId(run.Txn.Value + ".project"));
+            if (!projected.Succeeded) { Abort(run, FailureFrom(projected.Result)); return; }
 
             Trace(run, EventPhases.EntryCapture, string.Empty);
             var accepted = d.Store.Current;

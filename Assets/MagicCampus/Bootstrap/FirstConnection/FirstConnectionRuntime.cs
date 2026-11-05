@@ -100,7 +100,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
     MoveService Moves { get; }
     public StateStore Store { get; }
     Tk.ClockService Clock { get; }
-    WorldStateProjector Projector { get; }
+    WorldProjection Positions { get; }
     public CatalogDestinationResolver Destinations { get; }
     public ReservationService Reservations { get; }
     ScheduleService Schedule { get; }
@@ -231,7 +231,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Store = new StateStore(initial, registry, new IStateInvariant[] { new SaveStateValidator(Compiled, saveSchema, Schema) }, Pump);
         Store.OnCommitted(c => { if (!c.TransactionId.Value.StartsWith("clock.advance", StringComparison.Ordinal)) Emit("commit txn=" + c.TransactionId.Value + " " + c.PreviousRevision + "->" + c.Revision); });
         Clock = new Tk.ClockService(Store, calendar);
-        Projector = new WorldStateProjector(Actors);
+        Positions = new WorldProjection(Actors, Maps);
         Destinations = new CatalogDestinationResolver(Provider);
         Reservations = new ReservationService(Provider, calendar, ledger);
 
@@ -259,7 +259,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
         Staging = new ReservedStagingService(Actors, Maps, CollisionPort, Handles, PlanJoin, SetHidden, ids => Scheduler.StopActors(ids));
         LoadRecipes(variantDir, baseDir);
 
-        var planner = new EventCommitPlanner(Clock, Projector, Compiled);
+        var planner = new EventCommitPlanner(Clock, new WorldStateProjector(Actors), Compiled);
         var deps = new EventRunnerDependencies
         {
           Catalog = Provider,
@@ -273,7 +273,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
           Clock = Ticks,
           CommitPlanner = planner,
           Store = Store,
-          Projector = Projector,
+          ProjectWorld = txn => Store.Commit(txn, Positions.Project),
           Recovery = new SceneRecovery(Actors),
           Boundaries = Policy,
           Saves = Saves,
@@ -352,14 +352,11 @@ namespace MagicCampus.Bootstrap.FirstConnection
       var blocked = Block();
       if (blocked != null) return Refuse(h, ResultCodes.ResourceBusy, blocked);
       if (string.IsNullOrEmpty(eventId)) return Refuse(h, ResultCodes.ContentInvalid, "event id is required");
-      var basis = Store.Current;
-      var plan = Reservations.PlanAccept(eventId, basis);
-      if (!plan.Succeeded) return FailWith(h, plan.Result);
-      var changes = new List<PlannedChange> { plan.Value };
-      var projection = Projector.PlanProjection(basis);
-      if (!projection.Succeeded) return FailWith(h, projection.Result);
-      changes.AddRange(projection.Value.Changes);
-      var committed = Store.Commit(new StatePlan(new TransactionId("accept." + eventId + "." + (++txnSeq)), null, basis.Revision, changes));
+      var committed = Store.Commit(new TransactionId("accept." + eventId + "." + (++txnSeq)), s =>
+      {
+        var accepted = Reservations.Accept(s, eventId);
+        return accepted.Succeeded ? Positions.Project(accepted.Value) : accepted;
+      });
       if (!committed.Succeeded) return FailWith(h, committed.Result);
       acceptUnsaved = true;
       Policy.Notify(SafeBoundary.WorldSafe, Store.Current);
@@ -406,10 +403,7 @@ namespace MagicCampus.Bootstrap.FirstConnection
       if (!Policy.SceneActive && Runner.ActiveCount == 0 && Runner.PendingSaveCount == 0)
       {
         if (manualHandle != null && manualHandle.Terminal == null) return Refuse(h, ResultCodes.ResourceBusy, "stop walking before saving");
-        var basis = Store.Current;
-        var projection = Projector.PlanProjection(basis);
-        if (!projection.Succeeded) return FailWith(h, projection.Result);
-        var commit = Store.Commit(new StatePlan(new TransactionId("world.save." + (++txnSeq)), null, basis.Revision, projection.Value.Changes));
+        var commit = Store.Commit(new TransactionId("world.save." + (++txnSeq)), Positions.Project);
         if (!commit.Succeeded) return FailWith(h, commit.Result);
         Policy.Notify(SafeBoundary.WorldSafe, Store.Current);
       }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using MagicCampus.Application.Reservations;
 using MagicCampus.Contracts;
+using MagicCampus.Persistence;
+using MagicCampus.State;
 
 namespace MagicCampus.Tests.PureDomain.Schedules
 {
@@ -12,6 +14,7 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             OrdersCandidatesByPriorityThenAcceptance();
             RejectsInvalidRowsExplicitly();
             PlansAndAppliesAccept();
+            AcceptsInTheTypedState();
             CompleteRemovesOnlyTheMatchingReservation();
             RefusesUnknownOperations();
         }
@@ -40,11 +43,10 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             var rig = new ReservationRig(
                 Kit.Event("event.res", "resolution"), Kit.Event("event.rel", "relationship"), Kit.Event("event.eve", "event"),
                 Kit.Event("event.gen"), Kit.Event("event.gen2"), Kit.Event("event.off"), Kit.Event("event.done", completion: "node.done"));
-            rig.Ledger.Done.Add("node.done");
-            var snapshot = Kit.Snapshot(4,
+            var snapshot = Spent(Kit.Snapshot(4,
                 Kit.Row("event.gen", "Accepted", 50), Kit.Row("event.rel", "Ready", 90), Kit.Row("event.res", "Accepted", 100),
                 Kit.Row("event.gen2", "Accepted", 50), Kit.Row("event.off", "Offered", 1), Kit.Row("event.done", "Accepted", 1),
-                Kit.Row("event.eve", "Accepted", 5), Kit.Row("event.ghost", "Accepted", 1));
+                Kit.Row("event.eve", "Accepted", 5), Kit.Row("event.ghost", "Accepted", 1)), "rewardLedger", "node.done");
 
             var inspection = rig.Service.Inspect(snapshot);
             var order = new List<string>();
@@ -97,6 +99,44 @@ namespace MagicCampus.Tests.PureDomain.Schedules
             rig.Ledger.Done.Add("node.done");
             Spec.Equal(ResultCodes.ConditionFalse, rig.Service.PlanAccept("event.done", empty).Result.Code, "completed shared key blocks planning");
             Spec.Equal(ResultCodes.ConditionFalse, Prepare(rig, empty, null, Kit.Accept("event.done", 5)).Result.Code, "completed shared key blocks the participant too");
+        }
+
+        private static StateSnapshot Spent(StateSnapshot snapshot, string ledger, string key)
+        {
+            return new StateSnapshot(snapshot.Revision, snapshot.Root.With(ledger, DataNode.FromList(new[] { Kit.Str(key) })));
+        }
+
+        private static string Rows(GameState state)
+        {
+            var rows = new List<string>();
+            foreach (var a in state.Appointments.Rows) rows.Add(a.Id + ":" + a.Status + ":" + a.AcceptedAt);
+            return string.Join(",", rows);
+        }
+
+        private static void AcceptsInTheTypedState()
+        {
+            var rig = new ReservationRig(Kit.Event("event.one"), Kit.Event("event.done", completion: "node.done"),
+                Kit.Event("event.drill", completion: "node.done", repeat: RepeatPolicy.Practice));
+            var empty = Kit.Snapshot(1).TypedState();
+
+            var created = rig.Service.Accept(empty, "event.one");
+            Spec.Equal("event.one:Accepted:420", Rows(created.Value), "new row is Accepted at the current absolute minute");
+
+            var offered = Kit.Snapshot(2, Kit.Row("event.one", "Offered", 3)).TypedState();
+            Spec.Equal("event.one:Accepted:420", Rows(rig.Service.Accept(offered, "event.one").Value), "offered becomes accepted in place");
+
+            var accepted = Kit.Snapshot(3, Kit.Row("event.one", "Ready", 100), Kit.Row("event.done", "Accepted", 7)).TypedState();
+            Spec.Equal("event.one:Ready:100,event.done:Accepted:7", Rows(rig.Service.Accept(accepted, "event.one").Value), "accept is idempotent and keeps the original time");
+
+            Spec.Equal(ResultCodes.RefNotFound, rig.Service.Accept(empty, "event.nope").Result.Code, "unknown event");
+            Spec.Equal(ResultCodes.ContentInvalid, rig.Service.Accept(empty, "Bad Id").Result.Code, "malformed id");
+
+            foreach (var ledger in new[] { "completed", "rewardLedger" })
+            {
+                var spent = Spent(Kit.Snapshot(4), ledger, "node.done").TypedState();
+                Spec.Equal(ResultCodes.ConditionFalse, rig.Service.Accept(spent, "event.done").Result.Code, "a key consumed in " + ledger + " blocks the accept");
+                Spec.Equal("event.drill:Accepted:420", Rows(rig.Service.Accept(spent, "event.drill").Value), "practice events never spend their key (" + ledger + ")");
+            }
         }
 
         private static void CompleteRemovesOnlyTheMatchingReservation()

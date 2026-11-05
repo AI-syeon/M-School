@@ -47,7 +47,8 @@ namespace MagicCampus.Events
         public TickClock Clock { get; set; }
         public IEventCommitPlanner CommitPlanner { get; set; }
         public IStateStore Store { get; set; }
-        public IWorldStateProjector Projector { get; set; }
+        /// <summary>Commits the live actor positions under the given transaction; capture and commit happen in this one call.</summary>
+        public Func<TransactionId, Outcome<StateSnapshot>> ProjectWorld { get; set; }
         public ISceneRecovery Recovery { get; set; }
         public ISafeBoundaryPolicy Boundaries { get; set; }
         public ISaveService Saves { get; set; }
@@ -78,7 +79,7 @@ namespace MagicCampus.Events
             Need(Clock, nameof(Clock));
             Need(CommitPlanner, nameof(CommitPlanner));
             Need(Store, nameof(Store));
-            Need(Projector, nameof(Projector));
+            Need(ProjectWorld, nameof(ProjectWorld));
             Need(Recovery, nameof(Recovery));
             Need(Boundaries, nameof(Boundaries));
             Need(Saves, nameof(Saves));

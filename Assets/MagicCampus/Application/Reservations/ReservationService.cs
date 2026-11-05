@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MagicCampus.Contracts;
 using MagicCampus.Persistence;
+using MagicCampus.State;
 
 namespace MagicCampus.Application.Reservations
 {
@@ -62,7 +63,7 @@ namespace MagicCampus.Application.Reservations
                         AppointmentCodec.Pointer + "/" + index + "/id", row.Id, "known event", row.Id));
                     continue;
                 }
-                if (ReservationRules.IsCompleted(ev, snapshot, ledger)) continue;
+                if (IsSpent(ev, state)) continue;
                 list.Add(new StartCandidate(row.Id, row.Id, row.Status, ReservationRules.Priority(ev), row.AcceptedAt, index));
             }
 
@@ -106,6 +107,30 @@ namespace MagicCampus.Application.Reservations
             });
             return Outcome<PlannedChange>.Ok(new PlannedChange(ReservationParticipant.Id, ReservationParticipant.AcceptOperation, payload), basis.Revision);
         }
+
+        /// <summary>A new or Offered invitation becomes Accepted at the current minute unless its once key is consumed; an Accepted or Ready one keeps its time.</summary>
+        public Outcome<GameState> Accept(GameState state, string reservationId)
+        {
+            if (state == null) throw new ArgumentNullException(nameof(state));
+            if (!AppointmentCodec.IsValidId(reservationId))
+                return Outcome<GameState>.Fail(ResultCodes.ContentInvalid, 0,
+                    ReservationRules.Diag(ResultCodes.ContentInvalid, "reservation id is not a valid event id", AppointmentCodec.Pointer, reservationId, "dotted lowercase event id", reservationId ?? "null"));
+
+            var ev = catalog.Current.FindEvent(reservationId);
+            if (ev == null)
+                return Outcome<GameState>.Fail(ResultCodes.RefNotFound, 0,
+                    ReservationRules.Diag(ResultCodes.RefNotFound, "event is not in the catalog", AppointmentCodec.Pointer, reservationId, "known event", reservationId));
+
+            var existing = state.Appointments.Find(reservationId);
+            if ((existing == null || existing.Status == ReservationStatus.Offered) && IsSpent(ev, state))
+                return Outcome<GameState>.Fail(ResultCodes.ConditionFalse, 0,
+                    ReservationRules.Diag(ResultCodes.ConditionFalse, "the shared completion key is already completed", AppointmentCodec.Pointer, reservationId, "not completed", ev.OnceKey.Value));
+
+            return Outcome<GameState>.Ok(state.With(state.Appointments.Accept(reservationId, state.Clock.AbsoluteMinute)), 0);
+        }
+
+        /// <summary>The once rule for invitations: practice events never spend their key.</summary>
+        private static bool IsSpent(CompiledEvent ev, GameState state) => ev.Repeat != RepeatPolicy.Practice && state.Progress.IsConsumed(ev.OnceKey);
 
         private static int Compare(StartCandidate a, StartCandidate b)
         {

@@ -54,11 +54,10 @@ namespace MagicCampus.Tests.FirstConnectionData
             Check(service.CurrentDestination("npc.serin",new GameTime(800,0)).Value.DestinationId=="dest.notice","real compiled current schedule");
             Check(service.CurrentDestination("npc.serin",new GameTime(1440+10,0)).Value.DestinationId=="dest.serin_home","midnight uses current day schedule");
             var initial=new StateSnapshot(0,Read(Root+"base/save-offered.json").Root);
-            var registry=new StateParticipantRegistry(); registry.Register(new ReservationParticipant(provider,new StateCompletionLedger())); registry.Seal();
+            var registry=new StateParticipantRegistry(); registry.Seal();
             var pump=new CompletionPump(); var store=new StateStore(initial,registry,new[]{new SaveStateValidator(compiled,SchemaRoot,Schema)},pump);
             var reservations=new ReservationService(provider,new MagicCampus.Timekeeping.Calendar(),new StateCompletionLedger());
-            var accepted=reservations.PlanAccept("event.snack",store.Current); Check(accepted.Succeeded,"accept plan");
-            Check(store.Commit(new StatePlan(new TransactionId("fixture.accept"),null,store.Current.Revision,new[]{accepted.Value})).Succeeded,"actual accept full-schema commit");
+            Check(store.Commit(new TransactionId("fixture.accept"),s=>reservations.Accept(s,"event.snack")).Succeeded,"actual accept full-schema commit");
             Check(reservations.Candidates(store.Current).Any(c=>c.EventId=="event.snack"),"actual accepted candidate");
             var restorer=new SaveRestorer(Codec,Schema,SchemaRoot,c=>new SaveStateValidator(c,SchemaRoot,Schema));
             var saveCodec=new SaveCodec(Codec); var sealedSave=saveCodec.Seal(store.Current,1);
