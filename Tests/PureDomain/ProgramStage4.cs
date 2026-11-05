@@ -6,6 +6,8 @@ public static class ProgramStage4
         int failures = 0;
         void Run(string name, Action test) { try { test(); Console.WriteLine("PASS " + name); } catch(Exception e) { failures++; Console.WriteLine("FAIL " + name + " " + e); } }
         Run("Persistence", MagicCampus.Tests.PureDomain.PersistenceTests.PersistenceSpecs.Run);
+        Run("SaveDocumentRoundTrip", MagicCampus.Tests.PureDomain.PersistenceTests.GameStateSpecs.RunRoundTrip);
+        Run("GameStateTransitions", MagicCampus.Tests.PureDomain.PersistenceTests.GameStateSpecs.RunTransitions);
         Run("Schedules", MagicCampus.Tests.PureDomain.Schedules.SchedulesSpecs.Run);
         Run("Events", MagicCampus.Tests.Events.EventRunnerSpecs.Run);
         Run("FirstConnectionData", MagicCampus.Tests.FirstConnectionData.FirstConnectionDataSpecs.Run);
