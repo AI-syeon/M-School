@@ -38,6 +38,7 @@
       "initial": false
     }
   ],
+  "bed": { "mapId": "map.courtyard", "x": 0.5, "y": 0.5 },
   "maps": [
     {
       "id": "map.courtyard",

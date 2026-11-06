@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 # powershell -File passes "a,b" as one string; split it here.
 $Cases = @($Cases | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-$known = @('success-notes','success-tea','moved','a10','intro-false','cancel','day-save','ui-long','ui-200')
+$known = @('success-notes','success-tea','moved','a10','intro-false','cancel','day-save','pass-out','ui-long','ui-200')
 $exe = Get-PlayerExe $Build
 if (-not (Test-Path $exe)) { throw "Missing $exe; run build.ps1 first" }
 $root = New-RunDir $Run

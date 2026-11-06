@@ -71,6 +71,7 @@ namespace MagicCampus.Game
                 case "intro-false": return IntroFalse();
                 case "cancel": return Cancel();
                 case "day-save": return DaySave();
+                case "pass-out": return PassOut();
                 case "ui-long": case "ui-200": return Ui();
                 default: throw new InvalidOperationException("unknown probe case " + mode);
             }
@@ -137,8 +138,17 @@ namespace MagicCampus.Game
             root.AcceptAndStart(ev);
             yield return PlayEvent("notes", false);
             var wallet = G.State.Wallet;
-            Step("root.EndDay()");
-            root.EndDay();
+            Step("place the player next to the bed");
+            World.Place(G.Player, new Spot { MapId = G.Content.Bed.MapId, X = G.Content.Bed.X + 0.5, Y = G.Content.Bed.Y + 0.5 });
+            yield return Press(Key.E);
+            yield return Frames(2);
+            Expect("sleep.prompt", root.SleepPromptOpen && G.State.Day == 0, "prompt " + root.SleepPromptOpen);
+            yield return Shot("sleep-prompt");
+            yield return Press(Key.Enter);
+            Expect("sleep.woke-at-bed", G.LastDayEnd == DayEnd.Slept && !root.SleepPromptOpen && World.Distance(G.Player, G.Content.Bed) < 1e-6,
+                G.Player.MapId + " " + G.Player.X + "," + G.Player.Y);
+            yield return Frames(10);
+            yield return Shot("morning");
             Expect("day-save.file", File.Exists(root.SavePath), root.SavePath);
             var saved = SaveFile.Read(root.SavePath);
             Expect("day-save.contents", saved != null && saved.Day == 1 && saved.Minute == Clock.DayStart && saved.Wallet == wallet && saved.Completed.Contains(ev) && !saved.Appointments.ContainsKey(ev),
@@ -149,6 +159,23 @@ namespace MagicCampus.Game
             Expect("day-save.event-refused", !G.StartEvent(ev) && G.Event == null && G.State.Wallet == wallet, "wallet " + G.State.Wallet);
             yield return Frames(10);
             yield return Shot("day-save");
+        }
+
+        IEnumerator PassOut()
+        {
+            Step("set the clock to 01:58 of the night");
+            G.State.Minute = Clock.PassOutAt - 2;
+            yield return Frames(2);
+            Expect("pass-out.hud-hour", G.State.Day == 0 && G.State.Minute >= Clock.MinutesPerDay, "minute " + G.State.Minute);
+            yield return Shot("night");
+            yield return Until(() => G.State.Day == 1, "02:00", 10);
+            yield return Frames(10);
+            var saved = SaveFile.Read(root.SavePath);
+            Expect("pass-out.day-ended", G.LastDayEnd == DayEnd.PassedOut && G.State.Minute == Clock.DayStart && World.Distance(G.Player, G.Content.Bed) < 1e-6,
+                "minute " + G.State.Minute + " at " + G.Player.X + "," + G.Player.Y);
+            Expect("pass-out.saved", saved != null && saved.Day == 1, root.SavePath);
+            Expect("pass-out.status", root.Status.Contains("쓰러져"), root.Status);
+            yield return Shot("pass-out");
         }
 
         IEnumerator Ui()

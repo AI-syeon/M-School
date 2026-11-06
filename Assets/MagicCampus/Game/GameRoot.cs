@@ -17,7 +17,7 @@ namespace MagicCampus.Game
     /// </summary>
     public sealed class GameRoot : MonoBehaviour
     {
-        enum Panel { None, Invite, Journal }
+        enum Panel { None, Invite, Journal, Sleep }
 
         string variant = "base", initial = "start-offered.json", saveDir, contentDir, fixture;
         bool fresh;
@@ -42,6 +42,7 @@ namespace MagicCampus.Game
         public string Error { get; private set; }
         public bool MenuOpen { get; private set; }
         public bool PanelOpen => panel != Panel.None;
+        public bool SleepPromptOpen => panel == Panel.Sleep;
         public IReadOnlyList<string> PanelEvents => panelEvents;
         public float TextScale { get => styles.TextScale; set => styles.TextScale = value; }
 
@@ -142,6 +143,12 @@ namespace MagicCampus.Game
                 }
                 return;
             }
+            if (panel == Panel.Sleep)
+            {
+                if (Pressed(Key.Enter) || Pressed(Key.Space) || Pressed(Key.Y)) Sleep();
+                if (Pressed(Key.N)) panel = Panel.None;
+                return;
+            }
             if (panel != Panel.None)
             {
                 if (Pressed(Key.UpArrow) || Pressed(Key.W)) selected = Math.Max(0, selected - 1);
@@ -160,6 +167,11 @@ namespace MagicCampus.Game
 
         void Interact()
         {
+            if (Game.NearBed)
+            {
+                OpenPanel(Panel.Sleep, "잠자리", new List<string>());
+                return;
+            }
             var invites = Game.Interact();
             if (invites.Count == 0) SetStatus("근처에 상호작용할 대상이 없습니다.");
             else OpenPanel(Panel.Invite, "초대 · " + Name(invites[0].NpcId), invites.Select(i => i.EventId).ToList());
@@ -195,11 +207,11 @@ namespace MagicCampus.Game
             SetStatus("이벤트를 취소했습니다. 약속은 그대로 남아 있습니다.");
         }
 
-        /// <summary>The menu's "하루 마치기": the next day starts at 07:00 and the game saves.</summary>
-        public void EndDay()
+        /// <summary>The bed prompt's "잔다": ends the day through Core's EndDay(Slept).</summary>
+        public void Sleep()
         {
-            Game.EndDay();
-            MenuOpen = false;
+            panel = Panel.None;
+            Game.EndDay(DayEnd.Slept);
             WatchProgress();
         }
 
@@ -225,7 +237,9 @@ namespace MagicCampus.Game
             }
             if (Game.State.Day == watchedDay) return;
             watchedDay = Game.State.Day;
-            SetStatus((watchedDay + 1) + "일 아침입니다. 하루를 저장했습니다.");
+            panel = Panel.None;
+            SetStatus((Game.LastDayEnd == DayEnd.PassedOut ? "새벽 2시에 쓰러져 잠들었습니다. " : "푹 잤습니다. ")
+                + (watchedDay + 1) + "일 아침입니다. 하루를 저장했습니다.");
         }
 
         string Name(string id) => Game.Content.Npcs.FirstOrDefault(n => n.Id == id)?.Name ?? id;
@@ -267,7 +281,8 @@ namespace MagicCampus.Game
             if (Game != null) DrawHud(new Rect(4, 4, w - 8, hudH));
             if (Error != null) DrawError(new Rect(4, h * 0.7f - 4, w - 8, h * 0.3f));
             if (Game == null) return;
-            if (panel != Panel.None) DrawPanel(new Rect(4, hudH + 8f, w - 8, Mathf.Max(60f, h - hudH - 16f)));
+            if (panel == Panel.Sleep) DrawSleep(w, h);
+            else if (panel != Panel.None) DrawPanel(new Rect(4, hudH + 8f, w - 8, Mathf.Max(60f, h - hudH - 16f)));
             var d = Game.Dialogue;
             if (d != null)
             {
@@ -287,13 +302,13 @@ namespace MagicCampus.Game
             hudScroll = Scroll(hudScroll);
             GUILayout.Label("매직캠퍼스 · 첫 약속", styles.Bold);
             var s = Game.State;
-            GUILayout.Label((s.Day + 1) + "일 " + (s.Minute / 60).ToString("00") + ":" + (s.Minute % 60).ToString("00") + " · 소지금 " + s.Wallet + " 크라운", styles.Label);
+            GUILayout.Label((s.Day + 1) + "일 " + (s.Minute / 60 % 24).ToString("00") + ":" + (s.Minute % 60).ToString("00") + " · 소지금 " + s.Wallet + " 크라운", styles.Label);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("일지(J)", styles.Button, GUILayout.ExpandWidth(false))) OpenPanel(Panel.Journal, "일지 · 약속", s.Appointments.Keys.ToList());
             if (GUILayout.Button("메뉴(Esc)", styles.Button, GUILayout.ExpandWidth(false))) MenuOpen = true;
             GUILayout.EndHorizontal();
             GUILayout.Label(Status, styles.Label);
-            GUILayout.Label("WASD 이동 · E 상호작용 · J 일지 · X 취소 · Esc 메뉴 · F9 마지막 저장 불러오기", styles.Label);
+            GUILayout.Label("WASD 이동 · E 상호작용(침대에서 잠자기) · J 일지 · X 취소 · Esc 메뉴 · F9 마지막 저장 불러오기", styles.Label);
             GUILayout.EndScrollView();
             GUILayout.EndArea();
         }
@@ -340,6 +355,23 @@ namespace MagicCampus.Game
             GUILayout.EndArea();
         }
 
+        void DrawSleep(float w, float h)
+        {
+            var mw = Mathf.Min(w - 16f, styles.HudSize * 18f);
+            var mh = Mathf.Min(h - 16f, styles.HudSize * 8f);
+            var r = new Rect((w - mw) / 2f, (h - mh) / 2f, mw, mh);
+            GUI.Box(r, GUIContent.none, styles.Box);
+            GUI.Box(r, GUIContent.none, styles.Box);
+            GUILayout.BeginArea(new Rect(r.x + 8, r.y + 8, r.width - 16, r.height - 16));
+            GUILayout.Label("잠자리에 들까요?", styles.Bold);
+            GUILayout.Label("하루를 마치고 저장합니다. 다음 날 07:00에 여기서 일어납니다.", styles.Label);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("잔다 (Enter)", styles.Button)) Sleep();
+            if (GUILayout.Button("아니요 (Esc)", styles.Button)) panel = Panel.None;
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+        }
+
         void DrawMenu(float w, float h)
         {
             var mw = Mathf.Min(w - 16f, styles.HudSize * 18f);
@@ -351,9 +383,6 @@ namespace MagicCampus.Game
             menuScroll = Scroll(menuScroll);
             GUILayout.Label("메뉴 (게임 일시정지)", styles.Bold);
             if (GUILayout.Button("계속하기", styles.Button)) MenuOpen = false;
-            GUI.enabled = Game.Event == null;
-            if (GUILayout.Button("하루 마치기 (저장)", styles.Button)) EndDay();
-            GUI.enabled = true;
             if (GUILayout.Button("마지막 저장 불러오기 (F9)", styles.Button)) Reload();
             if (GUILayout.Button("글자 크기 1배", styles.Button)) TextScale = 1f;
             if (GUILayout.Button("글자 크기 2배", styles.Button)) TextScale = 2f;

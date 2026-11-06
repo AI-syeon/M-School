@@ -1,13 +1,13 @@
 ---
 name: verify-magiccampus
-description: MagicCampus Unity 게임(Windows 실행 파일)을 빌드하고 실제 WindowsPlayer 프로세스로 실행해 변경이 동작함을 증명할 때 쓴다. 걸어가서 E로 초대 열기·수락·이벤트 진행·선택지·취소·조건 불충족·하루 마치기 저장과 다시 불러오기·긴 대사창을 내장 probe 시나리오로 구동하고 result.json·스크린샷·저장 파일을 증거로 남긴다. 게임 코드·콘텐츠·자산을 바꾼 뒤 "실제 게임에서 되는지" 확인해야 할 때 사용한다.
+description: MagicCampus Unity 게임(Windows 실행 파일)을 빌드하고 실제 WindowsPlayer 프로세스로 실행해 변경이 동작함을 증명할 때 쓴다. 걸어가서 E로 초대 열기·수락·이벤트 진행·선택지·취소·조건 불충족·침대 취침·새벽 2시 기절과 저장·다시 불러오기·긴 대사창을 내장 probe 시나리오로 구동하고 result.json·스크린샷·저장 파일을 증거로 남긴다. 게임 코드·콘텐츠·자산을 바꾼 뒤 "실제 게임에서 되는지" 확인해야 할 때 사용한다.
 ---
 
 # MagicCampus 실행 검증
 
 MagicCampus는 Unity 6000.6.3f1 Windows 게임이다. 화면은 960×640 창 하나다. 규칙은 `Assets/MagicCampus/Core`(Unity 없음)에 있고 `Tests/Core`가 검사한다. 이 스킬은 그 규칙이 Unity 화면·입력·디스크와 함께 실제로 도는지를 **빌드한 실행 파일**로 증명한다.
 
-조작 수단은 게임에 내장된 probe다(`Assets/MagicCampus/Game/Probe.cs`). 실행 파일에 `--probe <케이스>`를 주면 가상 키보드로 W·E·Enter·방향키·Esc·F9를 누르고, 초대 창의 `수락 후 시작`과 메뉴의 `하루 마치기`는 화면 버튼과 같은 공개 메서드(`GameRoot.AcceptAndStart`, `GameRoot.EndDay`)로 부른다. 상태를 검사하고 스크린샷을 찍은 뒤 `result.json`을 쓰고 스스로 종료한다(통과 0, 실패 1).
+조작 수단은 게임에 내장된 probe다(`Assets/MagicCampus/Game/Probe.cs`). 실행 파일에 `--probe <케이스>`를 주면 가상 키보드로 W·E·Enter·방향키·Esc·F9를 누르고, 초대 창의 `수락 후 시작`은 화면 버튼과 같은 공개 메서드(`GameRoot.AcceptAndStart`)로 부른다. 상태를 검사하고 스크린샷을 찍은 뒤 `result.json`을 쓰고 스스로 종료한다(통과 0, 실패 1).
 
 모든 명령은 프로젝트 루트(`C:\Users\syeon\Workspace\MagicCampus`)에서 PowerShell 5.1로 실행한다. 스크립트 경로는 `.claude\skills\verify-magiccampus\scripts\`다.
 
@@ -40,7 +40,7 @@ powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scrip
 ```
 powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scripts\run-probe.ps1 -Cases success-notes,cancel -Build Stage5-verify -Run <run-id>
 ```
-- 케이스: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save` `ui-long` `ui-200`. 케이스별 `--variant`, `--initial`은 스크립트가 붙인다.
+- 케이스: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save` `pass-out` `ui-long` `ui-200`. 케이스별 `--variant`, `--initial`은 스크립트가 붙인다.
 - 출력은 케이스마다 `pass=True exit=0 checks=N failedChecks=0` 한 줄이다. 실패한 검사는 `FAIL 이름: 상세`, 예외는 `ERROR`로 나온다. 하나라도 실패하면 종료 코드 1이다.
 - 케이스 하나가 90초 안에 끝나지 않으면 스크립트가 띄운 그 PID만 종료하고 `TIMEOUT`을 보고한다.
 - 기능별 검사 이름과 절차는 [features/README.md](features/README.md)에 있다.
@@ -58,10 +58,10 @@ powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scrip
 ## Evidence
 
 - 위치: `Tests\Results\verify\<run-id>\<case>\`(일반 플레이는 `...\<run-id>\play\`). 빌드 로그는 `Tests\Results\verify\build-<시각>\`.
-- 케이스 폴더: `result.json`(검사 목록과 상세, 예외, probe가 누른 키와 부른 메서드 `steps`), `final.json`(끝 상태, 저장 형식 그대로), `*.png` 스크린샷, `save\save.json`(day-save만), `player.log`, `pid.txt`, `process-result.json`.
+- 케이스 폴더: `result.json`(검사 목록과 상세, 예외, probe가 누른 키와 부른 메서드 `steps`), `final.json`(끝 상태, 저장 형식 그대로), `*.png` 스크린샷, `save\save.json`(day-save, pass-out), `player.log`, `pid.txt`, `process-result.json`.
 - 증명 기준:
   - 동작과 결과 상태를 함께 남긴다. 선택지 스크린샷(`choose.png`)과 그 뒤 소지금·시계·완료 검사를 같이 둔다.
-  - 저장은 하루를 마칠 때만 일어난다. `day-save`가 `save\save.json`을 실제로 쓰고, 그 파일로 새 `Core.Game`을 만들어 다시 읽는다. 다른 프로세스에서 다시 읽는 검사는 없다.
+  - 저장은 하루를 마칠 때(침대 취침 또는 새벽 2시 기절)만 일어난다. `day-save`가 `save\save.json`을 실제로 쓰고, 그 파일로 새 `Core.Game`을 만들어 다시 읽는다. 다른 프로세스에서 다시 읽는 검사는 없다.
   - `ui-long`·`ui-200`의 글자 잘림·겹침은 사람이 PNG를 보고 따로 판단한다. `pass=True`만으로 "UI 품질 통과"라고 쓰지 않는다.
   - `result.json`이 `pass=true`이고 종료 코드가 0일 때만 "통과"라고 쓴다.
 

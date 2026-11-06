@@ -71,6 +71,7 @@ static class Program
             foreach (var portal in map.Portals)
                 Standable(portal.To, portal.Id + " arrival");
         foreach (var d in c.Destinations) Standable(d.Position, d.Id);
+        Rule(c.Bed != null && Standable(c.Bed, "bed"), "bed exists");
         foreach (var npc in c.Npcs)
         {
             Rule(Dest(npc.Home), npc.Id + " home exists");
@@ -329,21 +330,31 @@ static class Program
     {
         var g = NewGame("start-accepted.json");
         g.StartEvent("event.snack");
+        Check("day end: refused while an event runs (R4)", !g.EndDay(DayEnd.Slept) && g.State.Day == 0);
         Play(g, 0);
         Check("day end: finishing an event does not save (E2)", !File.Exists(g.SavePath));
-        g.EndDay();
-        Check("day end: next day starts at 07:00 with the NPC home and the file saved",
-            g.State.Day == 1 && g.State.Minute == 420 && At(g.Actor("npc.serin"), "map.courtyard", 1.5, 4.5) && File.Exists(g.SavePath));
+        Check("bed: the player in the lounge is not near the bed", !g.NearBed);
+        World.Place(g.Player, g.Content.Bed);
+        Check("bed: standing on the bed is near it", g.NearBed);
+        Check("sleep: EndDay(Slept) ends the day", g.EndDay(DayEnd.Slept) && g.LastDayEnd == DayEnd.Slept);
+        Check("sleep: next day starts at 07:00 at the bed with the NPC home and the file saved",
+            g.State.Day == 1 && g.State.Minute == 420 && At(g.Player, "map.courtyard", 0.5, 0.5)
+            && At(g.Actor("npc.serin"), "map.courtyard", 1.5, 4.5) && File.Exists(g.SavePath));
         var reloaded = Game.Open(Base, Path.Combine(Base, "start-offered.json"), g.SavePath);
         Check("day end: reload gives the same state", SaveFile.ToJson(reloaded.State) == SaveFile.ToJson(g.State)
-            && reloaded.State.Wallet == 220 && At(reloaded.Player, "map.lounge", 0.5, 2.5));
+            && reloaded.State.Wallet == 220 && At(reloaded.Player, "map.courtyard", 0.5, 0.5));
         Check("day end: the event stays refused after reload", !reloaded.StartEvent("event.snack"));
 
         var night = NewGame("start-offered.json", minute: Clock.MinutesPerDay - 2);
+        Run(night, 3);
+        Check("clock: midnight does not end the day", night.State.Day == 0 && night.State.Minute > Clock.MinutesPerDay);
+        night.State.Minute = Clock.PassOutAt - 2;
         Run(night, 1.5);
-        Check("clock: one real second is one game minute", night.State.Minute == Clock.MinutesPerDay - 1 && night.State.Day == 0);
+        Check("clock: one real second is one game minute", night.State.Minute == Clock.PassOutAt - 1 && night.State.Day == 0);
         Run(night, 1);
-        Check("clock: midnight starts the next day and saves", night.State.Day == 1 && night.State.Minute == 420 && File.Exists(night.SavePath));
+        Check("pass out: 02:00 ends the day at the bed and saves",
+            night.State.Day == 1 && night.State.Minute == 420 && night.LastDayEnd == DayEnd.PassedOut
+            && At(night.Player, "map.courtyard", 0.5, 0.5) && File.Exists(night.SavePath));
     }
 
     static void SaveFallsBackToBak()

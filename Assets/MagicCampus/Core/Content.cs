@@ -121,6 +121,8 @@ namespace MagicCampus.Core
         public List<ScheduleDef> Schedules = new List<ScheduleDef>();
         public List<EventDef> Events = new List<EventDef>();
         [JsonIgnore] public List<RecipeDef> Recipes = new List<RecipeDef>();
+        /// <summary>Where the player sleeps and where every new day starts.</summary>
+        public Spot Bed;
 
         public static Content Load(string dir)
         {

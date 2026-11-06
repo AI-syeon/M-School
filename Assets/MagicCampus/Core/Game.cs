@@ -11,6 +11,7 @@ namespace MagicCampus.Core
     public sealed class Game
     {
         public const double SecondsPerMinute = 1;
+        public const double BedReach = 1;
 
         public readonly Content Content;
         public readonly GameState State;
@@ -20,6 +21,8 @@ namespace MagicCampus.Core
         public Dialogue Dialogue { get; internal set; }
         /// <summary>True while reserved staging moves actors behind a hidden screen.</summary>
         public bool Hidden { get; internal set; }
+        /// <summary>How the last day ended in this session; null until a day ends.</summary>
+        public DayEnd? LastDayEnd { get; private set; }
 
         double inputX, inputY, seconds;
         int scheduledThrough;
@@ -71,7 +74,7 @@ namespace MagicCampus.Core
             State.Minute += minutes;
             Schedule.Run(Content, Npcs, scheduledThrough, State.Minute);
             scheduledThrough = State.Minute;
-            if (State.Minute >= Clock.MinutesPerDay) EndDay();
+            if (State.Minute >= Clock.PassOutAt) EndDay(DayEnd.PassedOut);
         }
 
         /// <summary>Invitations of the nearest NPC whose interact trigger reaches the player.</summary>
@@ -137,16 +140,24 @@ namespace MagicCampus.Core
             foreach (var npc in Npcs) World.WalkTo(Content, npc, Content.Destination(Schedule.DestinationAt(Content, npc.Id, State.Minute)));
         }
 
-        /// <summary>Midnight or "end the day": the next day starts at 07:00 with NPCs at their schedule, then the game saves (E2).</summary>
-        public void EndDay()
+        public bool NearBed => Player.MapId == Content.Bed.MapId && World.Distance(Player, Content.Bed) <= BedReach;
+
+        /// <summary>
+        /// The one way a day ends, whoever calls it: the bed (Slept) or the clock reaching 02:00 (PassedOut). The next day starts
+        /// at 07:00 with the player at the bed and NPCs at their schedule, then the game saves (E2). Refused while an event runs (R4).
+        /// </summary>
+        public bool EndDay(DayEnd how)
         {
-            if (Event != null) return;
+            if (Event != null) return false;
             State.Day++;
             State.Minute = Clock.DayStart;
             seconds = 0;
+            World.Place(Player, Content.Bed, "south");
             Schedule.PlaceAll(Content, Npcs, State.Minute);
             scheduledThrough = State.Minute;
+            LastDayEnd = how;
             SaveFile.Write(SavePath, State);
+            return true;
         }
     }
 }

@@ -8,6 +8,9 @@ namespace MagicCampus.Core
     [JsonConverter(typeof(StringEnumConverter))]
     public enum Appointment { Offered, Accepted }
 
+    /// <summary>How a day ended: the player went to bed, or stayed up until Clock.PassOutAt.</summary>
+    public enum DayEnd { Slept, PassedOut }
+
     /// <summary>Everything the save file holds. NPC positions are not saved: a load places them by schedule.</summary>
     public sealed class GameState
     {
@@ -51,6 +54,8 @@ namespace MagicCampus.Core
     {
         public const int DayStart = 7 * 60;
         public const int MinutesPerDay = 24 * 60;
+        /// <summary>02:00 of the next morning, written as minutes past the day's midnight.</summary>
+        public const int PassOutAt = 26 * 60;
     }
 
     /// <summary>What the dialogue box shows. Choices is null for a line that waits for Advance.</summary>

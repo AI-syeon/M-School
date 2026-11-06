@@ -10,7 +10,8 @@ using UnityEngine.Tilemaps;
 namespace MagicCampus.Game
 {
     /// <summary>
-    /// Draws the player's map: a tilemap (wall on blocked cells, door on portal cells, the map's floor elsewhere), actor sprites
+    /// Draws the player's map: a tilemap (wall on blocked cells, door on portal cells, the bench tile on the bed cell until bed art
+    /// exists, the map's floor elsewhere), actor sprites
     /// animated from Actor.Facing and Actor.Moving, and an integer-scale pixel camera. Art comes from runtime-manifest.json
     /// (top-left rectangles); world y grows upward.
     /// </summary>
@@ -80,13 +81,13 @@ namespace MagicCampus.Game
         public void Draw(Core.Game game, float dt)
         {
             var map = game.Content.Map(game.MapId);
-            if (map.Id != gridMap) BuildMap(map);
+            if (map.Id != gridMap) BuildMap(map, game.Content.Bed);
             camera.cullingMask = game.Hidden ? 0 : ~0;
             foreach (var actor in game.Actors) DrawActor(actor, map.Id, dt);
             PlaceCamera(map);
         }
 
-        void BuildMap(MapDef map)
+        void BuildMap(MapDef map, Spot bed)
         {
             if (grid != null) UnityEngine.Object.Destroy(grid);
             grid = new GameObject("Map:" + map.Id, typeof(Grid));
@@ -97,7 +98,8 @@ namespace MagicCampus.Game
             for (var y = 0; y < map.Height; y++)
                 for (var x = 0; x < map.Width; x++)
                 {
-                    var tile = !World.Passable(map, x, y) ? tiles["wall.school"] : World.PortalAt(map, x, y) != null ? tiles["door"] : floor;
+                    var isBed = bed.MapId == map.Id && (int)Math.Floor(bed.X) == x && (int)Math.Floor(bed.Y) == y;
+                    var tile = !World.Passable(map, x, y) ? tiles["wall.school"] : World.PortalAt(map, x, y) != null ? tiles["door"] : isBed ? tiles["bench"] : floor;
                     tilemap.SetTile(new Vector3Int(x, y, 0), tile);
                 }
             gridMap = map.Id;
