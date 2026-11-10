@@ -12,7 +12,8 @@ namespace MagicCampus.Game
     /// <summary>
     /// Draws the player's map: a tilemap (wall on blocked cells, door on portal cells, the bench tile on the bed cell until bed art
     /// exists, the map's floor elsewhere), actor sprites
-    /// animated from Actor.Facing and Actor.Moving, and an integer-scale pixel camera. Art comes from runtime-manifest.json
+    /// animated from Actor.Facing and Actor.Moving, placeholder squares for magic targets (dark, lit or plain; no art exists yet),
+    /// and an integer-scale pixel camera. Art comes from runtime-manifest.json
     /// (top-left rectangles); world y grows upward.
     /// </summary>
     public sealed class WorldView
@@ -40,6 +41,8 @@ namespace MagicCampus.Game
         readonly Dictionary<string, Tile> tiles = new Dictionary<string, Tile>();
         readonly Dictionary<string, Dictionary<string, Clip>> clips = new Dictionary<string, Dictionary<string, Clip>>();
         readonly Dictionary<string, ActorSprite> actors = new Dictionary<string, ActorSprite>();
+        readonly Dictionary<string, SpriteRenderer[]> targets = new Dictionary<string, SpriteRenderer[]>();
+        Sprite square;
         GameObject grid;
         string gridMap;
 
@@ -84,7 +87,54 @@ namespace MagicCampus.Game
             if (map.Id != gridMap) BuildMap(map, game.Content.Bed);
             camera.cullingMask = game.Hidden ? 0 : ~0;
             foreach (var actor in game.Actors) DrawActor(actor, map.Id, dt);
+            DrawTargets(game, map.Id);
             PlaceCamera(map);
+        }
+
+        /// <summary>Screen position in GUI coordinates (y down) of a world point, for labels drawn by OnGUI.</summary>
+        public Vector2 GuiPoint(double x, double y)
+        {
+            var p = camera.WorldToScreenPoint(new Vector3((float)x, (float)y, 0f));
+            return new Vector2(p.x, Screen.height - p.y);
+        }
+
+        static readonly Color DarkColor = new Color(0.10f, 0.10f, 0.18f), LitColor = new Color(1f, 0.90f, 0.40f), PlainColor = new Color(0.42f, 0.58f, 0.62f);
+
+        /// <summary>One square per target: dark tags show near-black, lit shows warm yellow, anything else teal. A white frame marks the aimed target.</summary>
+        void DrawTargets(Core.Game game, string mapId)
+        {
+            if (square == null)
+            {
+                var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
+                tex.SetPixel(0, 0, Color.white);
+                tex.Apply();
+                square = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+            }
+            var aimed = game.Magic.Aim(3);
+            foreach (var target in game.Content.MagicTargets)
+            {
+                if (!targets.TryGetValue(target.Id, out var parts))
+                {
+                    parts = new SpriteRenderer[2];
+                    for (var i = 0; i < 2; i++)
+                    {
+                        parts[i] = new GameObject("Target:" + target.Id + (i == 0 ? ":frame" : ":body")).AddComponent<SpriteRenderer>();
+                        parts[i].sprite = square;
+                        parts[i].transform.localScale = i == 0 ? new Vector3(0.82f, 0.82f, 1f) : new Vector3(0.68f, 0.68f, 1f);
+                    }
+                    targets[target.Id] = parts;
+                }
+                var tags = game.Magic.Tags(target.Id);
+                parts[1].color = tags.Contains("lit") ? LitColor : tags.Contains("dark") ? DarkColor : PlainColor;
+                parts[0].color = aimed == target ? Color.white : new Color(0f, 0f, 0f, 0.7f);
+                var sorting = Mathf.Clamp(2000 - Mathf.RoundToInt((float)target.Y * PixelsPerUnit), 1, 32000);
+                for (var i = 0; i < 2; i++)
+                {
+                    parts[i].enabled = target.MapId == mapId;
+                    parts[i].sortingOrder = sorting - 1 + i;
+                    parts[i].transform.position = new Vector3(Snap(target.X), Snap(target.Y), 0f);
+                }
+            }
         }
 
         void BuildMap(MapDef map, Spot bed)

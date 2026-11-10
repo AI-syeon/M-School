@@ -366,5 +366,57 @@
       },
       "effects": "set memory.snack_later_done true / currency.add 5"
     }
+  ],
+  "spells": [
+    {"id":"spell.lantern","name":"등불","runes":[1,2],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.levitate","name":"부유","runes":[1,2,3],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.ripple","name":"물결","runes":[2,1],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.ember","name":"불씨","runes":[3,3],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.sprout","name":"싹틔움","runes":[2,3],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.stonecut","name":"돌다듬기","runes":[4,1],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.gust","name":"돌풍","runes":[4,4],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.frost","name":"서리","runes":[2,2],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.echo","name":"메아리","runes":[1,3],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.mend","name":"수선","runes":[3,4],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.mirage","name":"환영","runes":[1,4],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.ward","name":"결계","runes":[2,4],"requirements":[],"allowQuickCast":true,"unlocksQuickCast":false,"range":3},
+    {"id":"spell.quickcast","name":"손짓 새기기","runes":[3,2,1],"requirements":[],"allowQuickCast":false,"unlocksQuickCast":true,"range":3}
+  ],
+  "reactions": [
+    {"id":"protect.person","kind":"Protect","spell":"*","needs":["person"],"add":[],"remove":[],"observe":"사람에게는 마법을 쓸 수 없습니다."},
+    {"id":"protect.private","kind":"Protect","spell":"*","needs":["private"],"add":[],"remove":[],"observe":"남의 물건에는 마법을 쓸 수 없습니다."},
+    {"id":"protect.no_magic","kind":"Protect","spell":"*","needs":["noMagic"],"add":[],"remove":[],"observe":"마법이 듣지 않는 곳입니다."},
+    {"id":"protect.ember_plant","kind":"Protect","spell":"spell.ember","needs":["plant"],"add":[],"remove":[],"observe":"살아 있는 식물에는 불씨가 듣지 않습니다."},
+    {"id":"combo.r1_frost_wet","kind":"Combo","spell":"spell.frost","needs":["wet"],"add":[{"tag":"frozen","seconds":20}],"remove":["wet"],"observe":"젖은 표면이 얼어붙었습니다. 20초 동안 위를 걸을 수 있습니다.","context":"frost.wet_surface"},
+    {"id":"combo.r2_gust_sound","kind":"Combo","spell":"spell.gust","needs":["resonant","sound_source"],"add":[{"tag":"sound_aligned"}],"remove":["sound_source","wind_path"],"observe":"바람이 소리의 방향을 정했습니다. 공명 자물쇠가 돌아갑니다.","context":"gust.sound_lock"},
+    {"id":"combo.r2_echo_wind","kind":"Combo","spell":"spell.echo","needs":["resonant","wind_path"],"add":[{"tag":"sound_aligned"}],"remove":["sound_source","wind_path"],"observe":"바람이 소리의 방향을 정했습니다. 공명 자물쇠가 돌아갑니다.","context":"echo.sound_lock"},
+    {"id":"combo.r3_ward_floating","kind":"Combo","spell":"spell.ward","needs":["floating"],"add":[{"tag":"pinned","seconds":20}],"remove":["floating"],"observe":"떠 있는 물체가 공중에 고정되었습니다. 20초 동안 유지됩니다.","context":"ward.floating_pin"},
+    {"id":"combo.r4_ember_germinating","kind":"Combo","spell":"spell.ember","needs":["seed_dry","germinating"],"add":[{"tag":"husk_open"}],"remove":["germinating","seed_dry"],"observe":"껍질이 열렸습니다. 이제 거둘 수 있습니다.","context":"ember.seed_husk"},
+    {"id":"combo.r5_mirage_lit_record","kind":"Combo","spell":"spell.mirage","needs":["record","lit"],"add":[{"tag":"scene_shown"}],"remove":[],"observe":"기록된 장면이 빛 속에 비칩니다. 조사 단서를 얻었습니다.","context":"mirage.record_scene"},
+    {"id":"combo.r6_mend_shaped","kind":"Combo","spell":"spell.mend","needs":["broken","shaped"],"add":[{"tag":"restored"}],"remove":["broken","shaped"],"observe":"구조물이 복구되었습니다.","context":"mend.joined"},
+    {"id":"combo.r6_stonecut_mended","kind":"Combo","spell":"spell.stonecut","needs":["broken","mended"],"add":[{"tag":"restored"}],"remove":["broken","mended"],"observe":"구조물이 복구되었습니다.","context":"stonecut.joined"},
+    {"id":"react.lantern_dark","kind":"React","spell":"spell.lantern","needs":["dark"],"add":[{"tag":"lit"}],"remove":["dark"],"observe":"어둠이 걷히고 불이 켜졌습니다.","context":"lantern.dark"},
+    {"id":"react.lantern_record","kind":"React","spell":"spell.lantern","needs":["record"],"add":[{"tag":"lit"}],"remove":[],"observe":"기록이 새겨진 곳이 환해졌습니다.","context":"lantern.record"},
+    {"id":"react.lantern_lit","kind":"React","spell":"spell.lantern","needs":["lit"],"add":[],"remove":[],"observe":"이미 불이 켜져 있습니다."},
+    {"id":"react.levitate_warded","kind":"React","spell":"spell.levitate","needs":["warded"],"add":[],"remove":[],"observe":"막이 들어 올리는 것을 막습니다."},
+    {"id":"react.levitate_liftable","kind":"React","spell":"spell.levitate","needs":["liftable"],"add":[{"tag":"floating"}],"remove":[],"observe":"물체가 가볍게 떠올랐습니다.","context":"levitate.lift"},
+    {"id":"react.ripple_wet","kind":"React","spell":"spell.ripple","needs":[],"add":[{"tag":"wet"}],"remove":[],"observe":"표면이 젖었습니다.","context":"ripple.wet"},
+    {"id":"react.ember_seed_dry","kind":"React","spell":"spell.ember","needs":["seed_dry"],"add":[{"tag":"soot"}],"remove":[],"observe":"그을음만 남았습니다. 잃은 것은 없습니다."},
+    {"id":"react.sprout_seed_dry","kind":"React","spell":"spell.sprout","needs":["seed_dry"],"add":[{"tag":"germinating"}],"remove":[],"observe":"씨앗이 발아를 준비합니다.","context":"sprout.seed_ready"},
+    {"id":"react.frost_dry","kind":"React","spell":"spell.frost","needs":[],"add":[],"remove":[],"observe":"젖은 표면이 없습니다."},
+    {"id":"react.stonecut_broken","kind":"React","spell":"spell.stonecut","needs":["broken"],"add":[{"tag":"shaped"}],"remove":[],"observe":"돌이 다듬어졌지만 결합이 없습니다.","context":"stonecut.shaped"},
+    {"id":"react.mend_broken","kind":"React","spell":"spell.mend","needs":["broken"],"add":[{"tag":"mended"}],"remove":[],"observe":"수선했지만 부품이 부족합니다.","context":"mend.mended"},
+    {"id":"react.gust_path","kind":"React","spell":"spell.gust","needs":[],"add":[{"tag":"wind_path","seconds":6}],"remove":[],"observe":"바람길이 6초 동안 열립니다.","context":"gust.wind_path"},
+    {"id":"react.echo_resonant","kind":"React","spell":"spell.echo","needs":["resonant"],"add":[{"tag":"sound_source","seconds":6}],"remove":[],"observe":"소리를 담았습니다. 6초 안에 바람이 필요합니다.","context":"echo.record_sound"},
+    {"id":"react.ward_barrier","kind":"React","spell":"spell.ward","needs":[],"add":[{"tag":"warded"}],"remove":[],"observe":"안전막이 펼쳐졌습니다.","context":"ward.barrier"},
+    {"id":"react.mirage_record","kind":"React","spell":"spell.mirage","needs":["record"],"add":[],"remove":[],"observe":"빛이 부족해 장면이 흐릿합니다."}
+  ],
+  "magicTargets": [
+    {"id":"target.signboard","name":"어두운 안내판","mapId":"map.courtyard","x":2.5,"y":2.5,"tags":["dark"]},
+    {"id":"target.pillar","name":"금 간 기둥","mapId":"map.courtyard","x":4.5,"y":3.5,"tags":["broken"]},
+    {"id":"target.seedpot","name":"마른 씨앗 화분","mapId":"map.courtyard","x":4.5,"y":1.5,"tags":["seed_dry"]},
+    {"id":"target.moss","name":"이끼 덩굴","mapId":"map.courtyard","x":6.5,"y":4.5,"tags":["plant"]},
+    {"id":"target.plaque","name":"기록 명판","mapId":"map.courtyard","x":6.5,"y":1.5,"tags":["record"]},
+    {"id":"target.rune_stone","name":"공명석","mapId":"map.courtyard","x":4.5,"y":5.2,"tags":["resonant"]}
   ]
 }

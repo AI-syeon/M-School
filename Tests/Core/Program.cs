@@ -6,7 +6,7 @@ using System.Linq;
 using MagicCampus.Core;
 using Newtonsoft.Json.Linq;
 
-static class Program
+static partial class Program
 {
     static int failures;
     static readonly string Fc = Path.Combine(FindRoot(), "Assets", "StreamingAssets", "FirstConnection");
@@ -27,6 +27,7 @@ static class Program
         PlayerMovement();
         DayEndSaves();
         SaveFallsBackToBak();
+        MagicTests();
         Directory.Delete(Temp, true);
         Console.WriteLine(failures == 0 ? "ALL PASS" : failures + " FAILED");
         return failures == 0 ? 0 : 1;
@@ -135,6 +136,7 @@ static class Program
                 else Rule(false, e.Id + " effect " + fx.Name + " is handled");
             }
         }
+        p.AddRange(MagicProblems(c));
         return p;
     }
 
@@ -169,7 +171,8 @@ static class Program
                 var ok = map != null && World.Passable(map, (int)Math.Floor(s.Player.X), (int)Math.Floor(s.Player.Y))
                     && s.Flags.All(f => c.Variables.Any(v => v.Id == f.Key && ValueFits(v, f.Value.ToString(Newtonsoft.Json.Formatting.None))))
                     && s.Appointments.Keys.All(id => c.Events.Any(e => e.Id == id))
-                    && s.Completed.All(id => c.Events.Any(e => e.Id == id));
+                    && s.Completed.All(id => c.Events.Any(e => e.Id == id))
+                    && s.KnownSpells.All(id => c.Spell(id) != null);
                 Check("start fixture fits content: " + dir + "/" + Path.GetFileName(file), ok);
             }
         }

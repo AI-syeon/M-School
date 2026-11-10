@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -21,6 +22,32 @@ namespace MagicCampus.Core
         public Dictionary<string, JToken> Flags = new Dictionary<string, JToken>();
         public List<string> Completed = new List<string>();
         public Dictionary<string, Appointment> Appointments = new Dictionary<string, Appointment>();
+        public List<string> KnownSpells = new List<string>();
+        public bool QuickCastUnlocked;
+        /// <summary>Spell id per quick slot (keys 1 to 4); null is an empty slot.</summary>
+        public string[] QuickSlots = new string[Magic.QuickSlotCount];
+        /// <summary>Per spell, the distinct situation contexts it has succeeded in. A list used as a set.</summary>
+        public Dictionary<string, List<string>> SituationLog = new Dictionary<string, List<string>>();
+
+        /// <summary>
+        /// Old saves lack the spell fields and a hand-edited file can hold null or a stale slot: fill defaults, make the slots four
+        /// long, and empty slots that are locked or hold a spell that is gone or cannot be quick cast. Learned ids are kept even
+        /// when this content does not define them, so a bundle without spells does not erase them on the next save.
+        /// </summary>
+        public void NormalizeMagic(Content content)
+        {
+            KnownSpells = (KnownSpells ?? new List<string>()).Where(id => !string.IsNullOrEmpty(id)).Distinct().ToList();
+            SituationLog = SituationLog ?? new Dictionary<string, List<string>>();
+            foreach (var key in SituationLog.Keys.ToList())
+                SituationLog[key] = (SituationLog[key] ?? new List<string>()).Where(c => !string.IsNullOrEmpty(c)).Distinct().ToList();
+            var slots = new string[Magic.QuickSlotCount];
+            for (var i = 0; i < slots.Length && QuickSlots != null && i < QuickSlots.Length; i++)
+            {
+                var spell = QuickSlots[i] == null ? null : content.Spell(QuickSlots[i]);
+                slots[i] = QuickCastUnlocked && spell != null && spell.AllowQuickCast ? spell.Id : null;
+            }
+            QuickSlots = slots;
+        }
     }
 
     public sealed class Actor

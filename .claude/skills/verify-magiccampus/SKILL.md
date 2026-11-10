@@ -40,7 +40,7 @@ powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scrip
 ```
 powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scripts\run-probe.ps1 -Cases success-notes,cancel -Build Stage5-verify -Run <run-id>
 ```
-- 케이스: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save` `pass-out` `ui-long` `ui-200`. 케이스별 `--variant`, `--initial`은 스크립트가 붙인다.
+- 케이스: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save` `pass-out` `ui-long` `ui-200` `spell-lantern` `spell-context` `spell-quick`. 케이스별 `--variant`, `--initial`은 스크립트가 붙인다.
 - 출력은 케이스마다 `pass=True exit=0 checks=N failedChecks=0` 한 줄이다. 실패한 검사는 `FAIL 이름: 상세`, 예외는 `ERROR`로 나온다. 하나라도 실패하면 종료 코드 1이다.
 - 케이스 하나가 90초 안에 끝나지 않으면 스크립트가 띄운 그 PID만 종료하고 `TIMEOUT`을 보고한다.
 - 기능별 검사 이름과 절차는 [features/README.md](features/README.md)에 있다.

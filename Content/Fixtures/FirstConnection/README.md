@@ -4,6 +4,7 @@
 
 - The game (`Assets/MagicCampus/Core`) reads only `runner-bundle.json`, `staging-recipes.json` and the `start-*.json` start states. It does not read schemas, `full-catalog.json` or the manifests, and it does not validate content at run time. `Tests/Core` checks every shipped bundle instead.
 - `start-*.json` are written by hand in the new save format. `build-fixtures.cjs` does not own them.
+- Task 6-4 (2026-11-10) added `spells`, `reactions` and `magicTargets` to `generated/base/runner-bundle.json` and the start state `start-spells.json` (lantern, the quick-cast unlock spell and the combo spells already learned). Both were edited by hand in `generated/`, because the generator above is stale; the build copies `generated/` to `Assets/StreamingAssets/FirstConnection`. The rules are checked by `Tests/Core` (`MagicProblems`) and described in `design/systems/spellcasting.md`.
 - `build-fixtures.cjs` is stale. It still writes the old `save-*.json`, `base/schemas/`, `base/full-catalog.json` and `variants/injections/`, which were deleted, and `manifest.json` and `repro-manifest.json` still list them. Do not run it without first updating it to the new layout.
 
 The rest of this file describes the stage 4-4 generator as it was.

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace MagicCampus.Core
@@ -74,6 +75,54 @@ namespace MagicCampus.Core
         public List<JoinDef> Join = new List<JoinDef>();
     }
 
+    /// <summary>A condition read at cast time. Kind is statAtLeast, levelAtLeast or itemCountAtLeast; Label is the player-facing name.</summary>
+    public sealed class RequirementDef
+    {
+        public string Kind, Id, Label;
+        public int Min;
+    }
+
+    public sealed class SpellDef
+    {
+        public string Id, Name;
+        /// <summary>2 to 5 runes, each 1 to 4. Unique across the bundle; one array may be the start of another.</summary>
+        public int[] Runes = new int[0];
+        public List<RequirementDef> Requirements = new List<RequirementDef>();
+        public bool AllowQuickCast, UnlocksQuickCast;
+        /// <summary>Tiles from the player to a target.</summary>
+        public double Range = 3;
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ReactionKind { Protect, Combo, React }
+
+    public sealed class TagAdd
+    {
+        public string Tag;
+        /// <summary>How long the tag stays, in game seconds. Null keeps it until the targets reset.</summary>
+        public double? Seconds;
+    }
+
+    /// <summary>
+    /// One row of the ordered reaction table. A cast takes the first row whose Spell matches ("*" is every spell) and whose Needs
+    /// are all on the target, checking Protect rows, then Combo rows, then React rows, each in file order.
+    /// </summary>
+    public sealed class ReactionDef
+    {
+        public string Id, Spell, Observe, Context;
+        public ReactionKind Kind;
+        public List<string> Needs = new List<string>();
+        public List<TagAdd> Add = new List<TagAdd>();
+        public List<string> Remove = new List<string>();
+    }
+
+    public sealed class MagicTargetDef
+    {
+        public string Id, Name, MapId;
+        public double X, Y;
+        public List<string> Tags = new List<string>();
+    }
+
     /// <summary>One call of a content call string: <c>!name arg "quoted arg"</c>.</summary>
     public sealed class Command
     {
@@ -120,6 +169,9 @@ namespace MagicCampus.Core
         public List<NpcDef> Npcs = new List<NpcDef>();
         public List<ScheduleDef> Schedules = new List<ScheduleDef>();
         public List<EventDef> Events = new List<EventDef>();
+        public List<SpellDef> Spells = new List<SpellDef>();
+        public List<ReactionDef> Reactions = new List<ReactionDef>();
+        public List<MagicTargetDef> MagicTargets = new List<MagicTargetDef>();
         [JsonIgnore] public List<RecipeDef> Recipes = new List<RecipeDef>();
         /// <summary>Where the player sleeps and where every new day starts.</summary>
         public Spot Bed;
@@ -143,5 +195,6 @@ namespace MagicCampus.Core
         public EventDef Event(string id) => Events.First(e => e.Id == id);
         public RecipeDef Recipe(string eventId) => Recipes.First(r => r.EventId == eventId);
         public VariableDef Variable(string id) => Variables.First(v => v.Id == id);
+        public SpellDef Spell(string id) => Spells.FirstOrDefault(s => s.Id == id);
     }
 }

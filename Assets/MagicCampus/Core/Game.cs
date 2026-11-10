@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -16,6 +17,8 @@ namespace MagicCampus.Core
         public readonly Content Content;
         public readonly GameState State;
         public readonly List<Actor> Npcs;
+        /// <summary>The session's incantation, target tags and last cast. Not saved.</summary>
+        public readonly Magic Magic;
         public readonly string SavePath;
         public EventRun Event { get; private set; }
         public Dialogue Dialogue { get; internal set; }
@@ -23,6 +26,13 @@ namespace MagicCampus.Core
         public bool Hidden { get; internal set; }
         /// <summary>How the last day ended in this session; null until a day ends.</summary>
         public DayEnd? LastDayEnd { get; private set; }
+        /// <summary>
+        /// Reads the current value of a spell requirement, or null when no system provides that kind. Nothing is wired yet
+        /// (see Magic.ProvidedKinds); tests set it to prove the thresholds.
+        /// </summary>
+        public Func<RequirementDef, int?> RequirementProvider { get; set; }
+        /// <summary>World seconds that have run in this session; the clock for tag windows. Paused while an event or a menu holds the world.</summary>
+        public double MagicSeconds { get; private set; }
 
         double inputX, inputY, seconds;
         int scheduledThrough;
@@ -32,6 +42,8 @@ namespace MagicCampus.Core
             Content = content;
             State = state;
             SavePath = savePath;
+            State.NormalizeMagic(content);
+            Magic = new Magic(this);
             Npcs = content.Npcs.Select(n => new Actor { Id = n.Id, Speed = n.Speed }).ToList();
             Schedule.PlaceAll(content, Npcs, state.Minute);
             scheduledThrough = state.Minute;
@@ -42,6 +54,12 @@ namespace MagicCampus.Core
         {
             return new Game(Content.Load(contentDir), SaveFile.Read(savePath) ?? SaveFile.Read(startFixture), savePath);
         }
+
+        /// <summary>Casts a spell by id: the one rule behind both the incantation and the quick slots.</summary>
+        public CastResult TryCastSpell(string spellId) => Magic.Cast(spellId);
+
+        /// <summary>Puts every magic target back to its starting tags. Task 6-1's room reset will call this.</summary>
+        public void ResetMagicTargets() => Magic.ResetTargets();
 
         public Actor Player => State.Player;
         public string MapId => Player.MapId;
@@ -66,8 +84,11 @@ namespace MagicCampus.Core
                 if (Event.Update(this, dt)) EndEvent();
                 return;
             }
+            var mapBefore = Player.MapId;
             World.MovePlayer(Content, Player, inputX, inputY, dt);
+            if (Player.MapId != mapBefore) Magic.Cancel();
             foreach (var npc in Npcs) World.Walk(Content, npc, dt);
+            MagicSeconds += dt;
             seconds += dt;
             var minutes = (int)(seconds / SecondsPerMinute);
             seconds -= minutes * SecondsPerMinute;
@@ -109,6 +130,7 @@ namespace MagicCampus.Core
             var def = Content.Event(eventId);
             if (Event != null || State.Completed.Contains(eventId) || !EventRun.Holds(this, def.When)) return false;
             Event = new EventRun(this, def);
+            Magic.Cancel();
             foreach (var actor in Actors) actor.Moving = false;
             Hidden = true;
             return true;
@@ -152,6 +174,8 @@ namespace MagicCampus.Core
             State.Day++;
             State.Minute = Clock.DayStart;
             seconds = 0;
+            Magic.Cancel();
+            Magic.ResetTargets();
             World.Place(Player, Content.Bed, "south");
             Schedule.PlaceAll(Content, Npcs, State.Minute);
             scheduledThrough = State.Minute;
