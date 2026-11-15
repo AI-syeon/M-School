@@ -36,8 +36,18 @@ if (-not $SkipBuild) {
 if (-not (Test-Path (Join-Path $web 'index.html'))) { throw "No WebGL build at $web" }
 $zip = Join-Path $Project "Builds\MagicCampus-web-$Version.zip"
 if (Test-Path $zip) { Remove-Item $zip -Force }
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::CreateFromDirectory($web, $zip)
+# .NET Framework's ZipFile.CreateFromDirectory writes '\' separators that Linux unzip rejects; write '/' entries by hand.
+Add-Type -AssemblyName System.IO.Compression
+$stream = [IO.File]::Open($zip, [IO.FileMode]::CreateNew)
+$archive = New-Object System.IO.Compression.ZipArchive($stream, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    foreach ($file in Get-ChildItem $web -Recurse -File -Force) {
+        $entryName = $file.FullName.Substring($web.Length + 1).Replace('\', '/')
+        $entry = $archive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
+        $out = $entry.Open(); $in = [IO.File]::OpenRead($file.FullName)
+        try { $in.CopyTo($out) } finally { $in.Dispose(); $out.Dispose() }
+    }
+} finally { $archive.Dispose(); $stream.Dispose() }
 Write-Output ("zip {0} ({1:N1} MB)" -f $zip, ((Get-Item $zip).Length / 1MB))
 
 # 4. Token from Git Credential Manager (same sign-in as git push). Never printed.
@@ -56,6 +66,12 @@ try { $pages = Invoke-RestMethod -Uri "$Api/pages" -Headers $h -Method Get } cat
 $body = '{"build_type":"workflow"}'
 if (-not $pages) { Invoke-RestMethod -Uri "$Api/pages" -Headers $h -Method Post -Body $body -ContentType 'application/json' | Out-Null }
 elseif ($pages.build_type -ne 'workflow') { Invoke-RestMethod -Uri "$Api/pages" -Headers $h -Method Put -Body $body -ContentType 'application/json' | Out-Null }
+# The github-pages environment only lets main deploy; the release event runs on the tag, so allow v* tags too.
+$policies = try { (Invoke-RestMethod -Uri "$Api/environments/github-pages/deployment-branch-policies" -Headers $h).branch_policies } catch { @() }
+if (-not ($policies | Where-Object { $_.name -eq 'v*' -and $_.type -eq 'tag' })) {
+    try { Invoke-RestMethod -Uri "$Api/environments/github-pages/deployment-branch-policies" -Headers $h -Method Post -Body '{"name":"v*","type":"tag"}' -ContentType 'application/json' | Out-Null }
+    catch { Write-Warning "Could not allow v* tags on github-pages: $($_.ErrorDetails.Message). Re-run the workflow from main if the deploy is rejected." }
+}
 
 # 6. Tag, release, upload. Publishing the release triggers the Pages workflow.
 Invoke-Git tag -a $Version -m "Web release $Version" | Out-Null
