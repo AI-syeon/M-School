@@ -8,24 +8,24 @@ $Repo = 'AI-syeon/M-School'
 $Api = "https://api.github.com/repos/$Repo"
 Set-Location $Project
 
-function Git { $out = & git @args 2>&1; if ($LASTEXITCODE -ne 0) { throw "git $($args -join ' ') failed: $out" }; return $out }
+function Invoke-Git { $ErrorActionPreference = 'Continue'; $out = & git.exe @args 2>&1 | ForEach-Object { "$_" }; if ($LASTEXITCODE -ne 0) { throw "git $($args -join ' ') failed: $out" }; return $out }
 
 # 1. Release only committed, pushed work.
-if (Git status --porcelain) { throw 'Working tree has uncommitted changes. Commit them first.' }
-$branch = (Git rev-parse --abbrev-ref HEAD) | Select-Object -First 1
+if (Invoke-Git status --porcelain) { throw 'Working tree has uncommitted changes. Commit them first.' }
+$branch = (Invoke-Git rev-parse --abbrev-ref HEAD) | Select-Object -First 1
 if ($branch -ne 'main') { throw "Release from main only (current: $branch)." }
-Git fetch origin --tags | Out-Null
-$head = (Git rev-parse HEAD) | Select-Object -First 1
-$remote = (Git rev-parse origin/main) | Select-Object -First 1
+Invoke-Git fetch origin --tags | Out-Null
+$head = (Invoke-Git rev-parse HEAD) | Select-Object -First 1
+$remote = (Invoke-Git rev-parse origin/main) | Select-Object -First 1
 if ($head -ne $remote) { throw 'main is not pushed (HEAD differs from origin/main). Push first.' }
 
 # 2. Version: given, or next patch after the newest vX.Y.Z tag (first release v0.1.0).
 if (-not $Version) {
-    $tags = @(Git tag --list 'v*') | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | ForEach-Object { [version]$_.Substring(1) } | Sort-Object
+    $tags = @(Invoke-Git tag --list 'v*') | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' } | ForEach-Object { [version]$_.Substring(1) } | Sort-Object
     if ($tags.Count -eq 0) { $Version = 'v0.1.0' } else { $t = $tags[-1]; $Version = "v$($t.Major).$($t.Minor).$($t.Build + 1)" }
 }
 if ($Version -notmatch '^v\d+\.\d+\.\d+$') { throw "Version must look like v1.2.3: $Version" }
-if (Git tag --list $Version) { throw "Tag $Version already exists." }
+if (Invoke-Git tag --list $Version) { throw "Tag $Version already exists." }
 
 # 3. Build and zip.
 $web = Join-Path $Project 'Builds\Web'
@@ -54,8 +54,8 @@ if (-not $pages) { Invoke-RestMethod -Uri "$Api/pages" -Headers $h -Method Post 
 elseif ($pages.build_type -ne 'workflow') { Invoke-RestMethod -Uri "$Api/pages" -Headers $h -Method Put -Body $body -ContentType 'application/json' | Out-Null }
 
 # 6. Tag, release, upload. Publishing the release triggers the Pages workflow.
-Git tag -a $Version -m "Web release $Version" | Out-Null
-Git push origin $Version | Out-Null
+Invoke-Git tag -a $Version -m "Web release $Version" | Out-Null
+Invoke-Git push origin $Version | Out-Null
 # Draft first so the zip is attached before the "published" event starts the workflow.
 $req = @{ tag_name = $Version; name = "MagicCampus $Version"; body = $Notes; generate_release_notes = $true; draft = $true } | ConvertTo-Json
 $rel = Invoke-RestMethod -Uri "$Api/releases" -Headers $h -Method Post -Body ([Text.Encoding]::UTF8.GetBytes($req)) -ContentType 'application/json; charset=utf-8'
