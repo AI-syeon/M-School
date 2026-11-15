@@ -41,7 +41,11 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 Write-Output ("zip {0} ({1:N1} MB)" -f $zip, ((Get-Item $zip).Length / 1MB))
 
 # 4. Token from Git Credential Manager (same sign-in as git push). Never printed.
-$cred = "protocol=https`nhost=github.com`n`n" | git credential fill
+# PowerShell 5.1 pipes to native programs badly, so feed git a file through cmd.
+$query = [IO.Path]::GetTempFileName()
+[IO.File]::WriteAllText($query, "protocol=https`nhost=github.com`n`n")
+$cred = cmd /c "git credential fill < `"$query`"" 2>$null
+Remove-Item $query
 $token = ($cred | Where-Object { $_ -like 'password=*' } | Select-Object -First 1) -replace '^password=', ''
 if (-not $token) { throw 'No GitHub credential. Run git push once to sign in.' }
 $h = @{ Authorization = "Bearer $token"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28'; 'User-Agent' = 'release-web' }
