@@ -1,0 +1,308 @@
+{
+  "bundles": ["base", "variants/a10-mira", "variants/dest-moved"],
+  "maps": [
+    {
+      "id": "map.courtyard",
+      "name": "중앙 안뜰",
+      "layout": "layout.json",
+      "doors": [
+        { "id": "portal.to_dorm", "cell": [2, 9], "to": "portal.dorm_to_courtyard" },
+        { "id": "portal.to_lounge", "cell": [17, 9], "to": "portal.to_courtyard" },
+        { "id": "portal.to_hall", "cell": [10, 0], "to": "portal.hall_to_courtyard" }
+      ]
+    },
+    {
+      "id": "map.lounge",
+      "name": "학생 휴게실",
+      "layout": "Rooms/room-lounge/layout.json",
+      "fallback": {
+        "floor": "floor.lounge",
+        "rows": [
+          "RRRRRRRRRR",
+          "RWwWWnWwWR",
+          "Rf.....ssR",
+          "R...tt.ssR",
+          "R........R",
+          "R........R",
+          "Rf......fR",
+          "RRRRDRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.to_courtyard", "cell": [4, 0], "to": "portal.to_lounge" }
+      ]
+    },
+    {
+      "id": "map.dorm",
+      "name": "기숙사 방",
+      "layout": "Rooms/room-dorm/layout.json",
+      "fallback": {
+        "floor": "floor.lounge",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RWWwWWnWwWWR",
+          "Rb........dR",
+          "Rb........dR",
+          "R..........R",
+          "R...rrrr...R",
+          "R...rrrr...R",
+          "Rf........fR",
+          "RRRRRDRRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.dorm_to_courtyard", "cell": [5, 0], "to": "portal.to_dorm" }
+      ]
+    },
+    {
+      "id": "map.hall",
+      "name": "본관 복도",
+      "fallback": {
+        "floor": "floor.paving",
+        "rows": [
+          "RRDRRRRDRRRRDRRR",
+          "RW.WwWn.WwWn.WwR",
+          "R..............R",
+          "R..............D",
+          "Rf...dd..dd...fR",
+          "RRRRRRRDRRRRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.hall_to_courtyard", "cell": [7, 0], "to": "portal.to_hall" },
+        { "id": "portal.hall_to_library", "cell": [2, 5], "to": "portal.library_to_hall" },
+        { "id": "portal.hall_to_classroom", "cell": [7, 5], "to": "portal.classroom_to_hall" },
+        { "id": "portal.hall_to_cafeteria", "cell": [12, 5], "to": "portal.cafeteria_to_hall" },
+        { "id": "portal.hall_to_greenhouse", "cell": [15, 2], "to": "portal.greenhouse_to_hall" }
+      ]
+    },
+    {
+      "id": "map.library",
+      "name": "도서관",
+      "fallback": {
+        "floor": "floor.lounge",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RbbwbbbbwbbR",
+          "R..........R",
+          "Rb.dd..dd.bR",
+          "R..........R",
+          "Rb.dd..dd.bR",
+          "R..........R",
+          "Rf........fR",
+          "RRRRRDRRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.library_to_hall", "cell": [5, 0], "to": "portal.hall_to_library" }
+      ]
+    },
+    {
+      "id": "map.classroom",
+      "name": "강의실",
+      "fallback": {
+        "floor": "floor.lounge",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RWwWnnWwWwWR",
+          "R....t.....R",
+          "R..........R",
+          "R.dd.dd.dd.R",
+          "R..........R",
+          "R.dd.dd.dd.R",
+          "R..........R",
+          "RRRDRRRRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.classroom_to_hall", "cell": [3, 0], "to": "portal.hall_to_classroom" }
+      ]
+    },
+    {
+      "id": "map.cafeteria",
+      "name": "학생 식당",
+      "fallback": {
+        "floor": "floor.paving",
+        "rows": [
+          "RRRRRRRRRRRRRR",
+          "RWwWWwWWwWWwWR",
+          "R.dddddddddd.R",
+          "R............R",
+          "R.tt..tt..tt.R",
+          "R............R",
+          "R.tt..tt..tt.R",
+          "Rf..........fR",
+          "RRRRRRRDRRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.cafeteria_to_hall", "cell": [7, 0], "to": "portal.hall_to_cafeteria" }
+      ]
+    },
+    {
+      "id": "map.greenhouse",
+      "name": "온실",
+      "fallback": {
+        "floor": "floor.grass.dark",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RwwwwwwwwwwR",
+          "RT.hh..hh.TR",
+          "R..........R",
+          "D..ff..ff..R",
+          "R..........R",
+          "R.hhh..hhh.R",
+          "RRRRRRRRRRRR"
+        ]
+      },
+      "doors": [
+        { "id": "portal.greenhouse_to_hall", "cell": [0, 3], "to": "portal.hall_to_greenhouse" }
+      ]
+    }
+  ],
+  "fallbackLegend": {
+    "R": { "tile": "roof.school", "blocked": true },
+    "W": { "tile": "wall.school", "blocked": true },
+    "w": { "tile": "window", "blocked": true },
+    "n": { "tile": "notice", "blocked": true },
+    "b": { "tile": "parchment", "blocked": true },
+    "d": { "tile": "bench", "blocked": true },
+    "t": { "tile": "bench", "blocked": true },
+    "f": { "tile": "flowers", "blocked": true },
+    "h": { "tile": "hedge", "blocked": true },
+    "T": { "tile": "tree", "blocked": true },
+    "r": { "tile": "floor.paving", "blocked": false },
+    "s": { "tile": "floor.paving", "blocked": false },
+    "D": { "tile": "door", "blocked": false },
+    ".": { "tile": null, "blocked": false }
+  },
+  "bed": { "mapId": "map.dorm", "x": 2.5, "y": 5.5 },
+  "arrangeable": [
+    {
+      "mapId": "map.dorm",
+      "area": [1, 1, 10, 7],
+      "pieces": [
+        { "id": "bookshelf", "name": "책장", "parts": [ { "prop": "bookshelf", "x": 3, "y": 5 } ] },
+        { "id": "desk", "name": "책상", "surface": [[0, 1], [1, 1], [2, 1]], "lift": 12, "parts": [ { "prop": "desk", "x": 6, "y": 3 } ] },
+        { "id": "wardrobe", "name": "옷장", "parts": [ { "prop": "wardrobe", "x": 9, "y": 5 } ] },
+        { "id": "nightstand", "name": "협탁", "parts": [ { "prop": "nightstand", "x": 1, "y": 4 }, { "prop": "brass-lamp", "x": 1, "y": 4 } ] },
+        { "id": "mirror", "name": "거울", "parts": [ { "prop": "mirror", "x": 10, "y": 2 } ] },
+        { "id": "chest", "name": "상자", "surface": [[1, 0]], "lift": 18, "parts": [ { "prop": "oak-chest", "x": 2, "y": 3 }, { "prop": "candle", "x": 2, "y": 3 } ] },
+        { "id": "stool", "name": "별 의자", "parts": [ { "prop": "star-stool", "x": 8, "y": 1 }, { "prop": "candle", "x": 8, "y": 1 } ] },
+        { "id": "books", "name": "책 더미", "stackable": true, "parts": [ { "prop": "stacked-books", "x": 2, "y": 1 } ] },
+        { "id": "plant-a", "name": "화분 1", "stackable": true, "parts": [ { "prop": "plant", "x": 1, "y": 1 } ] },
+        { "id": "plant-b", "name": "화분 2", "stackable": true, "parts": [ { "prop": "plant", "x": 9, "y": 1 } ] },
+        { "id": "flowers", "name": "꽃 화분", "stackable": true, "parts": [ { "prop": "flower-plant", "x": 10, "y": 1 } ] },
+        { "id": "rug", "name": "러그", "parts": [ { "prop": "star-rug", "x": 2, "y": 1 } ] }
+      ]
+    }
+  ],
+  "destinations": [
+    { "id": "dest.courtyard_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 2.5 }, "facing": "south" },
+    { "id": "dest.notice", "position": { "mapId": "map.courtyard", "x": 10.5, "y": 5.5 }, "facing": "north" },
+    { "id": "dest.lounge_entry", "position": { "mapId": "map.lounge", "x": 4.5, "y": 1.5 }, "facing": "north" },
+    { "id": "dest.snack", "position": { "mapId": "map.lounge", "x": 5.5, "y": 3.5 }, "facing": "west" },
+    { "id": "dest.stage", "position": { "mapId": "map.lounge", "x": 7.5, "y": 4.5 }, "facing": "south" },
+    { "id": "dest.hall_board", "position": { "mapId": "map.hall", "x": 6.5, "y": 3.5 }, "facing": "north" },
+    { "id": "dest.library_desk", "position": { "mapId": "map.library", "x": 3.5, "y": 4.5 }, "facing": "north" },
+    { "id": "dest.classroom_seat", "position": { "mapId": "map.classroom", "x": 3.5, "y": 3.5 }, "facing": "north" },
+    { "id": "dest.cafeteria_table", "position": { "mapId": "map.cafeteria", "x": 3.5, "y": 3.5 }, "facing": "north" },
+    { "id": "dest.greenhouse_bed", "position": { "mapId": "map.greenhouse", "x": 3.5, "y": 2.5 }, "facing": "north" },
+    { "id": "dest.serin_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.mira_home", "position": { "mapId": "map.courtyard", "x": 14.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.ruon_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.doyun_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.eve_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.narin_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.haeon_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.isol_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.or_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.rume_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.bello_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" },
+    { "id": "dest.yuna_home", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 }, "facing": "south" }
+  ],
+  "npcs": [
+    { "id": "npc.serin", "position": { "mapId": "map.courtyard", "x": 8.5, "y": 5.5 } },
+    { "id": "npc.mira", "position": { "mapId": "map.courtyard", "x": 14.5, "y": 5.5 } }
+  ],
+  "magicTargets": [
+    {
+      "id": "target.signboard", "mapId": "map.courtyard", "x": 11.5, "y": 6.5,
+      "look": {
+        "default": "target-signboard-dark",
+        "states": [
+          { "when": ["lit"], "sprite": "target-signboard-lit", "glow": "warm", "glowAt": [0.8, 1.35] }
+        ]
+      }
+    },
+    {
+      "id": "target.pillar", "mapId": "map.courtyard", "x": 6.5, "y": 3.5,
+      "look": {
+        "default": "target-pillar-broken",
+        "states": [
+          { "when": ["restored", "mended"], "sprite": "target-pillar-mended" }
+        ]
+      }
+    },
+    {
+      "id": "target.seedpot", "mapId": "map.courtyard", "x": 5.5, "y": 6.5,
+      "look": {
+        "default": "target-seedpot-dry",
+        "states": [
+          { "when": ["husk_open", "germinating"], "sprite": "target-seedpot-sprout", "glow": "leaf", "glowAt": [0.5, 0.55] }
+        ]
+      }
+    },
+    {
+      "id": "target.moss", "mapId": "map.courtyard", "x": 17.5, "y": 4.5,
+      "look": {
+        "default": "target-moss-plain",
+        "states": [
+          { "when": ["wet", "frozen"], "sprite": "target-moss-bloom", "glow": "bloom", "glowAt": [0.55, 0.5] }
+        ]
+      }
+    },
+    {
+      "id": "target.plaque", "mapId": "map.courtyard", "x": 15.5, "y": 6.5,
+      "look": {
+        "default": "target-plaque-dim",
+        "states": [
+          { "when": ["scene_shown", "lit"], "sprite": "target-plaque-glow", "glow": "echo", "glowAt": [0.5, 0.5] }
+        ]
+      }
+    },
+    {
+      "id": "target.rune_stone", "mapId": "map.courtyard", "x": 14.5, "y": 3.5,
+      "look": {
+        "default": "target-rune-stone-off",
+        "states": [
+          { "when": ["sound_aligned", "sound_source"], "sprite": "target-rune-stone-on", "glow": "rune", "glowAt": [0.5, 0.5] }
+        ]
+      }
+    }
+  ],
+  "targetGlows": {
+    "warm": { "color": "#ffbf4a", "radius": 1.9, "alpha": 0.95 },
+    "leaf": { "color": "#8be85a", "radius": 1.1, "alpha": 0.55 },
+    "bloom": { "color": "#f0b8ff", "radius": 1.2, "alpha": 0.55 },
+    "echo": { "color": "#5ee0ff", "radius": 1.3, "alpha": 0.6 },
+    "rune": { "color": "#8f78ff", "radius": 1.4, "alpha": 0.65 }
+  },
+  "spellEffects": {
+    "default": { "color": "#e8ecf4" },
+    "spell.lantern": { "color": "#ffd24a" },
+    "spell.sprout": { "color": "#7be36a" },
+    "spell.ember": { "color": "#ff8a2e" },
+    "spell.frost": { "color": "#6fe0ff" },
+    "spell.ripple": { "color": "#78a8ff" }
+  },
+  "starts": {
+    "*": { "mapId": "map.courtyard", "x": 8.5, "y": 2.5, "facing": "north" },
+    "start-spells.json": { "mapId": "map.courtyard", "x": 11.5, "y": 4.5, "facing": "north" }
+  },
+  "variantDestinations": {
+    "variants/dest-moved": [
+      { "id": "dest.snack", "position": { "mapId": "map.lounge", "x": 7.5, "y": 3.5 }, "facing": "east" }
+    ]
+  }
+}

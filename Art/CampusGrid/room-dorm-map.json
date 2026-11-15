@@ -1,0 +1,318 @@
+{
+  "schema": 1,
+  "size": [
+    12,
+    9
+  ],
+  "camera": [
+    0,
+    0,
+    12,
+    9
+  ],
+  "allowVisualOverlap": true,
+  "props": [
+    {
+      "id": "wall-rear",
+      "at": [
+        0,
+        7
+      ],
+      "order": 10
+    },
+    {
+      "id": "wall-side",
+      "at": [
+        0,
+        1
+      ],
+      "order": 10
+    },
+    {
+      "id": "wall-side",
+      "at": [
+        11,
+        1
+      ],
+      "order": 10
+    },
+    {
+      "id": "wall-front-left",
+      "at": [
+        0,
+        0
+      ],
+      "order": 1100
+    },
+    {
+      "id": "wall-front-right",
+      "at": [
+        6,
+        0
+      ],
+      "order": 1100
+    },
+    {
+      "id": "canopy-bed",
+      "at": [
+        0,
+        5
+      ]
+    },
+    {
+      "id": "bookshelf",
+      "at": [
+        3,
+        5
+      ]
+    },
+    {
+      "id": "desk",
+      "at": [
+        6,
+        3
+      ]
+    },
+    {
+      "id": "window-seat",
+      "at": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "wardrobe",
+      "at": [
+        9,
+        5
+      ]
+    },
+    {
+      "id": "star-rug",
+      "at": [
+        2,
+        1
+      ],
+      "decorative": true,
+      "order": 5
+    },
+    {
+      "id": "nightstand",
+      "at": [
+        1,
+        4
+      ]
+    },
+    {
+      "id": "mirror",
+      "at": [
+        10,
+        2
+      ]
+    },
+    {
+      "id": "plant",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "flower-plant",
+      "at": [
+        10,
+        1
+      ]
+    },
+    {
+      "id": "lantern",
+      "at": [
+        3,
+        7
+      ],
+      "decorative": true,
+      "order": 900
+    },
+    {
+      "id": "lantern",
+      "at": [
+        9,
+        7
+      ],
+      "decorative": true,
+      "order": 900
+    },
+    {
+      "id": "candle",
+      "at": [
+        2,
+        3
+      ],
+      "decorative": true,
+      "order": 1000
+    },
+    {
+      "id": "green-runner",
+      "at": [
+        5,
+        0
+      ],
+      "decorative": true,
+      "order": 4
+    },
+    {
+      "id": "moon-banner",
+      "at": [
+        2,
+        6
+      ],
+      "decorative": true,
+      "order": 850
+    },
+    {
+      "id": "star-garland",
+      "at": [
+        0,
+        8
+      ],
+      "decorative": true,
+      "order": 920
+    },
+    {
+      "id": "trailing-ivy",
+      "at": [
+        4,
+        7
+      ],
+      "decorative": true,
+      "order": 910
+    },
+    {
+      "id": "trailing-ivy",
+      "at": [
+        10,
+        7
+      ],
+      "decorative": true,
+      "order": 910
+    },
+    {
+      "id": "curtain-pair",
+      "at": [
+        5,
+        7
+      ],
+      "decorative": true,
+      "order": 905
+    },
+    {
+      "id": "oak-chest",
+      "at": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": "star-stool",
+      "at": [
+        8,
+        1
+      ]
+    },
+    {
+      "id": "stacked-books",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "brass-lamp",
+      "at": [
+        1,
+        4
+      ],
+      "decorative": true,
+      "order": 1000
+    },
+    {
+      "id": "sleeping-cat",
+      "at": [
+        7,
+        6
+      ],
+      "decorative": true,
+      "order": 920
+    },
+    {
+      "id": "candle",
+      "at": [
+        8,
+        1
+      ],
+      "decorative": true,
+      "order": 1000
+    },
+    {
+      "id": "plant",
+      "at": [
+        9,
+        1
+      ],
+      "decorative": false
+    }
+  ],
+  "glows": [
+    {
+      "x": 3.5,
+      "y": 7.5,
+      "radius": 0.9,
+      "power": 0.55
+    },
+    {
+      "x": 9.5,
+      "y": 7.5,
+      "radius": 0.9,
+      "power": 0.55
+    },
+    {
+      "x": 1.5,
+      "y": 4.6,
+      "radius": 0.8,
+      "power": 0.55
+    },
+    {
+      "x": 7,
+      "y": 7.5,
+      "radius": 2.0,
+      "power": 0.35
+    },
+    {
+      "x": 2.5,
+      "y": 3.6,
+      "radius": 0.5,
+      "power": 0.35
+    },
+    {
+      "x": 8.5,
+      "y": 1.6,
+      "radius": 0.6,
+      "power": 0.4
+    }
+  ],
+  "shadows": [],
+  "legend": {
+    "f": "room-floor"
+  },
+  "rows": [
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff",
+    "ffffffffffff"
+  ]
+}

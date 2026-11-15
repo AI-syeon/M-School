@@ -1,0 +1,90 @@
+{
+  "file": "targets-original.png",
+  "tool": "built-in image_gen.imagegen",
+  "reference": [
+    "design/screens/01-campus.png",
+    "design/screens/03-magic.png",
+    "Art/CampusGrid/review/courtyard-unity.png",
+    "Art/CampusGrid/review/daylight-times.png"
+  ],
+  "prompt": "Use case: stylized-concept\nAsset type: production sprite source sheet for cozy fantasy campus 32px tile RPG.\nInput images: reference images at supplied paths are mood/material/perspective references only, not edit targets.\nPrimary request: make ONE transparent RGBA source sheet, a precisely spaced 4-column by 3-row grid of TWELVE isolated objects. Each cell equal 256x256, sheet 1024x768. Objects centered bottom aligned with clear 24px margin. NO labels, borders, floor, cast shadows, text, watermark, letters, painted checkerboard. Every object fully isolated on real transparent background. Pair adjacent cells must share IDENTICAL structure, viewpoint, scale, anchor; ONLY requested state changes.\nGrid row1 col1 wooden direction sign on post, small side lantern unlit, dull abstract gold arrow glyphs, col2 EXACT SAME sign lantern warm lit, glyphs faint golden glow; col3 cream limestone pillar broken with visible crack missing upper-side chunk and tiny rubble at base, col4 SAME pillar whole mended with faint gold seam.\nGrid row2 col1 terracotta seed pot with dry cracked brown soil, col2 EXACT SAME pot moist dark soil and a fresh two-leaf green sprout; col3 low olive mossy boulder, col4 EXACT SAME boulder and moss plus tiny white and lavender flowers.\nGrid row3 col1 small cream stone record tablet on low base faint worn abstract engraved lines, col2 EXACT SAME tablet engraved lines glow cyan blue; col3 standing dark gray carved rune stone dull blue-violet abstract angular rune, col4 EXACT SAME stone rune bright violet blue and very small contained resonance outline.\nComposition: sign and pillar tall narrow upright objects filling 216px height and ~110px width, other objects about 180x180px bottom-aligned. Raised front three-quarter orthographic RPG view with vertical edges vertical, no isometric diamonds. Crisp material planes and strong readable silhouettes suitable to downsample to 32x64 for tall objects and32x32 small objects.\nStyle: match reference cozy campus stone and oak furniture, refined hard color clusters, upper-left material highlights. warm cream taupe limestone, oak honey wood, muted brass gold, olive moss. Small peacock cyan and violet accents ONLY active magic. Neutral lighting no time of day tint. No airbrush, gradients, dithering, random debris, excessive small detail, directional cast shadows, bloom spilling outside object. Contact occlusion only.",
+  "generatedFile": "C:/Users/syeon/.codex/generated_images/01a1c802-b447-78a1-9a25-ed85d256c5e1/exec-153324ad-e7a0-4ec9-8076-2fa7c2846ac4.png",
+  "actualSize": [
+    1448,
+    1086
+  ],
+  "cropRectangles": [
+    [
+      80,
+      0,
+      220,
+      362
+    ],
+    [
+      442,
+      0,
+      220,
+      362
+    ],
+    [
+      829,
+      0,
+      180,
+      362
+    ],
+    [
+      1191,
+      0,
+      180,
+      362
+    ],
+    [
+      80,
+      452,
+      204,
+      260
+    ],
+    [
+      442,
+      452,
+      204,
+      260
+    ],
+    [
+      754,
+      467,
+      300,
+      240
+    ],
+    [
+      1116,
+      467,
+      300,
+      240
+    ],
+    [
+      35,
+      764,
+      295,
+      300
+    ],
+    [
+      397,
+      764,
+      295,
+      300
+    ],
+    [
+      759,
+      729,
+      295,
+      340
+    ],
+    [
+      1121,
+      729,
+      295,
+      340
+    ]
+  ]
+}

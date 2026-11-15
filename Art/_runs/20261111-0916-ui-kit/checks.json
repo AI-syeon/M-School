@@ -1,0 +1,241 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "file": "ui-panel.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA",
+      "colors": 8,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-button-normal.png",
+      "size": [
+        48,
+        24
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-button-selected.png",
+      "size": [
+        48,
+        24
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-button-disabled.png",
+      "size": [
+        48,
+        24
+      ],
+      "mode": "RGBA",
+      "colors": 6,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-slot-normal.png",
+      "size": [
+        40,
+        40
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-slot-selected.png",
+      "size": [
+        40,
+        40
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-quickslot-normal.png",
+      "size": [
+        40,
+        40
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-quickslot-selected.png",
+      "size": [
+        40,
+        40
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    },
+    {
+      "file": "ui-namebox.png",
+      "size": [
+        48,
+        20
+      ],
+      "mode": "RGBA",
+      "colors": 7,
+      "alpha": [
+        0,
+        228,
+        255
+      ],
+      "passed": true
+    }
+  ],
+  "sharedRgbaColorCount": 15,
+  "paletteRgb": [
+    [
+      15,
+      18,
+      37
+    ],
+    [
+      29,
+      31,
+      62
+    ],
+    [
+      41,
+      45,
+      78
+    ],
+    [
+      54,
+      58,
+      102
+    ],
+    [
+      82,
+      83,
+      113
+    ],
+    [
+      84,
+      53,
+      37
+    ],
+    [
+      115,
+      75,
+      50
+    ],
+    [
+      146,
+      102,
+      67
+    ],
+    [
+      173,
+      119,
+      48
+    ],
+    [
+      201,
+      143,
+      58
+    ],
+    [
+      232,
+      174,
+      84
+    ],
+    [
+      254,
+      206,
+      117
+    ],
+    [
+      254,
+      231,
+      177
+    ],
+    [
+      253,
+      238,
+      213
+    ]
+  ],
+  "transparentRgba": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "bodyAlpha": 228,
+  "sourceSha256": "d4946a425ea5911a9733ba4c92e391511b3e18894f0b3fbbe1ea0e54ceecf83c",
+  "deterministicRebuild": true,
+  "sha256": {
+    "manifest.json": "455c11c904a49617ceb8d8d361b718e293d754f977bf03f5ec8dd4ed3c274f20",
+    "ui-button-disabled.png": "84287609f2987bcad96188eb65630cb9adfe9a4bd86ea6773c53fa19c5671d8a",
+    "ui-button-normal.png": "c2371a7c71bd554d5bb6d01535e4d50880177aa1ca1b874561f46ae08e853543",
+    "ui-button-selected.png": "2b88c089bbc9c12f5a7992aa5fe8f1bfff90fdac95844cee5633ba3da967f0a3",
+    "ui-namebox.png": "7b55f58ae0ee4de1a5ae2fea73eecaef952c3bd540ca2de0eb308f97c2241023",
+    "ui-panel.png": "36f1d4477fbebb273ac9700d8e180f71c50a8a880723667990dbdd81cdfc8a2c",
+    "ui-quickslot-normal.png": "fea692cc0088c0a38669629bcaf5bfed6d726209815184478c962a27b252a05b",
+    "ui-quickslot-selected.png": "557c95e1db88fcd41c83ce173049cf60e280c23b3a6ba5f8a341fa447be21a8a",
+    "ui-slot-normal.png": "d5f7a57d028f0f24ec4fbf837a670c6fdc90d5ffbfa0728ddc7e9f125eb4715f",
+    "ui-slot-selected.png": "53ff9ee2b343dbaf1724f106bdc4e442b08ae099af4ea165de4d0ab889960376"
+  },
+  "reviewSha256": {
+    "source-vs-final.png": "0f9571e6aa262210da5d2cb1a03283b9006c9ebaddd38ab50b9456585f4adede",
+    "ui-kit-1x.png": "cc21bed4be40c13e4ec299c816dd2def8c5883bcbbe0b9440a78ea6d9d4319de",
+    "ui-kit-preview.png": "78a0c4afe017bb8e3c3a41d2146ea464cea1f1f40c3685c9acebcf740587aed5"
+  },
+  "sliceChecks": "constant edge strips, valid center dimensions, all four stretched corners unchanged",
+  "coordinateConvention": "top-left rectangles; slice and padding use named edges"
+}

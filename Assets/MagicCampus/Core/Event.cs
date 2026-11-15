@@ -105,6 +105,9 @@ namespace MagicCampus.Core
                 {
                     case "set": state.Flags[effect.Args[0]] = JToken.Parse(effect.Args[1]); break;
                     case "currency.add": state.Wallet += int.Parse(effect.Args[0], CultureInfo.InvariantCulture); break;
+                    case "item.add":
+                        game.Inventory.Add(effect.Args[0], int.Parse(effect.Args[1], CultureInfo.InvariantCulture), effect.Args.Count > 2 ? effect.Args[2] : Inventory.Standard);
+                        break;
                     default: throw new InvalidOperationException("unknown effect " + effect.Name);
                 }
             }

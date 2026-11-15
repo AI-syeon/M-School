@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "props": [
+    {"id":"target-signboard-dark","size":[1,2],"frames":[{"source":"prepared/targets/target-signboard-dark.png"}],"blocked":[[0,0]]},
+    {"id":"target-signboard-lit","size":[1,2],"frames":[{"source":"prepared/targets/target-signboard-lit.png"}],"blocked":[[0,0]]},
+    {"id":"target-pillar-broken","size":[1,2],"frames":[{"source":"prepared/targets/target-pillar-broken.png"}],"blocked":[[0,0]]},
+    {"id":"target-pillar-mended","size":[1,2],"frames":[{"source":"prepared/targets/target-pillar-mended.png"}],"blocked":[[0,0]]},
+    {"id":"target-seedpot-dry","size":[1,1],"frames":[{"source":"prepared/targets/target-seedpot-dry.png"}],"blocked":[[0,0]]},
+    {"id":"target-seedpot-sprout","size":[1,1],"frames":[{"source":"prepared/targets/target-seedpot-sprout.png"}],"blocked":[[0,0]]},
+    {"id":"target-moss-plain","size":[1,1],"frames":[{"source":"prepared/targets/target-moss-plain.png"}],"blocked":[[0,0]]},
+    {"id":"target-moss-bloom","size":[1,1],"frames":[{"source":"prepared/targets/target-moss-bloom.png"}],"blocked":[[0,0]]},
+    {"id":"target-plaque-dim","size":[1,1],"frames":[{"source":"prepared/targets/target-plaque-dim.png"}],"blocked":[[0,0]]},
+    {"id":"target-plaque-glow","size":[1,1],"frames":[{"source":"prepared/targets/target-plaque-glow.png"}],"blocked":[[0,0]]},
+    {"id":"target-rune-stone-off","size":[1,1],"frames":[{"source":"prepared/targets/target-rune-stone-off.png"}],"blocked":[[0,0]]},
+    {"id":"target-rune-stone-on","size":[1,1],"frames":[{"source":"prepared/targets/target-rune-stone-on.png"}],"blocked":[[0,0]]}
+  ]
+}

@@ -1,0 +1,554 @@
+<title>밤의 봉인층 기획서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column like a lab notebook; the playable sketch sits right after the thesis, then systems in build order. */
+:root{
+  --bg:#EDF0F3; --paper:#F8FAFB; --ink:#18202C; --muted:#5A6573; --line:#CBD3DC; --soft:#E3E8ED;
+  --chalk:#1F7468; --lamp:#B5701A; --night:#2D3A5A; --day:#D9C27A; --free:#9FC3B9; --bad:#B23A3A;
+  --floor:#232C3E; --floor2:#28324600; --wall:#151B27; --grid:#2E3950;
+  --display:"Song Myung","Nanum Myeongjo",serif;
+  --body:"IBM Plex Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11151C; --paper:#181E27; --ink:#E4E9EF; --muted:#97A2B0; --line:#2F3A48; --soft:#222A35;
+  --chalk:#5DC2B2; --lamp:#E2A04A; --night:#5A6FA6; --day:#B59C52; --free:#3F7D70; --bad:#E06A6A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151C; --paper:#181E27; --ink:#E4E9EF; --muted:#97A2B0; --line:#2F3A48; --soft:#222A35;
+  --chalk:#5DC2B2; --lamp:#E2A04A; --night:#5A6FA6; --day:#B59C52; --free:#3F7D70; --bad:#E06A6A; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 90px}
+main{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(32px,6vw,50px);line-height:1.15}
+h2{font-family:var(--display);font-weight:400;font-size:29px;line-height:1.3}
+h3{font-size:18px;font-weight:700}
+p{margin:0;max-width:70ch}
+ul,ol{margin:0;padding-left:20px;max-width:70ch}
+li+li{margin-top:4px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--chalk);text-transform:uppercase}
+.stack{display:flex;flex-direction:column;gap:14px}
+section{display:flex;flex-direction:column;gap:18px}
+.sub{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.lead{font-size:17px;color:var(--muted)}
+.note{font-size:13.5px;color:var(--muted)}
+.rune{font-family:var(--mono);background:var(--soft);padding:0 5px;border-radius:3px;font-size:13px;white-space:nowrap}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px;white-space:nowrap}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.decide{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+.decide dt{color:var(--muted)} .decide dd{margin:0;min-width:0}
+.who{font-family:var(--mono);font-size:11.5px;padding:1px 6px;border-radius:3px;margin-left:6px}
+.who.u{background:var(--chalk);color:var(--paper)} .who.c{border:1px solid var(--lamp);color:var(--lamp)}
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.pillars article{border-top:3px solid var(--chalk);padding-top:10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.pillars p{font-size:14px;color:var(--muted)}
+/* prototype */
+.proto{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.proto-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{font:inherit;font-size:13.5px;padding:6px 12px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--chalk);color:var(--paper)}
+.btn{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:5px;cursor:pointer}
+button:focus-visible,canvas:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+.stage{position:relative;max-width:100%}
+canvas{display:block;width:100%;height:auto;border-radius:4px;background:#1A2130;image-rendering:pixelated}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px 18px;font-size:13.5px}
+.keys b{font-family:var(--mono);font-weight:500}
+.book{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px}
+.book span{white-space:nowrap}
+#log{font-family:var(--mono);font-size:12.5px;color:var(--muted);min-height:96px;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+#log li:first-child{color:var(--ink)}
+.tryit{font-size:14px;background:var(--soft);border-radius:6px;padding:12px 14px}
+.strip{display:flex;height:28px;border-radius:3px;overflow:hidden;font-family:var(--mono);font-size:11px}
+.strip span{display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden;color:var(--ink)}
+.strip .d{background:var(--day)} .strip .f{background:var(--free)} .strip .n{background:var(--night);color:#F3F5F8}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:-8px}
+.ms{display:flex;flex-direction:column;gap:0}
+.ms article{display:grid;grid-template-columns:64px 1fr;gap:4px 16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.ms .id{font-family:var(--mono);color:var(--chalk);font-size:15px}
+.ms h3{font-size:16px}
+.ms p{font-size:14px}
+.ms .chk{font-size:13.5px;color:var(--muted)}
+@media (max-width:560px){.ms article{grid-template-columns:1fr}.decide{grid-template-columns:1fr}.decide dd{margin-bottom:8px}}
+pre.code{font-family:var(--mono);font-size:12.5px;background:var(--soft);border-radius:6px;padding:14px;margin:0;overflow-x:auto;line-height:1.55}
+.q{border-left:3px solid var(--lamp);padding-left:14px;display:flex;flex-direction:column;gap:4px}
+</style>
+
+<main>
+
+<header class="stack">
+  <span class="eyebrow">기획 2단계 · 2026-11-12 · 선택안 A</span>
+  <h1>밤의 봉인층</h1>
+  <p class="lead">낮에는 마법학교 학생으로 수업을 듣고 친구를 사귀고 방을 꾸민다. 밤 10시가 넘으면 도서관 아래 봉인층으로 내려가 새어 나온 마물을 막는다. 새벽 2시 기절이 던전의 제한 시간이다.</p>
+  <dl class="decide">
+    <dt>컨셉</dt><dd>A 밤의 봉인층 <span class="who u">사용자 결정</span><br><span class="note">2026-11-12 "ㅇㅋ. 이대로 진행해봐." 추천안 A 그대로 진행.</span></dd>
+    <dt>전투 손맛</dt><dd>영창 중 시간 감속 <span class="who c">Claude 기본값</span><br><span class="note">고르지 않은 항목이라 제가 정했습니다. 아래 프로토타입에서 실시간과 바꿔 가며 직접 비교할 수 있습니다.</span></dd>
+    <dt>섞은 요소</dt><dd>C의 반응 발견 노트, E의 친구 동행과 합동 영창 <span class="who c">Claude 기본값</span></dd>
+    <dt>기존 기획 문서</dt><dd><span class="rune">design/</span> 안의 기획 문서를 <span class="rune">Docs/Archive/design-2026-11/</span>로 옮겼습니다. 키 아트(<span class="rune">design/screens</span>)는 아트 제작 스킬이 쓰므로 남겼습니다. 이 기획서는 옮긴 문서를 참고하지 않았습니다.</dd>
+  </dl>
+</header>
+
+<section>
+  <span class="eyebrow">재미의 기둥</span>
+  <h2>모든 시스템은 넷 중 하나를 키운다</h2>
+  <p>새 시스템을 넣을지 판단하는 기준입니다. 넷 중 어느 것도 키우지 않으면 넣지 않습니다.</p>
+  <div class="pillars">
+    <article><h3>손에 익는 영창</h3><p>룬 순서를 외워 빠르게 치는 손맛. 위험한 순간에 정확히 쳐냈을 때 가장 크다.</p></article>
+    <article><h3>섞어 보는 반응</h3><p>"적시고 얼리면?" 규칙을 스스로 찾아내는 발견. 정답이 여럿이다.</p></article>
+    <article><h3>낮과 밤의 저울질</h3><p>낮에 무엇을 준비하고 밤에 얼마나 깊이 갈지. 시간은 늘 모자란다.</p></article>
+    <article><h3>알아봐 주는 친구</h3><p>친해진 친구가 밤에 함께 내려오고, 둘만의 주문이 열린다.</p></article>
+  </div>
+</section>
+
+<section id="proto">
+  <span class="eyebrow">직접 해 보기</span>
+  <h2>전투 손맛 프로토타입</h2>
+  <p>기획서의 전투 규칙을 그대로 옮긴 작은 시험판입니다. 실제 게임의 주문 룬 번호를 그대로 썼습니다. 위쪽 버튼으로 "영창 중 시간 감속"과 "실시간"을 바꿔 가며 손맛을 비교해 주세요.</p>
+  <div class="proto">
+    <div class="proto-bar">
+      <div class="seg" role="group" aria-label="전투 방식">
+        <button type="button" id="mSlow" aria-pressed="true">영창 중 시간 감속</button>
+        <button type="button" id="mReal" aria-pressed="false">실시간</button>
+      </div>
+      <button type="button" class="btn" id="restart">처음부터 (R)</button>
+    </div>
+    <div class="stage"><canvas id="cv" width="640" height="416" tabindex="0" aria-label="전투 프로토타입. 클릭하면 키 입력을 받습니다."></canvas></div>
+    <div class="keys">
+      <span><b>WASD</b> 이동</span>
+      <span><b>Space</b> 영창 열기, 다시 누르면 시전</span>
+      <span><b>1~4</b> 룬 입력</span>
+      <span><b>Esc</b> 영창 취소</span>
+    </div>
+    <div class="book" aria-label="주문 목록">
+      <span>물결 <span class="rune">2-1</span></span><span>서리 <span class="rune">2-2</span></span><span>불씨 <span class="rune">3-3</span></span>
+      <span>돌풍 <span class="rune">4-4</span></span><span>등불 <span class="rune">1-2</span></span><span>결계 <span class="rune">2-4</span></span>
+    </div>
+    <ul id="log" aria-live="polite"><li>캔버스를 클릭하면 시작합니다.</li></ul>
+    <div class="tryit"><b>해 볼 것.</b> 그을음 먼지는 마른 몸이라 불씨 한 번에 불이 붙습니다. 이끼 덩이는 젖어 있어 불이 안 붙습니다. 돌풍으로 말리거나, 서리로 얼린 뒤 돌풍으로 깨 보세요. 그림자 책벌레는 등불로 밝히기 전에는 아무 주문도 맞지 않습니다. 불붙은 적에게 돌풍을 쓰면 불이 옆으로 번집니다.</div>
+  </div>
+  <p class="note">이 시험판은 규칙과 손맛만 봅니다. 그래픽, 수치 균형, 적 행동은 실제 게임과 다릅니다. 브라우저에서 세 웨이브를 끝까지 돌려 동작을 확인했습니다. 재미 판단은 직접 해 보셔야 압니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">시간 구조</span>
+  <h2>하루, 한 주, 한 학기</h2>
+  <div class="strip" aria-label="평일 하루"><span class="d" style="flex:2">아침 수업</span><span class="f" style="flex:3">자유</span><span class="d" style="flex:2">오후 실습</span><span class="f" style="flex:8">친구·온실·준비</span><span class="n" style="flex:4">봉인층</span></div>
+  <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+  <div class="sub">
+    <h3>하루</h3>
+    <ul>
+      <li>07:00 기상. 09:00~11:00 아침 수업, 14:00~16:00 오후 실습. 수업은 빠질 수 있지만 출석이 성장의 주된 통로입니다.</li>
+      <li>22:00 도서관 지하 문이 열립니다. 그 전에는 잠겨 있어서 낮과 밤이 섞이지 않습니다.</li>
+      <li>봉인층 안에서도 시계가 흐릅니다. 한 층에 대략 30~40분이 듭니다. 26:00(새벽 2시)이 되면 지금 규칙대로 기절합니다.</li>
+      <li>봉인층에 안 가는 밤도 손해가 아니게 합니다. 일찍 자면 다음 날 집중이 가득 찬 채 시작합니다.</li>
+    </ul>
+  </div>
+  <div class="sub">
+    <h3>한 주</h3>
+    <ul>
+      <li>월~금은 수업이 있는 날, 토·일은 수업이 없는 날입니다. 주말에는 친구 약속과 온실, 낮의 학교 밖 지역이 열립니다.</li>
+      <li>금요일 밤은 봉인이 가장 약해지는 밤입니다. 마물이 많고 보상도 큽니다.</li>
+    </ul>
+  </div>
+  <div class="sub">
+    <h3>한 학기</h3>
+    <p>한 학기는 4주, 28일입니다. 주마다 봉인층 5개 층씩 내려가는 속도를 기준으로 잡고, 학기 마지막 날 밤에 봉인의 중심에서 큰 싸움이 있습니다. 첫 학기를 끝내면 이야기 1장이 닫힙니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">핵심 시스템</span>
+  <h2>전투</h2>
+  <p>전투는 새 규칙을 따로 만들지 않습니다. 지금 학교 안 사물에 쓰는 태그 반응표를 적에게도 그대로 씁니다. 적은 몸에 태그가 붙은 움직이는 마법 대상이고, 피해는 반응표의 한 줄이 내는 결과입니다. 그래서 낮에 기둥을 고치며 배운 규칙이 밤에 그대로 무기가 되고, 밤에 알아낸 조합이 낮의 퍼즐에도 통합니다.</p>
+
+  <div class="sub">
+    <h3>영창과 집중</h3>
+    <ul>
+      <li>Space로 영창을 열면 세상이 5분의 1 속도로 느려집니다. 나도 같이 느려집니다. 룬 1~4를 치고 Space로 시전합니다. 지금 게임의 영창 입력 규칙(접두어가 아닌 룬은 흩어짐)을 그대로 씁니다.</li>
+      <li>느려진 시간은 공짜가 아닙니다. 영창이 열려 있는 동안 집중 게이지가 빠르게 줄고, 바닥나면 영창이 끊깁니다. 닫혀 있으면 천천히 찹니다.</li>
+      <li>그래서 손이 빠를수록 집중을 아끼고, 아낀 집중으로 긴 주문을 연달아 칠 수 있습니다. 숙련이 곧 자원입니다.</li>
+      <li>퀵슬롯 4칸은 영창 없이 바로 나가는 대신 재사용 대기 시간이 있습니다. 위급할 때 쓰는 비상 수단입니다.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h3>체력과 패배</h3>
+    <ul>
+      <li>체력은 매일 아침 가득 찹니다. 봉인층 안에서는 물약과 회복 지점으로만 찹니다.</li>
+      <li>체력이 0이 되면 기절합니다. 다음 날 09:00 양호실에서 깨어나고, 그날 밤 주운 재료의 3분의 1을 잃습니다. 아침 수업은 놓칩니다.</li>
+      <li>새벽 2시 기절도 같은 벌칙입니다. 지금 있는 기절 처리를 그대로 확장합니다.</li>
+      <li>동행한 친구가 있으면 그 친구가 나를 업고 나온 것으로 처리하고, 다음 날 짧은 대화 이벤트가 생깁니다.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h3>전투용 반응 규칙</h3>
+    <p>지금 반응표의 순서 규칙(막기 → 조합 → 반응, 각각 위에서부터)을 그대로 쓰고, 행마다 피해와 효과 칸을 더합니다. 프로토타입에 들어간 규칙입니다.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>종류</th><th>주문</th><th>필요한 태그</th><th>결과</th><th>피해</th></tr></thead>
+      <tbody>
+        <tr><td>막기</td><td>등불 외 전부</td><td>어둠</td><td>맞지 않음</td><td class="n">0</td></tr>
+        <tr><td>막기</td><td>불씨</td><td>식물 + 젖음</td><td>불이 붙지 않음</td><td class="n">0</td></tr>
+        <tr><td>조합</td><td>서리</td><td>젖음</td><td>얼음 4초 (멈춤)</td><td class="n">6</td></tr>
+        <tr><td>조합</td><td>돌풍</td><td>얼음</td><td>산산조각, 얼음 제거</td><td class="n">24</td></tr>
+        <tr><td>조합</td><td>불씨</td><td>얼음</td><td>녹아내림, 젖음 6초</td><td class="n">5</td></tr>
+        <tr><td>조합</td><td>돌풍</td><td>불</td><td>주변 적에게 불 번짐, 밀어냄</td><td class="n">3</td></tr>
+        <tr><td>조합</td><td>불씨</td><td>마름</td><td>불 4초 (초당 4)</td><td class="n">8</td></tr>
+        <tr><td>반응</td><td>불씨</td><td>젖음</td><td>치익, 젖음 제거</td><td class="n">2</td></tr>
+        <tr><td>반응</td><td>불씨</td><td>없음</td><td>그을림</td><td class="n">6</td></tr>
+        <tr><td>반응</td><td>서리</td><td>없음</td><td>냉기 3초 (반 속도)</td><td class="n">3</td></tr>
+        <tr><td>반응</td><td>물결</td><td>없음</td><td>젖음 8초, 불·마름 제거</td><td class="n">1</td></tr>
+        <tr><td>반응</td><td>돌풍</td><td>젖음</td><td>말림, 마름 6초, 밀어냄</td><td class="n">2</td></tr>
+        <tr><td>반응</td><td>돌풍</td><td>없음</td><td>밀어냄</td><td class="n">2</td></tr>
+        <tr><td>반응</td><td>등불</td><td>어둠</td><td>밝음 6초, 1.5초 멈춤</td><td class="n">0</td></tr>
+        <tr><td>반응</td><td>결계</td><td>(나 자신)</td><td>다음 공격 1회 막음, 4초</td><td class="n">0</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">원래 몸에 있던 태그(이끼의 젖음, 책벌레의 어둠, 먼지의 마름)는 지워져도 6초 뒤 돌아옵니다. 그래서 조합에는 때가 있습니다.</p>
+  </div>
+
+  <div class="sub">
+    <h3>12개 주문의 전투 역할</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>주문</th><th>룬</th><th>밤의 역할</th><th>낮에 이미 하는 일</th></tr></thead>
+      <tbody>
+        <tr><td>물결</td><td class="n">2-1</td><td>적시기. 거의 모든 조합의 시작</td><td>표면 적시기</td></tr>
+        <tr><td>서리</td><td class="n">2-2</td><td>젖은 적 얼리기, 젖은 바닥을 얼려 길 만들기</td><td>젖은 표면 얼리기</td></tr>
+        <tr><td>불씨</td><td class="n">3-3</td><td>기본 피해, 마른 적 태우기</td><td>씨앗 껍질 열기</td></tr>
+        <tr><td>돌풍</td><td class="n">4-4</td><td>밀어내기, 말리기, 얼음 깨기, 불 퍼뜨리기</td><td>바람길 열기</td></tr>
+        <tr><td>등불</td><td class="n">1-2</td><td>어둠 걷기, 그림자 적을 맞을 수 있게 만들기</td><td>어두운 곳 밝히기</td></tr>
+        <tr><td>결계</td><td class="n">2-4</td><td>나를 지키는 막, 떠오른 적을 공중에 고정</td><td>안전막, 떠오른 물체 고정</td></tr>
+        <tr><td>부유</td><td class="n">1-2-3</td><td>작은 적 띄우기. 뜬 적은 땅 위 반응을 안 받음</td><td>물체 띄우기</td></tr>
+        <tr><td>싹틔움</td><td class="n">2-3</td><td>바닥 씨앗을 덩굴 덫으로</td><td>씨앗 발아</td></tr>
+        <tr><td>돌다듬기</td><td class="n">4-1</td><td>돌 적의 금 간 곳을 깎아 큰 피해</td><td>부서진 돌 다듬기</td></tr>
+        <tr><td>수선</td><td class="n">3-4</td><td>부서진 엄폐물 되살리기, 결계 회복</td><td>부서진 것 수선</td></tr>
+        <tr><td>메아리</td><td class="n">1-3</td><td>소리를 담아 적을 다른 곳으로 유인</td><td>공명석에 소리 담기</td></tr>
+        <tr><td>환영</td><td class="n">1-4</td><td>가짜 나를 세워 적의 공격을 돌림, 거울 적의 반사 무력화</td><td>기록 장면 비추기</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <h3>적을 만드는 규칙</h3>
+    <ul>
+      <li>모든 적은 "이 태그가 붙어 있어서 이 주문이 안 통한다"는 물음 하나를 들고 나옵니다. 그 물음의 답이 두 가지 이상 있어야 합니다.</li>
+      <li>새 적은 이미 아는 주문만으로 풀 수 있어야 합니다. 새 주문이 필요하면 그 주문을 낮에 먼저 가르칩니다.</li>
+      <li>적의 태그는 머리 위에 늘 보입니다. 숨은 규칙으로 유저를 속이지 않습니다.</li>
+    </ul>
+    <div class="scroll"><table>
+      <thead><tr><th>적</th><th>층</th><th>태그</th><th>물음과 답</th></tr></thead>
+      <tbody>
+        <tr><td>그을음 먼지</td><td class="n">1~</td><td>마름</td><td>입문용. 불씨 한 번에 불이 붙는다.</td></tr>
+        <tr><td>이끼 덩이</td><td class="n">2~</td><td>식물, 젖음</td><td>불이 안 붙는다. 돌풍으로 말린 뒤 불씨, 또는 서리 뒤 돌풍.</td></tr>
+        <tr><td>그림자 책벌레</td><td class="n">3~</td><td>어둠</td><td>아무것도 안 맞는다. 등불로 밝힌 6초 안에 공격.</td></tr>
+        <tr><td>메아리 박쥐</td><td class="n">4~</td><td>떠 있음</td><td>땅 위 반응이 안 통한다. 메아리로 유인해 한데 모으거나 결계로 고정.</td></tr>
+        <tr><td>돌 파수꾼</td><td class="n">6~</td><td>돌, 단단함</td><td>피해가 거의 안 들어간다. 적시고 얼려 금을 낸 뒤 돌다듬기.</td></tr>
+        <tr><td>거울 망령</td><td class="n">8~</td><td>반사</td><td>주문을 되돌린다. 환영으로 가짜 나를 세우면 그쪽으로 반사한다.</td></tr>
+        <tr><td>봉인 수호자 (1학기 보스)</td><td class="n">20</td><td>단계마다 바뀜</td><td>어둠 → 젖은 바닥 → 떠오름. 지금까지 배운 물음을 한 번씩 다시 묻는다.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">장소</span>
+  <h2>봉인층</h2>
+  <ul>
+    <li>도서관 지하 문에서 내려갑니다. 한 층은 방 3~5개로 된 손으로 만든 맵입니다. 같은 층이라도 밤마다 적 배치와 재료 위치가 바뀝니다.</li>
+    <li>5층마다 봉인석이 있습니다. 봉인석을 한 번 되살리면 다음부터 그 층으로 바로 내려갈 수 있습니다. 하루 시간이 모자란 문제를 푸는 지름길입니다.</li>
+    <li>층마다 기록 명판이 하나 있습니다. 등불로 밝히고 환영을 쓰면 옛 장면이 비칩니다. 지금 있는 조합 규칙(기록 + 밝음 + 환영)으로 이야기를 보여 줍니다.</li>
+    <li>층 묶음마다 분위기와 물음이 다릅니다. 1~5층 먼지 낀 서고, 6~10층 물이 새는 석조 통로, 11~15층 거울 회랑, 16~20층 봉인의 중심.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">성장</span>
+  <h2>무엇이 강해지나</h2>
+  <p>경험치와 레벨은 넣지 않습니다. 강해지는 길은 셋이고, 셋 다 낮의 활동과 이어집니다.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>무엇이</th><th>어떻게</th><th>효과</th></tr></thead>
+    <tbody>
+      <tr><td>주문 목록</td><td>수업과 도서관 책으로 새 주문을 배운다</td><td>풀 수 있는 물음이 늘어난다</td></tr>
+      <tr><td>주문 숙련</td><td>한 주문을 서로 다른 상황 3가지에서 성공시킨다. 지금 저장되는 "상황 기록"을 그대로 쓴다</td><td>그 주문의 집중 소모가 절반이 되고, 퀵슬롯에 넣을 수 있다</td></tr>
+      <tr><td>능력치 2개</td><td>수업 출석과 실습 점수로 오른다</td><td>집중(최대치와 회복 속도), 체력(최대치)</td></tr>
+      <tr><td>장비 3칸</td><td>봉인층 재료로 공방에서 만든다</td><td>지팡이(집중 회복), 망토(체력), 부적(특정 반응 강화. 예 "얼음 4초 → 6초")</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">지금 마법 코드에 비어 있는 "능력치 이상" 요구조건이 여기서 쓰입니다. 강한 주문은 집중 능력치가 몇 이상이어야 배울 수 있게 합니다.</p>
+  <div class="sub">
+    <h3>수업은 룬 연습이다</h3>
+    <p>아침 수업은 짧은 미니게임입니다. 교수가 보여 주는 주문을 제한 시간 안에 정확히 영창합니다. 점수가 능력치로 쌓이고, 손이 밤 전투를 미리 익힙니다. 수업이 단순 출석 버튼이 되지 않게 하는 장치입니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">발견</span>
+  <h2>반응 노트</h2>
+  <ul>
+    <li>처음 일으킨 반응은 노트에 한 줄로 적힙니다. 어떤 주문을, 어떤 태그에, 무슨 일이 났는지.</li>
+    <li>아직 찾지 못한 칸은 빈칸 수만 보입니다. "물결로 시작하는 조합 3개 중 1개 발견"처럼. 무엇을 찾아야 하는지가 아니라 더 있다는 것만 알려 줍니다.</li>
+    <li>도서관 책과 친구 대화가 빈칸의 힌트를 줍니다. 낮의 대화가 밤의 공략이 됩니다.</li>
+    <li>노트를 채우면 부적 제작법이 열립니다.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">관계</span>
+  <h2>친밀도와 동행</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>단계</th><th>여는 것</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1 아는 사이</td><td>인사와 짧은 대화</td></tr>
+      <tr><td class="n">2 친구</td><td>약속 초대가 자주 온다. 선물 취향을 알려 준다</td></tr>
+      <tr><td class="n">3 믿는 친구</td><td>봉인층 비밀을 털어놓을 수 있다. 밤에 동행할 수 있다</td></tr>
+      <tr><td class="n">4 단짝</td><td>둘이 함께 외우는 합동 영창이 열린다</td></tr>
+      <tr><td class="n">5 가장 가까운 사이</td><td>그 친구의 개인 이야기 마지막 장, 기숙사 방 초대</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>친밀도는 하루 한 번 대화, 취향에 맞는 선물, 약속을 지키는 것으로 오릅니다. 약속을 어기면 내려갑니다. 지금 있는 약속 수락 시스템을 그대로 씁니다.</li>
+    <li>동행은 한 번에 한 명입니다. 친구는 자기 주문 2개를 스스로 씁니다. 예를 들어 서린이 서리를 쓰는 친구라면, 내가 물결로 적시면 서린이 알아서 얼립니다.</li>
+    <li>밤에 데려간 친구는 다음 날 피곤해서 일과가 늦게 시작합니다. NPC 일과 시스템으로 표현합니다. 동행에도 대가가 있어야 고르는 재미가 생깁니다.</li>
+    <li>합동 영창은 친구마다 하나씩 있는 긴 영창(룬 5개)입니다. 둘의 반응을 한 번에 일으키는 강한 주문입니다.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">경제</span>
+  <h2>돈, 재료, 온실</h2>
+  <ul>
+    <li>봉인층 재료는 공방에서 장비와 물약이 되거나, 연구실 교수에게 팔아 돈이 됩니다.</li>
+    <li>돈은 매점(물약 재료, 씨앗, 간식 선물)과 가구점(방 꾸미기)에 씁니다. 지금 있는 지갑 값을 처음으로 쓰게 됩니다.</li>
+    <li>온실에서 달콩 씨앗과 서리박하를 기릅니다. 며칠이 걸리고, 싹틔움으로 하루 당길 수 있습니다. 집중 물약의 재료입니다.</li>
+    <li>돈으로 강해지는 길은 막습니다. 장비는 재료로만 만들고, 돈은 편의와 꾸미기에 씁니다. 그래야 밤에 내려갈 이유가 남습니다.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">표현</span>
+  <h2>방 꾸미기와 이어 붙이기</h2>
+  <ul>
+    <li>봉인층 보스와 봉인석에서 전리품 가구가 나옵니다. 내 방에 둘 수 있는 기념품입니다.</li>
+    <li>방의 편안함 점수가 있습니다. 침대, 조명, 식물, 기념품이 점수를 올리고, 점수만큼 다음 날 아침 집중이 조금 더 찬 채 시작합니다. 효과는 작게 둡니다. 꾸미기가 의무가 되면 안 됩니다.</li>
+    <li>동행 단계의 친구가 방에 놀러 와 배치에 한마디씩 합니다.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">이야기</span>
+  <h2>1학기 뼈대</h2>
+  <ol>
+    <li>첫 주. 늦은 밤 도서관에서 열린 문을 우연히 발견한다. 1층에서 그을음 먼지를 만나고, 아무도 이 사실을 모른다는 것을 알게 된다.</li>
+    <li>둘째 주. 봉인을 지키던 옛 학생들의 기록을 명판으로 본다. 학교 안 이상한 일(얼어붙은 복도, 꺼지는 등불)이 봉인과 이어져 있음을 안다.</li>
+    <li>셋째 주. 처음으로 친구에게 비밀을 털어놓고 함께 내려간다.</li>
+    <li>넷째 주. 봉인의 중심에서 수호자를 다시 잠재운다. 그 너머에 더 깊은 문이 있다는 것을 보며 1장이 끝난다.</li>
+  </ol>
+  <p class="note">인물 이름과 성격은 콘텐츠에 있는 학생 13명을 기준으로 다음 단계에서 정합니다. 여기 쓴 서린은 콘텐츠에 실제로 있는 학생입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">코드와의 연결</span>
+  <h2>데이터 모양</h2>
+  <p>새 개념을 따로 만들기보다 지금 있는 표를 넓힙니다. 반응표 하나가 낮의 퍼즐과 밤의 전투를 같이 정하면, 콘텐츠를 쓰는 사람이 규칙을 한곳에서만 고칩니다.</p>
+<pre class="code">ReactionDef (기존) + Damage, Stun, Push, Spread   // 한 표가 퍼즐과 전투를 같이 정한다
+EnemyDef    Id, Name, Hp, Tags, BaseTags, Speed, Behavior(chase|keepAway|ambush), Touch, Drops
+FloorDef    Id, Depth, Rooms[], EnemyPool[], SealStone?, RecordPlaque?
+GameState (저장) + Stats{Focus, Vitality}, Friendship{npcId: points}, DeepestSeal, Equipment{staff, cloak, charm}
+CombatRun (저장 안 함) Enemies[], PlayerHp, Focus, NightLoot[], Companion?</pre>
+  <ul>
+    <li>전투 상태는 저장하지 않습니다. 저장은 지금처럼 하루가 끝날 때만 일어나므로, 밤 도중에 끄면 그날 밤은 없던 일이 됩니다.</li>
+    <li>반응 노트는 지금 저장되는 주문별 상황 기록을 그대로 읽습니다. 새 저장 칸이 필요 없습니다.</li>
+    <li>기절, 하루 끝, 약속, NPC 일과, 가방은 지금 코드를 그대로 씁니다.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">만드는 순서</span>
+  <h2>작게 돌려 보고 넓힌다</h2>
+  <p>단계마다 실제 게임 실행 파일로 확인할 수 있는 결과가 나옵니다. 앞 단계가 재미없으면 다음 단계로 가지 않고 거기서 고칩니다.</p>
+  <div class="ms">
+    <article><span class="id">M1</span><div class="stack"><h3>전투 한 방</h3><p>체력, 집중, 감속 영창, 그을음 먼지 1종, 피해가 있는 반응 행. 연습실 맵 하나.</p><p class="chk">확인. probe 시나리오로 먼지를 불씨로 처치하고, 맞아서 기절하는 두 경우를 실제 실행 파일에서 돌린다.</p></div></article>
+    <article><span class="id">M2</span><div class="stack"><h3>물음 있는 적 3종</h3><p>이끼 덩이, 그림자 책벌레 추가. 원래 태그 복귀. 반응 노트 화면.</p><p class="chk">확인. 각 적을 두 가지 방법으로 처치하는 probe, 노트에 줄이 쌓이는지 저장 파일로 확인.</p></div></article>
+    <article><span class="id">M3</span><div class="stack"><h3>봉인층 1~5층과 밤</h3><p>22:00 문 열림, 층 이동, 봉인석 지름길, 새벽 2시 기절 벌칙, 재료 줍기.</p><p class="chk">확인. 22시 전 문 잠김, 5층 봉인석 후 바로 내려가기, 기절 후 재료 감소.</p></div></article>
+    <article><span class="id">M4</span><div class="stack"><h3>낮이 밤을 키운다</h3><p>수업 룬 미니게임, 능력치 2개, 주문 숙련, 공방 장비, 매점.</p><p class="chk">확인. 수업 점수로 집중 최대치가 오르고 밤 전투에서 영창 시간이 늘어나는지.</p></div></article>
+    <article><span class="id">M5</span><div class="stack"><h3>친구와 내려가기</h3><p>친밀도, 서린 동행, 합동 영창 1개, 다음 날 피곤한 일과.</p><p class="chk">확인. 동행 중 서린이 젖은 적을 스스로 얼리는지, 다음 날 일과가 늦게 시작하는지.</p></div></article>
+    <article><span class="id">M6</span><div class="stack"><h3>1학기 완성</h3><p>6~20층, 남은 적, 보스, 기록 명판 이야기, 방 편안함 점수, 전리품 가구.</p><p class="chk">확인. 새 저장으로 28일을 probe로 빠르게 돌려 보스까지 도달 가능한지. 재미는 사람이 해 봐야 압니다.</p></div></article>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">정해 주실 것</span>
+  <h2>열린 질문</h2>
+  <p>제가 기본값을 정해 두고 진행할 수 있는 것들입니다. 다르게 원하시면 말씀해 주세요.</p>
+  <div class="stack">
+    <div class="q"><b>전투 손맛.</b><p>기본값은 영창 중 시간 감속입니다. 프로토타입을 해 보고 실시간이 낫거나, 감속 비율과 집중 소모가 어색하면 알려 주세요.</p></div>
+    <div class="q"><b>난이도와 벌칙.</b><p>기본값은 기절하면 재료 3분의 1을 잃고 아침 수업을 놓치는 것입니다. 더 가볍게(재료 유지) 또는 더 무겁게 할 수 있습니다.</p></div>
+    <div class="q"><b>연애 요소.</b><p>기본값은 넣지 않고 우정까지만 둡니다. 친밀도 5단계를 연애로 이어 갈지는 이야기 톤을 정하는 결정이라 직접 정해 주셔야 합니다.</p></div>
+    <div class="q"><b>첫 구현 범위.</b><p>기본값은 M1부터 시작입니다. 바로 구현에 들어가도 될지 말씀해 주세요.</p></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'),cx=cv.getContext('2d'),logEl=document.getElementById('log');
+  var T=32,W=20,H=13;
+  var SPELLS={'2,1':'물결','2,2':'서리','3,3':'불씨','4,4':'돌풍','1,2':'등불','2,4':'결계'};
+  var TAGNAME={wet:'젖음',dry:'마름',plant:'식물',dark:'어둠',lit:'밝음',frozen:'얼음',burning:'불',chilled:'냉기'};
+  var KINDS={
+    soot:{name:'그을음 먼지',hp:20,tags:['dry'],speed:72,r:10},
+    moss:{name:'이끼 덩이',hp:45,tags:['plant','wet'],speed:34,r:14},
+    shade:{name:'그림자 책벌레',hp:28,tags:['dark'],speed:56,r:11}
+  };
+  var WAVES=[['soot','soot','soot'],['moss','moss','soot','soot'],['shade','shade','moss','soot']];
+  var mode='slow',S,keys={},col={},focused=false,last=0;
+
+  function readColors(){var s=getComputedStyle(document.documentElement);['chalk','lamp','bad','ink'].forEach(function(k){col[k]=s.getPropertyValue('--'+k).trim()})}
+  function log(t){var li=document.createElement('li');li.textContent=t;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>6)logEl.removeChild(logEl.lastChild)}
+
+  function reset(){
+    S={t:0,player:{x:W*T/2,y:H*T/2,hp:100,hurt:0,shield:0},focus:100,open:false,runes:[],enemies:[],wave:-1,next:0.5,pops:[],over:null,start:0};
+    logEl.innerHTML='';log(focused?'첫 웨이브가 옵니다.':'캔버스를 클릭하면 시작합니다.');
+  }
+  function spawnWave(i){
+    WAVES[i].forEach(function(k,j){
+      var side=j%4,x,y;
+      if(side===0){x=T*1.5;y=T*(2+j*3%9)}else if(side===1){x=T*(W-1.5);y=T*(2+j*4%9)}else if(side===2){x=T*(3+j*5%14);y=T*1.5}else{x=T*(4+j*3%13);y=T*(H-1.5)}
+      var d=KINDS[k],tags={};d.tags.forEach(function(g){tags[g]=Infinity});
+      S.enemies.push({k:k,x:x,y:y,hp:d.hp,max:d.hp,tags:tags,base:d.tags.slice(),back:{},stun:0});
+    });
+    log('웨이브 '+(i+1)+' / '+WAVES.length+'. '+WAVES[i].map(function(k){return KINDS[k].name}).join(', '));
+  }
+  function has(e,g){return e.tags[g]!==undefined&&e.tags[g]>S.t}
+  function add(e,g,sec){e.tags[g]=S.t+sec}
+  function rm(e,g){if(e.tags[g]===undefined)return;delete e.tags[g];if(e.base.indexOf(g)>=0)e.back[g]=S.t+6}
+  function push(e,dist){var dx=e.x-S.player.x,dy=e.y-S.player.y,l=Math.hypot(dx,dy)||1;e.x=clampX(e.x+dx/l*dist*T);e.y=clampY(e.y+dy/l*dist*T)}
+  function clampX(x){return Math.max(T*1.4,Math.min(T*(W-1.4),x))}
+  function clampY(y){return Math.max(T*1.4,Math.min(T*(H-1.4),y))}
+  function hit(e,n){if(n<=0)return;e.hp-=n;S.pops.push({x:e.x,y:e.y-18,t:S.t,txt:'-'+n})}
+
+  var RULES=[
+    {spell:'*',not:'등불',needs:['dark'],msg:'어둠 속에서는 맞지 않는다',go:function(){}},
+    {spell:'불씨',needs:['plant','wet'],msg:'젖은 이끼에는 불이 붙지 않는다',go:function(){}},
+    {spell:'서리',needs:['wet'],msg:'얼어붙었다',go:function(e){rm(e,'wet');add(e,'frozen',4);hit(e,6)}},
+    {spell:'돌풍',needs:['frozen'],msg:'산산조각 났다',go:function(e){delete e.tags.frozen;hit(e,24)}},
+    {spell:'불씨',needs:['frozen'],msg:'얼음이 녹아내렸다',go:function(e){delete e.tags.frozen;add(e,'wet',6);hit(e,5)}},
+    {spell:'돌풍',needs:['burning'],msg:'불길이 옆으로 번졌다',go:function(e){S.enemies.forEach(function(o){if(o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<T*2.5&&!has(o,'wet')){add(o,'burning',4)}});push(e,2);hit(e,3)}},
+    {spell:'불씨',needs:['dry'],msg:'불이 붙었다',go:function(e){add(e,'burning',4);hit(e,8)}},
+    {spell:'불씨',needs:['wet'],msg:'치익. 물기만 날아갔다',go:function(e){rm(e,'wet');hit(e,2)}},
+    {spell:'불씨',needs:[],msg:'그을렸다',go:function(e){hit(e,6)}},
+    {spell:'서리',needs:[],msg:'냉기가 감돈다',go:function(e){add(e,'chilled',3);hit(e,3)}},
+    {spell:'물결',needs:[],msg:'흠뻑 젖었다',go:function(e){add(e,'wet',8);rm(e,'burning');rm(e,'dry');hit(e,1)}},
+    {spell:'돌풍',needs:['wet'],msg:'바람에 바싹 말랐다',go:function(e){rm(e,'wet');add(e,'dry',6);push(e,2.5);hit(e,2)}},
+    {spell:'돌풍',needs:[],msg:'밀려났다',go:function(e){push(e,2.5);hit(e,2)}},
+    {spell:'등불',needs:['dark'],msg:'빛에 드러났다',go:function(e){rm(e,'dark');add(e,'lit',6);e.stun=Math.max(e.stun,1.5)}},
+    {spell:'등불',needs:[],msg:'눈이 부신 듯하다',go:function(e){e.stun=Math.max(e.stun,0.4)}}
+  ];
+
+  function cast(name){
+    if(name==='결계'){S.player.shield=S.t+4;log('결계. 다음 공격 한 번을 막는다');return}
+    var p=S.player,best=null,bd=T*6;
+    S.enemies.forEach(function(e){var d=Math.hypot(e.x-p.x,e.y-p.y);if(d<bd){bd=d;best=e}});
+    if(!best){log(name+'. 닿는 곳에 대상이 없다');return}
+    for(var i=0;i<RULES.length;i++){var r=RULES[i];
+      if(r.spell!=='*'&&r.spell!==name)continue; if(r.not===name)continue;
+      if(!r.needs.every(function(g){return has(best,g)}))continue;
+      r.go(best);log(name+' → '+KINDS[best.k].name+'. '+r.msg);return}
+  }
+
+  function key(e){
+    var k=e.key;
+    if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].indexOf(k)>=0)e.preventDefault();
+    if(k==='r'||k==='R'){reset();return}
+    if(S.over)return;
+    if(k===' '){
+      if(!S.open){if(mode==='slow'&&S.focus<10){log('집중이 모자라 영창을 열 수 없다');return}S.open=true;S.runes=[];return}
+      var sp=SPELLS[S.runes.join(',')];
+      if(sp){S.open=false;S.runes=[];cast(sp)}else if(!S.runes.length){S.open=false}else log('아직 주문이 아니다');
+      return}
+    if(k==='Escape'){S.open=false;S.runes=[];return}
+    if(/^[1-4]$/.test(k)&&S.open){
+      var nx=S.runes.concat([+k]).join(',');
+      var ok=Object.keys(SPELLS).some(function(s){return s===nx||s.indexOf(nx+',')===0});
+      if(ok)S.runes.push(+k);else{S.runes=[];log('룬이 흩어졌다')}
+    }
+  }
+
+  function step(dt){
+    if(S.over)return;
+    var slow=mode==='slow'&&S.open, w=slow?dt*0.2:dt;
+    if(mode==='slow'){if(S.open){S.focus-=24*dt;if(S.focus<=0){S.focus=0;S.open=false;S.runes=[];log('집중이 끊겼다')}}else S.focus=Math.min(100,S.focus+12*dt)}else S.focus=100;
+    S.t+=w;
+    if(S.wave<0||(!S.enemies.length&&S.wave<WAVES.length)){S.next-=dt;if(S.next<=0){S.wave++;if(S.wave>=WAVES.length){S.over='win';log('봉인 완료. '+S.t.toFixed(1)+'초');return}spawnWave(S.wave);S.next=1.5}}
+    var p=S.player,sp=150*(mode==='real'&&S.open?0.5:1),mx=0,my=0;
+    if(keys.a||keys.arrowleft)mx--;if(keys.d||keys.arrowright)mx++;if(keys.w||keys.arrowup)my--;if(keys.s||keys.arrowdown)my++;
+    var l=Math.hypot(mx,my);if(l){p.x=clampX(p.x+mx/l*sp*w);p.y=clampY(p.y+my/l*sp*w)}
+    S.enemies.forEach(function(e){
+      Object.keys(e.back).forEach(function(g){if(e.back[g]>S.t)return;if((g==='wet'&&has(e,'dry'))||(g==='dry'&&has(e,'wet'))||(g==='dark'&&has(e,'lit'))){e.back[g]=S.t+1;return}delete e.back[g];e.tags[g]=Infinity});
+      if(has(e,'burning')){e.burnAcc=(e.burnAcc||0)+4*w;if(e.burnAcc>=1){var n=Math.floor(e.burnAcc);e.burnAcc-=n;hit(e,n)}}
+      e.stun-=w;
+      if(e.stun>0||has(e,'frozen'))return;
+      var d=KINDS[e.k],s=d.speed*(has(e,'chilled')?0.5:1),dx=p.x-e.x,dy=p.y-e.y,dl=Math.hypot(dx,dy)||1;
+      if(dl>d.r+10){e.x+=dx/dl*s*w;e.y+=dy/dl*s*w}
+      else if(p.hurt<=S.t){p.hurt=S.t+0.9;if(p.shield>S.t){p.shield=0;log('결계가 공격을 막았다')}else{p.hp-=10;S.pops.push({x:p.x,y:p.y-20,t:S.t,txt:'-10',bad:1})}}
+    });
+    S.enemies=S.enemies.filter(function(e){if(e.hp<=0){log(KINDS[e.k].name+' 소멸');return false}return true});
+    S.pops=S.pops.filter(function(o){return S.t-o.t<0.9});
+    if(p.hp<=0){p.hp=0;S.over='lose';log('기절했다. R로 다시')}
+  }
+
+  function bar(x,y,w,h,v,c){cx.fillStyle='rgba(0,0,0,.45)';cx.fillRect(x,y,w,h);cx.fillStyle=c;cx.fillRect(x,y,w*Math.max(0,v),h)}
+  function draw(){
+    cx.fillStyle='#1A2130';cx.fillRect(0,0,640,416);
+    for(var i=0;i<W;i++)for(var j=0;j<H;j++){var edge=i===0||j===0||i===W-1||j===H-1;cx.fillStyle=edge?'#10151F':((i+j)%2?'#212A3B':'#1E2636');cx.fillRect(i*T,j*T,T,T)}
+    var p=S.player;
+    if(S.open){cx.fillStyle=mode==='slow'?'rgba(70,110,170,.18)':'rgba(70,110,170,.06)';cx.fillRect(0,0,640,416)}
+    S.enemies.forEach(function(e){
+      var d=KINDS[e.k];
+      cx.globalAlpha=has(e,'dark')?0.45:1;
+      cx.fillStyle=has(e,'frozen')?'#BFE6F5':e.k==='soot'?'#8A7F74':e.k==='moss'?'#5E9A55':'#5B4A8A';
+      cx.beginPath();cx.arc(e.x,e.y,d.r,0,7);cx.fill();
+      if(has(e,'burning')){cx.strokeStyle='#F08A2C';cx.lineWidth=3;cx.stroke()}
+      cx.globalAlpha=1;
+      bar(e.x-16,e.y-d.r-8,32,4,e.hp/e.max,'#E06A6A');
+      var tg=Object.keys(e.tags).filter(function(g){return has(e,g)}).map(function(g){return TAGNAME[g]}).join(' ');
+      cx.font='11px "IBM Plex Sans KR",sans-serif';cx.textAlign='center';cx.fillStyle='#E8EDF3';cx.fillText(tg,e.x,e.y-d.r-12);
+    });
+    cx.fillStyle=col.chalk||'#5DC2B2';cx.beginPath();cx.arc(p.x,p.y,11,0,7);cx.fill();
+    if(p.shield>S.t){cx.strokeStyle='#9FD8FF';cx.lineWidth=2;cx.beginPath();cx.arc(p.x,p.y,17,0,7);cx.stroke()}
+    if(p.hurt>S.t&&p.hurt-S.t>0.6){cx.strokeStyle='#E06A6A';cx.lineWidth=2;cx.beginPath();cx.arc(p.x,p.y,13,0,7);cx.stroke()}
+    if(S.open){
+      cx.strokeStyle='#E2A04A';cx.lineWidth=1.5;cx.setLineDash([4,4]);cx.beginPath();cx.arc(p.x,p.y,24,0,7);cx.stroke();cx.setLineDash([]);
+      var txt=S.runes.length?S.runes.join(' - '):'룬 입력';var sp=SPELLS[S.runes.join(',')];if(sp)txt+='  '+sp;
+      cx.font='13px "IBM Plex Mono",monospace';cx.textAlign='center';cx.fillStyle='#F3D9A8';cx.fillText(txt,p.x,p.y+40)
+    }
+    S.pops.forEach(function(o){cx.globalAlpha=1-(S.t-o.t)/0.9;cx.font='bold 13px "IBM Plex Mono",monospace';cx.fillStyle=o.bad?'#FF8A8A':'#FFE3A3';cx.textAlign='center';cx.fillText(o.txt,o.x,o.y-(S.t-o.t)*24)});cx.globalAlpha=1;
+    cx.textAlign='left';cx.font='12px "IBM Plex Sans KR",sans-serif';cx.fillStyle='#E8EDF3';
+    cx.fillText('체력',12,18);bar(48,9,120,10,p.hp/100,'#E06A6A');
+    cx.fillText('집중',12,36);bar(48,27,120,10,S.focus/100,mode==='slow'?'#5DC2B2':'#3B5A55');
+    cx.textAlign='right';cx.fillText((mode==='slow'?'영창 중 시간 감속':'실시간')+'   웨이브 '+Math.max(1,Math.min(WAVES.length,S.wave+1))+'/'+WAVES.length,628,18);
+    if(!focused||S.over){cx.fillStyle='rgba(10,14,22,.66)';cx.fillRect(0,0,640,416);cx.fillStyle='#F3F5F8';cx.textAlign='center';
+      cx.font='22px "Song Myung",serif';cx.fillText(S.over==='win'?'봉인 완료':S.over==='lose'?'기절했다':'클릭해서 시작',320,200);
+      cx.font='13px "IBM Plex Sans KR",sans-serif';cx.fillText(S.over?'R 키로 다시 시작':'키보드 입력은 캔버스가 선택된 동안만 받습니다',320,228)}
+  }
+  function frame(ts){var dt=Math.min(0.05,(ts-last)/1000||0);last=ts;if(focused)step(dt);draw();requestAnimationFrame(frame)}
+
+  cv.addEventListener('keydown',function(e){keys[e.key.toLowerCase()]=true;key(e)});
+  cv.addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=false});
+  cv.addEventListener('focus',function(){focused=true;if(S.wave<0)logEl.firstChild.textContent='첫 웨이브가 옵니다.'});
+  cv.addEventListener('blur',function(){focused=false;keys={}});
+  cv.addEventListener('mousedown',function(){cv.focus()});
+  function setMode(m){mode=m;document.getElementById('mSlow').setAttribute('aria-pressed',m==='slow');document.getElementById('mReal').setAttribute('aria-pressed',m==='real');reset();cv.focus()}
+  document.getElementById('mSlow').addEventListener('click',function(){setMode('slow')});
+  document.getElementById('mReal').addEventListener('click',function(){setMode('real')});
+  document.getElementById('restart').addEventListener('click',function(){reset();cv.focus()});
+  readColors();setInterval(readColors,1500);
+  window.__proto={state:function(){return S},key:function(k){key({key:k,preventDefault:function(){}})},step:step,cast:cast};
+  reset();requestAnimationFrame(frame);
+})();
+</script>

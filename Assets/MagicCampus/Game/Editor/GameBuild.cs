@@ -11,11 +11,13 @@ namespace MagicCampus.Game.Editor
 {
     /// <summary>
     /// Batch build: -batchmode -quit -executeMethod MagicCampus.Game.Editor.GameBuild.Build [--stage5-build-name Stage5-x].
-    /// Copies fixtures and art into StreamingAssets, regenerates the scene, builds Builds/&lt;name&gt;/MagicCampus.exe and writes build-result.json.
+    /// Copies fixtures, Stage5 art and the CampusGrid runtime files (layouts, cell PNGs, packed atlases) into StreamingAssets,
+    /// regenerates the scene, builds Builds/&lt;name&gt;/MagicCampus.exe and writes build-result.json.
     /// </summary>
     public static class GameBuild
     {
         const string ScenePath = "Assets/MagicCampus/Scenes/FirstConnection.unity";
+        const string CampusGrid = "Assets/MagicCampus/CampusGrid";
 
         [Serializable]
         sealed class BuildResultFile
@@ -46,6 +48,12 @@ namespace MagicCampus.Game.Editor
             {
                 Copy(new DirectoryInfo(Path.Combine(root, "Content", "Fixtures", "FirstConnection", "generated")), Path.Combine(root, "Assets", "StreamingAssets", "FirstConnection"));
                 Copy(new DirectoryInfo(Path.Combine(root, "Art", "Stage5-v1")), Path.Combine(root, "Assets", "StreamingAssets", "Stage5Art"));
+                CopyGridRuntime(new DirectoryInfo(Path.Combine(root, CampusGrid)), Path.Combine(root, "Assets", "StreamingAssets", "CampusGrid"));
+                foreach (var kit in new[] { "UI", "Items", "Characters" })
+                {
+                    var src = new DirectoryInfo(Path.Combine(root, "Assets", "MagicCampus", "Art", kit));
+                    if (src.Exists) CopyGridRuntime(src, Path.Combine(root, "Assets", "StreamingAssets", "UiArt", kit));
+                }
                 CreateScene();
                 PlayerSettings.companyName = "MagicCampus";
                 PlayerSettings.productName = "MagicCampus";
@@ -106,6 +114,17 @@ namespace MagicCampus.Game.Editor
             foreach (var d in src.GetDirectories()) Copy(d, Path.Combine(dst, d.Name));
         }
 
+        /// <summary>What the game reads of CampusGrid at run time; Unity-only folders (Generated) and .meta files stay behind.</summary>
+        static void CopyGridRuntime(DirectoryInfo src, string dst)
+        {
+            if (!src.Exists) throw new DirectoryNotFoundException("missing source: " + src.FullName);
+            Directory.CreateDirectory(dst);
+            foreach (var f in src.GetFiles())
+                if (f.Extension == ".json" || f.Extension == ".png" || f.Extension == ".campusatlas") f.CopyTo(Path.Combine(dst, f.Name), true);
+            foreach (var d in src.GetDirectories())
+                if (d.Name != "Generated") CopyGridRuntime(d, Path.Combine(dst, d.Name));
+        }
+
         static void CreateScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -114,8 +133,30 @@ namespace MagicCampus.Game.Editor
             cam.orthographic = true;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = Color.black;
+            CreateWorldArtAssets();
             new GameObject("Game").AddComponent<GameRoot>();
             if (!EditorSceneManager.SaveScene(scene, ScenePath)) throw new InvalidOperationException("failed to save scene " + ScenePath);
+        }
+
+        /// <summary>The scene object that carries the CampusGrid shaders, canopy mask and a daylight with its preview controls off.</summary>
+        static void CreateWorldArtAssets()
+        {
+            T Load<T>(string path) where T : UnityEngine.Object => AssetDatabase.LoadAssetAtPath<T>(path) ?? throw new FileNotFoundException("missing asset " + path);
+            var assets = new GameObject("World Art").AddComponent<WorldArtAssets>();
+            assets.CanopyShader = Load<Shader>(CampusGrid + "/CourtyardCanopy.shader");
+            assets.ContactShadowShader = Load<Shader>(CampusGrid + "/CourtyardShadow.shader");
+            assets.GradeShader = Load<Shader>(CampusGrid + "/CourtyardGrade.shader");
+            assets.NormalShader = Load<Shader>(CampusGrid + "/CourtyardGround.shader");
+            assets.CanopyMask = Load<Texture2D>(CampusGrid + "/CanopyShadow.png");
+            var template = new GameObject("Daylight Template");
+            template.SetActive(false);
+            template.transform.SetParent(assets.transform, false);
+            var daylight = template.AddComponent<CampusDaylight>();
+            var serialized = new SerializedObject(daylight);
+            serialized.FindProperty("showControls").boolValue = false;
+            serialized.FindProperty("previewSecondsPerDay").floatValue = 0f;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            assets.DaylightTemplate = daylight;
         }
     }
 }

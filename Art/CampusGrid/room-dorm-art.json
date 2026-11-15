@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "libraries": [
+    "interior.json"
+  ],
+  "tiles": [
+    {
+      "id": "room-floor",
+      "source": "prepared/room-dorm/oak-floor-native.png"
+    }
+  ],
+  "props": []
+}

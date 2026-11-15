@@ -1,0 +1,30 @@
+﻿[
+    {
+        "hash":  "DFAD26461F79C2DA647218E5C216BBE9F9395630911D85EEDF5C72C031C5A543",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\layout.json"
+    },
+    {
+        "hash":  "D608449FB20CE7D329EC9C8C00B0228B9CE32104952F4CD3376B411B8AD3B7BD",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\layout.json.meta"
+    },
+    {
+        "hash":  "B35935453D6E37F79C42D33B57278A695350B7A4A1D0222F4598BD44824A3FBD",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\scenic.campusatlas"
+    },
+    {
+        "hash":  "486C30D6B9E836B7E92C97D42C359C91B6223391801B373BAF78DFBCF1327E6D",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\scenic.campusatlas.meta"
+    },
+    {
+        "hash":  "180C1AAC2A11F782DF823F76E692DA5738A961FF0518259945C6594B2D7297B5",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\Textures.meta"
+    },
+    {
+        "hash":  "8C4B38EC1EBDD4B12CE2B9516DFC02E4CFD1E02305BC4B967E492212E0B4C3BB",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\Textures\\ground-room-floor-00.png"
+    },
+    {
+        "hash":  "61E631864810418C2FE9647AD4FE3ADCF169C756D4CB36D7C3693A7D58A4B187",
+        "path":  "Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\Textures\\ground-room-floor-00.png.meta"
+    }
+]

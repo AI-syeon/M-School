@@ -1,0 +1,65 @@
+﻿{
+    "files":  [
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\layout.json",
+                      "Hash":  "87E6968C809CE76B3B0E62FE9DF459F0F4C682DAA0479C81F4CACDA261660A71"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\layout.json.meta",
+                      "Hash":  "D608449FB20CE7D329EC9C8C00B0228B9CE32104952F4CD3376B411B8AD3B7BD"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\scenic.campusatlas",
+                      "Hash":  "BA273916631098236203C953DEA1017C89F655F26FEE43700123843438242515"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\scenic.campusatlas.meta",
+                      "Hash":  "486C30D6B9E836B7E92C97D42C359C91B6223391801B373BAF78DFBCF1327E6D"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\Textures.meta",
+                      "Hash":  "180C1AAC2A11F782DF823F76E692DA5738A961FF0518259945C6594B2D7297B5"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\Textures\\ground-room-floor-00.png",
+                      "Hash":  "607062C2E3D66E95D8EDCC0B00B4860227E63B70F56C8847D56E0FFFE00F771C"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Assets\\MagicCampus\\CampusGrid\\Rooms\\room-dorm\\Textures\\ground-room-floor-00.png.meta",
+                      "Hash":  "61E631864810418C2FE9647AD4FE3ADCF169C756D4CB36D7C3693A7D58A4B187"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\build-report.json",
+                      "Hash":  "9CA5085A07D0A8748DF0E37DF25492EB14C2579390BB0700C26A72D006985ED9"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\cell-atlas.png",
+                      "Hash":  "2547AB4063FF75FF1B9E2FB1CB394E74874CC61BFC3D273A9F7B3BFA341BA939"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\courtyard.png",
+                      "Hash":  "A05DC192AAAEB42E3F03AA0E4CF446827D2D9982091C5F6E0671A988F62704E2"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\room-dorm-3x.png",
+                      "Hash":  "DC53238BE16E8231C1325221287A31547F31F6F02B1B0FDC6C911CFE2B85E21B"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\room-dorm-grid.png",
+                      "Hash":  "0C4399F0DE38B2F819C91B57E6E4BA5EB8D9DD5A6854BE94C2D39A1332FCB679"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\room-dorm-vs-keyart.png",
+                      "Hash":  "20B116C73E6054C8D2670D9B57BCBE465920DFF1BC85B52BFCCCA8F96F77B175"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\room-dorm.png",
+                      "Hash":  "A05DC192AAAEB42E3F03AA0E4CF446827D2D9982091C5F6E0671A988F62704E2"
+                  },
+                  {
+                      "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\CampusGrid\\review\\room-dorm\\source-vs-grid.png",
+                      "Hash":  "5F85384EE818622BA6EB6F3AF93681D4DF424324DA792CF0BA66000C84CFB8B4"
+                  }
+              ],
+    "identical":  true
+}

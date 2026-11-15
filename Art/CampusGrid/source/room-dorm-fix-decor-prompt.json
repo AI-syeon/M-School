@@ -1,0 +1,15 @@
+{
+  "tool": "built-in image_gen",
+  "transparent_background": true,
+  "inputs": [
+    "design/screens/06-room.png",
+    "Art/CampusGrid/review/room-dorm/room-dorm.png"
+  ],
+  "source": "room-dorm-fix-decor-original.png",
+  "prompt": "Use case: stylized-concept\nAsset type: transparent sprite atlas for a 32x32 tile fantasy student dorm game.\nInput image 1 is visual mood reference: rich cozy magical dorm. Input image 2 is existing game room: match its elevated front-facing 3/4 camera and warm oak honey colors; enrich its sparse appearance. Do not recreate full room. Create isolated, complete objects on truly transparent background with large empty transparent gutters. No text, labels, borders, grid, ground, room or cast shadows. Crisp hard clustered pixel illustration, limited cream/honey oak/navy/muted gold/olive palette, no antialias/glow/light effects. Preserve readable material details at small game scale.\nLayout one 1536x1024 landscape atlas with four separated rows:\nTOP ROW left: a replacement narrow single bed, viewed from front elevated 3/4, rich navy gold-star canopy with wooden finial posts, cream star pillow, navy quilt with many gold constellation stars, carved honey oak footboard and legs. Entire object 250 pixels wide x 400 high, tall narrow silhouette. Footprint one tile wide and two deep; canopy may overhang gently. Upper middle: broad horizontal cream plaster wall panel with dark timber top and bottom bands, three timber vertical seams, 800 wide x 120 high. Upper far right: separate vertical honey timber decorative post 70 wide x 360 high.\nBOTTOM HALF spaced assets: navy hanging moon-and-star embroidered swallowtail banner 110 wide x 220 high; trailing ivy hanging sprig 110 wide x 220 high; horizontal gold star garland 250 wide x 90 high with 5 readable dangling gold stars; pair of navy gathered curtain side trims with gold ties as one 250 wide x 200 high asset; rectangular olive-green cream gold botanical runner rug seen elevated from above 180 wide x 290 high; small closed carved oak trunk with gold straps 200 wide x 110 high; round wooden stool 95 wide x 100 high; stack of three navy and olive books 95 wide x 80 high; brass lantern table lamp 85 wide x 120 high; curled cream cat 100 wide x 70 high.\nKeep each object isolated with at least 40 pixel transparent separation. Arrange neatly without touching or overlap; prioritize the single bed and rich readable decorations. Objects must be full size finished game sprites, never micro symbols. No desk, bookshelf, wardrobe, window seat or mirror because existing sprites remain unchanged.",
+  "file": "room-dorm-fix-decor-original.png",
+  "reference": [
+    "design/screens/06-room.png",
+    "Art/CampusGrid/review/room-dorm/room-dorm.png"
+  ]
+}

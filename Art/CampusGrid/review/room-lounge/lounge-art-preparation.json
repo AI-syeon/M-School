@@ -1,0 +1,167 @@
+{
+  "tileSize": 32,
+  "tool": "image_gen.imagegen (built-in)",
+  "source": "source/room-lounge-furniture-original.png",
+  "assets": {
+    "lounge-sofa": [
+      [
+        45,
+        40,
+        465,
+        300
+      ],
+      [
+        96,
+        64
+      ]
+    ],
+    "lounge-tea-table": [
+      [
+        600,
+        45,
+        270,
+        285
+      ],
+      [
+        32,
+        32
+      ]
+    ],
+    "lounge-fireplace": [
+      [
+        1010,
+        25,
+        350,
+        320
+      ],
+      [
+        64,
+        64
+      ]
+    ],
+    "lounge-noticeboard": [
+      [
+        115,
+        365,
+        325,
+        345
+      ],
+      [
+        64,
+        64
+      ]
+    ],
+    "lounge-armchair": [
+      [
+        600,
+        365,
+        270,
+        350
+      ],
+      [
+        32,
+        64
+      ]
+    ],
+    "lounge-rug": [
+      [
+        1010,
+        375,
+        350,
+        340
+      ],
+      [
+        96,
+        96
+      ]
+    ],
+    "lounge-star-banner": [
+      [
+        175,
+        730,
+        210,
+        345
+      ],
+      [
+        32,
+        64
+      ]
+    ]
+  },
+  "architecture": {
+    "lounge-wall-rear": [
+      [
+        46,
+        0,
+        1310,
+        330
+      ],
+      [
+        320,
+        64
+      ]
+    ],
+    "lounge-wall-side": [
+      [
+        0,
+        330,
+        46,
+        690
+      ],
+      [
+        32,
+        192
+      ]
+    ],
+    "lounge-wall-front-left": [
+      [
+        46,
+        1020,
+        490,
+        100
+      ],
+      [
+        128,
+        32
+      ]
+    ],
+    "lounge-wall-front-right": [
+      [
+        750,
+        1020,
+        646,
+        100
+      ],
+      [
+        160,
+        32
+      ]
+    ],
+    "lounge-floor": [
+      [
+        500,
+        450,
+        400,
+        160
+      ],
+      [
+        32,
+        32
+      ]
+    ]
+  },
+  "fire": {
+    "frames": 6,
+    "fps": 8,
+    "changedRectangle": [
+      22,
+      27,
+      43,
+      49
+    ]
+  },
+  "sourceSha256": {
+    "room-lounge-furniture-original.png": "8d8f415177b88932bb830c423d02f0c0fed1d8caf73903df4efd10cd8ad98cbc",
+    "room-lounge-base-original.png": "879d96e54ea5ed7afd8cd0537052229c86df7be83022276b83aebf6876f47e90"
+  }
+}

@@ -1,0 +1,530 @@
+[
+  {
+    "file": "Art/Characters/source/npc-mira-chat-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "ce003510cded9be1376a6f245f27cee2a9849bbe07375a9af135b84c44691f28",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        60,
+        216,
+        324,
+        832
+      ],
+      [
+        60,
+        216,
+        325,
+        832
+      ],
+      [
+        60,
+        216,
+        325,
+        833
+      ],
+      [
+        60,
+        216,
+        325,
+        832
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-mira-eat-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "856e5e52e1eb969bea49c0d6228bea7a8aafce476a7867dec3a7c56aa555ca5e",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        66,
+        217,
+        319,
+        833
+      ],
+      [
+        66,
+        217,
+        319,
+        833
+      ],
+      [
+        66,
+        217,
+        319,
+        833
+      ],
+      [
+        66,
+        217,
+        319,
+        833
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-mira-read-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "088f25555a2c4bd5beee5416fb32bc45e2d5c9c387d859a5f60635181c45628f",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        63,
+        215,
+        327,
+        833
+      ],
+      [
+        61,
+        220,
+        325,
+        833
+      ],
+      [
+        60,
+        223,
+        324,
+        833
+      ],
+      [
+        59,
+        215,
+        322,
+        833
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-mira-write-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "a0abbcea0d9b034d4ec39ef114fb793e6c353f6041e0c238857e63a8bb51ad58",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        67,
+        217,
+        330,
+        833
+      ],
+      [
+        63,
+        217,
+        326,
+        833
+      ],
+      [
+        61,
+        222,
+        322,
+        833
+      ],
+      [
+        54,
+        217,
+        316,
+        833
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-serin-chat-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "c4444117fe604dd52a2363983570fc0eb31cc3dec9199180e608d562c92501e2",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        44,
+        226,
+        339,
+        846
+      ],
+      [
+        45,
+        226,
+        339,
+        846
+      ],
+      [
+        45,
+        226,
+        339,
+        846
+      ],
+      [
+        45,
+        226,
+        338,
+        846
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-serin-eat-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "239a551e607817d5035442b2f8949af69d6ecff209013030a3f2f5e2a78bbef9",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        48,
+        225,
+        346,
+        846
+      ],
+      [
+        48,
+        225,
+        346,
+        847
+      ],
+      [
+        48,
+        225,
+        346,
+        846
+      ],
+      [
+        48,
+        225,
+        346,
+        846
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-serin-read-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "9d92f5fb6e05508129c624ef41010685a43aacf7d25bad41ae4b97dacdd37b6c",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        47,
+        224,
+        342,
+        845
+      ],
+      [
+        47,
+        225,
+        341,
+        845
+      ],
+      [
+        47,
+        227,
+        341,
+        845
+      ],
+      [
+        43,
+        224,
+        339,
+        845
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  },
+  {
+    "file": "Art/Characters/source/npc-serin-write-original.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "5f086fe76728cac220fd083931f9e13d98b0fefe226726a7cf4e878870c3d2c2",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "cell_crops": [
+      [
+        0,
+        0,
+        384,
+        1024
+      ],
+      [
+        384,
+        0,
+        768,
+        1024
+      ],
+      [
+        768,
+        0,
+        1152,
+        1024
+      ],
+      [
+        1152,
+        0,
+        1536,
+        1024
+      ]
+    ],
+    "alpha200_cell_local_bounds": [
+      [
+        46,
+        225,
+        349,
+        846
+      ],
+      [
+        42,
+        224,
+        344,
+        846
+      ],
+      [
+        37,
+        230,
+        340,
+        846
+      ],
+      [
+        32,
+        225,
+        334,
+        846
+      ]
+    ],
+    "notes": "Accepted first attempt. Source preserved unchanged; clean silhouette after alpha>=200 removal of low-opacity generated haze. Fixed stance; identity retained."
+  }
+]

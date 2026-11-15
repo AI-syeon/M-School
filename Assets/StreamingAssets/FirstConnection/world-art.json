@@ -1,0 +1,617 @@
+{
+  "maps": {
+    "map.courtyard": {
+      "width": 20,
+      "height": 14,
+      "layout": "CampusGrid/layout.json",
+      "minimap": [
+        "#867253 #8d7250 #966d49 #855d34 #8d7351 #775c3e #905a1f #7d6048 #7c6145 #633615 #623514 #7a5f43 #795d3d #646646 #6f745e #707552 #6d6d41 #746f4e #898b71 #85856e",
+        "#8e7454 #605b3f #8d6b4f #7a5f43 #545539 #906d4e #865f2f #695447 #9f754e #7f4310 #7d4211 #9b714c #685446 #61603f #68653e #69663d #68623a #71663f #7d7243 #7d744c",
+        "#a78567 #6b6144 #865021 #784219 #655e40 #846343 #776140 #836855 #977158 #7b3b12 #773b14 #936e54 #856956 #6e623a #796840 #917640 #6e5e29 #705926 #867038 #7f7048",
+        "#967855 #a98764 #733e11 #734015 #a58362 #967555 #756743 #645732 #977762 #92634b #6d4e40 #90725e #6f5d37 #766444 #736041 #70633b #695b2c #80642f #685d3e #716349",
+        "#826b59 #765d3d #896142 #80583d #79663e #856c59 #7c684c #896c57 #8b7061 #957456 #957557 #8c715f #886a57 #846a4e #876c5a #77614f #8b7951 #967e64 #866b53 #7f634d",
+        "#a58775 #a47f5e #aa8a78 #855e3a #875f3c #99826b #907371 #7e7146 #807b5b #8c8770 #918970 #80785f #7b7042 #927371 #9a8368 #865e3b #88603b #ad8d7a #a38062 #a58776",
+        "#9a8073 #93786b #a4887a #a4826a #a0806c #8b7655 #907952 #897551 #8e8a81 #687b73 #6a7c74 #8b8677 #8b7753 #8f7852 #87744f #a0816e #a17e68 #9d8276 #92786b #987f75",
+        "#c17940 #866e64 #a1877c #a68165 #9f7a59 #9c755a #786b4a #796d47 #9f8478 #947153 #9f7960 #89705c #796d4c #786c46 #a88262 #a8896e #816256 #9f8171 #876d5e #ba834f",
+        "#c06b30 #9e847a #9f8477 #7a5f50 #776557 #a4897b #996841 #946945 #a5897a #7d6456 #a68978 #a88367 #966746 #946b4a #a18372 #9c8379 #a1877c #9e8171 #bd692f #cf7014",
+        "#a58572 #a48778 #9f8477 #9d8379 #9f7e62 #a0857a #9b8171 #9c8277 #a48775 #a98666 #a78567 #a48776 #9d8277 #9b8278 #9d8378 #9f7d61 #9f806c #917b68 #ac592f #8e4822",
+        "#9f857a #99826b #987872 #a7875e #9e7f6d #a68a7c #9d8172 #9c856a #a58879 #a2836a #a2836b #987f6f #977b71 #9c856c #8a7568 #9d795e #9e856a #987874 #998265 #966446",
+        "#bf8447 #ac7f32 #867648 #9c815b #846c5b #8b7752 #877148 #9c794e #a68877 #ac8d7c #ab8d7c #7d6858 #987751 #847246 #967f60 #846b58 #9b815b #837242 #ac7b32 #c38b47",
+        "#cf7013 #cc6a11 #b3702c #a78873 #a58670 #8b7756 #967b58 #ab8b74 #a58879 #9e8478 #9f8476 #a78877 #ab886e #8c7857 #927c5e #a88871 #a5856e #b16320 #ce6f13 #cf6c13",
+        "#8d4822 #9e511d #bf6c32 #a2887e #a1816b #9f8171 #a88367 #a4836e #a0857a #a0867b #a18678 #a38472 #a38678 #a4887a #9f857b #9d8479 #9f857a #a8572e #8d4822 #a0511b"
+      ]
+    },
+    "map.lounge": {
+      "width": 10,
+      "height": 8,
+      "layout": "CampusGrid/Rooms/room-lounge/layout.json",
+      "minimap": [
+        "#b17c50 #886634 #7a4b28 #87593b #81553b #775142 #b07a57 #aa7451 #ae7a49 #b37e52",
+        "#644a1d #725033 #6b462d #704935 #7a523d #6e4737 #885736 #895735 #917342 #644a1d",
+        "#69431b #824d2b #804f28 #a05424 #a05424 #a05424 #8c5a37 #8f5d39 #895f2b #69431b",
+        "#713a1b #a05424 #a05424 #754132 #753d32 #754133 #a05424 #a05424 #a05424 #713a1b",
+        "#6f391b #a1632d #a05424 #643235 #7b4128 #643235 #a05424 #914f28 #a05424 #6f391b",
+        "#6f381a #8b4a27 #833d2a #663731 #643033 #653735 #78482d #663b2d #9e572b #6f381a",
+        "#6b361a #703625 #6d2c27 #723826 #826d3f #a05424 #664e3c #946137 #8e6333 #6b361a",
+        "#6b371a #703a1b #713a1b #6c381b #8a7245 #6f391b #713a1b #703a1b #703a1b #6a361a"
+      ]
+    },
+    "map.dorm": {
+      "width": 12,
+      "height": 9,
+      "layout": "CampusGrid/Rooms/room-dorm/layout.json",
+      "minimap": [
+        "#865a36 #a67c56 #a88164 #966e53 #6d592d #68544f #886d61 #5a4746 #9a7357 #a88164 #756135 #82573c",
+        "#714221 #90725e #886e5c #9d714d #886b46 #765946 #a39ca0 #705e58 #aa8164 #b28861 #967a54 #724321",
+        "#6e4227 #826552 #795238 #a96131 #a96131 #a05e33 #8c664f #866d63 #a15e33 #a96131 #a96131 #7b4624",
+        "#784726 #734d35 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #824a26",
+        "#874e26 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #a96131 #874e26",
+        "#834b26 #a96131 #a96131 #a96131 #a96131 #887143 #a96131 #a96131 #a96131 #a96131 #a96131 #834b26",
+        "#7d4725 #a96131 #a96131 #a96131 #a96131 #856f40 #a96131 #a96131 #a96131 #a96131 #a96131 #7d4725",
+        "#724120 #a96131 #a96131 #a96131 #a96131 #826d3f #a96131 #a96131 #a96131 #a96131 #a96131 #724120",
+        "#60321c #68371e #68371d #6a381e #66361d #8a7245 #66361d #69381e #68371d #68371d #68371d #62331c"
+      ],
+      "pieces": {
+        "bookshelf": {
+          "parts": [
+            {
+              "prop": "bookshelf",
+              "x": 3,
+              "y": 5
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #6c4730 0.56",
+            "1 0 #704d2b 0.66",
+            "0 1 #674c31 0.72",
+            "1 1 #6b4b33 0.78",
+            "0 2 #6d602d 0.60",
+            "1 2 #7a512e 0.53"
+          ]
+        },
+        "desk": {
+          "parts": [
+            {
+              "prop": "desk",
+              "x": 6,
+              "y": 3
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #7f4c29 0.39",
+            "1 0 #6f4832 0.68",
+            "2 0 #824d29 0.38",
+            "0 1 #8a5b38 0.82",
+            "1 1 #8a5935 0.98",
+            "2 1 #925b32 0.74",
+            "0 2 #67524a 0.24",
+            "1 2 #976130 0.52",
+            "2 2 #c99f6c 0.16"
+          ]
+        },
+        "wardrobe": {
+          "parts": [
+            {
+              "prop": "wardrobe",
+              "x": 9,
+              "y": 5
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #834f2a 0.69",
+            "1 0 #85502b 0.64",
+            "0 1 #8a532d 0.88",
+            "1 1 #8e562e 0.78",
+            "0 2 #8c562c 0.65",
+            "1 2 #8c562d 0.57"
+          ]
+        },
+        "nightstand": {
+          "parts": [
+            {
+              "prop": "nightstand",
+              "x": 1,
+              "y": 4
+            },
+            {
+              "prop": "brass-lamp",
+              "x": 1,
+              "y": 4
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #a36d33 0.61"
+          ]
+        },
+        "mirror": {
+          "parts": [
+            {
+              "prop": "mirror",
+              "x": 10,
+              "y": 2
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #a28262 0.62",
+            "0 1 #ae957f 0.53"
+          ]
+        },
+        "chest": {
+          "parts": [
+            {
+              "prop": "oak-chest",
+              "x": 2,
+              "y": 3
+            },
+            {
+              "prop": "candle",
+              "x": 2,
+              "y": 3
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #8f673f 0.72",
+            "1 0 #6c4a2d 0.67"
+          ]
+        },
+        "stool": {
+          "parts": [
+            {
+              "prop": "star-stool",
+              "x": 8,
+              "y": 1
+            },
+            {
+              "prop": "candle",
+              "x": 8,
+              "y": 1
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #866244 0.66"
+          ]
+        },
+        "books": {
+          "parts": [
+            {
+              "prop": "stacked-books",
+              "x": 2,
+              "y": 1
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #574c42 0.71"
+          ]
+        },
+        "plant-a": {
+          "parts": [
+            {
+              "prop": "plant",
+              "x": 1,
+              "y": 1
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #746a33 0.50",
+            "0 1 #67762d 0.34"
+          ]
+        },
+        "plant-b": {
+          "parts": [
+            {
+              "prop": "plant",
+              "x": 9,
+              "y": 1
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #746a33 0.50",
+            "0 1 #67762d 0.34"
+          ]
+        },
+        "flowers": {
+          "parts": [
+            {
+              "prop": "flower-plant",
+              "x": 10,
+              "y": 1
+            }
+          ],
+          "flat": false,
+          "cells": [
+            "0 0 #7e7140 0.53",
+            "0 1 #8c716b 0.10"
+          ]
+        },
+        "rug": {
+          "parts": [
+            {
+              "prop": "star-rug",
+              "x": 2,
+              "y": 1
+            }
+          ],
+          "flat": true,
+          "cells": [
+            "0 0 #9e7e6b 0.45",
+            "1 0 #806965 0.85",
+            "2 0 #a1816b 0.39",
+            "0 1 #7c6665 0.85",
+            "1 1 #69565b 1.00",
+            "2 1 #806865 0.79",
+            "0 2 #a9876d 0.25",
+            "1 2 #886e66 0.59",
+            "2 2 #ae8b6f 0.21"
+          ]
+        }
+      }
+    },
+    "map.hall": {
+      "width": 16,
+      "height": 6,
+      "stage5": {
+        "floor": "floor.paving",
+        "rows": [
+          "RRDRRRRDRRRRDRRR",
+          "RW.WwWn.WwWn.WwR",
+          "R..............R",
+          "R..............D",
+          "Rf...dd..dd...fR",
+          "RRRRRRRDRRRRRRRR"
+        ],
+        "legend": {
+          "R": "roof.school",
+          "W": "wall.school",
+          "w": "window",
+          "n": "notice",
+          "b": "parchment",
+          "d": "bench",
+          "t": "bench",
+          "f": "flowers",
+          "h": "hedge",
+          "T": "tree",
+          "r": "floor.paving",
+          "s": "floor.paving",
+          "D": "door"
+        }
+      },
+      "minimap": [
+        "#5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485",
+        "#5c6485 #eacaa4 #e5c7a6 #eacaa4 #cfaa85 #eacaa4 #727f4e #e5c7a6 #eacaa4 #cfaa85 #eacaa4 #727f4e #e5c7a6 #eacaa4 #cfaa85 #5c6485",
+        "#5c6485 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #5c6485",
+        "#5c6485 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #ab7f61",
+        "#5c6485 #62774c #e5c7a6 #e5c7a6 #e5c7a6 #cea482 #cea482 #e5c7a6 #e5c7a6 #cea482 #cea482 #e5c7a6 #e5c7a6 #e5c7a6 #62774c #5c6485",
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485"
+      ]
+    },
+    "map.library": {
+      "width": 12,
+      "height": 9,
+      "stage5": {
+        "floor": "floor.lounge",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RbbwbbbbwbbR",
+          "R..........R",
+          "Rb.dd..dd.bR",
+          "R..........R",
+          "Rb.dd..dd.bR",
+          "R..........R",
+          "Rf........fR",
+          "RRRRRDRRRRRR"
+        ],
+        "legend": {
+          "R": "roof.school",
+          "W": "wall.school",
+          "w": "window",
+          "n": "notice",
+          "b": "parchment",
+          "d": "bench",
+          "t": "bench",
+          "f": "flowers",
+          "h": "hedge",
+          "T": "tree",
+          "r": "floor.paving",
+          "s": "floor.paving",
+          "D": "door"
+        }
+      },
+      "minimap": [
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485",
+        "#5c6485 #ebc08b #ebc08b #cfaa85 #ebc08b #ebc08b #ebc08b #ebc08b #cfaa85 #ebc08b #ebc08b #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #ebc08b #b47541 #cea482 #cea482 #b47541 #b47541 #cea482 #cea482 #b47541 #ebc08b #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #ebc08b #b47541 #cea482 #cea482 #b47541 #b47541 #cea482 #cea482 #b47541 #ebc08b #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #62774c #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #62774c #5c6485",
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485"
+      ]
+    },
+    "map.classroom": {
+      "width": 12,
+      "height": 9,
+      "stage5": {
+        "floor": "floor.lounge",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RWwWnnWwWwWR",
+          "R....t.....R",
+          "R..........R",
+          "R.dd.dd.dd.R",
+          "R..........R",
+          "R.dd.dd.dd.R",
+          "R..........R",
+          "RRRDRRRRRRRR"
+        ],
+        "legend": {
+          "R": "roof.school",
+          "W": "wall.school",
+          "w": "window",
+          "n": "notice",
+          "b": "parchment",
+          "d": "bench",
+          "t": "bench",
+          "f": "flowers",
+          "h": "hedge",
+          "T": "tree",
+          "r": "floor.paving",
+          "s": "floor.paving",
+          "D": "door"
+        }
+      },
+      "minimap": [
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485",
+        "#5c6485 #eacaa4 #cfaa85 #eacaa4 #727f4e #727f4e #eacaa4 #cfaa85 #eacaa4 #cfaa85 #eacaa4 #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #cea482 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #b47541 #cea482 #cea482 #b47541 #cea482 #cea482 #b47541 #cea482 #cea482 #b47541 #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #b47541 #cea482 #cea482 #b47541 #cea482 #cea482 #b47541 #cea482 #cea482 #b47541 #5c6485",
+        "#5c6485 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #b47541 #5c6485",
+        "#5c6485 #5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485"
+      ]
+    },
+    "map.cafeteria": {
+      "width": 14,
+      "height": 9,
+      "stage5": {
+        "floor": "floor.paving",
+        "rows": [
+          "RRRRRRRRRRRRRR",
+          "RWwWWwWWwWWwWR",
+          "R.dddddddddd.R",
+          "R............R",
+          "R.tt..tt..tt.R",
+          "R............R",
+          "R.tt..tt..tt.R",
+          "Rf..........fR",
+          "RRRRRRRDRRRRRR"
+        ],
+        "legend": {
+          "R": "roof.school",
+          "W": "wall.school",
+          "w": "window",
+          "n": "notice",
+          "b": "parchment",
+          "d": "bench",
+          "t": "bench",
+          "f": "flowers",
+          "h": "hedge",
+          "T": "tree",
+          "r": "floor.paving",
+          "s": "floor.paving",
+          "D": "door"
+        }
+      },
+      "minimap": [
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485",
+        "#5c6485 #eacaa4 #cfaa85 #eacaa4 #eacaa4 #cfaa85 #eacaa4 #eacaa4 #cfaa85 #eacaa4 #eacaa4 #cfaa85 #eacaa4 #5c6485",
+        "#5c6485 #e5c7a6 #cea482 #cea482 #cea482 #cea482 #cea482 #cea482 #cea482 #cea482 #cea482 #cea482 #e5c7a6 #5c6485",
+        "#5c6485 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #5c6485",
+        "#5c6485 #e5c7a6 #cea482 #cea482 #e5c7a6 #e5c7a6 #cea482 #cea482 #e5c7a6 #e5c7a6 #cea482 #cea482 #e5c7a6 #5c6485",
+        "#5c6485 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #5c6485",
+        "#5c6485 #e5c7a6 #cea482 #cea482 #e5c7a6 #e5c7a6 #cea482 #cea482 #e5c7a6 #e5c7a6 #cea482 #cea482 #e5c7a6 #5c6485",
+        "#5c6485 #62774c #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #e5c7a6 #62774c #5c6485",
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #ab7f61 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485"
+      ]
+    },
+    "map.greenhouse": {
+      "width": 12,
+      "height": 8,
+      "stage5": {
+        "floor": "floor.grass.dark",
+        "rows": [
+          "RRRRRRRRRRRR",
+          "RwwwwwwwwwwR",
+          "RT.hh..hh.TR",
+          "R..........R",
+          "D..ff..ff..R",
+          "R..........R",
+          "R.hhh..hhh.R",
+          "RRRRRRRRRRRR"
+        ],
+        "legend": {
+          "R": "roof.school",
+          "W": "wall.school",
+          "w": "window",
+          "n": "notice",
+          "b": "parchment",
+          "d": "bench",
+          "t": "bench",
+          "f": "flowers",
+          "h": "hedge",
+          "T": "tree",
+          "r": "floor.paving",
+          "s": "floor.paving",
+          "D": "door"
+        }
+      },
+      "minimap": [
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485",
+        "#5c6485 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #cfaa85 #5c6485",
+        "#5c6485 #587837 #345e32 #597a37 #597a37 #345e32 #345e32 #597a37 #597a37 #345e32 #587837 #5c6485",
+        "#5c6485 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #5c6485",
+        "#ab7f61 #345e32 #345e32 #62774c #62774c #345e32 #345e32 #62774c #62774c #345e32 #345e32 #5c6485",
+        "#5c6485 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #345e32 #5c6485",
+        "#5c6485 #345e32 #597a37 #597a37 #597a37 #345e32 #345e32 #597a37 #597a37 #597a37 #345e32 #5c6485",
+        "#5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485 #5c6485"
+      ]
+    }
+  },
+  "targets": {
+    "target.signboard": {
+      "default": "target-signboard-dark",
+      "states": [
+        {
+          "when": [
+            "lit"
+          ],
+          "sprite": "target-signboard-lit",
+          "glow": "warm",
+          "glowAt": [
+            0.8,
+            1.35
+          ]
+        }
+      ]
+    },
+    "target.pillar": {
+      "default": "target-pillar-broken",
+      "states": [
+        {
+          "when": [
+            "restored",
+            "mended"
+          ],
+          "sprite": "target-pillar-mended"
+        }
+      ]
+    },
+    "target.seedpot": {
+      "default": "target-seedpot-dry",
+      "states": [
+        {
+          "when": [
+            "husk_open",
+            "germinating"
+          ],
+          "sprite": "target-seedpot-sprout",
+          "glow": "leaf",
+          "glowAt": [
+            0.5,
+            0.55
+          ]
+        }
+      ]
+    },
+    "target.moss": {
+      "default": "target-moss-plain",
+      "states": [
+        {
+          "when": [
+            "wet",
+            "frozen"
+          ],
+          "sprite": "target-moss-bloom",
+          "glow": "bloom",
+          "glowAt": [
+            0.55,
+            0.5
+          ]
+        }
+      ]
+    },
+    "target.plaque": {
+      "default": "target-plaque-dim",
+      "states": [
+        {
+          "when": [
+            "scene_shown",
+            "lit"
+          ],
+          "sprite": "target-plaque-glow",
+          "glow": "echo",
+          "glowAt": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    "target.rune_stone": {
+      "default": "target-rune-stone-off",
+      "states": [
+        {
+          "when": [
+            "sound_aligned",
+            "sound_source"
+          ],
+          "sprite": "target-rune-stone-on",
+          "glow": "rune",
+          "glowAt": [
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    }
+  },
+  "targetGlows": {
+    "warm": {
+      "color": "#ffbf4a",
+      "radius": 1.9,
+      "alpha": 0.95
+    },
+    "leaf": {
+      "color": "#8be85a",
+      "radius": 1.1,
+      "alpha": 0.55
+    },
+    "bloom": {
+      "color": "#f0b8ff",
+      "radius": 1.2,
+      "alpha": 0.55
+    },
+    "echo": {
+      "color": "#5ee0ff",
+      "radius": 1.3,
+      "alpha": 0.6
+    },
+    "rune": {
+      "color": "#8f78ff",
+      "radius": 1.4,
+      "alpha": 0.65
+    }
+  },
+  "spellEffects": {
+    "default": {
+      "color": "#e8ecf4"
+    },
+    "spell.lantern": {
+      "color": "#ffd24a"
+    },
+    "spell.sprout": {
+      "color": "#7be36a"
+    },
+    "spell.ember": {
+      "color": "#ff8a2e"
+    },
+    "spell.frost": {
+      "color": "#6fe0ff"
+    },
+    "spell.ripple": {
+      "color": "#78a8ff"
+    }
+  }
+}

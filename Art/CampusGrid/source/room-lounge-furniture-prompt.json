@@ -1,0 +1,10 @@
+{
+  "file": "room-lounge-furniture-original.png",
+  "tool": "image_gen.imagegen (built-in)",
+  "reference": [
+    "design/screens/12-club.png",
+    "design/screens/02-classroom.png",
+    "Art/CampusGrid/source/room-dorm-base-original.png"
+  ],
+  "prompt": "Use case: stylized-concept. Asset type: transparent source sprite sheet for 32x32-grid cozy magic academy lounge. Reference club screen for burgundy/navy celestial palette, classroom for honey oak brass, dorm image for orthogonal top-down RPG camera. Create exactly SEVEN isolated furniture sprites, neatly spaced on transparent background in a 3-column 3-row grid, large transparent gutters, no overlaps, no labels. Arrange: top-left wide 3-seat burgundy upholstered carved honey-oak SOFA front-facing (3:2 aspect); top-middle small round low honey-oak TEA TABLE seen from above with brass teapot and a tiny honey bread plate (1:1 aspect); top-right carved honey-oak and cream-stone FIREPLACE front-facing, dark arched firebox with orange yellow fire on logs, small brass star on mantel, no items extending beyond sides (1:1 aspect). Middle-left honey-oak wall NOTICEBOARD with cream pinned notes, small ink symbols but no readable text (1:1 aspect); middle-center navy upholstered honey-oak ARMCHAIR front-facing (1:2 aspect); middle-right rectangular burgundy and navy RUG seen top-down flat with brass-gold celestial border and central subtle star (1:1 aspect). Bottom-left one long navy wall STAR BANNER with gold trim and star glyph (1:2 aspect). Other bottom cells empty. Cute cozy high-quality clustered hard edged pixel-art source, same scale and camera across sprites. Upper-left material shading only, NO cast ground shadows, NO surrounding room, NO daylight, NO floor patches, NO glow bleeding outside fireplace. Genuine transparent alpha background. Complete silhouettes with clear separated parts and strong readable silhouettes for later pixel reduction."
+}

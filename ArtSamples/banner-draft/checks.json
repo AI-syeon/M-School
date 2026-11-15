@@ -1,0 +1,196 @@
+{
+  "palette_limit": 24,
+  "shared_palette_rgb": [
+    [
+      250,
+      217,
+      132
+    ],
+    [
+      236,
+      190,
+      109
+    ],
+    [
+      223,
+      167,
+      71
+    ],
+    [
+      206,
+      162,
+      97
+    ],
+    [
+      189,
+      135,
+      62
+    ],
+    [
+      148,
+      120,
+      99
+    ],
+    [
+      130,
+      93,
+      50
+    ],
+    [
+      93,
+      85,
+      91
+    ],
+    [
+      92,
+      70,
+      51
+    ],
+    [
+      71,
+      64,
+      69
+    ],
+    [
+      53,
+      61,
+      82
+    ],
+    [
+      48,
+      54,
+      73
+    ],
+    [
+      53,
+      47,
+      50
+    ],
+    [
+      44,
+      40,
+      44
+    ],
+    [
+      38,
+      48,
+      73
+    ],
+    [
+      38,
+      39,
+      50
+    ],
+    [
+      35,
+      48,
+      75
+    ],
+    [
+      33,
+      46,
+      72
+    ],
+    [
+      34,
+      38,
+      52
+    ],
+    [
+      32,
+      45,
+      71
+    ],
+    [
+      31,
+      43,
+      69
+    ],
+    [
+      29,
+      42,
+      67
+    ],
+    [
+      28,
+      38,
+      61
+    ],
+    [
+      27,
+      30,
+      42
+    ]
+  ],
+  "pipeline_atlas_roundtrip": true,
+  "draft_recipe_registered": false,
+  "production_rebuild_run": false,
+  "variants": [
+    {
+      "file": "pixel-01.png",
+      "mode": "RGBA",
+      "size": [
+        32,
+        96
+      ],
+      "alpha_values": [
+        0,
+        255
+      ],
+      "opaque_rgb_colors": 22,
+      "rgba_colors_including_transparent": 23,
+      "visible_bbox": [
+        1,
+        1,
+        30,
+        95
+      ],
+      "repeat_png_bytes_equal": true,
+      "sha256": "56204aa793a5165d13bd5402d3f24adff7a1b24b3a03f89827b26481f661ddb8"
+    },
+    {
+      "file": "pixel-02.png",
+      "mode": "RGBA",
+      "size": [
+        32,
+        96
+      ],
+      "alpha_values": [
+        0,
+        255
+      ],
+      "opaque_rgb_colors": 24,
+      "rgba_colors_including_transparent": 25,
+      "visible_bbox": [
+        2,
+        1,
+        30,
+        95
+      ],
+      "repeat_png_bytes_equal": true,
+      "sha256": "1f574ee6ef52313abc6ec470bb231eca31b410d196a39554161c24fe6eb7b053"
+    },
+    {
+      "file": "pixel-03.png",
+      "mode": "RGBA",
+      "size": [
+        32,
+        96
+      ],
+      "alpha_values": [
+        0,
+        255
+      ],
+      "opaque_rgb_colors": 23,
+      "rgba_colors_including_transparent": 24,
+      "visible_bbox": [
+        3,
+        1,
+        28,
+        95
+      ],
+      "repeat_png_bytes_equal": true,
+      "sha256": "1d0e807afc791730138104495c65663195a5b7830f3512a6e55c361dc8a4cacd"
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MagicCampus 시스템 구조</title>
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --ink:#1d2330; --mute:#5d6678; --line:#d9d6cc; --soft:#eceae2;
+  --contracts:#6b7a99; --domain:#1f8a78; --adapter:#c9772a; --present:#8a5bb8; --boot:#c8504a; --test:#7b8794;
+  --c-state:#1f8a78; --c-app:#2f6fd0; --c-world:#4f9a3d; --c-runtime:#6b7280; --c-persist:#c18a14; --c-content:#8a5bb8; --c-adapter:#c9622a;
+  --accent:#2f6fd0; --in:#c8504a;
+  --shadow:0 1px 2px rgba(20,24,40,.06),0 4px 14px rgba(20,24,40,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#14171e; --panel:#1c212b; --ink:#e7e9ee; --mute:#9aa3b5; --line:#2e3542; --soft:#232a36;
+    --contracts:#8e9dbd; --domain:#39b59f; --adapter:#e39a4f; --present:#b48be0; --boot:#e5786f; --test:#98a3b3;
+    --c-state:#39b59f; --c-app:#6a9cf0; --c-world:#7cc067; --c-runtime:#939aa8; --c-persist:#e0ac3c; --c-content:#b48be0; --c-adapter:#e58853;
+    --accent:#6a9cf0; --in:#e5786f; --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 "Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+code,.mono{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-size:.88em}
+code{background:var(--soft);padding:1px 6px;border-radius:5px}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);max-width:1320px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;height:100vh;padding:28px 14px 28px 22px;border-right:1px solid var(--line);overflow:auto}
+nav b{display:block;font-size:13px;letter-spacing:.04em;color:var(--mute);margin-bottom:10px}
+nav a{display:block;color:var(--mute);text-decoration:none;padding:5px 10px;border-radius:7px;font-size:13.5px}
+nav a:hover{background:var(--soft);color:var(--ink)}
+nav a.on{background:var(--soft);color:var(--ink);font-weight:650}
+main{padding:34px 40px 90px;min-width:0}
+header h1{font-size:30px;margin:0 0 6px;letter-spacing:-.02em}
+header p{color:var(--mute);margin:0;max-width:760px}
+section{margin-top:54px}
+section>h2{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+section>h2 span{color:var(--mute);font-weight:500;font-size:14px;margin-left:8px}
+.lead{color:var(--mute);margin:0 0 18px;max-width:780px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:26px;letter-spacing:-.02em}
+.stat span{color:var(--mute);font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 12px;font-size:13px;color:var(--mute)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.note{font-size:13.5px;color:var(--mute);margin-top:10px}
+svg text{font-family:inherit}
+
+/* assembly diagram */
+.asm .box rect{stroke-width:1.4;rx:12}
+.asm text{fill:var(--ink)}
+.asm .sub{fill:var(--mute);font-size:12px}
+.asm .t{font-size:15px;font-weight:700}
+
+/* modules */
+.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.mod{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+.mod:hover{transform:translateY(-2px)}
+.mod.open{grid-column:1/-1;border-color:var(--c)}
+.mod h3{margin:0;font-size:16px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mod h3 small{color:var(--mute);font-weight:500;font-size:12px}
+.mod p{margin:5px 0 0;color:var(--mute);font-size:13.5px}
+.mod .more{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:10px;font-size:13.5px}
+.mod.open .more{display:block}
+.mod .more table{width:100%;border-collapse:collapse}
+.mod .more td{padding:4px 8px 4px 0;vertical-align:top;border-bottom:1px solid var(--soft)}
+.mod .more td:first-child{white-space:nowrap;color:var(--ink);font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;width:1%}
+.mod .more td:last-child{color:var(--mute)}
+.bar{height:5px;border-radius:3px;background:var(--soft);margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c)}
+
+/* graph */
+.graphwrap{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px;align-items:start}
+@media(max-width:1100px){.graphwrap{grid-template-columns:1fr}}
+#graph{width:100%;height:auto;display:block}
+#graph .node{cursor:pointer}
+#graph .node rect{fill:var(--panel);stroke:var(--c);stroke-width:1.6;rx:8;transition:.12s}
+#graph .node text{fill:var(--ink);font-size:11.5px;text-anchor:middle;pointer-events:none}
+#graph .node.sel rect{fill:var(--c);}
+#graph .node.sel text{fill:#fff;font-weight:700}
+#graph .node.out rect{stroke-width:3;stroke:var(--accent)}
+#graph .node.in rect{stroke-width:3;stroke:var(--in)}
+#graph.focus .node:not(.sel):not(.out):not(.in){opacity:.28}
+#graph .edge{fill:none;stroke:var(--mute);stroke-width:1;opacity:.22;transition:.12s}
+#graph .edge.out{stroke:var(--accent);stroke-width:2.2;opacity:1}
+#graph .edge.in{stroke:var(--in);stroke-width:2.2;opacity:1}
+#graph.focus .edge:not(.out):not(.in){opacity:.05}
+#graph .rowlabel{fill:var(--mute);font-size:12px;font-weight:600}
+#graph .rowband{fill:var(--soft);opacity:.55}
+#info{position:sticky;top:18px;font-size:13.5px}
+#info h4{margin:0 0 4px;font-size:16px}
+#info .path{color:var(--mute);font-size:12px;word-break:break-all}
+#info .row{margin-top:10px}
+#info .row b{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
+#info .tag{display:inline-block;background:var(--soft);border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;font-size:12px;cursor:pointer}
+#info .tag.o{border:1px solid var(--accent)}
+#info .tag.i{border:1px solid var(--in)}
+.btn{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:4px 11px;border-radius:7px;cursor:pointer}
+.btn:hover{background:var(--soft)}
+
+/* flows */
+.steps{display:flex;flex-wrap:wrap;gap:8px 0;align-items:stretch;counter-reset:s}
+.step{position:relative;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c,var(--accent));border-radius:10px;padding:9px 12px 10px;min-width:128px;max-width:176px;margin-right:22px;flex:0 0 auto;box-shadow:var(--shadow)}
+.step:not(:last-child)::after{content:"\2192";position:absolute;right:-19px;top:50%;transform:translateY(-50%);color:var(--mute);font-size:16px}
+.step b{display:block;font-size:13.5px}
+.step code{background:none;padding:0;color:var(--mute);font-size:11.5px}
+.step p{margin:3px 0 0;font-size:12.5px;color:var(--mute);line-height:1.45}
+.step.bad{--c:var(--in)}
+.step.ok{--c:var(--c-world)}
+.lane{margin-top:14px}
+.lane>h4{margin:0 0 8px;font-size:13px;color:var(--mute);font-weight:650}
+.frame{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;counter-reset:f}
+.frame div{counter-increment:f;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px 9px;font-size:13px;position:relative}
+.frame div::before{content:counter(f);position:absolute;right:9px;top:6px;font-size:11px;color:var(--mute)}
+.frame div.gate{border-style:dashed}
+.frame div b{display:block;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px}
+.frame div span{color:var(--mute);font-size:12.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1000px){.two{grid-template-columns:1fr}}
+.tree{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;line-height:1.75;margin:0;white-space:pre-wrap}
+.tree em{font-style:normal;color:var(--mute)}
+.tree strong{color:var(--c-state)}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-size:12px;color:var(--mute);font-weight:650;padding:6px 10px;border-bottom:1px solid var(--line)}
+table.t td{padding:7px 10px;border-bottom:1px solid var(--soft);vertical-align:top}
+table.t td:first-child{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;white-space:nowrap}
+.pill{display:inline-block;border-radius:999px;padding:0 9px;font-size:12px;color:#fff;background:var(--c,var(--accent))}
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr}
+  nav{position:static;height:auto;display:flex;flex-wrap:wrap;gap:2px;border-right:0;border-bottom:1px solid var(--line);padding:12px 14px}
+  nav b{width:100%;margin-bottom:4px}
+  main{padding:22px 16px 70px}
+  header h1{font-size:24px}
+  table.t td:first-child,.mod .more td:first-child{white-space:normal;word-break:break-word}
+  .step{max-width:none;flex:1 1 100%;margin-right:0}
+  .step:not(:last-child)::after{display:none}
+}
+footer{margin-top:60px;color:var(--mute);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav id="nav">
+  <b>MAGICCAMPUS</b>
+  <a href="#overview">개요</a>
+  <a href="#assemblies">어셈블리 구조</a>
+  <a href="#modules">Domain 모듈</a>
+  <a href="#graph-sec">서비스 의존 그래프</a>
+  <a href="#frame">프레임 루프</a>
+  <a href="#state">상태와 커밋</a>
+  <a href="#event">이벤트 실행</a>
+  <a href="#save">저장과 복원</a>
+  <a href="#content">콘텐츠 파이프라인</a>
+  <a href="#verify">테스트와 검증</a>
+</nav>
+<main>
+
+<header id="overview">
+  <h1>MagicCampus 시스템 구조</h1>
+  <p>Unity 위에서 도는 상호작용 게임 런타임의 코드 구조. 2026-11-05 기준 master(<code>d4399d4</code>, 리팩토링 3단계 완료) 코드를 읽어 정리했다. 규칙과 상태는 Unity를 모르는 순수 C#(Domain)에 두고, Unity·파일·화면은 포트 뒤의 어댑터가 맡는다.</p>
+  <div class="cards">
+    <div class="stat"><b>6 + 1</b><span>런타임 어셈블리 + 에디터 어셈블리</span></div>
+    <div class="stat"><b>≈ 16,700줄</b><span><code>Assets/MagicCampus</code> C# 합계</span></div>
+    <div class="stat"><b>0</b><span>Domain의 Unity 참조 (<code>noEngineReferences</code>)</span></div>
+    <div class="stat"><b>1</b><span>불변 <code>GameState</code>. 유일한 커밋 창구 <code>GameStore</code></span></div>
+    <div class="stat"><b>1</b><span>씬 <code>FirstConnection</code>, 조립 루트 <code>FirstConnectionRuntime</code></span></div>
+  </div>
+</header>
+
+<!-- ============ 어셈블리 ============ -->
+<section id="assemblies">
+  <h2>어셈블리 구조 <span>화살표 = 참조(의존) 방향</span></h2>
+  <p class="lead">의존은 한 방향이다. Contracts가 맨 아래에서 모두가 공유하는 경계 타입을 정의하고, Domain·UnityAdapters·Presentation은 서로를 참조하지 않는다. 셋을 묶는 곳은 Bootstrap 한 곳뿐이다.</p>
+  <div class="panel asm">
+  <svg viewBox="0 0 1040 470" width="100%" role="img" aria-label="어셈블리 의존 다이어그램">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--mute)"/></marker>
+    </defs>
+    <!-- edges -->
+    <g stroke="var(--mute)" stroke-width="1.6" fill="none" marker-end="url(#ar)">
+      <path d="M520 92 L520 108 L190 108 L190 160"/>
+      <path d="M520 92 L520 160"/>
+      <path d="M520 92 L520 108 L850 108 L850 160"/>
+      <path d="M190 250 L190 340" /><path d="M520 250 L520 340"/><path d="M850 250 L850 340"/>
+      <path d="M520 40 L520 28" stroke="none"/>
+    </g>
+    <path d="M270 74 L270 108" stroke="none"/>
+    <!-- bootstrap editor -->
+    <g class="box">
+      <rect x="880" y="28" width="150" height="62" fill="var(--panel)" stroke="var(--boot)" stroke-dasharray="5 4"/>
+      <text x="955" y="56" text-anchor="middle" class="t">Bootstrap.Editor</text>
+      <text x="955" y="75" text-anchor="middle" class="sub">빌드 메뉴 (에디터 전용)</text>
+    </g>
+    <path d="M880 59 L730 59" stroke="var(--mute)" stroke-width="1.6" fill="none" marker-end="url(#ar)"/>
+    <!-- bootstrap -->
+    <g class="box">
+      <rect x="310" y="22" width="420" height="70" fill="var(--panel)" stroke="var(--boot)"/>
+      <text x="520" y="50" text-anchor="middle" class="t">MagicCampus.Bootstrap</text>
+      <text x="520" y="70" text-anchor="middle" class="sub">FirstConnectionGame · Runtime(조립) · Visuals · Probe · 3,573줄</text>
+    </g>
+    <!-- three middle -->
+    <g class="box">
+      <rect x="60" y="162" width="260" height="90" fill="var(--panel)" stroke="var(--domain)"/>
+      <text x="190" y="192" text-anchor="middle" class="t">MagicCampus.Domain</text>
+      <text x="190" y="212" text-anchor="middle" class="sub">규칙·상태·서비스 (순수 C#) · 9,245줄</text>
+      <text x="190" y="232" text-anchor="middle" class="sub">Unity 참조 없음 → 일반 csproj로 테스트</text>
+    </g>
+    <g class="box">
+      <rect x="390" y="162" width="260" height="90" fill="var(--panel)" stroke="var(--adapter)"/>
+      <text x="520" y="192" text-anchor="middle" class="t">MagicCampus.UnityAdapters</text>
+      <text x="520" y="212" text-anchor="middle" class="sub">Map · Collision · Input · Storage · ContentIO</text>
+      <text x="520" y="232" text-anchor="middle" class="sub">2,004줄 · Unity.InputSystem</text>
+    </g>
+    <g class="box">
+      <rect x="720" y="162" width="260" height="90" fill="var(--panel)" stroke="var(--present)"/>
+      <text x="850" y="192" text-anchor="middle" class="t">MagicCampus.Presentation</text>
+      <text x="850" y="212" text-anchor="middle" class="sub">Dialogue(IMGUI) · Cutscene</text>
+      <text x="850" y="232" text-anchor="middle" class="sub">1,257줄 · Unity.InputSystem</text>
+    </g>
+    <!-- contracts -->
+    <g class="box">
+      <rect x="60" y="342" width="920" height="96" fill="var(--panel)" stroke="var(--contracts)"/>
+      <text x="520" y="372" text-anchor="middle" class="t">MagicCampus.Contracts — 경계 계약 · 616줄 · Unity 참조 없음</text>
+      <text x="520" y="394" text-anchor="middle" class="sub">포트 인터페이스: IMapPort · ICollisionPort · IInputPort · IPresentationPort · IFileGenerationStore · IDataCodec · ISchemaValidationPort · IHandle/ICancelable · IPauseService</text>
+      <text x="520" y="414" text-anchor="middle" class="sub">공용 타입: DataNode(JSON 트리) · Outcome&lt;T&gt; · Result/Diagnostic · ResultCodes · Position · PauseSet</text>
+    </g>
+  </svg>
+  <p class="note">Domain은 <code>IMapPort</code>·<code>IFileGenerationStore</code> 같은 포트로만 바깥을 부른다. 구현체(<code>MapAdapter</code>, <code>FileGenerationStore</code>…)는 UnityAdapters에 있고 Bootstrap이 끼워 넣는다. 3단계 리팩토링에서 Contracts는 1,352줄 → 616줄로 줄었다(경계를 넘지 않는 타입은 Domain으로 이동).</p>
+  </div>
+</section>
+
+<!-- ============ 모듈 ============ -->
+<section id="modules">
+  <h2>Domain 모듈 <span>카드를 누르면 파일과 핵심 타입이 펼쳐진다</span></h2>
+  <p class="lead">Domain 안쪽은 폴더별 모듈이다. 폴더 이름이 그대로 네임스페이스 구획이다. 막대는 Domain 전체(9,245줄) 대비 크기.</p>
+  <div class="mods" id="mods"></div>
+</section>
+
+<!-- ============ 그래프 ============ -->
+<section id="graph-sec">
+  <h2>서비스 의존 그래프 <span>노드를 누르면 의존 관계가 강조된다</span></h2>
+  <p class="lead"><code>FirstConnectionRuntime</code>의 생성자가 객체를 만들고 이어 붙이는 순서(약 190~290행)를 그대로 옮긴 그림이다. 화살표는 "A가 B를 받아서 쓴다"이다.</p>
+  <div class="legend" id="glegend"></div>
+  <div class="graphwrap">
+    <div class="panel" style="padding:10px"><svg id="graph" viewBox="0 0 1180 640"></svg></div>
+    <div class="panel" id="info"></div>
+  </div>
+  <p class="note"><span style="color:var(--accent)">■ 파랑</span> = 선택한 노드가 쓰는 것 · <span style="color:var(--in)">■ 빨강</span> = 선택한 노드를 쓰는 것. 조립 루트(<code>FirstConnectionRuntime</code>)는 아래 모든 객체를 만들지만, 그림이 복잡해지지 않도록 직접 호출하는 응용 서비스 쪽만 선으로 그렸다.</p>
+</section>
+
+<!-- ============ 프레임 ============ -->
+<section id="frame">
+  <h2>프레임 루프 <span><code>FirstConnectionRuntime.Step(dt)</code></span></h2>
+  <p class="lead">게임은 매 프레임 한 번 <code>Step</code>을 부른다. 모든 비동기 작업은 핸들로 돌려주고, 완료 콜백은 다음 틱에 완료 큐(<code>CompletionPump</code>)가 순서대로 배달한다. 서비스마다 일시정지 채널(Calendar·Ambient·Player·World·Scene)을 스스로 확인해 멈춘다.</p>
+  <div class="panel">
+    <div class="frame">
+      <div><b>Pump.AdvanceTick</b><span>이전 틱의 완료 콜백 배달</span></div>
+      <div><b>Ticks.Advance</b><span>Scene 정지 중이면 0초만 진행 → <code>wait</code> 정지</span></div>
+      <div><b>Watchdog</b><span>Starting·Loading이 시간 초과면 취소</span></div>
+      <div><b>Disk.Tick</b><span>파일 세대 저장소 비동기 처리</span></div>
+      <div><b>Maps.Tick</b><span>맵 로드·전환</span></div>
+      <div><b>Staging.Tick</b><span>예약 합류 연출 진행</span></div>
+      <div><b>Moves.Tick</b><span>모든 이동(플레이어·NPC·연출) 한 곳에서</span></div>
+      <div><b>DialogueUi.Tick</b><span>대화창·선택지</span></div>
+      <div><b>Runner.Tick</b><span>이벤트 스크립트 진행 (틱당 즉시 명령 ≤ 64)</span></div>
+      <div class="gate"><b>Clock.Advance</b><span>Phase == Ready일 때만. 시간은 상태 커밋으로 흐른다</span></div>
+      <div class="gate"><b>Scheduler.Tick</b><span>Ready일 때만. NPC 일정 이동</span></div>
+    </div>
+    <p class="note">점선 칸은 <code>RuntimePhase.Ready</code> 이후에만 도는 단계. 시작·불러오기 중에는 게임 시간이 가지 않는다.</p>
+  </div>
+</section>
+
+<!-- ============ 상태 ============ -->
+<section id="state">
+  <h2>상태와 커밋 <span>3단계 리팩토링으로 도달한 구조</span></h2>
+  <p class="lead">예전에는 상태가 JSON 트리였고 변경마다 계획·참가자·스키마 검사를 거쳤다. 지금은 불변 <code>GameState</code>를 순수 함수로 바꿔 참조 하나를 교체한다. 잘못된 상태는 타입이 만들지 못하게 막고, 스키마 검사는 불러오기·저장 두 경계에서만 한다.</p>
+  <div class="two">
+    <div class="panel">
+      <h4 style="margin:0 0 8px">GameState (불변)</h4>
+<pre class="tree"><strong>GameState</strong>
+├─ Clock         <em>ClockState</em>          시각·하루 경계·day jobs
+├─ World         <em>WorldState</em>          플레이어 위치, NPC 위치
+├─ Progress      <em>Progress</em>
+│   ├─ Flags         <em>FlagTable</em>      bool/int 변수
+│   ├─ Completed     <em>KeySet</em>         완료 id
+│   ├─ RewardLedger  <em>KeySet</em>         보상 받은 키
+│   └─ Wallet        <em>Crowns</em>         0..2,147,483,647
+├─ Appointments  <em>AppointmentBook</em>    예약 Offered/Accepted/Ready
+├─ Known         <em>Knowledge</em>          증거·주문·사건 (읽기 전용)
+└─ Preserved     <em>PreservedFields</em>    규칙 없는 필드, 불투명 DataNode<br>               <em>저장 때 그대로 되돌려 쓴다</em></pre>
+      <p class="note"><code>IsConsumed</code> 한 함수가 중복 보상 규칙을 담당한다(예전엔 6곳). <code>SaveNumber</code>는 저장 바이트의 정수/실수 표기를 보존한다.</p>
+    </div>
+    <div class="panel">
+      <h4 style="margin:0 0 10px">GameStore.Commit 한 번</h4>
+      <div class="steps" style="flex-direction:column;gap:8px">
+        <div class="step" style="max-width:none;margin:0"><b>1. 호출</b><p><code>Store.Commit(txnId, s =&gt; Outcome&lt;GameState&gt;)</code> — 변환 함수는 새 상태를 계산만 한다</p></div>
+        <div class="step ok" style="max-width:none;margin:0"><b>2. 성공이면 참조 교체</b><p>revision +1, <code>StateSnapshot(revision, state)</code>. 상태가 안 바뀌었으면 리비전도 그대로</p></div>
+        <div class="step bad" style="max-width:none;margin:0"><b>2′. 실패/거절이면 상태 불변</b><p><code>ResultCodes</code>(CONDITION_FALSE 등)와 <code>Diagnostic</code>만 돌려준다</p></div>
+        <div class="step" style="max-width:none;margin:0"><b>3. 리스너 통지</b><p><code>StateCommitted</code>를 완료 큐로 커밋 순서대로 전달 (<code>OnCommitted</code>)</p></div>
+      </div>
+      <p class="note">커밋하는 쪽은 넷뿐: 이벤트 성공(<code>EventRules.Complete</code>), 위치 투영(<code>WorldProjection.Project</code>), 시계 진행(<code>ClockService</code>), 예약 수락. <code>Replace</code>는 불러오기·복구가 상태를 통째로 바꿀 때 쓴다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 이벤트 ============ -->
+<section id="event">
+  <h2>이벤트 실행 <span><code>EventRunner</code></span></h2>
+  <p class="lead">이벤트는 카탈로그에 컴파일된 스크립트(<code>CompiledEvent</code>)다. 장면(scene) 이벤트는 자원을 전부 임대하고, 입장 상태를 저장한 뒤에야 스크립트를 시작한다. 성공은 <code>CommitEvent</code> 한 번이고, 어느 단계에서든 실패하면 입장 상태로 되돌린다.</p>
+  <div class="panel">
+    <div class="lane"><h4>① 시작 → 입장 (장면 이벤트만)</h4>
+    <div class="steps">
+      <div class="step"><b>start</b><code>EventPhases.Start</code><p>반복 불가 이벤트가 이미 소진이면 <code>refused</code></p></div>
+      <div class="step" style="--c:var(--c-runtime)"><b>임대 + 정지</b><p>선언 자원 + <code>snapshot.world</code> 전체 임대(all-or-none), Scene 정지</p></div>
+      <div class="step" style="--c:var(--c-world)"><b>entry.project</b><p>실제 액터 위치를 상태에 투영(커밋)</p></div>
+      <div class="step" style="--c:var(--c-persist)"><b>entry.capture</b><p><code>SceneRecovery</code>가 진입 스냅샷 보관</p></div>
+      <div class="step" style="--c:var(--c-persist)"><b>entry.notify</b><p><code>SafeBoundary.SceneEntry</code> 통지</p></div>
+      <div class="step" style="--c:var(--c-persist)"><b>entry.save</b><p><code>SaveLatestSafe</code>가 <b>실제로 성공</b>해야 진행</p></div>
+      <div class="step" style="--c:var(--c-app)"><b>stage</b><p>예약 이벤트면 화면을 숨기고 NPC 합류</p></div>
+    </div></div>
+    <div class="lane"><h4>② 스크립트 → 커밋 → 종료</h4>
+    <div class="steps">
+      <div class="step"><b>call</b><p>컴파일된 호출 실행: move · perform · choice · wait · fork. 비동기는 핸들로 대기</p></div>
+      <div class="step"><b>조건 재검사</b><p>최신 리비전에서 <code>ConditionEvaluator</code> 다시 평가</p></div>
+      <div class="step ok"><b>commit</b><p><code>EventRules.Complete</code> 한 함수가 플래그·완료·보상장부·크라운·시간비용·위치·예약행을 한꺼번에 쓴다</p></div>
+      <div class="step ok"><b>done</b><p>정지·임대 해제. 커밋 뒤 저장 실패는 메모리 성공을 취소하지 않고 별도 결과로 드러남</p></div>
+    </div></div>
+    <div class="lane"><h4>③ 실패·취소·시간 초과</h4>
+    <div class="steps">
+      <div class="step bad"><b>abort</b><p>자식 작업 취소, 전부 종료될 때까지 대기</p></div>
+      <div class="step bad"><b>cleanup</b><p>소유한 표시(대화창 등) 닫기</p></div>
+      <div class="step bad"><b>restore</b><p>진입 맵·상태 복원 (장면만). 안전 경계 추적 재개(<code>Renew</code>)</p></div>
+      <div class="step bad"><b>release</b><p>정지, 마지막으로 임대 해제. 이미 일어난 커밋은 되돌리지 않음</p></div>
+    </div></div>
+    <p class="note">방 활동(room activity)은 월드 자원·입장 저장·복원이 없고 등록된 작업만 기다린다. 모든 단계는 <code>Trace</code> 콜백으로 <code>EventTraceEntry(tick, seq, revision, phase)</code>를 내보내 테스트와 진단에 쓰인다.</p>
+  </div>
+</section>
+
+<!-- ============ 저장 ============ -->
+<section id="save">
+  <h2>저장과 복원 <span>Persistence + UnityAdapters/Storage</span></h2>
+  <p class="lead">저장은 "안전 경계"에서만 한다. 장면이 도는 동안은 진입 시점 스냅샷이 우선이라 도중 상태가 저장되지 않는다. 디스크 실패는 메모리 상태를 바꾸지 않고, 쓸 수 없는 저장은 아예 쓰지 않는다.</p>
+  <div class="two">
+    <div class="panel">
+      <h4 style="margin:0 0 10px">저장 <code>SaveService.SaveLatestSafe</code></h4>
+      <div class="steps" style="flex-direction:column;gap:8px">
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-persist)"><b>SafeBoundaryPolicy.Latest</b><p>저장해도 되는 스냅샷 선택. 오래된 리비전은 무시. 장면 중엔 SceneEntry 고정</p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-persist)"><b>SaveDocument.Write → SaveCodec.Seal</b><p>GameState → save v2 트리(45필드) → 불러오기와 같은 검증 → <b>통과 못 하면 쓰지 않음</b></p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-persist)"><b>봉투(envelope)</b><p>format · saveVersion · catalogHash · generation · checksum(SHA-256) · payload(base64 JSON)</p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-adapter)"><b>FileGenerationStore</b><p>임시파일 → 세대(generation) 파일로 기록. 이전 세대 유지</p></div>
+        <div class="step ok" style="max-width:none;margin:0"><b>MarkSaved(revision)</b><p>해당 리비전을 "저장됨"으로 표시 (미저장 표시·재시도 UI 근거)</p></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h4 style="margin:0 0 10px">불러오기 <code>SaveService.LoadLatest</code></h4>
+      <div class="steps" style="flex-direction:column;gap:8px">
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-adapter)"><b>ListCandidates</b><p>세대 파일을 최신순으로 나열</p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-persist)"><b>Decode</b><p>봉투 형식·체크섬만 확인. 깨졌으면 <b>다음 오래된 세대로 폴백</b>, 거절 목록은 <code>LastLoadResult.Details</code></p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-persist)"><b>SaveMigration</b><p>v1(대표 픽스처) → v2. 지원 외 버전은 <code>VERSION_UNSUPPORTED</code></p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-persist)"><b>SaveDocument.Admit</b><p>루트 모양 → 저장 스키마·카탈로그 참조 검증(<code>SaveStateValidator</code>) → 타입 있는 <code>Read</code></p></div>
+        <div class="step ok" style="max-width:none;margin:0"><b>Store.Replace + 맵 복원</b><p>상태 통째 교체, <code>Policy.Renew</code>로 안전 경계 재개</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="margin:0 0 8px">안전 경계 4종 <code>SafeBoundary</code></h4>
+    <table class="t"><tr><th>값</th><th>언제</th></tr>
+      <tr><td>WorldSafe</td><td>평상시 월드. 시작·불러오기 직후와 장면 취소 뒤에 <code>Renew</code>로 다시 연다</td></tr>
+      <tr><td>SceneEntry</td><td>장면 이벤트 진입 직후. 장면이 끝날 때까지 이 스냅샷이 저장 대상이 된다</td></tr>
+      <tr><td>SceneComplete</td><td>장면 성공 커밋 뒤</td></tr>
+      <tr><td>RoomSafe</td><td>방 활동 중 안전 지점 (장면 중에는 진입 스냅샷을 덮지 못함)</td></tr></table>
+  </div>
+</section>
+
+<!-- ============ 콘텐츠 ============ -->
+<section id="content">
+  <h2>콘텐츠 파이프라인 <span>JSON 파일 → 실행 가능한 카탈로그</span></h2>
+  <p class="lead">게임 내용(이벤트·대화·일정·NPC)은 코드가 아니라 JSON이다. 시작할 때 한 번 파싱·검증·컴파일해 불변 카탈로그로 만들고, 런타임은 문자열을 다시 파싱하지 않는다.</p>
+  <div class="panel">
+    <div class="steps">
+      <div class="step" style="--c:var(--c-content)"><b>Fixtures</b><code>Content/Fixtures/FirstConnection</code><p><code>build-fixtures.cjs</code>가 <code>generated/</code>(base · variants)를 생성. 손으로 고치지 않음</p></div>
+      <div class="step" style="--c:var(--c-adapter)"><b>JsonDataCodec</b><p>JSON → <code>DataNode</code> 트리</p></div>
+      <div class="step" style="--c:var(--c-adapter)"><b>StandardSchemaValidator</b><p>JSON Schema 2020-12 (JsonSchema.Net). 내용 오류에 예외 없이 진단 반환</p></div>
+      <div class="step" style="--c:var(--c-content)"><b>CallParser</b><p>이벤트 칸의 <code>call(...)</code> 문자열 → Tokenizer → <code>CallTree</code></p></div>
+      <div class="step" style="--c:var(--c-content)"><b>CatalogCompiler</b><p><code>ContentAnalyzer</code>가 <code>FunctionDictionary</code> 서명으로 인자·참조·의미 검사</p></div>
+      <div class="step ok" style="--c:var(--c-content)"><b>CompiledCatalog</b><p><code>ICatalog</code> · <code>ICatalogIndex</code> · <code>ICompiledContentLookup</code>. 해시를 저장 파일에 기록</p></div>
+      <div class="step" style="--c:var(--c-content)"><b>CatalogProvider</b><p>런타임이 조회하는 단일 진입점</p></div>
+    </div>
+    <p class="note">현재 플레이 범위: 맵 2개(courtyard, lounge), 활성 NPC 1명(serin), 예약 관계 이벤트 1개. 원본 카탈로그의 나머지 정의는 참조 무결성을 위해 비활성으로 유지된다. 시나리오 변형(<code>dest-moved</code>, <code>a10-mira</code>, 주입·무효 번들)이 같은 구조로 존재한다.</p>
+  </div>
+</section>
+
+<!-- ============ 검증 ============ -->
+<section id="verify">
+  <h2>테스트와 검증</h2>
+  <p class="lead">Domain에 Unity가 없어서 Unity 에디터 없이 일반 .NET 프로젝트로 규칙을 시험한다. 실제 게임 동작은 빌드한 Windows 플레이어를 내장 probe가 구동해 확인한다.</p>
+  <div class="two">
+    <div class="panel">
+      <h4 style="margin:0 0 8px">Tests/PureDomain</h4>
+      <table class="t"><tr><th>폴더</th><th>대상</th></tr>
+        <tr><td>State · Persistence</td><td>GameState, 저장 왕복, 코덱</td></tr>
+        <tr><td>Events · Effects</td><td>EventRunner 단계, 효과 규칙</td></tr>
+        <tr><td>Schedules</td><td>일정·예약·합류 연출</td></tr>
+        <tr><td>Movement · Time · Runtime</td><td>이동, 달력·시계, 임대·정지</td></tr>
+        <tr><td>Parsing · ContentValidation · ContentIO</td><td>호출 파서, 컴파일 오류 60종 음성 픽스처</td></tr>
+        <tr><td>CrossModule · FirstConnectionData</td><td>모듈 통합, 실제 픽스처</td></tr></table>
+      <p class="note">프로젝트 파일: <code>Stage2/3/4Tests.csproj</code>, <code>ContentIOTests.csproj</code>. 진입점 <code>Program*.cs</code>.</p>
+    </div>
+    <div class="panel">
+      <h4 style="margin:0 0 8px">실제 게임 검증</h4>
+      <div class="steps" style="flex-direction:column;gap:8px">
+        <div class="step" style="max-width:none;margin:0;--c:var(--boot)"><b>FirstConnectionBuild</b><p>에디터 빌드 메뉴 (<code>Bootstrap.Editor</code>)</p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--boot)"><b>FirstConnectionProbe</b><p>WindowsPlayer 프로세스에서 초대 수락·이벤트·선택지·취소·실패 복구·저장 복원 시나리오 구동 → <code>result.json</code>·스크린샷</p></div>
+        <div class="step" style="max-width:none;margin:0;--c:var(--c-world)"><b>verify-magiccampus</b><p>위 과정을 자동으로 돌리는 스킬</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>생성: 2026-11-05 · 근거: <code>Assets/MagicCampus/**</code> 소스, <code>Docs/Refactoring-Stage3-Design.md</code>, <code>Docs/ADR/*</code>. 줄 수는 <code>.cs</code> 합계이며 주석을 포함한다. 의존 그래프는 <code>FirstConnectionRuntime</code> 생성자를 읽어 만든 것으로, 코드가 바뀌면 달라질 수 있다.</footer>
+</main>
+</div>
+
+<script>
+/* ---------- 모듈 카드 ---------- */
+var DOMAIN_TOTAL = 9245;
+var MODS = [
+ {n:"State", p:"State/", l:542, c:"--c-state", d:"불변 GameState와 유일한 커밋 창구 GameStore.", f:[
+   ["GameState.cs","GameState · ClockState · WorldState · Progress · FlagTable · KeySet · Crowns · AppointmentBook · Knowledge · PreservedFields · SaveNumber"],
+   ["GameStore.cs","StateSnapshot · StateCommitted · GameStore (Commit / Replace / OnCommitted)"]]},
+ {n:"Transactions", p:"Transactions/", l:670, c:"--c-state", d:"이벤트 한 건이 상태에 쓰는 모든 것을 순수 함수로.", f:[
+   ["EventRules.cs","EventRules.Complete(state, def, live) → Outcome<GameState>, EventOutcome.Parse"],
+   ["Conditions/","ConditionEvaluator (조건식 평가), VariableDeclaration (bool/int 변수)"],
+   ["TransactionIds.cs","TransactionId · CompletionKey"]]},
+ {n:"Application / Events", p:"Application/Events/", l:1114, c:"--c-app", d:"컴파일된 이벤트를 실제로 실행하는 EventRunner.", f:[
+   ["EventRunner.cs","장면 임대·진입 저장·스크립트·커밋·복원의 상태 기계"],
+   ["EventRunnerDependencies.cs","의존 묶음, EventPhases 상수, EventTraceEntry"],
+   ["EventPorts.cs","EventStartRequest · EventCompletion · IEventStagingPort"]]},
+ {n:"Application / Reservations", p:"Application/Reservations/", l:177, c:"--c-app", d:"초대(예약)의 상태와 시작 후보 선정.", f:[
+   ["ReservationService.cs","예약 점검·후보 목록"],
+   ["StartCandidate.cs","ReservationStatus(Offered/Accepted/Ready), 우선순위"],
+   ["ReservationRules.cs","예약 규칙"]]},
+ {n:"Application / Schedules", p:"Application/Schedules/", l:776, c:"--c-app", d:"NPC 일정과 예약 합류 연출.", f:[
+   ["ScheduleService.cs","현재 시각의 일정 항목 하나 선택"],
+   ["ScheduleController.cs","일정 이동 실행. 장면이 임대한 NPC는 건너뜀"],
+   ["ReservedStagingService.cs","reserved 이벤트에서 화면을 숨기고 NPC 합류 (IEventStagingPort)"],
+   ["ReservedJoinPlan.cs","합류 계획(액터별 배치)"]]},
+ {n:"World", p:"World/", l:1555, c:"--c-world", d:"액터, 이동, 길찾기. 시뮬레이션 위치의 유일한 작성자.", f:[
+   ["Movement/MoveService.cs","플레이어·NPC·연출 공용 이동. 포털 경로 → A* → 연속 스윕"],
+   ["Movement/ActorWorld.cs","액터 상태 보관 (IActorWorld)"],
+   ["Movement/WorldProjection.cs","액터 위치 ↔ GameState.World 투영"],
+   ["Movement/CatalogDestinationResolver.cs","목적지 id → 좌표"],
+   ["Navigation/","GridPathPlanner · PortalRouter · PathPlan · NavMath"]]},
+ {n:"Time", p:"Time/", l:291, c:"--c-runtime", d:"게임 달력과 시계. 시간은 상태 커밋으로만 흐른다.", f:[
+   ["Calendar/","GameTime · DayBoundary · ClockAdvance · Calendar (분 → 날짜 계산)"],
+   ["Clock/ClockService.cs","프레임 시간 → 게임 분 → ClockState.Advance 커밋"]]},
+ {n:"Runtime", p:"Runtime/", l:488, c:"--c-runtime", d:"비동기·자원·정지의 공통 기반.", f:[
+   ["Control/CompletionPump.cs","완료 콜백을 다음 틱에 순서대로 배달"],
+   ["Control/LeaseService.cs","자원 임대 (전부 아니면 거절, 선점 없음)"],
+   ["Handles/","Handle<T> · HandleFactory — 취소 가능한 비동기 결과"],
+   ["Pause/PauseService.cs","Calendar·Ambient·Player·World·Scene 채널별 정지"],
+   ["Tick/TickClock.cs","틱 카운터와 wait 지연 시계"]]},
+ {n:"Persistence", p:"Persistence/", l:1174, c:"--c-persist", d:"저장·불러오기·진입 복구. 파일 IO는 모름.", f:[
+   ["SaveService.cs","SaveLatestSafe / LoadLatest (한 번에 하나)"],
+   ["SaveDocument.cs","트리 ↔ GameState 변환. 저장 필드명을 아는 유일한 곳"],
+   ["SaveCodec.cs","봉투 프레이밍, SHA-256, Seal(검증 후 직렬화)"],
+   ["SafeBoundaryPolicy.cs","어느 스냅샷을 저장할지 결정"],
+   ["SceneRecovery.cs","장면 진입 스냅샷 + 휘발 액터 위치"],
+   ["SaveRestorer.cs · SaveMigration.cs · CommitValidation.cs","복원, v1→v2, 커밋 검증"]]},
+ {n:"Content", p:"Content/", l:2458, c:"--c-content", d:"JSON 콘텐츠를 파싱·컴파일해 불변 카탈로그로.", f:[
+   ["Parsing/","CallParser · CallTokenizer · CallTree (call 문자열 구문)"],
+   ["Compilation/","CatalogCompiler · ContentAnalyzer(3파일) · FunctionDictionary"],
+   ["Catalog/","CompiledCatalog · CompiledEvent · CatalogProvider · SaveStateValidator"]]}
+];
+(function(){
+  var host=document.getElementById('mods');
+  MODS.forEach(function(m){
+    var el=document.createElement('div'); el.className='mod'; el.style.setProperty('--c','var('+m.c+')');
+    var pct=Math.round(m.l/DOMAIN_TOTAL*100);
+    var rows=m.f.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1].replace(/</g,'&lt;')+'</td></tr>'}).join('');
+    el.innerHTML='<h3>'+m.n+'<small>'+m.l.toLocaleString()+'줄</small></h3><p>'+m.d+'</p><div class="bar"><i style="width:'+Math.max(3,pct*2.2)+'%"></i></div><div class="more"><div class="mono" style="color:var(--mute);margin-bottom:6px">Assets/MagicCampus/'+m.p+'</div><table>'+rows+'</table></div>';
+    el.onclick=function(){el.classList.toggle('open')};
+    host.appendChild(el);
+  });
+})();
+
+/* ---------- 의존 그래프 ---------- */
+var GROUPS={
+ boot:{t:"Bootstrap",c:"--boot"}, app:{t:"응용",c:"--c-app"}, state:{t:"상태·규칙",c:"--c-state"}, world:{t:"세계",c:"--c-world"},
+ rt:{t:"런타임 기반",c:"--c-runtime"}, persist:{t:"저장",c:"--c-persist"}, content:{t:"콘텐츠",c:"--c-content"}, adapter:{t:"어댑터·표현",c:"--c-adapter"}, time:{t:"시간",c:"--c-runtime"}
+};
+var ROWS=["진입 (Bootstrap)","응용 서비스","규칙·서비스","상태·세계·기반","콘텐츠·어댑터"];
+var N=[
+ // id,label,row,group,path,desc
+ ["Game","FirstConnectionGame",0,"boot","Bootstrap/FirstConnection/FirstConnectionGame.cs","씬의 MonoBehaviour. 명령줄/설정을 읽고 런타임을 만들어 매 프레임 Step을 부른다. 입력 수집, 초대 수락 후 시작."],
+ ["Runtime","FirstConnectionRuntime",0,"boot","Bootstrap/FirstConnection/FirstConnectionRuntime.cs","조립 루트. 모든 서비스를 만들고 이어 붙이며 Step(dt) 프레임 순서와 사용자 조작(이동·수락·시작·저장)을 가진다."],
+ ["Visuals","FirstConnectionVisuals",0,"boot","Bootstrap/FirstConnection/FirstConnectionVisuals.cs","타일·액터 스프라이트·정수 배율 카메라. 게임 상태를 갖지 않고 IActorWorld를 비춘다."],
+ ["Probe","FirstConnectionProbe",0,"boot","Bootstrap/FirstConnection/FirstConnectionProbe.cs","실제 플레이어 프로세스에서 시나리오를 구동하는 내장 검증기."],
+ ["Runner","EventRunner",1,"app","Application/Events/EventRunner.cs","이벤트 실행 상태 기계: 임대 → 정지 → 진입 저장 → staging → 스크립트 → 커밋 → 복원."],
+ ["Sched","ScheduleController",1,"app","Application/Schedules/ScheduleController.cs","일정 항목대로 NPC를 이동시킨다. 장면에 임대된 NPC는 건너뛴다."],
+ ["Stage","ReservedStagingService",1,"app","Application/Schedules/ReservedStagingService.cs","예약 이벤트에서 화면을 숨긴 채 NPC를 합류시킨다 (IEventStagingPort)."],
+ ["Resv","ReservationService",1,"app","Application/Reservations/ReservationService.cs","초대(Offered/Accepted/Ready) 점검과 시작 후보 선정."],
+ ["Save","SaveService",1,"persist","Persistence/SaveService.cs","SaveLatestSafe / LoadLatest. 한 번에 한 작업, 디스크 실패는 상태 불변."],
+ ["Rules","EventRules",2,"state","Transactions/EventRules.cs","이벤트 성공 한 건이 상태에 쓰는 모든 것: 순수 함수 Complete."],
+ ["Cond","ConditionEvaluator",2,"state","Transactions/Conditions/ConditionEvaluator.cs","이벤트 조건식을 상태 기준으로 평가."],
+ ["Move","MoveService",2,"world","World/Movement/MoveService.cs","플레이어·NPC·연출 공용 이동. 시뮬레이션 위치의 유일한 작성자."],
+ ["Clock","ClockService",2,"time","Time/Clock/ClockService.cs","프레임 시간을 게임 분으로 바꿔 ClockState.Advance를 커밋."],
+ ["SchedSvc","ScheduleService",2,"app","Application/Schedules/ScheduleService.cs","현재 시각에 맞는 일정 항목 하나를 고른다."],
+ ["Recov","SceneRecovery",2,"persist","Persistence/SceneRecovery.cs","장면 진입 스냅샷과 휘발 액터 위치 보관."],
+ ["Policy","SafeBoundaryPolicy",2,"persist","Persistence/SafeBoundaryPolicy.cs","저장에 쓸 스냅샷을 결정. 장면 중에는 진입 스냅샷 고정."],
+ ["Codec","SaveCodec · SaveDocument",2,"persist","Persistence/SaveCodec.cs, SaveDocument.cs","GameState ↔ save v2 트리, 봉투·체크섬, 저장·불러오기 경계 검증."],
+ ["Restorer","SaveRestorer",2,"persist","Persistence/SaveRestorer.cs","불러온 세대를 검증·마이그레이션해 복원 가능한 상태로."],
+ ["Store","GameStore",3,"state","State/GameStore.cs","유일한 커밋 창구. 순수 변환의 결과로 참조를 교체하고 리스너에 알린다."],
+ ["Proj","WorldProjection",3,"world","World/Movement/WorldProjection.cs","살아 있는 액터 위치를 GameState.World로 투영(Project)·캡처(Capture)."],
+ ["Actors","ActorWorld",3,"world","World/Movement/ActorWorld.cs","액터(플레이어·NPC)의 현재 위치·속도 보관."],
+ ["Lease","LeaseService",3,"rt","Runtime/Control/LeaseService.cs","자원 임대. 전부 얻거나 RESOURCE_BUSY."],
+ ["Pause","PauseService",3,"rt","Runtime/Pause/PauseService.cs","Calendar·Ambient·Player·World·Scene 채널별 정지 토큰."],
+ ["Tick","TickClock",3,"rt","Runtime/Tick/TickClock.cs","틱 카운터와 wait 지연 시계."],
+ ["Handles","HandleFactory",3,"rt","Runtime/Handles/HandleFactory.cs","취소 가능한 비동기 결과(Handle<T>) 생성. 완료는 다음 틱 배달."],
+ ["Pump","CompletionPump",3,"rt","Runtime/Control/CompletionPump.cs","완료 큐. 콜백을 순서대로 다음 틱에 실행."],
+ ["Catalog","CompiledCatalog · Provider",4,"content","Content/Catalog/CompiledCatalog.cs","컴파일된 이벤트·대화·일정·참조 색인. 런타임의 읽기 전용 콘텐츠."],
+ ["Schema","StandardSchemaValidator",4,"adapter","UnityAdapters/ContentIO/StandardSchemaValidator.cs","JSON Schema 2020-12 검증."],
+ ["Json","JsonDataCodec",4,"adapter","UnityAdapters/ContentIO/JsonDataCodec.cs","JSON 바이트 ↔ DataNode."],
+ ["Maps","MapAdapter",4,"adapter","UnityAdapters/Maps/MapAdapter.cs","타일맵 로드·전환 (IMapPort, IMapGeometry)."],
+ ["Coll","GridCollisionPort",4,"adapter","UnityAdapters/Collision/GridCollisionPort.cs","그리드 충돌 스윕 (ICollisionPort)."],
+ ["Disk","FileGenerationStore",4,"adapter","UnityAdapters/Storage/FileGenerationStore.cs","세대별 저장 파일 (IFileGenerationStore). 임시파일 → 확정."],
+ ["Dlg","DialoguePresentation",4,"adapter","Presentation/Dialogue/DialoguePresentation.cs","대화창·선택지 표시 (IPresentationPort)."]
+];
+var E=[
+ ["Game","Runtime"],["Game","Visuals"],["Probe","Runtime"],
+ ["Runtime","Runner"],["Runtime","Sched"],["Runtime","Stage"],["Runtime","Save"],["Runtime","Resv"],["Runtime","Store"],["Runtime","Clock"],["Runtime","Move"],
+ ["Runner","Cond"],["Runner","Move"],["Runner","Rules"],["Runner","Proj"],["Runner","Recov"],["Runner","Policy"],["Runner","Save"],["Runner","Stage"],["Runner","Store"],["Runner","Lease"],["Runner","Pause"],["Runner","Tick"],["Runner","Catalog"],["Runner","Dlg"],["Runner","Maps"],["Runner","Handles"],
+ ["Sched","SchedSvc"],["Sched","Clock"],["Sched","Move"],["Sched","Actors"],["Sched","Pause"],["Sched","Lease"],["Sched","Handles"],
+ ["Stage","Sched"],["Stage","Actors"],["Stage","Maps"],["Stage","Coll"],["Stage","Handles"],
+ ["Resv","Catalog"],
+ ["Save","Policy"],["Save","Codec"],["Save","Restorer"],["Save","Disk"],["Save","Store"],["Save","Catalog"],["Save","Handles"],
+ ["Rules","Catalog"],["Cond","Catalog"],["SchedSvc","Catalog"],
+ ["Move","Actors"],["Move","Coll"],["Move","Maps"],["Move","Pause"],["Move","Handles"],["Move","Store"],
+ ["Clock","Store"],["Recov","Actors"],
+ ["Codec","Json"],["Restorer","Json"],
+ ["Proj","Actors"],["Proj","Maps"],["Actors","Maps"],
+ ["Store","Pump"],["Handles","Pump"],["Tick","Handles"],
+ ["Catalog","Schema"],["Schema","Json"],
+ ["Disk","Handles"],["Maps","Handles"],["Dlg","Handles"],["Dlg","Pause"],["Dlg","Maps"]
+];
+(function(){
+  var svg=document.getElementById('graph'), NS='http://www.w3.org/2000/svg';
+  var W=1180, NW=124, NH=34, rowY=[44,170,296,422,548];
+  var byId={}, rows=[[],[],[],[],[]];
+  N.forEach(function(n){var o={id:n[0],label:n[1],row:n[2],g:n[3],path:n[4],desc:n[5]};byId[o.id]=o;rows[o.row].push(o)});
+  rows.forEach(function(list,ri){
+    var gap=(W-40)/list.length;
+    list.forEach(function(o,i){o.x=20+gap*(i+.5);o.y=rowY[ri];});
+  });
+  function el(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e}
+  rowY.forEach(function(y,i){
+    el('rect',{x:0,y:y-22,width:W,height:NH+44,class:'rowband',rx:10,opacity:i%2?0:.55});
+    var t=el('text',{x:10,y:y-8,class:'rowlabel'});t.textContent=ROWS[i];
+  });
+  var edges=[], eg=el('g',{});
+  E.forEach(function(e){
+    var a=byId[e[0]], b=byId[e[1]], d;
+    if(!a||!b){console.warn('edge',e);return}
+    if(a.row===b.row){
+      var x1=a.x,x2=b.x,y=a.y; d='M'+x1+' '+y+' C'+x1+' '+(y-46)+' '+x2+' '+(y-46)+' '+x2+' '+y;
+    }else{
+      var up=b.row<a.row, y1=up?a.y:a.y+NH, y2=up?b.y+NH:b.y, my=(y1+y2)/2;
+      d='M'+a.x+' '+y1+' C'+a.x+' '+my+' '+b.x+' '+my+' '+b.x+' '+y2;
+    }
+    var p=el('path',{d:d,class:'edge','marker-end':'url(#gar)'},eg); edges.push({a:e[0],b:e[1],p:p});
+  });
+  var defs=el('defs',{}); svg.insertBefore(defs,svg.firstChild);
+  var mk=el('marker',{id:'gar',viewBox:'0 0 10 10',refX:'9',refY:'5',markerWidth:'5',markerHeight:'5',orient:'auto'},defs);
+  el('path',{d:'M0 0L10 5L0 10z',fill:'context-stroke'},mk);
+  var ng=el('g',{});
+  N.forEach(function(n){
+    var o=byId[n[0]];
+    var g=el('g',{class:'node',transform:'translate('+(o.x-NW/2)+','+o.y+')'},ng);
+    g.style.setProperty('--c','var('+GROUPS[o.g].c+')');
+    el('rect',{width:NW,height:NH},g);
+    var lines=[o.label];
+    if(o.label.indexOf(' · ')>=0){lines=o.label.split(' · ')}
+    else if(o.label.length>16){
+      var best=-1,mid=o.label.length/2;
+      for(var k=2;k<o.label.length-2;k++){ if(/[A-Z]/.test(o.label[k])&&/[a-z]/.test(o.label[k-1])&&(best<0||Math.abs(k-mid)<Math.abs(best-mid)))best=k }
+      if(best>0)lines=[o.label.slice(0,best),o.label.slice(best)];
+    }
+    var t=el('text',{x:NW/2,y:lines.length>1?NH/2-2:NH/2+4},g);
+    lines.forEach(function(s,i){var ts=el('tspan',{x:NW/2,dy:i?'12':'0'},t);ts.textContent=s});
+    var ti=el('title',{},g); ti.textContent=o.label;
+    o.g_=g;
+    g.addEventListener('click',function(ev){ev.stopPropagation();select(o.id)});
+  });
+  svg.addEventListener('click',function(){select(null)});
+  // legend
+  var lg=document.getElementById('glegend'), seen={};
+  N.forEach(function(n){var g=GROUPS[n[3]]; if(seen[g.t])return; seen[g.t]=1; lg.insertAdjacentHTML('beforeend','<span><i style="background:var('+g.c+')"></i>'+g.t+'</span>')});
+  var info=document.getElementById('info');
+  function tags(ids,cls){return ids.map(function(i){return '<span class="tag '+cls+'" data-id="'+i+'">'+byId[i].label+'</span>'}).join('')||'<span style="color:var(--mute)">없음</span>'}
+  function select(id){
+    svg.classList.toggle('focus',!!id);
+    N.forEach(function(n){byId[n[0]].g_.setAttribute('class','node')});
+    edges.forEach(function(e){e.p.setAttribute('class','edge')});
+    if(!id){
+      info.innerHTML='<h4>노드를 눌러 보세요</h4><div class="path">그림의 객체를 클릭하면 설명과 의존 관계가 나온다.</div><div class="row">전체: 노드 '+N.length+'개 · 의존 '+E.length+'개</div><div class="row"><b>읽는 법</b>위쪽일수록 바깥(사용하는 쪽), 아래쪽일수록 기반(사용되는 쪽)이다. 어댑터는 맨 아래에 있고 Domain은 포트로만 부른다.</div>';
+      return;
+    }
+    var o=byId[id], outs=[], ins=[];
+    o.g_.setAttribute('class','node sel');
+    edges.forEach(function(e){
+      if(e.a===id){e.p.setAttribute('class','edge out');outs.push(e.b);byId[e.b].g_.setAttribute('class','node out')}
+      else if(e.b===id){e.p.setAttribute('class','edge in');ins.push(e.a);byId[e.a].g_.setAttribute('class','node in')}
+    });
+    info.innerHTML='<h4>'+o.label+'</h4><div class="path">'+o.path+'</div><div style="margin:6px 0"><span class="pill" style="--c:var('+GROUPS[o.g].c+')">'+GROUPS[o.g].t+'</span></div><div>'+o.desc+'</div>'+
+      '<div class="row"><b>이 객체가 쓰는 것 ('+outs.length+')</b>'+tags(outs,'o')+'</div><div class="row"><b>이 객체를 쓰는 것 ('+ins.length+')</b>'+tags(ins,'i')+'</div><div class="row"><button class="btn" id="clr">선택 해제</button></div>';
+    info.querySelectorAll('.tag').forEach(function(t){t.onclick=function(){select(t.getAttribute('data-id'))}});
+    var c=document.getElementById('clr'); if(c)c.onclick=function(){select(null)};
+  }
+  select(null);
+})();
+
+/* ---------- 사이드 내비 현재 위치 ---------- */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#nav a'));
+  var map={}; links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a});
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.remove('on')});var a=map[e.target.id];if(a)a.classList.add('on')}});
+  },{rootMargin:'-10% 0px -80% 0px'});
+  Object.keys(map).forEach(function(id){var s=document.getElementById(id);if(s)io.observe(s)});
+})();
+</script>
+</body>
+</html>

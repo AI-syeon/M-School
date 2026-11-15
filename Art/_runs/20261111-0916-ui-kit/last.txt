@@ -1,0 +1,14 @@
+완료했습니다.
+
+파일:
+- Art/UI/source/: 생성 원본과 ui-kit-prompt.json
+- Art/UI/build_ui.py: 재현 가능한 빌드 스크립트
+- Assets/MagicCampus/Art/UI/: 요청한 PNG 9개와 manifest.json
+- Art/UI/review/: 안뜰 미리보기, 1배·4배 시트, 원본 비교
+- Art/_runs/20261111-0916-ui-kit/: 검사 기록
+
+검사 통과: 모든 최종 PNG가 지정 크기의 RGBA이며, 전체 15색(투명 포함), 본체 알파 228입니다. 1배·확대 육안 검수와 9-slice 네 모서리 보존 검사를 완료했고, 두 번 빌드한 PNG·manifest의 바이트가 일치했습니다.
+
+슬라이스: 패널 사방 16px, 버튼 사방 8px, 이름표 좌우 8px·상하 6px. 슬롯은 고정 크기입니다.
+
+남은 확인: Unity 내 실제 Galmuri 렌더링은 검사하지 않았습니다.

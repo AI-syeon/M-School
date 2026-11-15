@@ -1,0 +1,20 @@
+수정 완료했습니다.
+
+벽·침대·커튼·덩굴·배너·별 장식과 러너·상자·책·스툴·조명을 추가했습니다. 기존 주요 가구는 유지했고, 원형 러그는 러너 공간을 위해 왼쪽으로 한 칸 옮겼습니다.
+
+저장한 파일
+- source/room-dorm-fix-decor-* 원본·프롬프트
+- build_room_walls.py, build_room_decor.py, rebuild-rooms.ps1, check_room.py
+- interior.json, room-dorm-art.json, room-dorm-map.json, README.md
+- prepared/room-dorm/, review/room-dorm/, Assets/MagicCampus/CampusGrid/Rooms/room-dorm/
+- 작업 기록은 Art/_runs/20261111-0947-room-dorm-fix/
+
+검증 PASS
+- 384×288px, 32×32 셀, 알파 0/255, 셀당 14~63색
+- 침대 충돌 정확히 (1,5), (1,6), 수면 칸 시각적 가림 없음
+- 이동 가능 46칸 전체와 필수 접근점 연결
+- 준비 폴더 재생성 성공, 두 번 빌드한 35개 파일 바이트 일치
+- 안뜰 재빌드 성공, layout.json 해시 유지
+- 1배·확대 검수와 키 아트·그리드·전후 비교 이미지 갱신
+
+키 아트보다 침대·창문이 작고 오른쪽 아래 여백이 남습니다. Unity 실행 및 실제 glow 렌더링은 확인하지 않았습니다.

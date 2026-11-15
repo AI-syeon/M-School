@@ -1,0 +1,96 @@
+{
+  "file": "items-original.png",
+  "tool": "image_gen.imagegen",
+  "generatedFile": "C:/Users/syeon/.codex/generated_images/01a1c7fc-0f94-74d3-b24d-f11296334df7/exec-187c219d-6577-423a-aa80-122018592df4.png",
+  "useCase": "stylized-concept",
+  "references": [
+    "design/screens/01-campus.png",
+    "Art/CampusGrid/review/courtyard-unity.png",
+    "Art/CampusGrid/review/daylight-times.png"
+  ],
+  "prompt": "Use case: stylized-concept\nAsset type: original source sprite sheet for MagicCampus inventory; this ONE sheet is the asset.\nCreate a clean 3 by 3 grid of NINE distinct standalone inventory objects on actual transparent background, no grid lines, no text. Each cell equal square, generous blank padding, objects occupy 75% of their cell, fully isolated and centered. Read row-major:\n1 brass magnifying glass with blue glass and one pale blue glint; diagonal handle lower-right.\n2 a short white chalk stub angled diagonal with a single violet abstract rune marking.\n3 a tight group of exactly three silver-blue moonbean seeds with tiny crescent moon marks.\n4 one mint sprig, three leaves, moss green with pale cyan frost edges.\n5 upright corked small glass vial containing lilac crystal powder.\n6 golden round honey bread loaf with clear cross scoring and a small honey sheen.\n7 round potion flask with deep peacock teal liquid, short neck, cork, tiny cream star label.\n8 cream student identity card with navy inset, gold star and tiny abstract portrait; NO writing.\n9 torn cream parchment note with dark abstract scribbles, NO readable text.\nStyle: cozy refined clustered pixel art, intended for subsequent 32x32 conversion. Clean bold silhouettes, restrained detail, crisp warm dark outlines, two or three shades per material, upper-left light, warm cream/taupe oak honey brass moss autumn colors with peacock blue and muted lilac. Match the supplied magical academy courtyard references' sophisticated warm palette and tactile hand-made objects. Orthographic elevated front three-quarter view. No cast shadows, no gradients, no noisy dithering, no ground, no labels, no border. Avoid pixel dust and isolated sparkle particles. Shapes should retain distinctive identity at 26px tall. All nine objects have consistent apparent scale. Transparent margins around every object.",
+  "transparent_background": true,
+  "items": [
+    {
+      "id": "item-lens",
+      "crop": [
+        0,
+        0,
+        420,
+        416
+      ]
+    },
+    {
+      "id": "item-rune-chalk",
+      "crop": [
+        420,
+        0,
+        420,
+        416
+      ]
+    },
+    {
+      "id": "item-moonbean-seed",
+      "crop": [
+        840,
+        0,
+        421,
+        416
+      ]
+    },
+    {
+      "id": "item-frost-mint",
+      "crop": [
+        0,
+        416,
+        420,
+        416
+      ]
+    },
+    {
+      "id": "item-crystal-dust",
+      "crop": [
+        420,
+        416,
+        420,
+        416
+      ]
+    },
+    {
+      "id": "item-honey-bread",
+      "crop": [
+        840,
+        416,
+        421,
+        416
+      ]
+    },
+    {
+      "id": "item-focus-potion",
+      "crop": [
+        0,
+        832,
+        420,
+        415
+      ]
+    },
+    {
+      "id": "item-student-card",
+      "crop": [
+        420,
+        832,
+        420,
+        415
+      ]
+    },
+    {
+      "id": "item-torn-note",
+      "crop": [
+        840,
+        832,
+        421,
+        415
+      ]
+    }
+  ]
+}

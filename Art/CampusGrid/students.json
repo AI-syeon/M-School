@@ -1,0 +1,34 @@
+[
+  {
+    "id": "student-navy-back",
+    "size": [1, 2],
+    "frames": [
+      {"source": "source/students-original.png", "crop": [47, 40, 456, 656], "fit": "contain", "colors": 64}
+    ],
+    "blocked": [[0, 0]]
+  },
+  {
+    "id": "student-green-left",
+    "size": [1, 2],
+    "frames": [
+      {"source": "source/students-original.png", "crop": [592, 40, 456, 656], "fit": "contain", "colors": 64}
+    ],
+    "blocked": [[0, 0]]
+  },
+  {
+    "id": "student-burgundy-front",
+    "size": [1, 2],
+    "frames": [
+      {"source": "source/students-original.png", "crop": [1128, 40, 456, 656], "fit": "contain", "colors": 64}
+    ],
+    "blocked": [[0, 0]]
+  },
+  {
+    "id": "student-navy-right",
+    "size": [1, 2],
+    "frames": [
+      {"source": "source/students-original.png", "crop": [1668, 40, 456, 656], "fit": "contain", "colors": 64}
+    ],
+    "blocked": [[0, 0]]
+  }
+]

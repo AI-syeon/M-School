@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="매직캠퍼스의 콤보 영창, 주문별 시전 조건, 빠른 슬롯을 현재 Core에 연결하는 설계 보고서">
+  <title>매직캠퍼스 · 마법 시전 시스템 기획</title>
+  <style>
+    :root { color-scheme: light; --ink: #202e26; --muted: #4b6054; --green: #24573e; --forest: #16372a; --paper: #f8f7ee; --white: #fffdf7; --line: #d2d9cb; --gold: #f5d494; }
+    * { box-sizing: border-box; }
+    html { scroll-padding-top: 4.5rem; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.75 "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; word-break: keep-all; overflow-wrap: anywhere; }
+    a { color: var(--green); text-underline-offset: .2em; }
+    a:focus-visible { outline: 3px solid #a76c26; outline-offset: 4px; border-radius: .15rem; }
+    .wrap { width: min(1050px, calc(100% - 3rem)); margin-inline: auto; }
+    .hero { background: var(--forest); color: var(--white); padding: clamp(2.4rem, 6vw, 4.8rem) 0; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(15rem, 1fr); gap: 2.2rem; align-items: center; }
+    .eyebrow, .section-index { font-size: .82rem; font-weight: 800; letter-spacing: .13em; }
+    .eyebrow { color: var(--gold); }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1 { font-size: clamp(2.35rem, 5.65vw, 4.4rem); line-height: 1.12; letter-spacing: -.065em; margin: .55rem 0 1.05rem; }
+    .hero .intro { color: #e0eade; max-width: 36rem; }
+    .sample { padding: 1.3rem; background: #224736; border: 1px solid #668671; border-radius: .85rem; }
+    .sample strong { color: var(--gold); }
+    .sample figcaption { color: #e0eade; font-size: .92rem; }
+    .keys { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; margin: .65rem 0; }
+    kbd { display: inline-block; padding: .2rem .52rem; border: 1px solid #a5b8a5; border-bottom-width: 3px; border-radius: .32rem; background: var(--white); color: var(--forest); font: 700 .96rem/1.45 Consolas, monospace; }
+    .key-arrow { color: var(--gold); }
+    nav { position: sticky; top: 0; z-index: 1; background: var(--paper); border-bottom: 1px solid var(--line); }
+    nav ul { display: flex; flex-wrap: wrap; gap: .35rem 1.35rem; list-style: none; padding: .72rem 0; margin-block: 0; }
+    nav a { font-size: .9rem; font-weight: 750; }
+    .status { margin-block: 1.6rem .1rem; color: var(--muted); font-size: .92rem; }
+    section { padding: 2.25rem 0 2.55rem; border-bottom: 1px solid var(--line); }
+    .section-index { color: var(--green); }
+    h2 { margin: .16rem 0 .85rem; font-size: clamp(1.65rem, 3.8vw, 2.6rem); line-height: 1.28; letter-spacing: -.045em; }
+    h3 { margin: 1.65rem 0 .65rem; font-size: clamp(1.1rem, 2.3vw, 1.37rem); color: var(--green); line-height: 1.42; }
+    section p + p { margin-top: .7rem; }
+    section ul, section ol { margin-block: .9rem 1rem; padding-inline-start: 1.55rem; }
+    li + li { margin-top: .35rem; }
+    nav li + li { margin-top: 0; }
+    .table-wrap { margin: 1rem 0 1.25rem; }
+    table { width: 100%; border-spacing: 0; background: var(--white); border: 1px solid var(--line); border-radius: .55rem; font-size: .94rem; }
+    th, td { text-align: start; padding: .62rem .78rem; vertical-align: top; }
+    thead th { background: #e8eee3; color: var(--forest); }
+    thead th:first-child { border-top-left-radius: .5rem; }
+    thead th:last-child { border-top-right-radius: .5rem; }
+    tbody th, tbody td { border-top: 1px solid var(--line); }
+    tbody th { font-weight: 650; }
+    th + th, th + td, td + td { border-left: 1px solid var(--line); }
+    tbody tr:nth-child(even) { background: #f2f4ec; }
+    #play tbody th, #core tbody th, #conditions tbody th, #delivery tbody th { width: 27%; }
+    code { background: #e9efe5; padding: .1rem .28rem; border-radius: .22rem; font: .9em/1.55 Consolas, "Malgun Gothic", monospace; color: #244c39; }
+    pre { overflow: auto; padding: 1rem; background: #e9efe5; border: 1px solid var(--line); border-radius: .55rem; }
+    pre code { display: block; padding: 0; }
+    .cast-flow { margin: 1.1rem 0 1.4rem; padding: 1rem; border: 1px solid var(--line); border-radius: .6rem; background: var(--white); text-align: center; }
+    .flow-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+    .flow-inputs div, .flow-core { display: grid; gap: .15rem; justify-items: center; border-radius: .45rem; padding: .7rem .35rem; background: #e8eee3; }
+    .flow-core { background: var(--forest); color: var(--white); }
+    .flow-core code { color: var(--forest); }
+    .flow-arrow { color: var(--green); font-weight: 800; }
+    .cast-flow span, .cast-flow figcaption { font-size: .89rem; }
+    .cast-flow figcaption { color: var(--muted); margin-top: .6rem; }
+    footer { color: var(--muted); padding-block: 1.15rem 2rem; font-size: .9rem; }
+    @media (max-width: 720px) {
+      html { scroll-padding-top: 1rem; }
+      .wrap { width: calc(100% - 2rem); }
+      .hero-grid { grid-template-columns: 1fr; gap: 1.15rem; }
+      .sample { max-width: 27rem; }
+      nav { position: static; }
+      section { padding-block: 1.65rem 1.85rem; }
+      th, td { padding: .48rem .42rem; }
+      table { font-size: .87rem; }
+      #delivery tbody th { width: 21%; }
+    }
+    @media print {
+      :root { --paper: #fff; --white: #fff; --forest: #172b21; }
+      .hero, .sample, .flow-core { background: white; color: var(--ink); }
+      .hero .intro, .eyebrow, .sample strong, .sample figcaption, .key-arrow { color: var(--ink); }
+      .hero { padding-block: 1rem; }
+      nav { display: none; }
+      .wrap { width: 100%; }
+      h2, h3 { break-after: avoid; }
+      tr, .sample, .cast-flow, pre { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">MAGIC CAMPUS · TASK 6-4 · 설계 제안</p>
+        <h1>마법 시전 시스템</h1>
+        <p class="intro">룬을 차례로 입력해 영창하고, 주문의 사용 조건을 만족하면 시전한다. 빠른 시전을 해금하면 자주 쓰는 주문을 슬롯에 넣어 키 한 번으로 사용할 수 있다.</p>
+      </div>
+      <figure class="sample">
+        <strong>첫 실습 · 등불</strong>
+        <div class="keys" aria-label="Q, 1, 2, Enter 순서로 입력">
+          <kbd>Q</kbd><span class="key-arrow" aria-hidden="true">→</span>
+          <kbd>1</kbd><span class="key-arrow" aria-hidden="true">→</span>
+          <kbd>2</kbd><span class="key-arrow" aria-hidden="true">→</span>
+          <kbd>Enter</kbd>
+        </div>
+        <figcaption>어두운 안내판에 등불을 시전한다.</figcaption>
+      </figure>
+    </div>
+  </header>
+  <nav aria-label="보고서 목차"><ul class="wrap">
+    <li><a href="#play">플레이 규칙</a></li>
+<li><a href="#core">현재 엔진의 연결 지점</a></li>
+<li><a href="#conditions">사용 조건과 소유 데이터</a></li>
+<li><a href="#slots">빠른 시전 해금과 슬롯 편집</a></li>
+<li><a href="#delivery">구현 단위와 통과 기준</a></li>
+  </ul></nav>
+  <main class="wrap">
+    <p class="status">2026-11-10 · 현재 Core 기준 · 구현 전 설계</p>
+    <p>MagicCampus 시스템 설계 제안. 구현 작업은 <a href="../implementation-tasks/02-게임시스템.md">Task 6-4 — 주문 시전·태그 반응·제한 조합</a>에 붙인다.</p>
+    <section id="play" aria-labelledby="heading-play"><p class="section-index" aria-hidden="true">01</p><h2 id="heading-play">플레이 규칙</h2>
+    <p>플레이어는 배운 주문의 룬을 차례로 입력해 시전한다. 첫 실습에서는 어두운 안내판을 바라보고 <code>Q → 1 → 2 → Enter</code>를 눌러 등불을 켠다. 나중에 빠른 시전 기능을 해금하면 자주 쓰는 주문을 슬롯에 넣고 평소 필드에서 숫자 키 한 번으로 시전한다. 어떤 방식이든 시전하는 순간의 사용 조건과 대상을 확인한다.</p>
+    <div class="table-wrap"><table><thead><tr><th scope="col">제안 입력</th><th scope="col">동작</th></tr></thead><tbody><tr><th scope="row">자유 조작 중 <code>Q</code></th><td>영창을 열고 빈 입력 줄을 표시한다.</td></tr>
+<tr><th scope="row">영창 중 <code>1</code>–<code>4</code></th><td>룬 하나를 추가한다. 주문마다 2–5개의 룬을 정한다. 같은 룬을 연달아 쓸 수 있다.</td></tr>
+<tr><th scope="row">영창 중 <code>Enter</code></th><td>지금까지 입력한 배열과 정확히 일치하는 주문을 한 번 시도한다. 입력이 아직 짧으면 추가 입력을 안내한다.</td></tr>
+<tr><th scope="row">영창 중 <code>Q</code>, <code>Esc</code>, <code>X</code> 또는 <code>Backspace</code></th><td>영창을 닫고 입력을 비운다. <code>Esc</code>를 다시 누르면 기존 메뉴가 열린다.</td></tr>
+<tr><th scope="row">영창 밖 <code>1</code>–<code>4</code></th><td>해금 후 해당 슬롯의 주문을 즉시 시도한다. 빈 슬롯은 비어 있음을 표시한다.</td></tr></tbody></table></div>
+    <ul><li>누르는 순간에만 룬 하나를 받는다. 여러 룬이 같은 프레임에 눌리거나 룬과 확정 키가 동시에 눌리면 그 프레임의 영창 입력을 무시하고 차례로 눌러 달라고 표시한다. <code>GameRoot.Pressed</code>로는 해당 키들의 입력 순서를 복원할 수 없다.</li>
+<li>입력한 배열로 시작하는 주문이 하나도 없으면 입력 줄을 비우고 영창을 열어 둔다. 입력이 비었거나 더 긴 주문의 앞부분에서 확정하면 영창을 유지한다. 정확히 일치하는 배열을 확정하면 성공 여부와 관계없이 영창을 닫고 결과를 HUD에 표시한다. 미습득 주문은 이름을 표시하지 않는다.</li>
+<li>초기안에는 룬 입력 제한 시간이 없다. 영창 중에도 이동과 세계 시간은 흐르므로 멈춰서 입력하거나 움직이며 조준할 수 있다. HUD는 입력한 룬, 확정 가능 여부, 취소 키를 글자와 기호로 표시한다.</li>
+<li>주문 수첩에는 배운 주문의 룬 배열과 사용 조건을 표시한다. 예를 들어 “집중 스탯 3 필요 · 현재 2” 또는 “실습용 렌즈 1개 필요 · 가방 0개”로 안내한다.</li></ul>
+    <p>이 설계에서 <strong>영창 콤보</strong>는 키 입력으로 주문 하나를 지정하는 방법이다. 기존 <strong>마법 조합</strong>은 물결이 대상을 젖게 한 뒤 서리로 얼리는 식으로 시전된 주문들이 대상 상태에서 이어지는 규칙이다. Task 6-4의 보호 대상 검사, 등록 조합 우선, 단일 반응 순서를 사용한다. <a href="full-design/domains/domain-01.md">기존 마법 반응 기획</a></p>
+    </section>
+    <section id="core" aria-labelledby="heading-core"><p class="section-index" aria-hidden="true">02</p><h2 id="heading-core">현재 엔진의 연결 지점</h2>
+    <div class="table-wrap"><table><thead><tr><th scope="col">현재 코드</th><th scope="col">추가할 책임</th></tr></thead><tbody><tr><th scope="row"><a href="../../Assets/MagicCampus/Game/GameRoot.cs">GameRoot.cs</a> · <code>HandleKeys</code>, <code>Update</code>, <code>OnGUI</code></th><td>키를 논리 룬이나 슬롯 번호로 바꾼다. 입력 문맥과 영창 HUD를 관리한다.</td></tr>
+<tr><th scope="row"><a href="../../Assets/MagicCampus/Core/Game.cs">Game.cs</a> · 단일 프레임, <code>EventRun</code> 최대 하나</th><td>세션의 영창 상태를 들고 시전 요청을 받는다. 이벤트 중 요청을 막고 맵·하루가 바뀔 때 영창을 정리한다.</td></tr>
+<tr><th scope="row"><a href="../../Assets/MagicCampus/Core/Content.cs">Content.cs</a> · <code>runner-bundle.json</code> 로드</th><td><code>SpellDef</code>를 추가한다. Task 6-4의 주문 정의에 룬 배열, 조건, 빠른 슬롯 허용 여부를 둔다.</td></tr>
+<tr><th scope="row"><a href="../../Assets/MagicCampus/Core/GameState.cs">GameState.cs</a>, <a href="../../Assets/MagicCampus/Core/SaveFile.cs">SaveFile.cs</a></th><td>배운 주문, 빠른 시전 해금, 슬롯 배치를 하루 저장에 포함한다.</td></tr>
+<tr><th scope="row"><a href="../../Tests/Core/Program.cs">Tests/Core/Program.cs</a> · 번들 검사</th><td>잘못된 정의를 출시 번들 검사에서 잡고, 시전과 저장을 Unity 없이 검증한다.</td></tr></tbody></table></div>
+    <p>현재 플레이 빌드는 이동, 상호작용, 약속 이벤트와 하루 저장을 제공한다. 주문, 시전 대상, 인벤토리, 플레이어 스탯과 레벨은 새로 연결해야 한다. <code>EventRun.Holds</code>의 플래그 비교와 이벤트 보상은 약속 이벤트의 계약이다. 마법은 제안된 <code>Core/Magic.cs</code>에서 타입이 있는 조건과 결과를 다룬다. <a href="../../Docs/ADR/0004-current-core.md">현재 Core 기준</a> <a href="../../Assets/MagicCampus/Core/Event.cs">이벤트 실행기</a></p>
+    <h3>두 입력 경로가 한 시전 규칙을 호출한다</h3>
+    <div class="table-wrap"><table><thead><tr><th scope="col">설계안</th><th scope="col">플레이와 구현의 차이</th></tr></thead><tbody><tr><th scope="row">이동 중 키를 상시 수집하고 배열 완성 즉시 시전</th><td>입력이 빠르다. 일반 조작을 주문으로 해석하지 않도록 키를 전용으로 비워야 하고, 짧은 배열이 긴 배열의 앞부분이면 기다리거나 데이터에서 금지해야 한다.</td></tr>
+<tr><th scope="row"><strong><code>Q</code>로 영창을 열고 <code>Enter</code>로 확정</strong></th><td>조작 의도를 명확히 구분한다. <code>1, 2</code>와 <code>1, 2, 3</code>을 함께 쓸 수 있다. 영창이 익숙해진 뒤에는 해금한 슬롯으로 시작·확정 입력을 줄일 수 있다.</td></tr></tbody></table></div>
+    <p>Core가 보관할 영창 상태는 열린 여부와 최대 5개의 룬이다. 배열 대조는 현재 주문 정의 목록으로 처리한다. 똑같은 배열은 잠긴 주문을 포함해 번들 전체에서 금지하고, 한 배열이 다른 배열의 앞부분인 경우는 허용한다. <code>Magic.cs</code>가 배열 대조와 조건 판정을 맡고, <code>Game</code>이 세션과 시전 호출을 연결한다.</p>
+    <figure class="cast-flow">
+  <div class="flow-inputs">
+    <div><strong>영창</strong><span>룬 배열에서 주문 ID 결정</span></div>
+    <div><strong>빠른 슬롯</strong><span>해금 확인 후 주문 ID 조회</span></div>
+  </div>
+  <div class="flow-arrow" aria-hidden="true">↓</div>
+  <div class="flow-core"><code>Game.TryCastSpell</code><span>조건 확인 → 대상·비용 판정 → 결과 표시</span></div>
+  <figcaption>두 입력 경로가 같은 Core 시전 메서드를 호출한다.</figcaption>
+</figure>
+    <p><code>Game.TryCastSpell</code>은 설계상의 이름이다. 주문 ID와 현재 조준 정보로 호출한다. 키 종류, 영창 상태, 저장 슬롯 같은 입력 경로의 정보는 주문 효과 판정에서 사용하지 않는다.</p>
+    <ol><li>현재 시전 가능한 문맥인지, 정의가 존재하고 주문을 배웠는지 확인한다.</li>
+<li>현재 스탯·레벨·소지품 조건을 모두 확인한다. 수첩을 열었을 때의 판정 결과를 재사용하지 않는다.</li>
+<li>현재 맵과 조준 정보에서 대상을 해석한다. 대상형은 사거리·허용 대상·보호 규칙을 검사한다. Task 6-4의 방출 규칙이 자원과 재사용 대기시간을 검사한다.</li>
+<li>적용이 가능한 시전에만 효과와 비용을 확정한다. 생활 주문 비용은 0이다. 차후 전투 주문은 실제 방출 시 비용을 확정하고 빗나감은 명중 결과로 다룬다.</li></ol>
+    <p>거부 결과에는 미습득, 조건 미달, 대상 없음, 보호 대상, 자원 부족 같은 코드와 표시용 인자를 담는다. 조건이나 유효성 검사에서 거부된 시도는 비용·재사용 대기·대상 상태·해금 상태를 바꾸지 않는다. 유효한 대상에 반응이 없을 때의 관찰 기록은 기존 Task 6-4 규칙을 따른다.</p>
+    <h3>프레임마다 한 입력 문맥을 사용한다</h3>
+    <ul><li><code>F9</code>가 우선한다. 메뉴, 패널, 대화 또는 <code>Game.Event</code>가 입력을 처리하는 동안 영창과 슬롯은 작동하지 않는다. 숫자 키로 대화 선택지를 고르는 기존 경로를 사용한다.</li>
+<li>자유 조작에서 패널을 여는 키와 마법 입력이 겹치면 패널이 우선한다. 영창을 여닫거나 확정한 프레임은 다른 마법 입력을 소비한다. 슬롯이 여러 개 동시에 눌려도 어느 슬롯도 시전하지 않는다.</li>
+<li>메뉴와 패널을 여는 경로는 키와 HUD 클릭에서 함께 호출하는 함수에 모은다. 이 함수, 포커스 상실, 이벤트 시작, 포털 통과, 방 재시도, 하루 종료와 <code>F9</code>에서 영창 입력을 지운다. 패널이 닫히거나 포커스가 돌아올 때 새 키 입력을 기다린다.</li>
+<li>현재처럼 입력을 받은 뒤 <code>Game.Update</code>에서 이동과 시계를 진행한다. 대상 미리보기와 시전 판정은 같은 대상 선택 규칙을 사용하고, 실제 시전은 입력 처리 시점의 위치와 방향으로 다시 확인한다. 같은 프레임의 이동으로 포털을 통과하거나 02시에 하루가 끝나면 남은 영창을 비운다.</li>
+<li>Task 7-5의 수업 이벤트가 실습을 기다릴 때에는 해당 실습에 한해 연습할 주문과 대상을 지정한다. 이때도 공통 시전 규칙으로 실습 결과를 반환한다. 첫 습득 실습은 수업이 지정한 주문을 연습용으로 일시 허용하고, 정식 습득은 실습 성공 처리에서 기록한다.</li></ul>
+    </section>
+    <section id="conditions" aria-labelledby="heading-conditions"><p class="section-index" aria-hidden="true">03</p><h2 id="heading-conditions">사용 조건과 소유 데이터</h2>
+    <p>주문 정의의 <code>requirements</code>는 조건 목록이다. 초기에는 모두 충족해야 하며 빈 목록은 추가 제한 없이 통과한다. 주문 습득 여부는 공통으로 확인한다. 아이템을 갖고 있어야 한다는 조건은 소지량을 읽는다. 차후 소모가 필요한 주문은 방출 비용으로 별도 정의한다.</p>
+    <div class="table-wrap"><table><thead><tr><th scope="col">조건 종류</th><th scope="col">판정</th><th scope="col">데이터가 생기는 지점</th></tr></thead><tbody><tr><th scope="row"><code>statAtLeast</code></th><td>스탯 ID의 현재 값 ≥ 기준값</td><td>해당 스탯을 소유한 성장 규칙의 조회를 사용한다. 집중력 같은 소모 자원은 방출 비용에서 처리한다.</td></tr>
+<tr><th scope="row"><code>levelAtLeast</code></th><td>지정한 성장 항목의 레벨 ≥ 기준값</td><td>레벨을 제공하는 성장 항목이 도입될 때 연결한다. 학교 전체 공통 레벨을 만들지 않고, 필요하면 학과·실습 숙련 등 실제 도입된 항목을 지정한다.</td></tr>
+<tr><th scope="row"><code>itemCountAtLeast</code></th><td>지정 아이템의 사용 가능한 가방 수량 ≥ 기준값</td><td>Task 6-2 인벤토리의 소지량 조회를 사용한다. 초기안은 가방의 normal·grant만 센다. 우편·보관함과 과제용 임시 loan은 제외한다.</td></tr></tbody></table></div>
+    <p>아래는 스탯과 인벤토리 조회가 연결된 뒤 주문 정의에 추가할 필드의 예시다. 실제 출시 밸런스와 콘텐츠 ID는 별도다.</p>
+    <pre aria-label="주문 정의 JSON 예시"><code>{
+  &quot;id&quot;: &quot;spell.lantern&quot;,
+  &quot;incantation&quot;: [&quot;rune1&quot;, &quot;rune2&quot;],
+  &quot;requirements&quot;: [
+    { &quot;kind&quot;: &quot;statAtLeast&quot;, &quot;id&quot;: &quot;stat.focus_control&quot;, &quot;min&quot;: 3 },
+    { &quot;kind&quot;: &quot;itemCountAtLeast&quot;, &quot;id&quot;: &quot;item.practice_lens&quot;, &quot;min&quot;: 1 }
+  ],
+  &quot;allowQuickCast&quot;: true
+}</code></pre>
+    <p>번들 검사는 배열 길이와 룬 값, 주문 ID와 배열 중복, 조건 종류·기준값·참조 ID, 해당 조건을 읽을 수 있는지 확인한다. 기준값은 1 이상의 정수다. 제공자가 없는 조건을 포함한 출시 주문은 검사에서 거부한다. 지원되는 항목에서 저장 데이터가 누락된 경우에는 해당 시스템의 초기값을 사용한다. 첫 플레이 검증은 조건 없는 등불과 배운 주문 목록이 있는 전용 시작 픽스처로 가능하다. 수업에서 주문을 배우는 흐름은 Task 7-5에 연결한다. <a href="../마법학교_최초기획안.md">성장 방향과 기존 슬롯 기획</a></p>
+    </section>
+    <section id="slots" aria-labelledby="heading-slots"><p class="section-index" aria-hidden="true">04</p><h2 id="heading-slots">빠른 시전 해금과 슬롯 편집</h2>
+    <p>초기 제안은 <strong>한 번 성공하면 슬롯 편집 기능을 여는 자기 대상 주문</strong>이다. 이 주문을 배우고 영창으로 성공시키면 <code>GameState.QuickCastUnlocked</code>를 켠다. 같은 주문을 다시 써도 해금은 한 번이고 슬롯 배치는 보존한다. 해금 주문의 <code>allowQuickCast</code>는 <code>false</code>로 둔다.</p>
+    <ul><li>해금 후 교전과 이벤트 밖에서 주문 수첩을 열고 4개 슬롯에 배운 주문을 넣거나, 교체하거나, 비운다. 한 슬롯에는 주문 하나를 둔다. 배치할 때는 습득 여부와 빠른 시전 허용 여부를 검사한다. 가방 물품을 잠시 잃어도 슬롯은 유지하며 다음 시도에서 부족한 조건을 표시한다.</li>
+<li>슬롯은 주문 ID를 저장한다. <code>1</code>–<code>4</code>는 기본 슬롯 호출 키다. 물리 키를 바꾸는 기능을 추가할 때는 조작 설정에서 키와 논리 슬롯을 매핑한다. 주문 배치와 별개로 예약 키 및 문맥별 충돌을 검사한다.</li>
+<li>영속 필드는 <code>KnownSpells</code>(빈 목록), <code>QuickCastUnlocked</code>(<code>false</code>), <code>QuickSlots</code>(빈 슬롯 4개)다. 실제 데이터 도입 시 현재 무버전 저장에서 누락·null을 기본값으로 정규화하고 슬롯 길이를 4로 맞춘다. 삭제된 주문 또는 슬롯에 쓸 수 없게 된 주문은 해당 슬롯을 비운다. 미해금 저장은 빈 슬롯으로 정규화한다.</li>
+<li>룬 입력, HUD 메시지, 현재 대상은 세션 데이터다. 해금과 슬롯 변경은 수면 또는 02시 <code>EndDay</code>에서 저장한다. 하루를 마치기 전 <code>F9</code>를 누르면 마지막 저장의 해금 및 배치 상태로 돌아간다. <a href="full-design/02-contracts.md">현재 저장 계약</a></li></ul>
+    <p>기존 상세 기획의 <code>Q</code> 홀드 주문 고리, 숫자로 슬롯 선택 후 우클릭 시전, 시작 슬롯에 등불·부유 배치는 이 제안과 충돌한다. 채택 시 <code>Q</code>는 영창, 숫자는 빠른 시전, 주문 수첩은 슬롯 편집에 배정한다. 전투 중 메뉴 정지와 패드 입력은 전투와 입력 설정을 붙일 때 확정한다. 배운 주문은 슬롯 밖에서도 영창으로 사용할 수 있다. <a href="full-design/domains/domain-01.md">기존 조작과 슬롯 초안</a></p>
+    </section>
+    <section id="delivery" aria-labelledby="heading-delivery"><p class="section-index" aria-hidden="true">05</p><h2 id="heading-delivery">구현 단위와 통과 기준</h2>
+    <div class="table-wrap"><table><thead><tr><th scope="col">순서</th><th scope="col">연결 범위</th><th scope="col">통과 기준</th></tr></thead><tbody><tr><th scope="row">1. 주문 입력과 등불</th><td>Task 6-4 첫 단계. Core에 주문 정의·영창·공통 시전과 고정 대상 하나를 추가한다. Task 6-1의 방 대상이 준비되어 있으면 그 대상에 연결하고, 먼저 확인할 때는 전용 픽스처에만 단일 안내판을 둔다.</td><td><code>Q → 1 → 2 → Enter</code>로 사거리 안의 안내판을 한 번 밝힌다. 짧은 배열과 긴 배열의 공존, 중복 배열 거부, 잘못된 룬, 누르고 있기, 동시 입력, 대상 없음과 보호 대상을 확인한다.</td></tr>
+<tr><th scope="row">2. 문맥과 실데이터 조건</th><td><code>GameRoot</code> 입력 우선순위와 HUD를 검증한다. Task 6-2 이후 소지 조건을, 수업 및 해당 성장 규칙이 준비되면 습득·스탯·레벨을 연결한다.</td><td>대화 중 숫자는 선택에만 쓰인다. 메뉴 클릭, 포털, 포커스 상실, 이벤트, 02시, 재로드에서 영창이 사라진다. 각 조건의 기준값 직전과 정확히 같은 값을 검증한다. 입력 도중 아이템을 잃으면 시전 시 거부한다.</td></tr>
+<tr><th scope="row">3. 빠른 시전</th><td>해금 주문, 주문 수첩 편집, 슬롯 호출과 저장 호환을 연결한다. Task 6-5 수첩에서 주문과 조건을 표시한다.</td><td>미해금 상태에선 슬롯이 작동하지 않는다. 해금 주문 재시전은 배치를 바꾸지 않는다. 같은 상태에서 영창과 슬롯은 같은 결과와 비용을 낸다. 오래된 저장의 기본값, 하루 종료 후 해금·배치 복구, 삭제된 주문 슬롯 정리를 검증한다.</td></tr>
+<tr><th scope="row">4. 방과 전투 연동</th><td>Task 6-4의 대상 반응을 Task 6-1의 방과 이후 전투에 연결한다.</td><td>등록 마법 조합 6종의 방향과 우선순위는 입력 경로와 무관하다. 방 재시도 후 영창이 남지 않는다. 전투의 실제 방출 시 집중력이 한 번 차감된다.</td></tr></tbody></table></div>
+    <p>Core 규칙은 <code>dotnet run --project Tests/Core/MagicCampus.Core.Tests.csproj</code>에서 확인한다. 기존 스위트는 이번 설계 시점의 워크스페이스에서 통과했다. 키 입력과 HUD 전환은 구현 후 Unity 플레이어에서 위 시나리오로 확인한다.</p>
+    <p>입력 수치와 키는 첫 플레이테스트 기본값이다. 빠른 시전은 기능 전체를 한 번에 여는 안으로 잡았다. 주문마다 무영창을 배우는 성장 방식으로 결정하면 해금 상태를 주문 ID 집합으로 바꾸고 슬롯 배치 검사를 그 집합에 연결한다. 두 방식 모두 같은 시전 규칙을 사용한다.</p>
+    </section>
+  </main>
+  <footer class="wrap">MagicCampus · <a href="spellcasting.md">Markdown 원본 기획서</a></footer>
+</body>
+</html>

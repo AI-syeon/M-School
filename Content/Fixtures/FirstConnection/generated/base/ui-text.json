@@ -1,0 +1,30 @@
+{
+  "tags": {
+    "dark": "어두움",
+    "lit": "밝음",
+    "wet": "젖음",
+    "frozen": "얼음",
+    "record": "기록",
+    "broken": "부서짐",
+    "seed_dry": "마른 씨앗",
+    "plant": "식물",
+    "resonant": "공명",
+    "liftable": "들 수 있음",
+    "floating": "떠 있음",
+    "germinating": "발아 준비",
+    "sound_source": "소리 담김",
+    "wind_path": "바람길",
+    "warded": "안전막",
+    "shaped": "다듬어짐",
+    "mended": "수선됨",
+    "restored": "복구됨",
+    "pinned": "고정됨",
+    "husk_open": "껍질 열림",
+    "soot": "그을음",
+    "scene_shown": "장면 투사",
+    "sound_aligned": "소리 정렬",
+    "person": "사람",
+    "private": "사유물",
+    "noMagic": "마법 불가"
+  }
+}

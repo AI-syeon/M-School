@@ -1,0 +1,12 @@
+{
+  "complete_output_files": 246,
+  "consecutive_verify_rebuild_outputs_identical": true,
+  "baseline": {
+    "available": true,
+    "all_identical": true,
+    "existing_frames": 120,
+    "sheet_regions": 6,
+    "player_files": 88,
+    "meta_files": 94
+  }
+}

@@ -1,0 +1,348 @@
+﻿{
+  "source": "source\\room-dorm-fix-decor-original.png",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "assets": {
+    "canopy-bed-rich": {
+      "crop": [
+        44,
+        3,
+        226,
+        523
+      ],
+      "alphaBoundsInCrop": [
+        4,
+        5,
+        221,
+        516
+      ],
+      "size": [
+        64,
+        96
+      ],
+      "offset": [
+        23,
+        0
+      ],
+      "contentSize": [
+        41,
+        96
+      ],
+      "source": "prepared/room-dorm/canopy-bed-rich.png"
+    },
+    "moon-banner": {
+      "crop": [
+        46,
+        538,
+        139,
+        268
+      ],
+      "alphaBoundsInCrop": [
+        3,
+        4,
+        137,
+        263
+      ],
+      "size": [
+        32,
+        64
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "contentSize": [
+        32,
+        62
+      ],
+      "source": "prepared/room-dorm/moon-banner.png"
+    },
+    "trailing-ivy": {
+      "crop": [
+        266,
+        538,
+        169,
+        282
+      ],
+      "alphaBoundsInCrop": [
+        4,
+        1,
+        165,
+        281
+      ],
+      "size": [
+        32,
+        64
+      ],
+      "offset": [
+        0,
+        8
+      ],
+      "contentSize": [
+        32,
+        56
+      ],
+      "source": "prepared/room-dorm/trailing-ivy.png"
+    },
+    "star-garland": {
+      "crop": [
+        481,
+        588,
+        341,
+        164
+      ],
+      "alphaBoundsInCrop": [
+        2,
+        7,
+        338,
+        152
+      ],
+      "size": [
+        64,
+        32
+      ],
+      "offset": [
+        0,
+        4
+      ],
+      "contentSize": [
+        64,
+        28
+      ],
+      "source": "prepared/room-dorm/star-garland.png"
+    },
+    "curtain-pair": {
+      "crop": [
+        849,
+        534,
+        359,
+        267
+      ],
+      "alphaBoundsInCrop": [
+        8,
+        11,
+        351,
+        258
+      ],
+      "size": [
+        96,
+        64
+      ],
+      "offset": [
+        3,
+        0
+      ],
+      "contentSize": [
+        89,
+        64
+      ],
+      "source": "prepared/room-dorm/curtain-pair.png"
+    },
+    "green-runner": {
+      "crop": [
+        1268,
+        538,
+        233,
+        452
+      ],
+      "alphaBoundsInCrop": [
+        5,
+        4,
+        226,
+        446
+      ],
+      "size": [
+        32,
+        128
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "contentSize": [
+        32,
+        128
+      ],
+      "source": "prepared/room-dorm/green-runner.png"
+    },
+    "oak-chest": {
+      "crop": [
+        47,
+        842,
+        233,
+        165
+      ],
+      "alphaBoundsInCrop": [
+        5,
+        8,
+        230,
+        162
+      ],
+      "size": [
+        64,
+        32
+      ],
+      "offset": [
+        8,
+        0
+      ],
+      "contentSize": [
+        47,
+        32
+      ],
+      "source": "prepared/room-dorm/oak-chest.png"
+    },
+    "star-stool": {
+      "crop": [
+        359,
+        837,
+        137,
+        171
+      ],
+      "alphaBoundsInCrop": [
+        8,
+        9,
+        127,
+        164
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "offset": [
+        3,
+        0
+      ],
+      "contentSize": [
+        25,
+        32
+      ],
+      "source": "prepared/room-dorm/star-stool.png"
+    },
+    "stacked-books": {
+      "crop": [
+        555,
+        846,
+        159,
+        149
+      ],
+      "alphaBoundsInCrop": [
+        5,
+        13,
+        152,
+        137
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "offset": [
+        0,
+        5
+      ],
+      "contentSize": [
+        32,
+        27
+      ],
+      "source": "prepared/room-dorm/stacked-books.png"
+    },
+    "brass-lamp": {
+      "crop": [
+        803,
+        814,
+        112,
+        192
+      ],
+      "alphaBoundsInCrop": [
+        11,
+        7,
+        100,
+        184
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "offset": [
+        8,
+        0
+      ],
+      "contentSize": [
+        16,
+        32
+      ],
+      "source": "prepared/room-dorm/brass-lamp.png"
+    },
+    "sleeping-cat": {
+      "crop": [
+        985,
+        861,
+        205,
+        139
+      ],
+      "alphaBoundsInCrop": [
+        8,
+        6,
+        193,
+        126
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "offset": [
+        0,
+        11
+      ],
+      "contentSize": [
+        32,
+        21
+      ],
+      "source": "prepared/room-dorm/sleeping-cat.png"
+    },
+    "wall-panel-rich": {
+      "crop": [
+        348,
+        154,
+        968,
+        251
+      ],
+      "size": [
+        384,
+        64
+      ],
+      "fit": "stretch",
+      "source": "prepared/room-dorm/wall-panel-rich.png"
+    },
+    "timber-post-rich": {
+      "crop": [
+        1395,
+        47,
+        90,
+        408
+      ],
+      "size": [
+        32,
+        224
+      ],
+      "fit": "stretch",
+      "source": "prepared/room-dorm/timber-post-rich.png"
+    },
+    "oak-floor-native": {
+      "original": "source/room-dorm-base-original.png",
+      "crop": [
+        620,
+        458,
+        320,
+        160
+      ],
+      "size": [
+        32,
+        32
+      ],
+      "source": "prepared/room-dorm/oak-floor-native.png"
+    }
+  }
+}

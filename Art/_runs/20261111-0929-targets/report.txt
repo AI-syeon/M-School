@@ -1,0 +1,60 @@
+Production targets delivery, 2026-11-11
+
+Built-in image_gen generated source/targets-original.png first; the original
+1448x1086 transparent RGBA PNG is byte-identical to the tool output. Exact
+prompt, tool, reference paths and twelve crop rectangles are preserved in
+source/targets-prompt.json. The two design screens were passed to image_gen;
+the two approved courtyard captures were visually inspected for compatibility.
+
+New library: Art/CampusGrid/targets.json, twelve props, six paired states.
+Signboard and pillar states: 32x64 px (1x2 cells). Other eight: 32x32 (1x1).
+Every prop: one frame, no fps field, blocked [[0,0]], 30-39 opaque colors.
+Whole frames pixelized
+before 32x32 splitting. All alpha values are binary 0 or 255. Each pair has
+identical canvas size and bottom anchor. Joint 40-color pair quantization
+keeps common structural pixels identical outside explicit state masks.
+
+build_targets.py uses saved generated crops only, through the existing local
+build_grid pixelize/Pillow preparation and pixel_pipeline validation. A common
+A structural base receives only state windows or extracted source magic/petal
+pixels from B. Tiny generated white/lavender petals are classified before
+palette reduction and binned at final scale so they survive at 1x. No source
+image was painted over. State change counts after final shared quantization:
+signboard 112, pillar 520, seedpot 114, moss 34, plaque 62, rune stone 98 pixels.
+
+Files added:
+Art/CampusGrid/source/targets-original.png
+Art/CampusGrid/source/targets-prompt.json
+Art/CampusGrid/targets.json
+Art/CampusGrid/build_targets.py
+Art/CampusGrid/prepared/targets/target-*.png (12 whole frames)
+Art/CampusGrid/review/targets-sheet.png (A|B, 1x and4x; paving+bench at2x)
+Art/CampusGrid/review/targets-source-vs-result.png
+Art/CampusGrid/review/targets-initial.png (latest preparation diagnostic)
+Art/CampusGrid/review/moss-source-detail.png (generated crop diagnostic)
+Art/_runs/20261111-0929-targets/ (job, scripts, baseline, first-build snapshots,
+validation.json, this report).
+
+Edited: art.json only adds targets.json to libraries. rebuild.ps1 only adds
+the target preparation hook with the same failure guard as fountain.
+Rebuilt outputs: Assets/MagicCampus/CampusGrid/layout.json and scenic.campusatlas;
+review/source-vs-grid.png, cell-atlas.png and build-report.json are refreshed by
+the normal rebuild. Existing cell PNG outputs remain byte-identical.
+
+Validation:
+Two final rebuild.ps1 runs succeeded. layout.json and build-report.json were
+byte-identical between runs, as were all539 standalone/extracted packed cell
+PNGs. All523 preexisting cell PNG hashes are unchanged against baseline.
+Sixteen cells added for twelve targets. Existing source artwork is unchanged.
+map.json SHA256 unchanged; no map placement, C#, scene, importer, or pipeline
+code changes were made. Existing converter verifies atlas-cell reconstruction.
+Review sheet and source comparison were opened and visually inspected.
+Detailed dimensions, alpha bounds, color counts, pair changes and hashes are
+in validation.json, baseline.json and first-cells.json.
+
+Remaining visual limitations: miniature pot ornament, dim tablet engraving and
+inactive rune lose fine source detail at32px. Moss flowers are deliberately
+larger clusters than their raw BOX downsample, preserving visibility. The sign
+uses a wider silhouette and therefore leaves more upper canvas space than the
+pillar. No in-engine render was performed; Point/32PPU import behavior relies
+on the unchanged existing importer and the normal Unity rebuild workflow.

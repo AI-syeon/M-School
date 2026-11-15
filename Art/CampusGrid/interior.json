@@ -1,0 +1,762 @@
+{
+  "schema": 1,
+  "props": [
+    {
+      "id": "canopy-bed",
+      "size": [
+        2,
+        3
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/canopy-bed-rich.png"
+        }
+      ],
+      "blocked": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          44,
+          3,
+          226,
+          523
+        ]
+      }
+    },
+    {
+      "id": "bookshelf",
+      "size": [
+        2,
+        3
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            416,
+            30,
+            225,
+            365
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "desk",
+      "size": [
+        3,
+        3
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            738,
+            90,
+            300,
+            310
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "window-seat",
+      "size": [
+        4,
+        3
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            1100,
+            30,
+            315,
+            370
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "wardrobe",
+      "size": [
+        2,
+        3
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            100,
+            420,
+            190,
+            300
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "star-rug",
+      "size": [
+        3,
+        3
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            390,
+            450,
+            295,
+            270
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "id": "nightstand",
+      "size": [
+        1,
+        1
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            815,
+            530,
+            140,
+            180
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "mirror",
+      "size": [
+        1,
+        2
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            1175,
+            430,
+            150,
+            290
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "plant",
+      "size": [
+        1,
+        2
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            105,
+            755,
+            160,
+            280
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "lantern",
+      "size": [
+        1,
+        1
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            475,
+            825,
+            115,
+            200
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "id": "candle",
+      "size": [
+        1,
+        1
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            830,
+            855,
+            130,
+            170
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": []
+    },
+    {
+      "id": "flower-plant",
+      "size": [
+        1,
+        2
+      ],
+      "frames": [
+        {
+          "source": "source/room-dorm-furniture-original.png",
+          "crop": [
+            1150,
+            755,
+            200,
+            280
+          ],
+          "fit": "contain",
+          "colors": 64
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "wall-rear",
+      "size": [
+        12,
+        2
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/wall-rear.png"
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "wall-side",
+      "size": [
+        1,
+        7
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/wall-side.png"
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "wall-front-left",
+      "size": [
+        5,
+        1
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/wall-front-left.png"
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "wall-front-right",
+      "size": [
+        6,
+        1
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/wall-front-right.png"
+        }
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "moon-banner",
+      "size": [
+        1,
+        2
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/moon-banner.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          46,
+          538,
+          139,
+          268
+        ]
+      }
+    },
+    {
+      "id": "trailing-ivy",
+      "size": [
+        1,
+        2
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/trailing-ivy.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          266,
+          538,
+          169,
+          282
+        ]
+      }
+    },
+    {
+      "id": "star-garland",
+      "size": [
+        2,
+        1
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/star-garland.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          481,
+          588,
+          341,
+          164
+        ]
+      }
+    },
+    {
+      "id": "curtain-pair",
+      "size": [
+        3,
+        2
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/curtain-pair.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          849,
+          534,
+          359,
+          267
+        ]
+      }
+    },
+    {
+      "id": "green-runner",
+      "size": [
+        1,
+        4
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/green-runner.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          1268,
+          538,
+          233,
+          452
+        ]
+      }
+    },
+    {
+      "id": "oak-chest",
+      "size": [
+        2,
+        1
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/oak-chest.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          47,
+          842,
+          233,
+          165
+        ]
+      }
+    },
+    {
+      "id": "star-stool",
+      "size": [
+        1,
+        1
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/star-stool.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          359,
+          837,
+          137,
+          171
+        ]
+      }
+    },
+    {
+      "id": "stacked-books",
+      "size": [
+        1,
+        1
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/stacked-books.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          555,
+          846,
+          159,
+          149
+        ]
+      }
+    },
+    {
+      "id": "brass-lamp",
+      "size": [
+        1,
+        1
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/brass-lamp.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          803,
+          814,
+          112,
+          192
+        ]
+      }
+    },
+    {
+      "id": "sleeping-cat",
+      "size": [
+        1,
+        1
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/room-dorm/sleeping-cat.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source\\room-dorm-fix-decor-original.png",
+        "crop": [
+          985,
+          861,
+          205,
+          139
+        ]
+      }
+    }
+  ]
+}

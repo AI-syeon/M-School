@@ -1,0 +1,359 @@
+{
+  "existingCellPngs": 523,
+  "existingCellPngsUnchanged": 523,
+  "unchangedMap": true,
+  "artOnlyLibraryAddition": true,
+  "unchangedExistingSources": true,
+  "layoutByteIdentical": true,
+  "buildReportByteIdentical": true,
+  "allCellPngsIdenticalBetweenBuilds": true,
+  "targets": {
+    "target-signboard-dark": {
+      "size": [
+        32,
+        64
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 34,
+      "alphaBounds": [
+        2,
+        16,
+        30,
+        62
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-signboard-lit": {
+      "size": [
+        32,
+        64
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 39,
+      "alphaBounds": [
+        2,
+        16,
+        30,
+        62
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-pillar-broken": {
+      "size": [
+        32,
+        64
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 32,
+      "alphaBounds": [
+        4,
+        5,
+        30,
+        62
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-pillar-mended": {
+      "size": [
+        32,
+        64
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 38,
+      "alphaBounds": [
+        4,
+        5,
+        24,
+        62
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-seedpot-dry": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 31,
+      "alphaBounds": [
+        6,
+        8,
+        26,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-seedpot-sprout": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 39,
+      "alphaBounds": [
+        6,
+        4,
+        26,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-moss-plain": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 32,
+      "alphaBounds": [
+        3,
+        13,
+        29,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-moss-bloom": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 38,
+      "alphaBounds": [
+        3,
+        10,
+        29,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-plaque-dim": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 36,
+      "alphaBounds": [
+        3,
+        4,
+        28,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-plaque-glow": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 39,
+      "alphaBounds": [
+        3,
+        4,
+        28,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-rune-stone-off": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 30,
+      "alphaBounds": [
+        5,
+        4,
+        27,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    },
+    "target-rune-stone-on": {
+      "size": [
+        32,
+        32
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "opaqueColors": 37,
+      "alphaBounds": [
+        5,
+        4,
+        27,
+        30
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": 1,
+      "fpsAbsent": true
+    }
+  },
+  "pairs": [
+    {
+      "a": "target-signboard-dark",
+      "b": "target-signboard-lit",
+      "changedPixels": 112,
+      "sameCanvas": true,
+      "sameBottomAnchor": true
+    },
+    {
+      "a": "target-pillar-broken",
+      "b": "target-pillar-mended",
+      "changedPixels": 520,
+      "sameCanvas": true,
+      "sameBottomAnchor": true
+    },
+    {
+      "a": "target-seedpot-dry",
+      "b": "target-seedpot-sprout",
+      "changedPixels": 114,
+      "sameCanvas": true,
+      "sameBottomAnchor": true
+    },
+    {
+      "a": "target-moss-plain",
+      "b": "target-moss-bloom",
+      "changedPixels": 34,
+      "sameCanvas": true,
+      "sameBottomAnchor": true
+    },
+    {
+      "a": "target-plaque-dim",
+      "b": "target-plaque-glow",
+      "changedPixels": 62,
+      "sameCanvas": true,
+      "sameBottomAnchor": true
+    },
+    {
+      "a": "target-rune-stone-off",
+      "b": "target-rune-stone-on",
+      "changedPixels": 98,
+      "sameCanvas": true,
+      "sameBottomAnchor": true
+    }
+  ],
+  "originalByteIdenticalToGenerated": true,
+  "targetCount": 12,
+  "targetCellsAdded": 16
+}

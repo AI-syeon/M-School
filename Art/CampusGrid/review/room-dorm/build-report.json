@@ -1,0 +1,349 @@
+{
+  "tileSize": 32,
+  "sourceSha256": {
+    "prepared/room-dorm/oak-floor-native.png": "8c4b38ec1ebdd4b12ce2b9516dfc02e4cfd1e02305bc4b967e492212e0b4c3bb",
+    "prepared/room-dorm/canopy-bed-rich.png": "28cd95b80f283253e296c64806211dcecbe77bc060d0e8c5c7a593b897b160d7",
+    "source\\room-dorm-fix-decor-original.png": "721df60802161827bd329595e7dc3a29baacb35538da0acd74cbde9048685653",
+    "source/room-dorm-furniture-original.png": "60658991fc3fa2e2090d68f1a8340bcfa18ee49d918a0238e0f91df6784bdac1",
+    "prepared/room-dorm/wall-rear.png": "6d92dd4545b3f3f8d8ce06d0d5877da4ca9f69ca8fc9669039ac956e45473a1e",
+    "prepared/room-dorm/wall-side.png": "456e7efdac7c97aa5307fa0410a9fa7f8cc0b172285098051dbb0612ec05abee",
+    "prepared/room-dorm/wall-front-left.png": "99631e4a538fcd4507f8876edffcf420335c82144fa0c592c88259dec1027fa8",
+    "prepared/room-dorm/wall-front-right.png": "34a5f7cd48cf09c8352d7fe5a5fa6a9680f81bb7941868eb5a8ddb4897f0204a",
+    "prepared/room-dorm/moon-banner.png": "5019c887b23acbc027f0fc12d233d769b9f9cad41f67b32ac882756153a75ede",
+    "prepared/room-dorm/trailing-ivy.png": "2fd18af5a444da0884a4dd656ea97e424ff256efa73dbc5a81c2104831d9cd02",
+    "prepared/room-dorm/star-garland.png": "bef0c4f007be3f7d1780ea4d37509133ff080d2f4a8bd2ef8d1393a342a62727",
+    "prepared/room-dorm/curtain-pair.png": "e00ab17f24b27422cd317c55406c6d0bc49740e18a3a647313f42cf77d90a3c3",
+    "prepared/room-dorm/green-runner.png": "5d747bff6289339fcce1ed0335b64fe7ce4541895ca5fd02d98472f19c078910",
+    "prepared/room-dorm/oak-chest.png": "90f1033c7c0385aebff0a146a906371ade1f6020908bfcb595bf301b15ee2e88",
+    "prepared/room-dorm/star-stool.png": "476867cbbf0d8c1a417cab9285ecacd6020dbc98842f2f99ad8ff018ab8aeb43",
+    "prepared/room-dorm/stacked-books.png": "c4a295a9dd03963e40feb09f31b6f2d0fa193235832d1119ed5217e8fd047b82",
+    "prepared/room-dorm/brass-lamp.png": "9f9b9cd62e99eba5ad2e2f862e3318f658ca9396a7b43210fc1b9f2557ebc0b5",
+    "prepared/room-dorm/sleeping-cat.png": "4f5b22ab0630ea5e0e1f92526a91888cfb77615a52cd2ada4fc464b51efc24db"
+  },
+  "uniqueCellPngs": 1,
+  "atlas": [
+    {
+      "image": "ground-room-floor-00.png",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    }
+  ],
+  "mapCells": 108,
+  "propCount": 31,
+  "props": {
+    "canopy-bed": {
+      "size": [
+        2,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        96
+      ]
+    },
+    "bookshelf": {
+      "size": [
+        2,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        96
+      ]
+    },
+    "desk": {
+      "size": [
+        3,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        96
+      ]
+    },
+    "window-seat": {
+      "size": [
+        4,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        128,
+        96
+      ]
+    },
+    "wardrobe": {
+      "size": [
+        2,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        96
+      ]
+    },
+    "star-rug": {
+      "size": [
+        3,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        96
+      ]
+    },
+    "nightstand": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "mirror": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "plant": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "lantern": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "candle": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "flower-plant": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "wall-rear": {
+      "size": [
+        12,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        384,
+        64
+      ]
+    },
+    "wall-side": {
+      "size": [
+        1,
+        7
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        224
+      ]
+    },
+    "wall-front-left": {
+      "size": [
+        5,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        160,
+        32
+      ]
+    },
+    "wall-front-right": {
+      "size": [
+        6,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        192,
+        32
+      ]
+    },
+    "moon-banner": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "trailing-ivy": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "star-garland": {
+      "size": [
+        2,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        32
+      ]
+    },
+    "curtain-pair": {
+      "size": [
+        3,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        64
+      ]
+    },
+    "green-runner": {
+      "size": [
+        1,
+        4
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        128
+      ]
+    },
+    "oak-chest": {
+      "size": [
+        2,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        32
+      ]
+    },
+    "star-stool": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "stacked-books": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "brass-lamp": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "sleeping-cat": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    }
+  }
+}

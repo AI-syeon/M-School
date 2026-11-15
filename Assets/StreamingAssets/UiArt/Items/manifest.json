@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "pixelsPerUnit": 32,
+  "filter": "point",
+  "items": {
+    "item-lens": {
+      "file": "item-lens.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-rune-chalk": {
+      "file": "item-rune-chalk.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-moonbean-seed": {
+      "file": "item-moonbean-seed.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-frost-mint": {
+      "file": "item-frost-mint.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-crystal-dust": {
+      "file": "item-crystal-dust.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-honey-bread": {
+      "file": "item-honey-bread.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-focus-potion": {
+      "file": "item-focus-potion.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-student-card": {
+      "file": "item-student-card.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    "item-torn-note": {
+      "file": "item-torn-note.png",
+      "size": [
+        32,
+        32
+      ]
+    }
+  }
+}

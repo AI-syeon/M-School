@@ -4,9 +4,9 @@
   "player": {
     "id": "player",
     "mapId": "map.courtyard",
-    "x": 1.5,
-    "y": 1.5,
-    "facing": "south"
+    "x": 8.5,
+    "y": 2.5,
+    "facing": "north"
   },
   "wallet": 200,
   "flags": {
@@ -17,8 +17,22 @@
     "memory.snack_later_done": false
   },
   "completed": [],
+  "knownSpells": ["spell.lantern", "spell.sprout", "spell.ember"],
   "appointments": {
     "event.snack": "Offered",
     "event.snack_later": "Offered"
-  }
+  },
+  "bag": [
+    { "itemId": "item.lens", "quality": "standard", "count": 1 },
+    { "itemId": "item.rune_chalk", "quality": "standard", "count": 3 },
+    { "itemId": "item.honey_bread", "quality": "standard", "count": 3 },
+    { "itemId": "item.moonbean_seed", "quality": "standard", "count": 5 },
+    null, null,
+    null, null, null, null, null, null,
+    null, null, null, null, null, null,
+    null, null, null, null, null, null
+  ],
+  "keyItems": [
+    "item.student_card"
+  ]
 }

@@ -31,9 +31,13 @@ namespace MagicCampus.Core
     public sealed class MapDef
     {
         public string Id;
+        /// <summary>The player-facing name shown on the map screen; null falls back to "이름 없는 구역".</summary>
+        public string Name;
         public int Width, Height;
         public List<int[]> Blocked = new List<int[]>();
         public List<PortalDef> Portals = new List<PortalDef>();
+        /// <summary>Cells the current arrangement of the player's furniture blocks, on top of Blocked. Set by Furniture, never read from content.</summary>
+        [JsonIgnore] public HashSet<(int X, int Y)> Furnished = new HashSet<(int X, int Y)>();
     }
 
     public sealed class DestinationDef
@@ -51,10 +55,6 @@ namespace MagicCampus.Core
         public double Speed;
     }
 
-    public sealed class ScheduleDef
-    {
-        public string Id, NpcId, Script;
-    }
 
     public sealed class EventDef
     {
@@ -167,25 +167,45 @@ namespace MagicCampus.Core
         public List<MapDef> Maps = new List<MapDef>();
         public List<DestinationDef> Destinations = new List<DestinationDef>();
         public List<NpcDef> Npcs = new List<NpcDef>();
-        public List<ScheduleDef> Schedules = new List<ScheduleDef>();
         public List<EventDef> Events = new List<EventDef>();
         public List<SpellDef> Spells = new List<SpellDef>();
         public List<ReactionDef> Reactions = new List<ReactionDef>();
         public List<MagicTargetDef> MagicTargets = new List<MagicTargetDef>();
+        public List<ItemDef> Items = new List<ItemDef>();
+        /// <summary>Rooms whose furniture the player may move, and which pieces.</summary>
+        public List<ArrangeableDef> Arrangeable = new List<ArrangeableDef>();
         [JsonIgnore] public List<RecipeDef> Recipes = new List<RecipeDef>();
+        /// <summary>Daily requests, read from quests.json. A bundle without that file has none.</summary>
+        [JsonIgnore] public List<QuestDef> Quests = new List<QuestDef>();
+        /// <summary>Each NPC's day, read from routines.json as written (per NPC id, steps in file order). A bundle without that file has none; its NPCs stay at home. Use Routine for the steps that run.</summary>
+        [JsonIgnore] public Dictionary<string, List<RoutineStep>> Routines = new Dictionary<string, List<RoutineStep>>();
+        /// <summary>Player-facing tag names, read from ui-text.json ("tags"). A bundle without that file shows tag ids.</summary>
+        [JsonIgnore] public Dictionary<string, string> TagNames = new Dictionary<string, string>();
         /// <summary>Where the player sleeps and where every new day starts.</summary>
         public Spot Bed;
 
         public static Content Load(string dir)
         {
+            string Optional(string file) => File.Exists(Path.Combine(dir, file)) ? File.ReadAllText(Path.Combine(dir, file), Encoding.UTF8) : null;
             return Parse(File.ReadAllText(Path.Combine(dir, "runner-bundle.json"), Encoding.UTF8),
-                File.ReadAllText(Path.Combine(dir, "staging-recipes.json"), Encoding.UTF8));
+                File.ReadAllText(Path.Combine(dir, "staging-recipes.json"), Encoding.UTF8),
+                Optional("quests.json"), Optional("ui-text.json"), Optional("routines.json"));
         }
 
-        public static Content Parse(string bundleJson, string recipesJson)
+        public static Content Parse(string bundleJson, string recipesJson, string questsJson = null, string uiTextJson = null, string routinesJson = null)
         {
             var content = JsonConvert.DeserializeObject<Content>(bundleJson);
             content.Recipes = JsonConvert.DeserializeObject<List<RecipeDef>>(recipesJson);
+            content.Quests = string.IsNullOrWhiteSpace(questsJson) ? new List<QuestDef>() : JsonConvert.DeserializeObject<List<QuestDef>>(questsJson) ?? new List<QuestDef>();
+            var tags = string.IsNullOrWhiteSpace(uiTextJson) ? null : JObject.Parse(uiTextJson)["tags"];
+            content.TagNames = tags?.ToObject<Dictionary<string, string>>() ?? new Dictionary<string, string>();
+            content.Routines = string.IsNullOrWhiteSpace(routinesJson) ? new Dictionary<string, List<RoutineStep>>() : JsonConvert.DeserializeObject<Dictionary<string, List<RoutineStep>>>(routinesJson) ?? new Dictionary<string, List<RoutineStep>>();
+            foreach (var step in content.Routines.Values.Where(steps => steps != null).SelectMany(steps => steps).Where(step => step != null))
+            {
+                step.Minute = Clock.ParseTime(step.At);
+                if (string.IsNullOrEmpty(step.Action)) step.Action = Actor.Idle;
+            }
+            Furniture.ApplyDefaults(content);
             return content;
         }
 
@@ -196,5 +216,19 @@ namespace MagicCampus.Core
         public RecipeDef Recipe(string eventId) => Recipes.First(r => r.EventId == eventId);
         public VariableDef Variable(string id) => Variables.First(v => v.Id == id);
         public SpellDef Spell(string id) => Spells.FirstOrDefault(s => s.Id == id);
+        public ItemDef Item(string id) => Items.FirstOrDefault(i => i.Id == id);
+        /// <summary>
+        /// The steps of the NPC's day that can run, earliest first (steps at the same minute keep file order). A step with an unreadable
+        /// time or a place that is not "home" or a destination is dropped; Tests/Core reports it for every shipped bundle.
+        /// </summary>
+        public List<RoutineStep> Routine(string npcId)
+        {
+            return !Routines.TryGetValue(npcId, out var steps) || steps == null ? new List<RoutineStep>()
+                : steps.Where(s => s != null && s.Minute >= 0 && (s.Place == RoutineStep.Home || Destinations.Any(d => d.Id == s.Place))).OrderBy(s => s.Minute).ToList();
+        }
+
+        public QuestDef Quest(string id) => Quests.FirstOrDefault(q => q.Id == id);
+        public string TagName(string id) => TagNames.TryGetValue(id, out var name) ? name : id;
+        public string MapName(string id) => Maps.FirstOrDefault(m => m.Id == id)?.Name ?? "이름 없는 구역";
     }
 }

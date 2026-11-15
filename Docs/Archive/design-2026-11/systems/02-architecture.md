@@ -1,0 +1,53 @@
+# 전체 구조와 공통 실행 계약
+
+2026-11-06 개정. 근거는 `Assets/MagicCampus/Core/*.cs`, `Game/*.cs`, `Tests/Core/Program.cs`다. Task1~5는 이 구현을 설명하며, 후속 Task의 새 기능은 미구현 계획으로 구분한다. 이전 기반의 포트·서비스·저장 스키마를 복원하는 작업으로 해석하지 않는다.
+
+## 실행 경계
+
+| 실제 위치 | 책임 | 의존 |
+|---|---|---|
+| Core/Content.cs | JSON DTO, Command.Parse, 콘텐츠 조회 | C#, Newtonsoft.Json, 파일 IO |
+| Core/GameState.cs | 영속 GameState, Actor, Clock, Dialogue, Invite | C#, Newtonsoft.Json |
+| Core/Game.cs | 입력 의도, 단일 프레임 진행, 이벤트·초대·하루 종료 | 나머지 Core |
+| Core/Event.cs | EventRun, 조건, 이동·대사·선택·효과, 취소 복원 | Game/World/Content |
+| Core/World.cs | 격자 통행, BFS, 이동, 포털, 방향 | Content/Actor |
+| Core/Schedule.cs | 시각별 목적지, 일정 이동, 로드·기상 배치 | Content/World |
+| Core/SaveFile.cs | GameState JSON, tmp 교체, bak 읽기 | Newtonsoft.Json, 파일 IO |
+| Game/GameRoot.cs | 키·버튼 전달, 메뉴/패널, Update 호출, 오류·상태 표시 | Unity, Input System, Core |
+| Game/WorldView.cs, DialogueBox.cs | 타일·배우·카메라·대화 표시 | Unity, Core 조회 |
+| Game/Editor/GameBuild.cs | fixture/아트 복사, 씬 생성, Windows 빌드 | Unity Editor |
+| Tests/Core/Program.cs | 배포 콘텐츠 규칙과 Core 동작 검사 | Core 소스, net10.0 |
+
+Core assembly는 `noEngineReferences=true`이며 JSON과 파일 IO를 직접 사용한다. Contracts, StateStore, Bootstrap 서비스 그래프, 별도 UnityAdapters 계층을 새로 만들지 않는다. Unity 6000.6.3f1, Input System 1.19.0, Newtonsoft.Json 3.2.2는 현재 프로젝트 파일의 값이다.
+
+## 한 프레임
+
+GameRoot는 입력을 처리한다. 메뉴가 열려 있으면 Game.Update를 호출하지 않는다. 메뉴가 아니면 dt를 최대 0.1초로 제한하고 한 번 호출한다. 초대/일지/침대 확인 패널에서는 플레이어 입력만 0이며, NPC와 시계는 계속 간다.
+
+Game.Update는 Event가 있으면 EventRun.Update만 실행하고 반환한다. 따라서 이벤트 중 평상 NPC 일정·일반 플레이어 이동·자연 시간은 정지하며 이벤트 이동과 대화는 진행한다. Event가 없으면 플레이어 이동 → NPC 경로 이동 → 초 누적을 게임분으로 전환 → Schedule.Run → 02:00 검사 순서다. 별도 완료 큐·revision·정지 채널·비동기 Handle은 없다.
+
+## 권위 상태와 저장
+
+GameState의 Day, Minute, Player, Wallet, Flags, Completed, Appointments가 영속 상태다. Player는 실제 Actor이고 UI Transform은 권위가 아니다. NPC Actor 목록은 Game이 가지며 저장하지 않는다. Path, Speed, Moving, EventRun, Dialogue, Hidden, 메뉴, 입력, 초 잔여량은 영속하지 않는다.
+
+State는 가변 객체다. 완료 시 효과를 순차 적용하고 Completed에 eventId를 추가한 뒤 비용을 가산하고 약속을 제거한다. 현재 코드는 범용 원자 트랜잭션이나 예외 롤백을 보장하지 않는다. 유효한 콘텐츠를 사전 시험하는 전제이며, 새 효과는 검증 후 쓰는 구체적 메서드로 추가한다. 잘못된 효과 중간 예외가 부분 변경을 남길 가능성은 Task5의 확인 항목이다.
+
+## 시간과 하루 종료
+
+Day는 0부터, UI는 Day+1이다. Minute는 해당 생활일의 07:00=420에서 시작하고 자정을 지나도 1440 이상으로 이어진다. 02:00=1560에 기절한다. 자연 시간은 1초=1게임분이다. 이벤트의 CostMinutes는 성공할 때 한 번 더한다. 현재 이벤트 비용으로 1560을 넘겨도 다음 평상 Update에서 하루 종료를 검사한다.
+
+침대 반경 1 이내의 수면 확인은 EndDay(Slept), 시간 초과는 EndDay(PassedOut)를 부른다. EndDay는 이벤트 중 거부한다. Day++ → Minute=420 → 초 잔여량=0 → 침대로 플레이어 배치 → 현재 일정으로 NPC 배치 → SaveFile.Write 순서다. 성공 이벤트·수락·취소·종료 자체는 저장하지 않는다. 그날 미저장 진행은 강제 종료/불러오기 때 마지막 하루 저장으로 돌아간다.
+
+## 그래픽과 좌표
+
+논리 1칸은 32×32 픽셀 타일이다. 좌표는 double, 셀은 floor(x), floor(y), 셀 중심은 +0.5, 월드 y는 위로 증가한다. 플레이어 속도는 초당 3칸, 충돌 반경은 0.2칸이다. 일반 이동은 축별 검사이며 sweep 충돌은 구현되지 않았다. NPC/이벤트 이동은 4방향 BFS와 경로 추종을 쓴다. 포털 셀에 새로 진입할 때만 전이한다.
+
+현재 Stage5Art/runtime-manifest.json은 pixelsPerUnit=16이고 WorldView 기본값도 16이다. 이는 32×32 제작 기준과의 기존 불일치다. Task6-6/15-7에서 32px 원본·manifest·표시 검사를 함께 맞추며, 숫자만 바꾸어 자산 변환 완료로 보지 않는다.
+
+## 이후 확장 원칙
+
+새 규칙은 Core 안의 작은 구체 클래스/메서드, 데이터 정의는 Content, 영속 값은 GameState, 화면은 Game에 추가한다. Game이 호출 순서와 상태 변경을 통제한다. 공통 파일은 같은 단계라도 순서대로 수정한다. 분리된 규칙 파일과 시험만 독립 작업할 수 있다.
+
+실시간 방은 Game.Event와 별도의 임시 RoomRun을 두는 후속 설계다. 한 프레임에서 전경 이벤트와 방 실시간 조작을 동시에 진행하지 않는다. 수면·기절은 RoomRun 정리 후 기존 EndDay 하나로 합류한다. 방 체크포인트는 세션 내 재시도용이며 디스크 자동 저장과 다르다.
+
+후속 필드를 추가할 때 기본값, 로드 정규화, 구형 현재 저장 fixture 왕복을 함께 구현한다. 기존 v1/v2 전체 저장 예제는 이전 엔진 자료이며 현재 저장에 그대로 로드하거나 강제 보존하지 않는다. 버전·마이그레이션이 필요하면 현재 무버전 GameState를 최초 입력으로 지원한다.

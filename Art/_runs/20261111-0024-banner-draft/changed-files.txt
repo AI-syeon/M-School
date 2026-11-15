@@ -1,0 +1,13 @@
+﻿ArtSamples\banner-draft\checks.json
+ArtSamples\banner-draft\notes.md
+ArtSamples\banner-draft\original-01.png
+ArtSamples\banner-draft\original-02.png
+ArtSamples\banner-draft\original-03.png
+ArtSamples\banner-draft\pixel-01.png
+ArtSamples\banner-draft\pixel-02.png
+ArtSamples\banner-draft\pixel-03.png
+ArtSamples\banner-draft\pixelize.py
+ArtSamples\banner-draft\prompts.json
+ArtSamples\banner-draft\sheet.png
+ArtSamples\banner-draft\source-vs-pixel.png
+design\게임화\진행.md

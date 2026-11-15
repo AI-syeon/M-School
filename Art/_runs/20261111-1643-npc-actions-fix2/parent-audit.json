@@ -1,0 +1,30 @@
+{
+  "unchanged_source_files": 16,
+  "manifest_bytes_unchanged": [
+    "npc-serin",
+    "npc-mira",
+    "player"
+  ],
+  "prop_regions_unchanged": [
+    "npc-serin/south_read_000.png",
+    "npc-serin/south_read_001.png",
+    "npc-serin/south_read_002.png",
+    "npc-serin/south_read_003.png",
+    "npc-serin/south_write_000.png",
+    "npc-serin/south_write_001.png",
+    "npc-serin/south_write_002.png",
+    "npc-serin/south_write_003.png",
+    "npc-mira/south_read_000.png",
+    "npc-mira/south_read_001.png",
+    "npc-mira/south_read_002.png",
+    "npc-mira/south_read_003.png",
+    "npc-mira/south_write_000.png",
+    "npc-mira/south_write_001.png",
+    "npc-mira/south_write_002.png",
+    "npc-mira/south_write_003.png"
+  ],
+  "output_hashes_verified": 245,
+  "chat_body_alpha_unchanged": true,
+  "chat_all_pixels_base_palette_and_open_mouth_2x2": true,
+  "all_passed": true
+}

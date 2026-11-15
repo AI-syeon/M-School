@@ -1,0 +1,4045 @@
+{
+  "tileSize": 32,
+  "sourceSha256": {
+    "source/ground-original.png": "4d9df3398f180da4e2a5f88a5c3ec4353e663593a8cefa4095004c050c7f7d1b",
+    "prepared/fountain/00.png": "58c137e0cd24769d89cdc4cef447db41bdb5d685efb4805cd9bd2aab50695747",
+    "prepared/fountain/01.png": "fc7933c1aef5f527d71229708dbeb438ec2a85477b1c0b7b36c945b30cf837aa",
+    "prepared/fountain/02.png": "d132bd96a612e26cf08a729b3a1b3a696d280389da2dad1c56cdaa37e23726e2",
+    "prepared/fountain/03.png": "54a8ae44dffa16cac04789f4a0fcf730059a90cbb1f8ba7c300ce46ec7e37a58",
+    "prepared/fountain/04.png": "c40722fa7e48636a6ed1fe926e62a76707cd40253f8776d5c1152247c5438da1",
+    "prepared/fountain/05.png": "ed94b31973a7d1300f9b25ec747178751d35832e5320c8e3d0bcec9c94dfce4d",
+    "source/fountain-original.png": "0262be7c2e895783cab802ea442d249a53d84f950dac11dd65aa10e00a862f2b",
+    "source/furniture-original.png": "2fc2cb09c91fe0407dc92eb45eb46a3a9f68d7a1217fd39dd3fc98c9c0b4e9b9",
+    "source/architecture-original.png": "784f7e2c42845416aa3df63e22935d9ef2ed839e7f5298188a403c186811c579",
+    "source/garden-original.png": "6f23688cfcc52f8438b3669c35cd1a929763b5766b21d0e0bc8e10d977cb83fe",
+    "source/students-original.png": "c5d568ecfd63aee147d503d170d62cb379f2822cc6893a3ccef3b7d7122329e8",
+    "prepared/targets/target-signboard-dark.png": "da8484233b47a36af9634c45e0c0ab2c0ac28ad26ec043ef54d2606fb3c540da",
+    "prepared/targets/target-signboard-lit.png": "7ee9b6a30e5677c9672fc311c6cf5844552848098a0b4e643b8db6cf5a0afcdd",
+    "prepared/targets/target-pillar-broken.png": "84d3e7b851613c03d9945e4558f65a836b4e75de3dd974319ec565569cef0c90",
+    "prepared/targets/target-pillar-mended.png": "b93bc545e6943f85dafc787f911e7d39f970338fb9247550f53fb845fe4f89be",
+    "prepared/targets/target-seedpot-dry.png": "73dbd74fc8fa03d51817dbf51bef0140dc7f09205649a7599e478e1c20a66fe2",
+    "prepared/targets/target-seedpot-sprout.png": "4a1787c5fe7db88597f44185a2b5c1d37c6100039ab928b651dbc15e0e2ccffd",
+    "prepared/targets/target-moss-plain.png": "94a25a0929602b52116e3ad0fd9a1d58c31cd250b11c573016d5e690140db9b7",
+    "prepared/targets/target-moss-bloom.png": "51d354a2e1b594a2f442bb101b4b993c905d5fb41dc7b31dfbd9436a8e32eb16",
+    "prepared/targets/target-plaque-dim.png": "ff89d501c6620eb3411c7b631627bc0aee36100df513d79a5782bc8eb6d81523",
+    "prepared/targets/target-plaque-glow.png": "ee39559cc74a493389199ba5dbbb044ad048c052ff5c904d83c3bfbadbb14659",
+    "prepared/targets/target-rune-stone-off.png": "e29f363760e8df2f4c6eb23447c5bab0cee3c6fd6f414f76f859a82d2cd5390a",
+    "prepared/targets/target-rune-stone-on.png": "d2fe083310d6d9cd4364ef5c2b4edd26cbbc5dbe4f3d5596ed21d9a9707633bb",
+    "source/plaza-daylight-original.png": "48fe61952636f1c12b98e84583360fa06f226451c81aeabcfe90bddbcc7c0d0e",
+    "source/autumn-canopy-mask.png": "a0148cec3eb4cf7be18e36535f20f48dbcb287b84ea795e7cc8115832b904035"
+  },
+  "uniqueCellPngs": 539,
+  "atlas": [
+    {
+      "image": "ground-paving-00.png",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-paving-trim-00.png",
+      "x": 32,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-lawn-00.png",
+      "x": 64,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-flower-bed-00.png",
+      "x": 96,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-00-00.png",
+      "x": 128,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-00-01.png",
+      "x": 160,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-00-02.png",
+      "x": 192,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-00-03.png",
+      "x": 224,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-00-00.png",
+      "x": 0,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-00-01.png",
+      "x": 32,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-00-02.png",
+      "x": 64,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-00-03.png",
+      "x": 96,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-00-04.png",
+      "x": 128,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-00-05.png",
+      "x": 160,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-00-00.png",
+      "x": 192,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-00-01.png",
+      "x": 224,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-00-02.png",
+      "x": 0,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-00-03.png",
+      "x": 32,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-00-04.png",
+      "x": 64,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-00-05.png",
+      "x": 96,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-00-00.png",
+      "x": 128,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-00-01.png",
+      "x": 160,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-00-02.png",
+      "x": 192,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-01-00.png",
+      "x": 224,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-01-01.png",
+      "x": 0,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-01-02.png",
+      "x": 32,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-01-03.png",
+      "x": 64,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-01-00.png",
+      "x": 96,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-01-01.png",
+      "x": 128,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-01-02.png",
+      "x": 160,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-01-03.png",
+      "x": 192,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-01-04.png",
+      "x": 224,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-01-05.png",
+      "x": 0,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-01-00.png",
+      "x": 32,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-01-01.png",
+      "x": 64,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-01-02.png",
+      "x": 96,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-01-03.png",
+      "x": 128,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-01-04.png",
+      "x": 160,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-01-05.png",
+      "x": 192,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-01-00.png",
+      "x": 224,
+      "y": 128,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-01-01.png",
+      "x": 0,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-01-02.png",
+      "x": 32,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-00-02-00.png",
+      "x": 64,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-01-02-00.png",
+      "x": 96,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-02-02-00.png",
+      "x": 128,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-fountain-03-02-00.png",
+      "x": 160,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-noticeboard-00-00-00.png",
+      "x": 192,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-noticeboard-01-00-00.png",
+      "x": 224,
+      "y": 160,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-noticeboard-00-01-00.png",
+      "x": 0,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-noticeboard-01-01-00.png",
+      "x": 32,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-bench-00-00-00.png",
+      "x": 64,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-bench-01-00-00.png",
+      "x": 96,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-00-00.png",
+      "x": 128,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-00-00.png",
+      "x": 160,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-00-00.png",
+      "x": 192,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-00-00.png",
+      "x": 224,
+      "y": 192,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-00-00.png",
+      "x": 0,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-00-00.png",
+      "x": 32,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-00-00.png",
+      "x": 64,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-00-00.png",
+      "x": 96,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-00-00.png",
+      "x": 128,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-00-00.png",
+      "x": 160,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-00-00.png",
+      "x": 192,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-00-00.png",
+      "x": 224,
+      "y": 224,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-00-00.png",
+      "x": 0,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-00-00.png",
+      "x": 32,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-14-00-00.png",
+      "x": 64,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-00-00.png",
+      "x": 96,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-00-00.png",
+      "x": 128,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-00-00.png",
+      "x": 160,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-00-00.png",
+      "x": 192,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-19-00-00.png",
+      "x": 224,
+      "y": 256,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-01-00.png",
+      "x": 0,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-01-00.png",
+      "x": 32,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-01-00.png",
+      "x": 64,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-01-00.png",
+      "x": 96,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-01-00.png",
+      "x": 128,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-01-00.png",
+      "x": 160,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-01-00.png",
+      "x": 192,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-01-00.png",
+      "x": 224,
+      "y": 288,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-01-00.png",
+      "x": 0,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-01-00.png",
+      "x": 32,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-01-00.png",
+      "x": 64,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-01-00.png",
+      "x": 96,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-01-00.png",
+      "x": 128,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-01-00.png",
+      "x": 160,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-14-01-00.png",
+      "x": 192,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-01-00.png",
+      "x": 224,
+      "y": 320,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-01-00.png",
+      "x": 0,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-01-00.png",
+      "x": 32,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-01-00.png",
+      "x": 64,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-19-01-00.png",
+      "x": 96,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-02-00.png",
+      "x": 128,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-02-00.png",
+      "x": 160,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-02-00.png",
+      "x": 192,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-02-00.png",
+      "x": 224,
+      "y": 352,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-02-00.png",
+      "x": 0,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-02-00.png",
+      "x": 32,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-02-00.png",
+      "x": 64,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-02-00.png",
+      "x": 96,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-02-00.png",
+      "x": 128,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-02-00.png",
+      "x": 160,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-02-00.png",
+      "x": 192,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-02-00.png",
+      "x": 224,
+      "y": 384,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-02-00.png",
+      "x": 0,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-02-00.png",
+      "x": 32,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-14-02-00.png",
+      "x": 64,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-02-00.png",
+      "x": 96,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-02-00.png",
+      "x": 128,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-02-00.png",
+      "x": 160,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-02-00.png",
+      "x": 192,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-19-02-00.png",
+      "x": 224,
+      "y": 416,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-03-00.png",
+      "x": 0,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-03-00.png",
+      "x": 32,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-03-00.png",
+      "x": 64,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-03-00.png",
+      "x": 96,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-03-00.png",
+      "x": 128,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-03-00.png",
+      "x": 160,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-03-00.png",
+      "x": 192,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-03-00.png",
+      "x": 224,
+      "y": 448,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-03-00.png",
+      "x": 0,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-03-00.png",
+      "x": 32,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-03-00.png",
+      "x": 64,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-03-00.png",
+      "x": 96,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-03-00.png",
+      "x": 128,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-03-00.png",
+      "x": 160,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-14-03-00.png",
+      "x": 192,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-03-00.png",
+      "x": 224,
+      "y": 480,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-03-00.png",
+      "x": 0,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-03-00.png",
+      "x": 32,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-03-00.png",
+      "x": 64,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-19-03-00.png",
+      "x": 96,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-04-00.png",
+      "x": 128,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-04-00.png",
+      "x": 160,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-04-00.png",
+      "x": 192,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-04-00.png",
+      "x": 224,
+      "y": 512,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-04-00.png",
+      "x": 0,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-04-00.png",
+      "x": 32,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-04-00.png",
+      "x": 64,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-04-00.png",
+      "x": 96,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-04-00.png",
+      "x": 128,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-04-00.png",
+      "x": 160,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-04-00.png",
+      "x": 192,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-04-00.png",
+      "x": 224,
+      "y": 544,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-04-00.png",
+      "x": 0,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-04-00.png",
+      "x": 32,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-14-04-00.png",
+      "x": 64,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-04-00.png",
+      "x": 96,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-04-00.png",
+      "x": 128,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-04-00.png",
+      "x": 160,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-04-00.png",
+      "x": 192,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-19-04-00.png",
+      "x": 224,
+      "y": 576,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-05-00.png",
+      "x": 0,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-05-00.png",
+      "x": 32,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-05-00.png",
+      "x": 64,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-05-00.png",
+      "x": 96,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-05-00.png",
+      "x": 128,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-05-00.png",
+      "x": 160,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-05-00.png",
+      "x": 192,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-05-00.png",
+      "x": 224,
+      "y": 608,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-05-00.png",
+      "x": 0,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-05-00.png",
+      "x": 32,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-05-00.png",
+      "x": 64,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-05-00.png",
+      "x": 96,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-05-00.png",
+      "x": 128,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-05-00.png",
+      "x": 160,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-14-05-00.png",
+      "x": 192,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-05-00.png",
+      "x": 224,
+      "y": 640,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-05-00.png",
+      "x": 0,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-05-00.png",
+      "x": 32,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-05-00.png",
+      "x": 64,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-19-05-00.png",
+      "x": 96,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-00-06-00.png",
+      "x": 128,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-01-06-00.png",
+      "x": 160,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-02-06-00.png",
+      "x": 192,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-03-06-00.png",
+      "x": 224,
+      "y": 672,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-04-06-00.png",
+      "x": 0,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-05-06-00.png",
+      "x": 32,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-06-06-00.png",
+      "x": 64,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-07-06-00.png",
+      "x": 96,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-08-06-00.png",
+      "x": 128,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-06-00.png",
+      "x": 160,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-06-00.png",
+      "x": 192,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-11-06-00.png",
+      "x": 224,
+      "y": 704,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-12-06-00.png",
+      "x": 0,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-13-06-00.png",
+      "x": 32,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-15-06-00.png",
+      "x": 64,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-06-00.png",
+      "x": 96,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-06-00.png",
+      "x": 128,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-18-06-00.png",
+      "x": 160,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-09-07-00.png",
+      "x": 192,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-10-07-00.png",
+      "x": 224,
+      "y": 736,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-16-07-00.png",
+      "x": 0,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-architecture-17-07-00.png",
+      "x": 32,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-00-00-00.png",
+      "x": 64,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-01-00-00.png",
+      "x": 96,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-02-00-00.png",
+      "x": 128,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-03-00-00.png",
+      "x": 160,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-00-01-00.png",
+      "x": 192,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-01-01-00.png",
+      "x": 224,
+      "y": 768,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-02-01-00.png",
+      "x": 0,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-03-01-00.png",
+      "x": 32,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-00-02-00.png",
+      "x": 64,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-01-02-00.png",
+      "x": 96,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-02-02-00.png",
+      "x": 128,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-03-02-00.png",
+      "x": 160,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-00-03-00.png",
+      "x": 192,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-01-03-00.png",
+      "x": 224,
+      "y": 800,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-02-03-00.png",
+      "x": 0,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-autumn-tree-03-03-00.png",
+      "x": 32,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-lamp-00-00-00.png",
+      "x": 64,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-lamp-00-01-00.png",
+      "x": 96,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-lamp-00-02-00.png",
+      "x": 128,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-border-00-00-00.png",
+      "x": 160,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-border-01-00-00.png",
+      "x": 192,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-border-02-00-00.png",
+      "x": 224,
+      "y": 832,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-border-00-01-00.png",
+      "x": 0,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-border-01-01-00.png",
+      "x": 32,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-border-02-01-00.png",
+      "x": 64,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-planter-00-00-00.png",
+      "x": 96,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-planter-01-00-00.png",
+      "x": 128,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-planter-00-01-00.png",
+      "x": 160,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-garden-planter-01-01-00.png",
+      "x": 192,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-00-00-00.png",
+      "x": 224,
+      "y": 864,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-01-00-00.png",
+      "x": 0,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-02-00-00.png",
+      "x": 32,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-03-00-00.png",
+      "x": 64,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-00-01-00.png",
+      "x": 96,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-01-01-00.png",
+      "x": 128,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-02-01-00.png",
+      "x": 160,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-ivy-balustrade-03-01-00.png",
+      "x": 192,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-bank-00-00-00.png",
+      "x": 224,
+      "y": 896,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-bank-01-00-00.png",
+      "x": 0,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-bank-00-01-00.png",
+      "x": 32,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-flower-bank-01-01-00.png",
+      "x": 64,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-navy-back-00-00-00.png",
+      "x": 96,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-navy-back-00-01-00.png",
+      "x": 128,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-green-left-00-00-00.png",
+      "x": 160,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-green-left-00-01-00.png",
+      "x": 192,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-burgundy-front-00-00-00.png",
+      "x": 224,
+      "y": 928,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-burgundy-front-00-01-00.png",
+      "x": 0,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-navy-right-00-00-00.png",
+      "x": 32,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-student-navy-right-00-01-00.png",
+      "x": 64,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-signboard-dark-00-00-00.png",
+      "x": 96,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-signboard-dark-00-01-00.png",
+      "x": 128,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-signboard-lit-00-00-00.png",
+      "x": 160,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-signboard-lit-00-01-00.png",
+      "x": 192,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-pillar-broken-00-00-00.png",
+      "x": 224,
+      "y": 960,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-pillar-broken-00-01-00.png",
+      "x": 0,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-pillar-mended-00-00-00.png",
+      "x": 32,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-pillar-mended-00-01-00.png",
+      "x": 64,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-seedpot-dry-00-00-00.png",
+      "x": 96,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-seedpot-sprout-00-00-00.png",
+      "x": 128,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-moss-plain-00-00-00.png",
+      "x": 160,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-moss-bloom-00-00-00.png",
+      "x": 192,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-plaque-dim-00-00-00.png",
+      "x": 224,
+      "y": 992,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-plaque-glow-00-00-00.png",
+      "x": 0,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-rune-stone-off-00-00-00.png",
+      "x": 32,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "prop-target-rune-stone-on-00-00-00.png",
+      "x": 64,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-00-00.png",
+      "x": 96,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-00-00.png",
+      "x": 128,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-00-00.png",
+      "x": 160,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-00-00.png",
+      "x": 192,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-00-00.png",
+      "x": 224,
+      "y": 1024,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-00-00.png",
+      "x": 0,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-00-00.png",
+      "x": 32,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-00-00.png",
+      "x": 64,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-00-00.png",
+      "x": 96,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-00-00.png",
+      "x": 128,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-00-00.png",
+      "x": 160,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-00-00.png",
+      "x": 192,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-00-00.png",
+      "x": 224,
+      "y": 1056,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-00-00.png",
+      "x": 0,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-00-00.png",
+      "x": 32,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-00-00.png",
+      "x": 64,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-00-00.png",
+      "x": 96,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-00-00.png",
+      "x": 128,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-00-00.png",
+      "x": 160,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-00-00.png",
+      "x": 192,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-01-00.png",
+      "x": 224,
+      "y": 1088,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-01-00.png",
+      "x": 0,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-01-00.png",
+      "x": 32,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-01-00.png",
+      "x": 64,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-01-00.png",
+      "x": 96,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-01-00.png",
+      "x": 128,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-01-00.png",
+      "x": 160,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-01-00.png",
+      "x": 192,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-01-00.png",
+      "x": 224,
+      "y": 1120,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-01-00.png",
+      "x": 0,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-01-00.png",
+      "x": 32,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-01-00.png",
+      "x": 64,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-01-00.png",
+      "x": 96,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-01-00.png",
+      "x": 128,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-01-00.png",
+      "x": 160,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-01-00.png",
+      "x": 192,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-01-00.png",
+      "x": 224,
+      "y": 1152,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-01-00.png",
+      "x": 0,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-01-00.png",
+      "x": 32,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-01-00.png",
+      "x": 64,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-02-00.png",
+      "x": 96,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-02-00.png",
+      "x": 128,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-02-00.png",
+      "x": 160,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-02-00.png",
+      "x": 192,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-02-00.png",
+      "x": 224,
+      "y": 1184,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-02-00.png",
+      "x": 0,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-02-00.png",
+      "x": 32,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-02-00.png",
+      "x": 64,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-02-00.png",
+      "x": 96,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-02-00.png",
+      "x": 128,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-02-00.png",
+      "x": 160,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-02-00.png",
+      "x": 192,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-02-00.png",
+      "x": 224,
+      "y": 1216,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-02-00.png",
+      "x": 0,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-02-00.png",
+      "x": 32,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-02-00.png",
+      "x": 64,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-02-00.png",
+      "x": 96,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-02-00.png",
+      "x": 128,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-02-00.png",
+      "x": 160,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-02-00.png",
+      "x": 192,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-03-00.png",
+      "x": 224,
+      "y": 1248,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-03-00.png",
+      "x": 0,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-03-00.png",
+      "x": 32,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-03-00.png",
+      "x": 64,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-03-00.png",
+      "x": 96,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-03-00.png",
+      "x": 128,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-03-00.png",
+      "x": 160,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-03-00.png",
+      "x": 192,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-03-00.png",
+      "x": 224,
+      "y": 1280,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-03-00.png",
+      "x": 0,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-03-00.png",
+      "x": 32,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-03-00.png",
+      "x": 64,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-03-00.png",
+      "x": 96,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-03-00.png",
+      "x": 128,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-03-00.png",
+      "x": 160,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-03-00.png",
+      "x": 192,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-03-00.png",
+      "x": 224,
+      "y": 1312,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-03-00.png",
+      "x": 0,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-03-00.png",
+      "x": 32,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-03-00.png",
+      "x": 64,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-04-00.png",
+      "x": 96,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-04-00.png",
+      "x": 128,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-04-00.png",
+      "x": 160,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-04-00.png",
+      "x": 192,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-04-00.png",
+      "x": 224,
+      "y": 1344,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-04-00.png",
+      "x": 0,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-04-00.png",
+      "x": 32,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-04-00.png",
+      "x": 64,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-04-00.png",
+      "x": 96,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-04-00.png",
+      "x": 128,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-04-00.png",
+      "x": 160,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-04-00.png",
+      "x": 192,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-04-00.png",
+      "x": 224,
+      "y": 1376,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-04-00.png",
+      "x": 0,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-04-00.png",
+      "x": 32,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-04-00.png",
+      "x": 64,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-04-00.png",
+      "x": 96,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-04-00.png",
+      "x": 128,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-04-00.png",
+      "x": 160,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-04-00.png",
+      "x": 192,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-05-00.png",
+      "x": 224,
+      "y": 1408,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-05-00.png",
+      "x": 0,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-05-00.png",
+      "x": 32,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-05-00.png",
+      "x": 64,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-05-00.png",
+      "x": 96,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-05-00.png",
+      "x": 128,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-05-00.png",
+      "x": 160,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-05-00.png",
+      "x": 192,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-05-00.png",
+      "x": 224,
+      "y": 1440,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-05-00.png",
+      "x": 0,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-05-00.png",
+      "x": 32,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-05-00.png",
+      "x": 64,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-05-00.png",
+      "x": 96,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-05-00.png",
+      "x": 128,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-05-00.png",
+      "x": 160,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-05-00.png",
+      "x": 192,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-05-00.png",
+      "x": 224,
+      "y": 1472,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-05-00.png",
+      "x": 0,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-05-00.png",
+      "x": 32,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-05-00.png",
+      "x": 64,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-06-00.png",
+      "x": 96,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-06-00.png",
+      "x": 128,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-06-00.png",
+      "x": 160,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-06-00.png",
+      "x": 192,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-06-00.png",
+      "x": 224,
+      "y": 1504,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-06-00.png",
+      "x": 0,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-06-00.png",
+      "x": 32,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-06-00.png",
+      "x": 64,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-06-00.png",
+      "x": 96,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-06-00.png",
+      "x": 128,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-06-00.png",
+      "x": 160,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-06-00.png",
+      "x": 192,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-06-00.png",
+      "x": 224,
+      "y": 1536,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-06-00.png",
+      "x": 0,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-06-00.png",
+      "x": 32,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-06-00.png",
+      "x": 64,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-06-00.png",
+      "x": 96,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-06-00.png",
+      "x": 128,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-06-00.png",
+      "x": 160,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-06-00.png",
+      "x": 192,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-07-00.png",
+      "x": 224,
+      "y": 1568,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-07-00.png",
+      "x": 0,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-07-00.png",
+      "x": 32,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-07-00.png",
+      "x": 64,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-07-00.png",
+      "x": 96,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-07-00.png",
+      "x": 128,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-07-00.png",
+      "x": 160,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-07-00.png",
+      "x": 192,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-07-00.png",
+      "x": 224,
+      "y": 1600,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-07-00.png",
+      "x": 0,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-07-00.png",
+      "x": 32,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-07-00.png",
+      "x": 64,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-07-00.png",
+      "x": 96,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-07-00.png",
+      "x": 128,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-07-00.png",
+      "x": 160,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-07-00.png",
+      "x": 192,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-07-00.png",
+      "x": 224,
+      "y": 1632,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-07-00.png",
+      "x": 0,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-07-00.png",
+      "x": 32,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-07-00.png",
+      "x": 64,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-08-00.png",
+      "x": 96,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-08-00.png",
+      "x": 128,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-08-00.png",
+      "x": 160,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-08-00.png",
+      "x": 192,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-08-00.png",
+      "x": 224,
+      "y": 1664,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-08-00.png",
+      "x": 0,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-08-00.png",
+      "x": 32,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-08-00.png",
+      "x": 64,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-08-00.png",
+      "x": 96,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-08-00.png",
+      "x": 128,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-08-00.png",
+      "x": 160,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-08-00.png",
+      "x": 192,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-08-00.png",
+      "x": 224,
+      "y": 1696,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-08-00.png",
+      "x": 0,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-08-00.png",
+      "x": 32,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-08-00.png",
+      "x": 64,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-08-00.png",
+      "x": 96,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-08-00.png",
+      "x": 128,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-08-00.png",
+      "x": 160,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-08-00.png",
+      "x": 192,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-09-00.png",
+      "x": 224,
+      "y": 1728,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-09-00.png",
+      "x": 0,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-09-00.png",
+      "x": 32,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-09-00.png",
+      "x": 64,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-09-00.png",
+      "x": 96,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-09-00.png",
+      "x": 128,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-09-00.png",
+      "x": 160,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-09-00.png",
+      "x": 192,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-09-00.png",
+      "x": 224,
+      "y": 1760,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-09-00.png",
+      "x": 0,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-09-00.png",
+      "x": 32,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-09-00.png",
+      "x": 64,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-09-00.png",
+      "x": 96,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-09-00.png",
+      "x": 128,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-09-00.png",
+      "x": 160,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-09-00.png",
+      "x": 192,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-09-00.png",
+      "x": 224,
+      "y": 1792,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-09-00.png",
+      "x": 0,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-09-00.png",
+      "x": 32,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-09-00.png",
+      "x": 64,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-10-00.png",
+      "x": 96,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-10-00.png",
+      "x": 128,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-10-00.png",
+      "x": 160,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-10-00.png",
+      "x": 192,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-10-00.png",
+      "x": 224,
+      "y": 1824,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-10-00.png",
+      "x": 0,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-10-00.png",
+      "x": 32,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-10-00.png",
+      "x": 64,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-10-00.png",
+      "x": 96,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-10-00.png",
+      "x": 128,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-10-00.png",
+      "x": 160,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-10-00.png",
+      "x": 192,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-10-00.png",
+      "x": 224,
+      "y": 1856,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-10-00.png",
+      "x": 0,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-10-00.png",
+      "x": 32,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-10-00.png",
+      "x": 64,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-10-00.png",
+      "x": 96,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-10-00.png",
+      "x": 128,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-10-00.png",
+      "x": 160,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-10-00.png",
+      "x": 192,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-11-00.png",
+      "x": 224,
+      "y": 1888,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-11-00.png",
+      "x": 0,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-11-00.png",
+      "x": 32,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-11-00.png",
+      "x": 64,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-11-00.png",
+      "x": 96,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-11-00.png",
+      "x": 128,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-11-00.png",
+      "x": 160,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-11-00.png",
+      "x": 192,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-11-00.png",
+      "x": 224,
+      "y": 1920,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-11-00.png",
+      "x": 0,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-11-00.png",
+      "x": 32,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-11-00.png",
+      "x": 64,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-11-00.png",
+      "x": 96,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-11-00.png",
+      "x": 128,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-11-00.png",
+      "x": 160,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-11-00.png",
+      "x": 192,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-11-00.png",
+      "x": 224,
+      "y": 1952,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-11-00.png",
+      "x": 0,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-11-00.png",
+      "x": 32,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-11-00.png",
+      "x": 64,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-12-00.png",
+      "x": 96,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-12-00.png",
+      "x": 128,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-12-00.png",
+      "x": 160,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-12-00.png",
+      "x": 192,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-12-00.png",
+      "x": 224,
+      "y": 1984,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-12-00.png",
+      "x": 0,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-12-00.png",
+      "x": 32,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-12-00.png",
+      "x": 64,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-12-00.png",
+      "x": 96,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-12-00.png",
+      "x": 128,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-12-00.png",
+      "x": 160,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-12-00.png",
+      "x": 192,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-12-00.png",
+      "x": 224,
+      "y": 2016,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-12-00.png",
+      "x": 0,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-12-00.png",
+      "x": 32,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-12-00.png",
+      "x": 64,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-12-00.png",
+      "x": 96,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-12-00.png",
+      "x": 128,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-12-00.png",
+      "x": 160,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-12-00.png",
+      "x": 192,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-00-13-00.png",
+      "x": 224,
+      "y": 2048,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-01-13-00.png",
+      "x": 0,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-02-13-00.png",
+      "x": 32,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-03-13-00.png",
+      "x": 64,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-04-13-00.png",
+      "x": 96,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-05-13-00.png",
+      "x": 128,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-06-13-00.png",
+      "x": 160,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-07-13-00.png",
+      "x": 192,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-08-13-00.png",
+      "x": 224,
+      "y": 2080,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-09-13-00.png",
+      "x": 0,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-10-13-00.png",
+      "x": 32,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-11-13-00.png",
+      "x": 64,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-12-13-00.png",
+      "x": 96,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-13-13-00.png",
+      "x": 128,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-14-13-00.png",
+      "x": 160,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-15-13-00.png",
+      "x": 192,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-16-13-00.png",
+      "x": 224,
+      "y": 2112,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-17-13-00.png",
+      "x": 0,
+      "y": 2144,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-18-13-00.png",
+      "x": 32,
+      "y": 2144,
+      "w": 32,
+      "h": 32
+    },
+    {
+      "image": "ground-plaza-19-13-00.png",
+      "x": 64,
+      "y": 2144,
+      "w": 32,
+      "h": 32
+    }
+  ],
+  "mapCells": 280,
+  "propCount": 35,
+  "props": {
+    "fountain": {
+      "size": [
+        4,
+        3
+      ],
+      "frames": 6,
+      "fps": 8,
+      "animatedCells": 8
+    },
+    "noticeboard": {
+      "size": [
+        2,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "bench": {
+      "size": [
+        2,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "architecture": {
+      "size": [
+        20,
+        8
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "autumn-tree": {
+      "size": [
+        4,
+        5
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "garden-lamp": {
+      "size": [
+        1,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "flower-border": {
+      "size": [
+        3,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "garden-planter": {
+      "size": [
+        2,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "ivy-balustrade": {
+      "size": [
+        4,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "flower-bank": {
+      "size": [
+        2,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "student-navy-back": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "student-green-left": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "student-burgundy-front": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "student-navy-right": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-signboard-dark": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-signboard-lit": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-pillar-broken": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-pillar-mended": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-seedpot-dry": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-seedpot-sprout": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-moss-plain": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-moss-bloom": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-plaque-dim": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-plaque-glow": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-rune-stone-off": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    },
+    "target-rune-stone-on": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "animatedCells": 0
+    }
+  }
+}

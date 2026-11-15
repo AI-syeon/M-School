@@ -1,0 +1,46 @@
+{
+  "day": 0,
+  "minute": 420,
+  "player": {
+    "id": "player",
+    "mapId": "map.courtyard",
+    "x": 8.5,
+    "y": 2.5,
+    "facing": "north"
+  },
+  "wallet": 200,
+  "flags": {
+    "story.intro_done": true,
+    "memory.snack_done": false,
+    "world.stage_ready": false,
+    "notice.lunch_done": false,
+    "memory.snack_later_done": false
+  },
+  "completed": [],
+  "appointments": {
+    "event.snack": "Offered",
+    "event.snack_later": "Offered"
+  },
+  "bag": [
+    { "itemId": "item.lens", "quality": "standard", "count": 1 },
+    { "itemId": "item.rune_chalk", "quality": "standard", "count": 3 },
+    { "itemId": "item.honey_bread", "quality": "standard", "count": 5 },
+    { "itemId": "item.honey_bread", "quality": "fine", "count": 1 },
+    { "itemId": "item.focus_potion", "quality": "standard", "count": 2 },
+    { "itemId": "item.moonbean_seed", "quality": "standard", "count": 12 },
+    { "itemId": "item.frost_mint", "quality": "standard", "count": 7 },
+    { "itemId": "item.crystal_dust", "quality": "standard", "count": 99 },
+    null, null, null, null,
+    null, null, null, null, null, null,
+    null, null, null, null, null, null
+  ],
+  "keyItems": [
+    "item.student_card"
+  ],
+  "mailbox": [
+    { "itemId": "item.crystal_dust", "quality": "standard", "count": 20 }
+  ],
+  "visitedMaps": [
+    "map.courtyard"
+  ]
+}

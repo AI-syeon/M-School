@@ -23,7 +23,7 @@ function parseArgs(list) {
 const args = parseArgs(process.argv.slice(2));
 const HERE = __dirname;
 const ROOT = path.resolve(args.root || path.join(HERE, '..', '..', '..'));
-const DESIGN = path.resolve(args.design || path.join(ROOT, 'design', 'systems', 'full-design'));
+const DESIGN = path.resolve(args.design || path.join(ROOT, 'Docs', 'Archive', 'design-2026-11', 'systems', 'full-design'));
 const EXAMPLES = path.join(DESIGN, 'examples');
 const SCHEMAS = path.join(DESIGN, 'schemas');
 const OUT = path.resolve(args.out || path.join(HERE, 'generated'));

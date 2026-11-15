@@ -1,0 +1,21 @@
+﻿# Files modified during the run window. Other sessions working at the same time also show up here; check codex-log.txt before blaming Codex.
+Art\Items\build_items.py
+Art\Items\README.md
+Art\Items\review\items-1x.png
+Art\Items\review\items-preview.png
+Art\Items\review\source-vs-pixel.png
+Art\Items\source\items-original.png
+Art\Items\source\items-prompt.json
+Assets\MagicCampus\Art\Items\item-crystal-dust.png
+Assets\MagicCampus\Art\Items\item-focus-potion.png
+Assets\MagicCampus\Art\Items\item-frost-mint.png
+Assets\MagicCampus\Art\Items\item-honey-bread.png
+Assets\MagicCampus\Art\Items\item-lens.png
+Assets\MagicCampus\Art\Items\item-moonbean-seed.png
+Assets\MagicCampus\Art\Items\item-rune-chalk.png
+Assets\MagicCampus\Art\Items\item-student-card.png
+Assets\MagicCampus\Art\Items\item-torn-note.png
+Assets\MagicCampus\Art\Items\manifest.json
+Assets\MagicCampus\Game\GameRoot.cs
+Assets\MagicCampus\Game\Hud.cs
+Assets\MagicCampus\Game\UiSkin.cs

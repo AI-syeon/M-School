@@ -47,7 +47,7 @@ static partial class Program
         {
             var map = c.Maps.FirstOrDefault(m => m.Id == t.MapId);
             Rule(Text(t.Id) && Text(t.Name) && t.Tags.All(Text), t.Id + " has an id, a name and named tags");
-            Rule(map != null && World.Passable(map, (int)Math.Floor(t.X), (int)Math.Floor(t.Y)), t.Id + " stands on a passable cell");
+            Rule(map != null && new[] { (1, 0), (-1, 0), (0, 1), (0, -1) }.Any(d => World.Passable(map, (int)Math.Floor(t.X) + d.Item1, (int)Math.Floor(t.Y) + d.Item2)), t.Id + " has a passable cell next to it (it blocks its own cell)");
         }
         return p;
     }
@@ -61,7 +61,7 @@ static partial class Program
     {
         var g = NewGame(SpellStart);
         g.Content.MagicTargets.Clear();
-        g.Content.MagicTargets.Add(new MagicTargetDef { Id = "t", Name = "시험대", MapId = "map.courtyard", X = 1.5, Y = 2.5, Tags = tags.ToList() });
+        g.Content.MagicTargets.Add(new MagicTargetDef { Id = "t", Name = "시험대", MapId = "map.courtyard", X = 11.5, Y = 5.5, Tags = tags.ToList() });
         g.ResetMagicTargets();
         g.Player.Facing = "north";
         return g;
@@ -99,6 +99,20 @@ static partial class Program
         Aiming();
         QuickCast();
         MagicSaves();
+        TagNamesCoverContent();
+    }
+
+    static void TagNamesCoverContent()
+    {
+        var c = Content.Load(Base);
+        var used = c.MagicTargets.SelectMany(t => t.Tags)
+            .Concat(c.Reactions.SelectMany(r => r.Needs.Concat(r.Remove).Concat(r.Add.Select(a => a.Tag))))
+            .Distinct().ToList();
+        var unnamed = used.Where(t => !c.TagNames.TryGetValue(t, out var name) || string.IsNullOrWhiteSpace(name) || name == t).ToList();
+        Check("ui text: every tag a target or reaction uses has a player-facing name" + (unnamed.Count > 0 ? ": " + string.Join(",", unnamed) : ""), used.Count > 0 && unnamed.Count == 0);
+        Check("ui text: an unnamed tag shows its id", c.TagName("tag.nobody_named") == "tag.nobody_named" && c.TagName("dark") == "어두움");
+        var copy = Path.Combine(FindRoot(), "Content", "Fixtures", "FirstConnection", "generated", "base", "ui-text.json");
+        Check("ui text: the StreamingAssets copy matches generated/base", File.Exists(copy) && File.ReadAllText(copy) == File.ReadAllText(Path.Combine(Base, "ui-text.json")));
     }
 
     static void BundleAndFixtures()
@@ -106,7 +120,7 @@ static partial class Program
         var c = Content.Load(Base);
         Check("magic bundle: 13 spells, the prefix pair [1,2] and [1,2,3] coexists", c.Spells.Count == 13
             && c.Spell("spell.lantern").Runes.SequenceEqual(new[] { 1, 2 }) && c.Spell("spell.levitate").Runes.SequenceEqual(new[] { 1, 2, 3 }) && MagicProblems(c).Count == 0);
-        Check("magic bundle: the base bundle ships no requirement because no system provides one", Magic.ProvidedKinds.Length == 0 && c.Spells.All(s => s.Requirements.Count == 0));
+        Check("magic bundle: only itemCountAtLeast has a provider and no spell asks for a kind nothing provides", Magic.ProvidedKinds.SequenceEqual(new[] { "itemCountAtLeast" }) && c.Spells.All(s => s.Requirements.All(r => Magic.ProvidedKinds.Contains(r.Kind))));
         var start = SaveFile.Read(Path.Combine(Base, SpellStart));
         Check("magic fixture: start-spells knows lantern and the unlock spell, with the slots still locked",
             start.KnownSpells.Contains("spell.lantern") && start.KnownSpells.Contains("spell.quickcast") && !start.QuickCastUnlocked && c.MagicTargets.Any(t => t.Id == "target.signboard" && t.Tags.SequenceEqual(new[] { "dark" })));
@@ -120,13 +134,13 @@ static partial class Program
             return string.Join("; ", Problems(copy));
         }
         Check("magic rules catch an identical rune array", Broken(x => x.Spells[2].Runes = new[] { 1, 2 }).Contains("duplicate rune array 1,2"));
-        Check("magic rules catch a requirement kind no system provides", Broken(x => x.Spell("spell.lantern").Requirements.Add(new RequirementDef { Kind = "itemCountAtLeast", Id = "item.lens", Min = 1 })).Contains("has no provider"));
+        Check("magic rules catch a requirement kind no system provides", Broken(x => x.Spell("spell.lantern").Requirements.Add(new RequirementDef { Kind = "statAtLeast", Id = "stat.focus", Min = 1 })).Contains("has no provider"));
         Check("magic rules catch an unknown requirement kind and a min below 1", Broken(x => x.Spell("spell.lantern").Requirements.Add(new RequirementDef { Kind = "weird", Id = "x", Min = 0 })).Contains("kind weird is known"));
         Check("magic rules catch runes out of range", Broken(x => x.Spell("spell.lantern").Runes = new[] { 1 }).Contains("2-5 runes") && Broken(x => x.Spell("spell.lantern").Runes = new[] { 1, 5 }).Contains("2-5 runes"));
         Check("magic rules catch a protection that changes state", Broken(x => x.Reactions[0].Remove.Add("person")).Contains("protection"));
         Check("magic rules catch \"*\" outside Protect and unknown spells", Broken(x => x.Reactions.Add(Row("bad", ReactionKind.React, "*", new string[0]))).Contains("known spell")
             && Broken(x => x.Reactions.Add(Row("bad2", ReactionKind.React, "spell.nope", new string[0]))).Contains("known spell"));
-        Check("magic rules catch a target off its map", Broken(x => x.MagicTargets[0].MapId = "map.nowhere").Contains("passable"));
+        Check("magic rules catch a target off its map", Broken(x => x.MagicTargets[0].MapId = "map.nowhere").Contains("passable cell next"));
         Check("magic rules catch a quick-castable unlock spell", Broken(x => x.Spell("spell.quickcast").AllowQuickCast = true).Contains("cannot sit in a slot"));
     }
 
@@ -334,7 +348,7 @@ static partial class Program
         Check("requirement: every unmet condition is listed", CastSpell(both, "lantern").Unmet.Select(u => u.Def.Id).SequenceEqual(new[] { "stat.focus" }));
 
         var unwired = MagicGame("dark");
-        unwired.Content.Spell("spell.lantern").Requirements.Add(item);
+        unwired.Content.Spell("spell.lantern").Requirements.Add(stat);
         var unsupported = CastSpell(unwired, "lantern");
         Check("requirement: a kind nothing provides fails instead of passing", unsupported.Failure == CastFailure.Requirement && unsupported.Unmet.Single().Have == null && unsupported.Message.Contains("확인할 수 없습니다"));
 
@@ -408,9 +422,9 @@ static partial class Program
     static void IncantationResets()
     {
         var portal = NewGame(SpellStart);
-        World.Place(portal.Player, new Spot { MapId = "map.courtyard", X = 6.5, Y = 2.5 });
+        World.Place(portal.Player, new Spot { MapId = "map.courtyard", X = 17.5, Y = 7.5 });
         Type(portal, 1);
-        portal.SetPlayerInput(1, 0);
+        portal.SetPlayerInput(0, 1);
         Run(portal, 1, () => portal.MapId == "map.lounge");
         Check("incantation: passing a portal clears it", portal.MapId == "map.lounge" && !portal.Magic.Open && portal.Magic.Runes.Count == 0);
 
@@ -456,11 +470,11 @@ static partial class Program
             return t;
         }
         g.Player.Facing = "north";
-        var ahead = Put("ahead", 1.5, 3.0);
-        Put("beside", 2.0, 1.5);
-        Put("behind", 1.5, 0.5);
-        Put("far", 1.5, 5.4);
-        Put("elsewhere", 1.5, 2.0, "map.lounge");
+        var ahead = Put("ahead", 11.5, 6.0);
+        Put("beside", 12.0, 4.5);
+        Put("behind", 11.5, 3.5);
+        Put("far", 11.5, 8.4);
+        Put("elsewhere", 11.5, 5.0, "map.lounge");
         Check("aim: the target in front beats a closer one at the side, and ignores behind, far and other maps", g.Magic.Aim(3) == ahead);
         Check("aim: a shorter range drops the target out of reach", g.Magic.Aim(1.2)?.Id == "beside");
         g.Player.Facing = "south";
@@ -532,13 +546,12 @@ static partial class Program
         Check("save: loading resets the targets and the incantation", reloaded.Magic.Tags("target.signboard").SetEquals(new[] { "dark" }) && !reloaded.Magic.Open);
         Check("save: the loaded slot casts", reloaded.Magic.CastSlot(2) == SlotOutcome.Cast && reloaded.Magic.Last.SpellId == "spell.ripple");
 
-        var old = NewGame("start-offered.json");
+        const string head = "{\"day\":0,\"minute\":420,\"player\":{\"id\":\"player\",\"mapId\":\"map.courtyard\",\"x\":1.5,\"y\":1.5,\"facing\":\"south\"},";
+        Game FromJson(string tail) => new Game(Content.Load(Base), SaveFile.FromJson(head + tail), Path.Combine(Temp, Guid.NewGuid().ToString("N"), "save.json"));
+        var old = FromJson("\"wallet\":0}");
         Check("old save: no spell fields means defaults, nothing learned, four empty slots",
             old.State.KnownSpells.Count == 0 && !old.State.QuickCastUnlocked && old.State.QuickSlots.Length == 4 && old.State.QuickSlots.All(x => x == null) && old.State.SituationLog.Count == 0
             && CastSpell(old, "lantern").Failure == CastFailure.NotLearned);
-
-        const string head = "{\"day\":0,\"minute\":420,\"player\":{\"id\":\"player\",\"mapId\":\"map.courtyard\",\"x\":1.5,\"y\":1.5,\"facing\":\"south\"},";
-        Game FromJson(string tail) => new Game(Content.Load(Base), SaveFile.FromJson(head + tail), Path.Combine(Temp, Guid.NewGuid().ToString("N"), "save.json"));
         var nulls = FromJson("\"knownSpells\":null,\"quickSlots\":null,\"situationLog\":null}").State;
         Check("old save: explicit nulls normalize to defaults", nulls.KnownSpells.Count == 0 && nulls.QuickSlots.Length == 4 && nulls.SituationLog.Count == 0);
         var stale = FromJson("\"knownSpells\":[\"spell.lantern\",\"spell.lantern\"],\"quickCastUnlocked\":true,\"quickSlots\":[\"spell.lantern\",\"spell.quickcast\",\"spell.gone\",null,\"spell.ripple\"],\"situationLog\":{\"spell.lantern\":null}}").State;

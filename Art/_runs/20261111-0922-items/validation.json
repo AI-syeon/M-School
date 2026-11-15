@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "sourceSha256": "94a5d0b51cc155e9f4da466213cd49ffaf6274493cef042127517c5c35381cc4",
+  "sourceSize": [
+    1261,
+    1247
+  ],
+  "pipeline": "2D-pixel-asset-pipeline: check_image/color/save_json; local venv Pillow; custom BOX/fixed palette/outline processing",
+  "sharedOpaqueColors": 32,
+  "palette": [
+    "#493d38",
+    "#6b5444",
+    "#91714c",
+    "#bd914e",
+    "#dfb568",
+    "#f4d99b",
+    "#9b6541",
+    "#cd8c45",
+    "#efe0c5",
+    "#d3bea4",
+    "#ad9682",
+    "#fff0d8",
+    "#303e4d",
+    "#536579",
+    "#8394ab",
+    "#b5c6d2",
+    "#28575c",
+    "#377982",
+    "#66a2ad",
+    "#b6d6d6",
+    "#244a49",
+    "#315b41",
+    "#57794e",
+    "#91aa73",
+    "#d8ece0",
+    "#645375",
+    "#9476a5",
+    "#c1a0c7",
+    "#e0c4df",
+    "#77655f",
+    "#aa7b56",
+    "#e5bd80"
+  ],
+  "items": [
+    {
+      "id": "item-lens",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "sourceAlphaBoundsInCrop": [
+        62,
+        57,
+        371,
+        373
+      ],
+      "opaqueColors": 22
+    },
+    {
+      "id": "item-rune-chalk",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        2,
+        30,
+        29
+      ],
+      "sourceAlphaBoundsInCrop": [
+        66,
+        104,
+        313,
+        342
+      ],
+      "opaqueColors": 10
+    },
+    {
+      "id": "item-moonbean-seed",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        4,
+        30,
+        28
+      ],
+      "sourceAlphaBoundsInCrop": [
+        49,
+        88,
+        342,
+        338
+      ],
+      "opaqueColors": 5
+    },
+    {
+      "id": "item-frost-mint",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        3,
+        30,
+        29
+      ],
+      "sourceAlphaBoundsInCrop": [
+        58,
+        35,
+        391,
+        345
+      ],
+      "opaqueColors": 10
+    },
+    {
+      "id": "item-crystal-dust",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        9,
+        2,
+        22,
+        30
+      ],
+      "sourceAlphaBoundsInCrop": [
+        123,
+        22,
+        282,
+        357
+      ],
+      "opaqueColors": 20
+    },
+    {
+      "id": "item-honey-bread",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        3,
+        30,
+        28
+      ],
+      "sourceAlphaBoundsInCrop": [
+        25,
+        48,
+        362,
+        345
+      ],
+      "opaqueColors": 9
+    },
+    {
+      "id": "item-focus-potion",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        5,
+        2,
+        26,
+        30
+      ],
+      "sourceAlphaBoundsInCrop": [
+        87,
+        23,
+        342,
+        364
+      ],
+      "opaqueColors": 26
+    },
+    {
+      "id": "item-student-card",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        6,
+        30,
+        26
+      ],
+      "sourceAlphaBoundsInCrop": [
+        24,
+        56,
+        380,
+        316
+      ],
+      "opaqueColors": 14
+    },
+    {
+      "id": "item-torn-note",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA",
+      "alphaValues": [
+        0,
+        255
+      ],
+      "transparentEdges": true,
+      "occupiedBounds": [
+        2,
+        2,
+        29,
+        30
+      ],
+      "sourceAlphaBoundsInCrop": [
+        46,
+        25,
+        356,
+        350
+      ],
+      "opaqueColors": 11
+    }
+  ],
+  "outputSha256": {
+    "Assets/MagicCampus/Art/Items/item-crystal-dust.png": "46a3bb0318d6bc12655b1a8ece80405afa703deee5e33fe024b68efa400d6126",
+    "Assets/MagicCampus/Art/Items/item-focus-potion.png": "c32f6f2b823460fd0bb3773ae6666c57c03bed5759b12277f7cc23ef308ad4c8",
+    "Assets/MagicCampus/Art/Items/item-frost-mint.png": "541d8b0c8d03914ed66ee04c803bd72b31dc1372a6db63a43b574cc129d03e7f",
+    "Assets/MagicCampus/Art/Items/item-honey-bread.png": "0d72d8be4d3ed6ffbc3c5ca964910fe5daba4e434cc7a5268154d4cf867715fa",
+    "Assets/MagicCampus/Art/Items/item-lens.png": "24ef7ba0a7198e973803f2759a920ce6a754e1f1013b138de1cb0783b6433542",
+    "Assets/MagicCampus/Art/Items/item-moonbean-seed.png": "a6b05dddf6d2a04f43b35635ef3c85db1a4d6a6909b1720a7d97b056bb47aa67",
+    "Assets/MagicCampus/Art/Items/item-rune-chalk.png": "40b9793a2b53ab7dec4cc005b23d2598e145bacf639eab18b7b717b2ab6c2123",
+    "Assets/MagicCampus/Art/Items/item-student-card.png": "89eba01a9253e3ef9ff76dec102d03df268edb7187c752107fd2ab7238c01bd3",
+    "Assets/MagicCampus/Art/Items/item-torn-note.png": "3c448926960a7a3f467ceb23778f3d41dcf6409747469ce468299bd93a524112",
+    "Assets/MagicCampus/Art/Items/manifest.json": "1a0de1094bff95dc09db6f6ec8c2398b80f9ad180556944b06edcddac4f1cf1b",
+    "Art/Items/review/items-1x.png": "0634e7e06bfbfb6a041c9937fc4437fd09c3677fab4eb2ebf65a4773ff856dee",
+    "Art/Items/review/items-preview.png": "56f7d70564dd00fac448002076e127d6f559dd1bfcc44fd5d9c66f73fcde4731",
+    "Art/Items/review/source-vs-pixel.png": "162728eb5ae0963834cce09c6965b84291441456facbc11719d0e0d95037a74b"
+  }
+}

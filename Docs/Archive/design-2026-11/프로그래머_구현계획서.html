@@ -1,0 +1,857 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>매직캠퍼스 · 프로그래머 구현 계획</title><style>:root{color-scheme:light dark;--bg:#f4f3ee;--paper:#fffefa;--ink:#202b28;--muted:#596860;--line:#d6ded5;--accent:#215c4a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 "Malgun Gothic",system-ui,sans-serif}header{padding:48px max(24px,calc((100% - 1200px)/2));background:#183e34;color:#f1f5e8}header small{letter-spacing:.12em;color:#b5d5c4}h1{font-size:clamp(28px,4vw,43px);line-height:1.35;margin:12px 0}header p{max-width:860px;margin:12px 0 0}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1250px;margin:auto}nav{padding:28px 20px;position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto}nav a{display:block;padding:6px 0;color:var(--accent);font-size:13px;text-decoration:none}main{min-width:0;padding:28px 24px 80px}.summary,article{padding:28px;background:var(--paper);border:1px solid var(--line);border-radius:12px;margin:0 0 22px}article{scroll-margin-top:16px}h2{font-size:26px;line-height:1.5}h3{font-size:22px;border-top:1px solid var(--line);padding-top:22px}h4{font-size:18px}a{color:var(--accent);overflow-wrap:anywhere}p,li{overflow-wrap:anywhere}code{background:#eaf0e7;padding:2px 5px;border-radius:4px;font:13px/1.6 Consolas,monospace}pre{overflow:auto;padding:18px;background:#eaf0e7;white-space:pre-wrap}blockquote{border-left:4px solid #b89d62;margin:20px 0;padding:12px 18px;background:#f5efdd}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:16px 0}td,th{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}th{background:#edf2e9}ul{padding-left:24px}footer{color:var(--muted);font-size:13px}.source{font-size:12px;color:var(--muted)}@media(max-width:800px){.layout{display:block}nav{position:static;max-height:240px;border-bottom:1px solid var(--line)}main{padding:16px 12px}.summary,article{padding:18px}header{padding:32px 20px}}@media(prefers-color-scheme:dark){:root{--bg:#151d19;--paper:#1e2923;--ink:#e3ece4;--muted:#a8b9ac;--line:#3b4c40;--accent:#a2d7be}code,pre,th{background:#2b3b2e}blockquote{background:#3c3626}}@media print{nav{display:none}.layout{display:block}header{color:black;background:white}article{break-before:page;border:0}a{color:inherit}}</style></head><body><header><small>MAGIC CAMPUS / 2026.11.06</small><h1>프로그래머 구현 계획</h1><p>현재 Core 기반 · 단일 프레임과 이벤트 · 수면/02시 하루 저장 · 32×32 타일 · 18단계 56개 Task</p></header><div class="layout"><nav aria-label="문서 목차"><a href="#doc-0">매직캠퍼스 프로그래머 구현 계획</a><a href="#doc-1">현재 코드 기준 시스템 구조</a><a href="#doc-2">Task 1–5: 현재 기반과 첫 연결</a><a href="#doc-3">Task 6–9: 게임 시스템 구현</a><a href="#doc-4">Task 10–18: 검증·전체 골격·콘텐츠 확장</a><a href="#doc-5">현재 기반 인수 기준</a></nav><main><div class="summary"><strong>읽는 기준</strong><p>Task1~5는 현재 구현의 책임과 재인수 기준, Task6~18은 같은 Core를 확장하는 계획입니다. 실제 코드·데이터·검증 결과를 구분합니다. 기존 원본과 과거 문서는 보관하고 현재 계약을 우선합니다.</p></div><article id="doc-0"><div class="source">implementation-tasks/README.md</div><h2>매직캠퍼스 프로그래머 구현 계획</h2>
+<p>2026-11-06 · 현 Core 기반 개정 · 18단계 / 56개 Task. Task1–5는 구현 존재/재인수 대상, Task6–18은 후속 미착수 계획이다. 과거 전부 미착수·게임 코드 없음 설명은 폐기한다.</p>
+<ul>
+<li><a href="#doc-1">구현구조</a>: 실제 Core/Game·단일 이벤트·프레임·하루 저장.</li>
+<li><a href="#doc-2">Task1–5</a>: 현 기반16개 책임 단위와 남은 확인.</li>
+<li><a href="#doc-3">Task6–9</a>: Core 규칙/DTO/프레임 확장20개.</li>
+<li><a href="#doc-4">Task10–18</a>: 검증·골격·콘텐츠 확장20개.</li>
+<li><a href="#doc-5">인수기준</a>, <a href="systems/07-validation-results.md">최신 검증</a>.</li>
+</ul>
+<h3>작업 순서와 공유 파일</h3>
+<p>원래 Task ID와 직접 선행은 추적을 위해 유지하되, 같은 단계가 자동으로 병렬 안전함을 뜻하지 않는다. Content.cs/GameState.cs/Game.cs/Event.cs/GameRoot.cs 변경은 순차 통합한다. 4-2는 4-1 연결 뒤 진행한다. 각 새 기능은 기본값·현재 저장 로드 정규화·Content 사전 검사까지 함께 납품한다. 이전 포트/StateStore/Handle/임대 체계를 재구축하지 않는다.</p>
+<div class="table-wrap"><table><tbody>
+<tr><th>단계</th><th>결과</th></tr>
+<tr><td>1</td><td>실제 엔진/assembly/32px 기준</td></tr>
+<tr><td>2</td><td>DTO·상태·프레임·입력/격자·JSON 파일</td></tr>
+<tr><td>3</td><td>사전 검사·BFS·조건/효과·대화·생활일 시계</td></tr>
+<tr><td>4</td><td>EventRun·하루 저장·일정/약속·현재 fixture</td></tr>
+<tr><td>5</td><td>현 기반 Core/Player 재인수</td></tr>
+<tr><td>6</td><td>RoomRun·Inventory·Experience·Magic·Journal·표시/설정</td></tr>
+<tr><td>7</td><td>Economy·Growing·Crafting·Combat·Classes·Story·Relationships</td></tr>
+<tr><td>8</td><td>Placement·Projects·탐험/지원·Activities·대사·EndDay 정산</td></tr>
+<tr><td>9</td><td>Core/Game 실제 연결·현 fixture 생성기 대응·핵심 체험</td></tr>
+<tr><td>10–11</td><td>사용자/기술 검증·수정</td></tr>
+<tr><td>12–14</td><td>자유 사건 골격·최종 실습·저장/순서/표시 검증·제작 기준</td></tr>
+<tr><td>15–16</td><td>7개 콘텐츠 팩·32px 아트·전체 병합</td></tr>
+<tr><td>17–18</td><td>전구간 기술/체험·분량 검증·수정과 결과</td></tr>
+</tbody></table></div>
+<h3>원본 시스템 기획과 작업 대응</h3>
+<p>아래 표는 원본17절 수준의 담당 연결이다. 세부343항목의 원문·위치·기존 명세·예제 Pointer는 <a href="systems/full-design/01-source-trace.md">기존 원본 대응표</a>를 유지한다. 이 표만으로 343항목 각각의 구현/시험이 끝났다고 보지 않는다. 각 Task를 실행할 때 담당 절의 세부 추적ID도 인수 결과에 기록한다.</p>
+<div class="table-wrap"><table><tbody>
+<tr><th>원본</th><th>구현 책임</th><th>주요 Task</th></tr>
+<tr><td>§1 핵심 경험</td><td>수업을 생활/관계/탐험에 연결·자발적 다음 행동</td><td>9-1, 10-1, 17-1</td></tr>
+<tr><td>§2 범위·조작·오프라인</td><td>엔진/플랫폼 결정·입력·저장·엔딩후생활</td><td>1-1, 2-4, 4-2, 12-1</td></tr>
+<tr><td>§3 하루·시간</td><td>달력·정지·비용·일정·02시</td><td>2-3, 3-5, 4-3, 8-6</td></tr>
+<tr><td>§4 학교·성장</td><td>수업·복습·고유 실습·도구파손 후속</td><td>7-5, 8-4, 15-1, 15-5</td></tr>
+<tr><td>§5 주문·조합</td><td>발동3틀·보호/반응·6조합·3context 응용</td><td>6-4, 7-5, 15-1</td></tr>
+<tr><td>§6 생활·경제</td><td>물품/대여·거래·재배·제작·배치·P01–12</td><td>6-2, 7-1–7-3, 8-1–8-2, 15-3</td></tr>
+<tr><td>§7 전투·탐험</td><td>공격권/회피·8+4적·방복구·4권역/12조사실</td><td>6-1, 7-4, 8-3, 15-1, 15-6</td></tr>
+<tr><td>§8 NPC·관계</td><td>경험/관계36·일정/예약·대사432·동행</td><td>4-3, 6-3, 7-7, 8-4–8-5, 15-4</td></tr>
+<tr><td>§9 이야기</td><td>독립6×3·증거·2/4정리·최종/3표현</td><td>7-6, 8-3, 12-1, 13-1, 15-2</td></tr>
+<tr><td>§10 학교 활동</td><td>행사4·모임8·부탁24·놓침 복구</td><td>8-4, 15-5</td></tr>
+<tr><td>§11 시간 예산</td><td>단일귀속·중복제외·활동 시간 측정</td><td>12-2, 17-1, 18-1</td></tr>
+<tr><td>§12 첫2시간</td><td>도입·첫 두 주문·소문·다음행동</td><td>7-5, 9-1, 10-1, 17-1</td></tr>
+<tr><td>§13 막힘 방지</td><td>예약/전경독점·무료경로·수첩/지원·안전저장</td><td>2-3, 4-1–4-3, 6-2, 6-5, 8-3, 10-2, 13-1–13-2</td></tr>
+<tr><td>§14 아트·UI·소리</td><td>한국어·패드·접근성·에셋키/음향</td><td>3-4, 6-6, 13-3, 15-7</td></tr>
+<tr><td>§15 제작 범위</td><td>최소연결→체험→골격→팩 확장</td><td>5-1, 9-1, 12-1–12-2, 14-1, 15-1–16-1</td></tr>
+<tr><td>§16 검증</td><td>모델/실행/사용자검증과 수정 장벽</td><td>10-1–11-1, 13-1–14-1, 17-1–18-1</td></tr>
+<tr><td>§17 Claude 이력</td><td>원고/최신 통합/새 요청 실패 사실 구분</td><td>Claude활용및검토.md, 1-1 문서 근거, 18-1 결과 보고</td></tr>
+</tbody></table></div>
+<h3>이번 개정의 범위</h3>
+<p>현재 코드와 실제 배포 fixture를 대조해 작성했다. 새 Claude 요청이나 이미지 생성은 하지 않았다. 기존 모델 응답·정적 예제·스키마·원본 기획은 이력으로 유지한다. <a href="archive/2026-11-02/implementation-tasks/README.md">이전 문서판</a>과 현재 계획을 구분한다.</p>
+<p>현 HTML과 문서검사.json은 design/build-current-plans.cjs로 생성한다. 기존 옛 스키마 검증기를 통과해도 현재 Core/Player 인수 통과로 보고하지 않는다.</p></article>
+<article id="doc-1"><div class="source">implementation-tasks/구현구조.md</div><h2>현재 코드 기준 시스템 구조</h2>
+<p>2026-11-06 개정. 근거는 <code>Assets/MagicCampus/Core/*.cs</code>, <code>Game/*.cs</code>, <code>Tests/Core/Program.cs</code>다. Task1~5는 이 구현을 설명하며, 후속 Task의 새 기능은 미구현 계획으로 구분한다. 이전 기반의 포트·서비스·저장 스키마를 복원하는 작업으로 해석하지 않는다.</p>
+<h3>실행 경계</h3>
+<div class="table-wrap"><table><tbody>
+<tr><th>실제 위치</th><th>책임</th><th>의존</th></tr>
+<tr><td>Core/Content.cs</td><td>JSON DTO, Command.Parse, 콘텐츠 조회</td><td>C#, Newtonsoft.Json, 파일 IO</td></tr>
+<tr><td>Core/GameState.cs</td><td>영속 GameState, Actor, Clock, Dialogue, Invite</td><td>C#, Newtonsoft.Json</td></tr>
+<tr><td>Core/Game.cs</td><td>입력 의도, 단일 프레임 진행, 이벤트·초대·하루 종료</td><td>나머지 Core</td></tr>
+<tr><td>Core/Event.cs</td><td>EventRun, 조건, 이동·대사·선택·효과, 취소 복원</td><td>Game/World/Content</td></tr>
+<tr><td>Core/World.cs</td><td>격자 통행, BFS, 이동, 포털, 방향</td><td>Content/Actor</td></tr>
+<tr><td>Core/Schedule.cs</td><td>시각별 목적지, 일정 이동, 로드·기상 배치</td><td>Content/World</td></tr>
+<tr><td>Core/SaveFile.cs</td><td>GameState JSON, tmp 교체, bak 읽기</td><td>Newtonsoft.Json, 파일 IO</td></tr>
+<tr><td>Game/GameRoot.cs</td><td>키·버튼 전달, 메뉴/패널, Update 호출, 오류·상태 표시</td><td>Unity, Input System, Core</td></tr>
+<tr><td>Game/WorldView.cs, DialogueBox.cs</td><td>타일·배우·카메라·대화 표시</td><td>Unity, Core 조회</td></tr>
+<tr><td>Game/Editor/GameBuild.cs</td><td>fixture/아트 복사, 씬 생성, Windows 빌드</td><td>Unity Editor</td></tr>
+<tr><td>Tests/Core/Program.cs</td><td>배포 콘텐츠 규칙과 Core 동작 검사</td><td>Core 소스, net10.0</td></tr>
+</tbody></table></div>
+<p>Core assembly는 <code>noEngineReferences=true</code>이며 JSON과 파일 IO를 직접 사용한다. Contracts, StateStore, Bootstrap 서비스 그래프, 별도 UnityAdapters 계층을 새로 만들지 않는다. Unity 6000.6.3f1, Input System 1.19.0, Newtonsoft.Json 3.2.2는 현재 프로젝트 파일의 값이다.</p>
+<h3>한 프레임</h3>
+<p>GameRoot는 입력을 처리한다. 메뉴가 열려 있으면 Game.Update를 호출하지 않는다. 메뉴가 아니면 dt를 최대 0.1초로 제한하고 한 번 호출한다. 초대/일지/침대 확인 패널에서는 플레이어 입력만 0이며, NPC와 시계는 계속 간다.</p>
+<p>Game.Update는 Event가 있으면 EventRun.Update만 실행하고 반환한다. 따라서 이벤트 중 평상 NPC 일정·일반 플레이어 이동·자연 시간은 정지하며 이벤트 이동과 대화는 진행한다. Event가 없으면 플레이어 이동 → NPC 경로 이동 → 초 누적을 게임분으로 전환 → Schedule.Run → 02:00 검사 순서다. 별도 완료 큐·revision·정지 채널·비동기 Handle은 없다.</p>
+<h3>권위 상태와 저장</h3>
+<p>GameState의 Day, Minute, Player, Wallet, Flags, Completed, Appointments가 영속 상태다. Player는 실제 Actor이고 UI Transform은 권위가 아니다. NPC Actor 목록은 Game이 가지며 저장하지 않는다. Path, Speed, Moving, EventRun, Dialogue, Hidden, 메뉴, 입력, 초 잔여량은 영속하지 않는다.</p>
+<p>State는 가변 객체다. 완료 시 효과를 순차 적용하고 Completed에 eventId를 추가한 뒤 비용을 가산하고 약속을 제거한다. 현재 코드는 범용 원자 트랜잭션이나 예외 롤백을 보장하지 않는다. 유효한 콘텐츠를 사전 시험하는 전제이며, 새 효과는 검증 후 쓰는 구체적 메서드로 추가한다. 잘못된 효과 중간 예외가 부분 변경을 남길 가능성은 Task5의 확인 항목이다.</p>
+<h3>시간과 하루 종료</h3>
+<p>Day는 0부터, UI는 Day+1이다. Minute는 해당 생활일의 07:00=420에서 시작하고 자정을 지나도 1440 이상으로 이어진다. 02:00=1560에 기절한다. 자연 시간은 1초=1게임분이다. 이벤트의 CostMinutes는 성공할 때 한 번 더한다. 현재 이벤트 비용으로 1560을 넘겨도 다음 평상 Update에서 하루 종료를 검사한다.</p>
+<p>침대 반경 1 이내의 수면 확인은 EndDay(Slept), 시간 초과는 EndDay(PassedOut)를 부른다. EndDay는 이벤트 중 거부한다. Day++ → Minute=420 → 초 잔여량=0 → 침대로 플레이어 배치 → 현재 일정으로 NPC 배치 → SaveFile.Write 순서다. 성공 이벤트·수락·취소·종료 자체는 저장하지 않는다. 그날 미저장 진행은 강제 종료/불러오기 때 마지막 하루 저장으로 돌아간다.</p>
+<h3>그래픽과 좌표</h3>
+<p>논리 1칸은 32×32 픽셀 타일이다. 좌표는 double, 셀은 floor(x), floor(y), 셀 중심은 +0.5, 월드 y는 위로 증가한다. 플레이어 속도는 초당 3칸, 충돌 반경은 0.2칸이다. 일반 이동은 축별 검사이며 sweep 충돌은 구현되지 않았다. NPC/이벤트 이동은 4방향 BFS와 경로 추종을 쓴다. 포털 셀에 새로 진입할 때만 전이한다.</p>
+<p>현재 Stage5Art/runtime-manifest.json은 pixelsPerUnit=16이고 WorldView 기본값도 16이다. 이는 32×32 제작 기준과의 기존 불일치다. Task6-6/15-7에서 32px 원본·manifest·표시 검사를 함께 맞추며, 숫자만 바꾸어 자산 변환 완료로 보지 않는다.</p>
+<h3>이후 확장 원칙</h3>
+<p>새 규칙은 Core 안의 작은 구체 클래스/메서드, 데이터 정의는 Content, 영속 값은 GameState, 화면은 Game에 추가한다. Game이 호출 순서와 상태 변경을 통제한다. 공통 파일은 같은 단계라도 순서대로 수정한다. 분리된 규칙 파일과 시험만 독립 작업할 수 있다.</p>
+<p>실시간 방은 Game.Event와 별도의 임시 RoomRun을 두는 후속 설계다. 한 프레임에서 전경 이벤트와 방 실시간 조작을 동시에 진행하지 않는다. 수면·기절은 RoomRun 정리 후 기존 EndDay 하나로 합류한다. 방 체크포인트는 세션 내 재시도용이며 디스크 자동 저장과 다르다.</p>
+<p>후속 필드를 추가할 때 기본값, 로드 정규화, 구형 현재 저장 fixture 왕복을 함께 구현한다. 기존 v1/v2 전체 저장 예제는 이전 엔진 자료이며 현재 저장에 그대로 로드하거나 강제 보존하지 않는다. 버전·마이그레이션이 필요하면 현재 무버전 GameState를 최초 입력으로 지원한다.</p></article>
+<article id="doc-2"><div class="source">implementation-tasks/01-기반과최소연결.md</div><h2>Task 1–5: 현재 기반과 첫 연결</h2>
+<p>2026-11-06 개정. 아래 16개 Task ID는 추적을 위해 유지한다. 현재 코드의 책임 단위로 재정의했으며, 모두 새로 만들어야 하는 작업이 아니다. 구현 존재와 인수 통과는 구분한다. 현 Core 검사는 <a href="systems/07-validation-results.md">검증 결과</a>, 실행 구조는 <a href="#doc-1">구현구조</a>, 회귀 기준은 <a href="#doc-5">인수기준</a>을 따른다.</p>
+<p>기존 서비스 그래프·포트·전체 v2 저장을 다시 구현하지 않는다. 같은 단계의 공통 파일은 순차 수정한다. 4-2는 4-1 연결 확인 뒤 수행하며, 번호를 동시 작업 허가로 쓰지 않는다.</p>
+<h3>단계 1</h3>
+<h4>Task 1-1 — 기반 기술·실제 코드 경계 확정</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 없음.</li>
+<li>목적/소유: <code>Core/*.asmdef, Game/*.asmdef, ProjectSettings, Packages</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 현재 Unity 프로젝트 → Core/Game/Editor 의존 지도.</li>
+<li>처리 구조: Core는 Unity 없이 실행하며 Newtonsoft.Json/IO는 직접 사용한다. 32×32 타일 기준을 고정한다.</li>
+<li>경계: 기존 Contracts·서비스 포트·save v2 전체 보존은 현 기반의 요구에서 제외한다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: Core 소스와 Tests/Core 프로젝트 컴파일, 실제 파일/클래스 참조 확인.</li>
+</ul>
+<h3>단계 2</h3>
+<h4>Task 2-1 — 콘텐츠 DTO와 단순 호출 파싱</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 1-1.</li>
+<li>목적/소유: <code>Core/Content.cs, Tests/Core/Program.cs의 콘텐츠 규칙</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: runner-bundle.json + staging-recipes.json → Content, Command 목록.</li>
+<li>처리 구조: 공백과 따옴표 밖 /로 구분하며 Args는 문자열이다. !는 조건 부정을 표현한다.</li>
+<li>경계: 이스케이프·이름 인자·offset 진단·타입 컴파일은 없다. 닫히지 않은 따옴표도 엄격 거부하지 않으므로 배포 데이터에서 금지한다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 기존 배포 3개 번들 규칙과 의도적 오류 6종을 사전 검사.</li>
+</ul>
+<h4>Task 2-2 — 가변 GameState와 임시 Actor 경계</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 1-1.</li>
+<li>목적/소유: <code>Core/GameState.cs</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 시작/저장 JSON → 가변 GameState.</li>
+<li>처리 구조: Day/Minute/Player/Wallet/Flags/Completed/Appointments를 가진다. Actor.Path/Speed/Moving은 JsonIgnore다.</li>
+<li>경계: NPC 위치·대화·진행 포인터·초 잔여량은 저장하지 않는다. revision/transactionId는 없다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: ToJson/FromJson 왕복, 초기 fixture 형식, NPC·경로 비영속 확인.</li>
+</ul>
+<h4>Task 2-3 — 단일 Game 루프·전경 독점·메뉴 정지</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 1-1.</li>
+<li>목적/소유: <code>Core/Game.cs, Game/GameRoot.cs의 Update</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 입력 의도 + dt → 한 프레임 상태.</li>
+<li>처리 구조: Game.Event 최대 하나. 이벤트 중 EventRun만, 평상시 이동→시간→일정→기절 순서다. 메뉴는 Unity가 Update 호출을 중단한다.</li>
+<li>경계: Handle/임대/비동기 pump가 없다. 패널은 플레이어 입력만 막고 시계는 진행한다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 이벤트 시 자연시간 정지·이동 진행, 메뉴/일지의 서로 다른 정지 동작 확인.</li>
+</ul>
+<h4>Task 2-4 — 격자·충돌·포털·입력 연결</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 1-1.</li>
+<li>목적/소유: <code>Core/World.cs의 MovePlayer/Passable/PortalAt, Game/GameRoot.cs의 입력</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 키보드 방향 → 논리 Actor 위치.</li>
+<li>처리 구조: 대각 정규화, 반경 0.2칸 축별 충돌, 셀 진입 시 포털 이동을 사용한다.</li>
+<li>경계: sweep·패드·동적 문·비동기 씬 로드는 현재 기능이 아니다. 타일은 32×32 기준이다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 벽 정지, 포털 왕복, 도착 셀 대기 시 튕김 없음.</li>
+</ul>
+<h4>Task 2-5 — GameState JSON 파일 교체</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 1-1.</li>
+<li>목적/소유: <code>Core/SaveFile.cs</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: GameState → save.json/.tmp/.bak → GameState.</li>
+<li>처리 구조: UTF-8 camelCase JSON, tmp 쓰기 후 Replace/Move. 읽기는 본 파일 뒤 bak를 시도한다.</li>
+<li>경계: JSON 파싱 실패만 bak로 넘어간다. 체크섬·스키마·세대·권한 오류 복구는 없다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 두 번째 쓰기 백업 보존, JSON 손상 fallback, 파일 없음 null 확인.</li>
+</ul>
+<h3>단계 3</h3>
+<h4>Task 3-1 — 배포 콘텐츠 사전 규칙 검사</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 2-1, 2-2.</li>
+<li>목적/소유: <code>Tests/Core/Program.cs의 Problems/ContentRules/StartFixtures</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 배포 번들·시작 상태 → 규칙 위반 목록.</li>
+<li>처리 구조: 맵/참조/경로/recipe/지원 명령/효과와 시작 fixture를 개발 시 검사한다. 런타임 Content.Parse는 역직렬화만 한다.</li>
+<li>경계: functions.json이나 옛 닫힌 스키마가 현재 런타임을 검증한다고 주장하지 않는다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: base/a10-mira/dest-moved 통과, invalid variant 거부, StreamingAssets 복사 일치.</li>
+</ul>
+<h4>Task 3-2 — 공통 BFS 경로와 이벤트 도착</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 2-2, 2-4.</li>
+<li>목적/소유: <code>Core/World.cs의 FindPath/WalkTo/Walk</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: Actor + Destination → Path/이동 위치.</li>
+<li>처리 구조: 4방향 BFS가 포털을 포함한 맵 간 경로를 만든다. 도착 시 EventRun이 Radius와 Facing을 적용한다.</li>
+<li>경계: 막힘은 null 또는 예외다. timeout·재탐색·동적 장애물은 없다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 두 맵 이동과 도착 위치, 도달 불가 경로 null, 도착 전 say 없음.</li>
+</ul>
+<h4>Task 3-3 — 조건·성공 효과·eventId 완료 방지</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 2-1, 2-2.</li>
+<li>목적/소유: <code>Core/Event.cs의 Holds/Complete, Core/Game.cs의 StartEvent</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: when/effects → 시작 허용 또는 완료 상태.</li>
+<li>처리 구조: 조건 eq/!eq, 효과 set/currency.add. 성공 후 eventId를 Completed에 추가하고 비용과 약속 제거를 적용한다.</li>
+<li>경계: once 이벤트의 eventId가 중복 방지 키다. 여러 이벤트가 공유하는 사건 보상키는 후속 7-6에서 추가한다. 효과 도중 예외 롤백은 없다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 조건 false 변화0, 양 선택 성공 효과1회, 완료 이벤트 재시작 거부.</li>
+</ul>
+<h4>Task 3-4 — 대화·선택 UI와 확인 입력</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 2-2, 2-3.</li>
+<li>목적/소유: <code>Game/DialogueBox.cs, Game/GameRoot.cs, Core/Game.cs의 Advance/Choose</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: Dialogue → 표시/확인/선택 인덱스.</li>
+<li>처리 구조: Game.Dialogue를 표시하고 Advance/Choose만 전달한다. choice는 선택 fork 명령을 현재 위치에 삽입한다.</li>
+<li>경계: 카메라/애니메이션 명령·async는 미지원. UI는 보상을 직접 쓰지 않는다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 한국어·두 선택지·키보드/버튼 확인, 입력 유출과 중복 선택 확인.</li>
+</ul>
+<h4>Task 3-5 — 생활일 시계와 02시 종료 판정</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 2-2, 2-3.</li>
+<li>목적/소유: <code>Core/Game.cs의 Update/EndDay, Core/GameState.cs의 Clock</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: dt 또는 성공 CostMinutes → Minute/Day.</li>
+<li>처리 구조: 1초=1분, 07시 시작, 24시 통과 유지, 26시 기절. 이벤트 성공 비용만 더한다.</li>
+<li>경계: 80일/계절/5일 패턴은 후속 파생 조회다. 자정 자동귀환·다일 경계 원장은 없다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 자정에 종료하지 않음, 02시 다음날 07시, 이벤트 중 EndDay 거부.</li>
+</ul>
+<h3>단계 4</h3>
+<h4>Task 4-1 — EventRun 순차 실행과 취소</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 3-1, 3-2, 3-3, 3-4, 3-5.</li>
+<li>목적/소유: <code>Core/Event.cs, Core/Game.cs의 StartEvent/CancelEvent/EndEvent</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: EventDef → move/say/choice → 완료 또는 취소.</li>
+<li>처리 구조: 시작 Actor 복사→Hidden→첫 Update recipe 배치→다음 Update 화면 복귀와 실행. 취소는 Actor를 복원하고 대화를 닫는다. 끝나면 NPC는 현시각 일정으로 걷는다.</li>
+<li>경계: 전체 전경 독점으로 충돌을 막는다. 조건은 시작 시 검사, 수락 여부는 StartEvent의 내부 가드가 아니다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 취소 후 효과/비용0, 수락 유지, 재시작 가능, NPC 현재 일정 복귀.</li>
+</ul>
+<h4>Task 4-2 — 하루 저장·불러오기·세션 손실 경계</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 2-5, 3-5, 4-1.</li>
+<li>목적/소유: <code>Core/Game.cs의 Open/EndDay, Core/SaveFile.cs, Game/GameRoot.cs의 Reload</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 수면/기절 → 다음날 상태 저장; 로드 → 새 Game.</li>
+<li>처리 구조: 저장 후보가 없으면 시작 fixture. 로드시 NPC는 저장 위치 대신 현재 일정에 배치한다. 이벤트/수락 직후 자동 저장하지 않는다.</li>
+<li>경계: 4-1과 같은 단계의 공유 Game.cs 편집은 순차 수행한다. 종료 시 evidence JSON은 플레이 저장이 아니다. 저장 실패 시 메모리는 이미 다음날일 수 있다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 하루 종료 후 왕복 일치, 완료 후 파일 없음, 미저장 하루 재시작, JSON 백업 복구.</li>
+</ul>
+<h4>Task 4-3 — NPC 일정·초대 수락·현시각 복귀</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 3-1, 3-2, 3-5.</li>
+<li>목적/소유: <code>Core/Schedule.cs, Core/Game.cs의 Interact/Accept/EndEvent</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: 일정 문자열/거리/약속 → 목적지/Invite/Accepted.</li>
+<li>처리 구조: 일정은 분 destination 또는 home. 로드는 현재 이하 마지막 항목, 없으면 전날 마지막 항목. 상호작용은 가장 가까운 NPC의 보유 약속을 보여준다.</li>
+<li>경계: Offered/Accepted만 존재. 자동 시작·우선순위 큐·Ready·자원별 임대는 없다. 수락 저장은 하루 종료 때다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 거리 밖 목록0, 다중 초대, 이중 수락 거부, 정오 이동·이벤트 중 정지·종료 후 복귀.</li>
+</ul>
+<h4>Task 4-4 — 현재 시작 fixture와 변형 콘텐츠</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 3-1.</li>
+<li>목적/소유: <code>Content/Fixtures/FirstConnection/generated, Assets/StreamingAssets/FirstConnection</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: base/변형 번들·시작 상태·recipe → 실행 입력.</li>
+<li>처리 구조: 시작 상태는 현재 GameState의 day/minute/player/wallet/flags/completed/appointments다. 도입 false·선택 두 갈래·NPC 추가·좌표 이동을 분리한다.</li>
+<li>경계: 기존 build-fixtures.cjs는 이전 엔진 스키마 기반 생성기이므로 현 형식 대응 전 재생성하지 않는다. GameBuild는 generated를 그대로 복사한다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 현재 generated/StreamingAssets 비교, 잘못된 호출은 런타임 출시 전 사전 검사.</li>
+</ul>
+<h3>단계 5</h3>
+<h4>Task 5-1 — 현재 기반 통합 검증·남은 차이 확인</h4>
+<ul>
+<li>상태: 구현 존재, 현재 코드 기준 재인수 대상. 상세 통과/미실행은 검증 결과에 기록한다.</li>
+<li>직접 선행: 4-1, 4-2, 4-3, 4-4.</li>
+<li>목적/소유: <code>Game/Editor/GameBuild.cs, Scenes/FirstConnection.unity, Tests/Core, 통합 증거</code>. 기존 파일을 확장하며 별도 구형 계층을 만들지 않는다.</li>
+<li>입력→출력: Core+Unity 표시+fixture+아트 → 첫 약속 플레이.</li>
+<li>처리 구조: GameRoot가 Game을 열고 입력·한 프레임·표시를 연결한다. 수면/기절 후 저장과 불러오기까지 현재 A01–A10으로 확인한다.</li>
+<li>경계: 옛 Stage5 통과 기록은 현재 기반의 재합격 증거가 아니다. 32px 자산 불일치·파서 제한·효과 예외·파일 오류·실제 Unity 확인을 잔여 항목으로 둔다.</li>
+<li>저장/실패: <a href="#doc-1">공통 실행·저장 계약</a>의 하루 저장과 세션 내 취소를 따른다. 디스크 저장 성공과 메모리 상태 성공을 구분한다.</li>
+<li>완료 조건: 현재 Core 검사 결과, Windows 빌드/실행 결과, 미실행/잔여 문제를 분리하고 단계6 진입 여부를 기록.</li>
+</ul></article>
+<article id="doc-3"><div class="source">implementation-tasks/02-게임시스템.md</div><h2>Task 6–9: 게임 시스템 구현</h2>
+<p>2026-11-06 현 Core 기반 개정. 아래 작업은 미착수 계획이다. <a href="#doc-1">현재 구조</a>와 <a href="systems/full-design/02-contracts.md">확장 계약</a>을 따른다. 경로는 Assets/MagicCampus 기준이며 새 규칙은 Core, 입력/표시는 Game에 둔다. 전경은 EventRun 최대1, 상태는 GameState, 저장은 수면/02시 EndDay다. 공통 Content.cs/GameState.cs/Game.cs/Event.cs/GameRoot.cs 편집은 같은 단계에서도 순차 진행한다. 별도 규칙/시험 파일만 독립 수행할 수 있다.</p>
+<p>새 명령/DTO/영속 필드는 해당 Task가 구현·기본값·로드 정규화·사전 검사·현재 저장 호환까지 함께 추가한다. perform/완료키/loan/방 상태 등은 현재 미구현 확장이며 기존 v2 스키마에 있다는 이유로 지원된 것으로 보지 않는다.</p>
+<h3>단계 6 — 독립 상태와 규칙 소유자</h3>
+<h4>Task 6-1 — 방 체크포인트·overlay·공통 목표 실행</h4>
+<ul>
+<li>현 기반 연결: Core/Rooms.cs의 RoomRun·RoomState를 추가한다. Game의 방 틱과 Event 독점 연결, GameState의 확정 방 상태 기본값을 순차 반영한다. 체크포인트는 메모리 재시도용이다.</li>
+</ul>
+<ul>
+<li>직접 선행: 5-1, 4-2, 3-3. 원본 §7·§13, D1 방 복구와 전경/방 활동 계약을 읽는다.</li>
+<li>목적/소유: <code>Core/Rooms.cs</code>, 해당 시험. 전투와 퍼즐의 임시 상태 경계를 만든다.</li>
+<li>입력→출력: roomId·입장 안전 상태·goals 호출·작업 요청 → 방 overlay·목표 진척·검증 가능한 perform 결과.</li>
+<li>처리 구조: 입장 → overlay 구성 → 관찰/장치/적 상태 반영 → 목표 결과 준비 → 짧은 확정 커밋. goals/hints는 소유 Row에서 읽고 별도 저작표를 만들지 않는다.</li>
+<li>경계: 목표 결과를 성공으로 만들 권한과 보상 지급 권한을 분리한다. 방 목표는 같은 Core 메서드로 주문·대여 도구·수동 조작의 결과를 받는다.</li>
+<li>저장/실패: reset은 현 방의 적·미확정 퍼즐·전리품만 폐기한다. 이전 방·확정 증거·재배·지갑을 되돌리지 않는다.</li>
+<li>완료 조건: 현 방 reset/재입장/종료 후 복구에서 확정 상태 보존, 미확정 전리품 복제 0, RoomRun이 전역 상태 복원을 요구하지 않는다.</li>
+</ul>
+<h4>Task 6-2 — 인벤토리·출처·대여·우편</h4>
+<ul>
+<li>현 기반 연결: Core/Inventory.cs에 가방·우편·loan 검사를 둔다. GameState에는 normal/grant 스택·우편만 추가하고 Game의 Add/Consume/Receive 요청으로 변경한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 5-1, 2-2, 3-3. 원본 §6·§13, D2 출처와 최종 비영속 loan 규칙을 읽는다.</li>
+<li>목적/소유: <code>Core/Inventory.cs</code>, 해당 시험.</li>
+<li>입력→출력: 물품 추가/소비/수령/대여 요청 + scope → 스택 변경 계획·우편 전송·반출 허용 또는 이유.</li>
+<li>처리 구조: 스택 키=(itemId,quality,provenance,scopeId). normal/grant/loan을 분리하고 필수 단서는 수첩 집합으로 보낸다. 가방 초과 일반 보상은 우편에 함께 기록한다.</li>
+<li>경계: 가격/레시피/관계 점수는 타 모듈 책임이다. 판매·선물·납품·제작·배치·보관은 같은 반출 검사 메서드를 통과한다. P11 이전에도 현장 대여 가능하다.</li>
+<li>저장/실패: loan은 과제 overlay만, 영속 스택/우편에는 넣지 않는다. 재로드 후 재대여, 중복 수령은 원장으로 차단한다.</li>
+<li>완료 조건: T08/T09의 스택·우편·scope 사례, 가방 초과/필수품 폐기/다른 scope 혼합/취소에서 유실·세탁·부분 소비 0.</li>
+</ul>
+<h4>Task 6-3 — 공동 경험·참여·친밀도 원장</h4>
+<ul>
+<li>현 기반 연결: Core/Experience.cs와 GameState의 참여/첫유형/R1이후 유형 집합을 추가한다. Game의 활동 성공 메서드에서 한 번 기록한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 5-1, 2-2, 3-3. 원본 §8과 최종 R2 보완을 읽는다.</li>
+<li>목적/소유: <code>Core/Experience.cs</code>, 해당 시험. 관계와 활동이 공유할 기록 규칙을 구현한다.</li>
+<li>입력→출력: activityKey·유형·참가 NPC·occurrenceSequence·participationOnly → 고유 기록·첫 유형 점수·R1 이후 참여 유형 변경 계획.</li>
+<li>처리 구조: 고유 콘텐츠 기록, 평생 첫 유형 +8, R1 이후 서로 다른 참여 유형을 각각 관리한다. R1 전 했던 활동의 재참여도 R2 준비에 인정한다.</li>
+<li>경계: 초대/관계 단계는 7-7, 수업/행사 성공은 각 담당이 판정한다. 기록 자체가 미완료 활동을 완료 처리하지 않는다.</li>
+<li>저장/실패: 발생 sequence와 점수 원장·R1 이후 집합은 영속한다. 연습 participationOnly는 점수/고유 보상 없이 참여만 기록한다.</li>
+<li>완료 조건: R1 전 모든 유형을 경험한 프로필도 이후 두 유형 재참여로 준비 가능. 중복 발생 점수 0, 다수 참가자에 동일 참여 사실 반영.</li>
+</ul>
+<h4>Task 6-4 — 주문 시전·태그 반응·제한 조합</h4>
+<ul>
+<li>현 기반 연결: Core/Magic.cs의 시전·반응·고유 context 계산을 추가한다. Game 프레임과 RoomRun의 대상에 연결하고 새 Content 주문 정의를 사전 검사한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 5-1, 3-1, 3-2, 3-3. 원본 §5·§15, D1 마법과 통합 반응 순서를 읽는다.</li>
+<li>목적/소유: <code>Core/Magic.cs</code>, 해당 시험.</li>
+<li>입력→출력: 주문·발동 문맥·대상 태그·impactId → 발동/명중·반응 계획·관찰 이유·고유 context 기록.</li>
+<li>처리 구조: 허용/쿨타임/자원 검사 → 발동 예약/실제 방출 → 명중 태그 snapshot → 보호 → 등록 6조합 우선 → 단일 반응. 발사/영역/대상형을 공통 실행기로 구성한다.</li>
+<li>경계: 전투 자원은 계약상 전투 계산 메서드를 대역으로 사용하고 실제 연결은 9-1에서 한다. 환경 목표는 결과 메서드로 알리고 방·증거를 직접 변경하지 않는다.</li>
+<li>저장/실패: 생활 비용 0, 전투는 실제 방출 시 비용 확정·빗나감 환급 없음. impact당 대상별 1회, 무한 연쇄 금지. 주문/3고유 context/응용 선택만 영속한다.</li>
+<li>완료 조건: 보호 대상 우선, 등불의 dark/record 허용, 조합 6개 방향/창/reset, 같은 context 반복 무증가를 검증한다.</li>
+</ul>
+<h4>Task 6-5 — 수첩 조회·힌트 기록·다음 행동</h4>
+<ul>
+<li>현 기반 연결: Core/Journal.cs는 GameState/Content 조회로 다음 행동을 만들고 GameRoot의 현재 J 패널을 확장한다. 읽음/힌트는 새 영속 필드와 기본값을 함께 추가한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 5-1, 3-1, 3-3. 원본 §13, D3 수첩·힌트를 읽는다.</li>
+<li>목적/소유: <code>Core/Journal.cs</code>, 해당 조회 시험.</li>
+<li>입력→출력: 상태 읽기 모형·사용자 추적/힌트 요청 → 5탭 조회·가능 행동·도구 획득 경로·열람 기록.</li>
+<li>처리 구조: 일정/사람/사건/주문 응용/학교 기록을 조회한다. 추적 최대 3, 힌트는 관찰→성질→행동으로 단계 상승하며 NPC와 UI가 같은 기록을 사용한다.</li>
+<li>경계: 당시 없는 도메인은 확정 조회 메서드 대역으로 검사한다. 현장 도움의 실제 목표 수행은 8-3이 담당한다. 숨은 정답을 무조건 노출하지 않는다.</li>
+<li>저장/실패: 읽음·힌트 단계·추적 선택은 저장, 캐시는 재생성. 없는 참조는 오류이며 불가능한 행동을 가능으로 표시하지 않는다.</li>
+<li>완료 조건: 돈/주문/NPC 부재별 대체 행동 설명, 힌트 즉시 열람·보상 감점 없음, 추적 4번째 선택 시 명시 교체를 검증한다.</li>
+</ul>
+<h4>Task 6-6 — 접근성·설정·자산 표시 기반</h4>
+<ul>
+<li>현 기반 연결: Game/WorldView.cs·DialogueBox.cs·GameRoot.cs를 확장한다. GameState.Settings 기본값/로드 정규화를 추가하고 Stage5Art 16px를 32×32 제작 기준으로 맞추는 실제 자산 전환을 계획·검증한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 5-1, 3-4. 원본 §2·§14, D3 표시 기준을 읽는다.</li>
+<li>목적/소유: <code>Game/Settings/</code>, <code>Game/Assets/</code>, <code>Game/Feedback/</code>, 설정/자산 시험.</li>
+<li>입력→출력: 저장 설정·assetKey·상태 피드백 → UI 배율/효과/자막·해결된 자산·표시 진단.</li>
+<li>처리 구조: 피해/예고/조준 보조의 number 설정, 흔들림/섬광/입자/텍스트 속도, 색+형태+소리, 텍스트 별도 고해상도층을 지원한다.</li>
+<li>경계: 피해 계산 자체는 7-4 책임이다. assetKey에서 기본 바인딩을 유도하고 실제 주소만 덮어쓴다. 최종 해상도/폰트는 실측 후 확정한다.</li>
+<li>저장/실패: 설정만 영속, 렌더 캐시는 임시. 필수 자산 누락은 오류, 개발 placeholder 허용은 명시 모드로 구분한다.</li>
+<li>완료 조건: 한국어 200%·패드·무음·색각 차이·설정 재로드·필수 자산 누락 사례에서 T21의 기반 기준을 확인한다.</li>
+</ul>
+<h3>단계 7 — 앞선 규칙을 사용하는 도메인</h3>
+<h4>Task 7-1 — 상점·거래·재입고·경제 lint</h4>
+<ul>
+<li>현 기반 연결: Core/Economy.cs가 Inventory와 지갑을 검증한 뒤 Game의 구매/판매 메서드로 함께 변경한다. 재입고는 EndDay 새날 정산에서만 호출한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-2, 3-5, 3-3. 원본 §6, D2 경제와 판매 통합 결정을 읽는다.</li>
+<li>목적/소유: <code>Core/Economy.cs</code>, <code>Content/Lint/Economy/</code>, 경제 시험.</li>
+<li>입력→출력: 거래 견적/수량·현재 잔액/재고·레시피 조회 → 비용/산출 계획 또는 거부, 차익 진단.</li>
+<li>처리 구조: normal 판매 floor(base×0.4), fine 배율 1, grant 0, loan 금지. 재고 -1/0/양수를 구분하고 절대일별 재입고를 한 번 처리한다.</li>
+<li>경계: 7-3의 제작 구현을 참조하지 않는다. 3-1 Catalog의 레시피 정의로 고정/대체 슬롯·수량·실패 반환·재투입 경로의 구매 차익을 분석한다.</li>
+<li>저장/실패: 견적 후 적용 직전 상태/가격/재고를 재검증해 지갑·스택·재고·원장을 함께 적용한다. 부족/취소는 전체 변경 0.</li>
+<li>완료 조건: 잔액 0, 견적 충돌, 무한/유한 재고, 중복 재입고, 모든 구매 가능한 배합의 양의 차익을 탐지한다.</li>
+</ul>
+<h4>Task 7-2 — 재배·자동 급수·생물 돌봄</h4>
+<ul>
+<li>현 기반 연결: Core/Growing.cs는 Day/Minute와 저장된 wateredDay를 쓴다. EndDay에서 끝난 날 성장 후 새날 급수 순서를 보장한다. 자연 자정에 정산하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-2, 3-5, 3-3. 원본 §6, D2 성장과 출처 최종 보완을 읽는다.</li>
+<li>목적/소유: <code>Core/Growing.cs</code>, 일 정산 시험.</li>
+<li>입력→출력: 물주기/먹이/수확 부위/확정 일경계 → 성장·수급·수확 계획과 관찰 결과.</li>
+<li>처리 구조: 이전날 물준 기록 성장 → 새날 초기화 → 설치 기능 조회로 P01 새날 자동 급수. 물 없으면 정지·죽음 없음. 잎/꽃/씨앗 중 선택한다.</li>
+<li>경계: P01 설치 판정은 확정 기능 조회 메서드로 받는다. 프로젝트 구현이 없어도 대역으로 검사한다. 모든 필수종을 계절과 무관하게 공급할 경로를 제공한다.</li>
+<li>저장/실패: plot/먹이/수확·씨앗 출처를 전파하고 일 작업키로 중복 방지한다. loan은 scope overlay에만 둔다.</li>
+<li>완료 조건: 물 놓침·연속 3일/장기 수면 반복·경계 재전송·P01 개인6칸/온실 수동·grant 수급에서 T10 충족.</li>
+</ul>
+<h4>Task 7-3 — 성질 제작·요리·일괄 제작</h4>
+<ul>
+<li>현 기반 연결: Core/Crafting.cs가 재료·출처·공간을 모두 확인한 후 Game 요청 한 건으로 소비/산출을 적용한다. 별도 revision 저장소는 만들지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-2, 3-1, 3-3. 원본 §6, D2 제작·P07 최종 결정을 읽는다.</li>
+<li>목적/소유: <code>Core/Crafting.cs</code>, 제작 시험. 48개 레시피를 처리하는 공통 알고리즘을 만든다.</li>
+<li>입력→출력: discipline/process/재료 선택/시설/수량 → 미리보기·재료 예약·산출/실패 반환 계획.</li>
+<li>처리 구조: 연금은 정렬된 성질2+process+분야, 요리는 정의 슬롯을 사용한다. 대체 슬롯 중복 배정 금지, P07 batch 1–20은 unit별 출처 계산 후 batch 전체 커밋한다.</li>
+<li>경계: 시설/설치 기능은 읽기 메서드로 받는다. quality는 음식·물약만 standard/fine, 맞는 process 1+공용시설 1로 fine을 만든다.</li>
+<li>저장/실패: 중단 소비0, 실패는 정의 반환물과 제한 출처 유지. discoveredRecipeIds를 저장하고 loan은 영구 소유물로 반출하지 않는다.</li>
+<li>완료 조건: 대체재 혼합/부족/다른 scope/batch 중단/P07 연금·요리 fine에서 T11 충족. 한 unit의 grant 제한을 분할로 없애지 않는다.</li>
+</ul>
+<h4>Task 7-4 — 전투·AI·공격권·회피</h4>
+<ul>
+<li>현 기반 연결: Core/Combat.cs와 RoomRun에서 적/공격권/피해를 틱한다. GameRoot 입력은 Core 요청으로 보내며 Event 중 전투 조작은 정지한다. 전역 상태 롤백은 하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-1, 6-4, 6-6, 3-2. 원본 §7, D1 전투와 최종 공격권 식을 읽는다.</li>
+<li>목적/소유: <code>Core/Combat.cs</code>, <code>Game/CombatView.cs</code>, 전투 시험. Magic의 공통 파일은 수정하지 않는다.</li>
+<li>입력→출력: 교전 정의·명중/환경 반응·설정/입력 → HP/집중력·AI/예고·교전 결과.</li>
+<li>처리 구조: 인지→위치→공격권 요청→고정 방향 예고→공격→회복. 공격권은 min(교전, 프리셋, 3), 대기시간/거리/instanceId 순이다. 8기본+4변형은 등록 behavior 조합으로 만든다.</li>
+<li>경계: 마력탄/회피/장치는 집중력 0에도 가능. sweep 회피, 피격 무적, 자원 회복을 적용한다. defeated/pacified/disabled는 같은 해결 메서드로 종결한다.</li>
+<li>저장/실패: 전투 물리 상태는 방 overlay. 경직/취소/패배 시 공격권 반환, 패배는 현 방만 복구. 3회 패배 시 지원 안내, 감점 없음.</li>
+<li>완료 조건: T14, 동시 적 4체/분열/02시/설정 변경, 공격권 누수0·벽 관통0·숨은 예고 추적0을 실제 실행한다.</li>
+</ul>
+<h4>Task 7-5 — 수업·복습·학습 성장</h4>
+<ul>
+<li>현 기반 연결: Core/Classes.cs와 Content 수업 정의를 추가한다. 실습 완료 결과를 기다리는 EventRun 구체 명령을 구현·검사하며 수업 정의의 시간은 성공 때 한 곳에서 가산한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-2, 6-3, 6-4, 3-3. 원본 §4·§5, 최종 수업 시간 규칙을 읽는다.</li>
+<li>목적/소유: <code>Core/Classes.cs</code>, 수업 시험.</li>
+<li>입력→출력: classId·정규/복습/연습 문맥·과제 결과 → 학습/지원/참여/시간의 커밋 계획.</li>
+<li>처리 구조: 기초/응용24개를 같은 실행기로 수행한다. 도입 후 초급, 서로 다른 초급2→중급, 중급2→응용 주문. 응용 실습은 해당 기초만 요구한다.</li>
+<li>경계: 응용 실습과 3context 응용 해금을 혼동하지 않는다. 도입의 등불·부유 2개를 같은 고유 완료로 기록한다.</li>
+<li>저장/실패: 첫 수락 지급키·학습·완료를 영속. perform은 60분 제안값을 결과로만 담고 마지막 커밋에서 한 번 가산, class event.costMinutes=0. 연습은 비용/보상0.</li>
+<li>완료 조건: 출석0 복습 경로로 전 주문 학습 가능, 중복 수업/지원/시간 0, DOUBLE_CLASS_TIME 거부, 비전투 context만으로 응용 가능.</li>
+</ul>
+<h4>Task 7-6 — 사건·선취 증거·해결 파생·중간 정리</h4>
+<ul>
+<li>현 기반 연결: Core/Story.cs와 GameState의 증거/노드/공유 보상키를 추가한다. EventRun.Complete와 방 성공 요청이 같은 구체 완료 메서드를 호출해 두 경로 재보상을 차단한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-1, 6-3, 6-5, 3-3. 원본 §9·§13과 CaseService 최종 계약을 읽는다.</li>
+<li>목적/소유: <code>Core/Story.cs</code>, 사건 시험.</li>
+<li>입력→출력: 발견/수락·증거·노드 결과 → quest/완료·해결 순서·정리 초대·world projection 계획.</li>
+<li>처리 구조: A–F는 도입만 외부 선행, 내부1→2→3. 수락 전 증거를 병합한다. node3 완료 시 같은 커밋에서 해결/순서/projection과 2/4정리·6최종준비를 파생한다.</li>
+<li>경계: node3 파생이 지갑을 따로 지급하지 않는다. case.reward가 사건 정의 금액을 읽고 노드3/공유키와 함께 검증한다. 전투/장치는 같은 outcome에 합류한다.</li>
+<li>저장/실패: 완료·증거·순서·초대 원장을 영속, 파생 필드 불일치는 거부한다. 중복 노드는 NO_OP, 선취 증거로 내부 인과를 건너뛰지 않는다.</li>
+<li>완료 조건: 내부 역순 거부, 외부 정/역순, 선취 증거, 2/4초대 한 번, 보상/시간 중복0·숨은 날짜/관계/돈 조건0.</li>
+</ul>
+<h4>Task 7-7 — 관계 단계·초대·최종 표현</h4>
+<ul>
+<li>현 기반 연결: Core/Relationships.cs가 참여 집합으로 초대를 파생한다. 현재 Appointments의 Offered/Accepted와 Game.Accept/StartEvent 경로를 확장하되 새 상태가 필요하면 DTO/검사/UI를 함께 바꾼다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-3, 6-2, 4-3, 3-3. 원본 §8과 최종 R2 참여 규칙을 읽는다.</li>
+<li>목적/소유: <code>Core/Relationships.cs</code>, 관계 시험.</li>
+<li>입력→출력: 인사·참여 기록·관계 사건 결과·선물 → 단계/초대/친밀도/우정·연애 표현 계획.</li>
+<li>처리 구조: R1 인사+공동활동1, R2 R1이후 참여2유형, R3 R2+장면 내부 준비. 점수 자체는 해금 조건으로 쓰지 않고 감소/강제 대기일을 두지 않는다.</li>
+<li>경계: R3의 후속 준비는 같은 사건 안이다. 학생6명만 최종 우정/연애 선택, 교직원/주민은 우정. 공공정보·필수 협조는 친밀도와 분리한다.</li>
+<li>저장/실패: 관계 단계·초대·선택을 완료키와 함께 저장한다. 선물은 선택이며 loan 선물 거부. 취소는 초대를 유지한다.</li>
+<li>완료 조건: 선물0으로 36사건 진행 경로, 같은날 연속 초대, R1전 모든 유형 경험 후 재참여, 교직원 연애 거부와 기본 협조 허용.</li>
+</ul>
+<h3>단계 8 — 도메인 연결 기능</h3>
+<h4>Task 8-1 — 배치·되돌리기·회수·영구 투영</h4>
+<ul>
+<li>현 기반 연결: Core/Placement.cs에서 논리 셀과 32×32 타일 footprint를 검사한다. GameState 배치 DTO와 WorldView 표시를 추가하며 출구/침대 접근을 막는 배치를 거부한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-2, 6-1, 3-2, 6-6. 원본 §6·§13, D2 배치를 읽는다.</li>
+<li>목적/소유: <code>Core/Placement.cs</code>, <code>Game/WorldView.cs</code>, 배치 시험.</li>
+<li>입력→출력: 가구·좌표/회전·preview/확정/회수 → 유효 배치 계획·시각 preview·회수 물품.</li>
+<li>처리 구조: 회전 footprint/충돌/출구 연결성 검사 → 확정 시 재검증 → 물품 소비와 배치 저장. 같은 꾸미기 세션의 미저장 조작만 undo한다.</li>
+<li>경계: 사건 변화/시설 기능은 projection 조회로 재구성한다. 장면 소품을 영구 월드에 덮어쓰지 않는다.</li>
+<li>저장/실패: preview/undo 스택은 임시, 확정 placement는 provenance와 함께 영속. 무료 회수는 가방/우편으로 보내며 설치 완료 플래그를 취소하지 않는다.</li>
+<li>완료 조건: 출입구 차단 거부, 회전 후 충돌, 취소 소비0, grant 회수 세탁0, 재로드한 월드 변화 일치.</li>
+</ul>
+<h4>Task 8-2 — 생활 프로젝트·공용 시설·편의 해금</h4>
+<ul>
+<li>현 기반 연결: Core/Projects.cs는 Inventory/Crafting의 검증 결과로 설치 상태와 공유 완료키를 쓴다. GameState 설치 상태를 WorldView가 읽어 영구 변화를 표시한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 7-2, 7-3, 7-6, 7-5, 6-3. 원본 P01–P12와 통합 해금 규칙을 읽는다.</li>
+<li>목적/소유: <code>Core/Projects.cs</code>, 프로젝트 시험. 배치 모듈의 같은 단계 파일을 수정하지 않는다.</li>
+<li>입력→출력: projectId·실험/준비/설치 결과 → 설치 projection·시설/편의 기능·참여 기록 계획.</li>
+<li>처리 구조: 관련 기초 수업 OR 관련 사건 발견 → 첫 수락 지원 → 짧은 실험 → 재료 준비 → 학교 설치 확인 → 기능 활성화. 정의된 레시피/작업으로 연결한다.</li>
+<li>경계: P01 개인6칸 급수, P07 연금·요리 공용시설/일괄 제작, P11 원격대여를 기능 조회 메서드로 공개한다. 다른 서비스 소유 파일을 편집하지 않는다.</li>
+<li>저장/실패: 돈0이면 scope내 대여 실험/학교 설치 확인 가능. loan으로 영구 반출 물품은 만들지 않는다. 완료/projection/참여/소비는 함께 커밋한다.</li>
+<li>완료 조건: 12프로젝트의 정상/무료 경로, 지급품 소진 후 복구, OR를 AND로 바꾼 오류 거부, 중복 설치/보상0.</li>
+</ul>
+<h4>Task 8-3 — 탐험·환경 퍼즐·현장 지원·귀환문</h4>
+<ul>
+<li>현 기반 연결: Core/Rooms.cs에 관찰·장치·대여·도움·거점·귀환 규칙을 확장한다. 미확정 reset은 RoomRun만 복원하며 디스크 불러오기는 하루 저장을 따른다.</li>
+</ul>
+<ul>
+<li>직접 선행: 6-1, 6-4, 7-6, 6-2, 6-5. 원본 §7·§9·§13을 읽는다.</li>
+<li>목적/소유: <code>Core/Rooms.cs</code>, 탐험 시험.</li>
+<li>입력→출력: 방/목표·도구/주문 반응·지원 요청·거점 선택 → 목표 결과·지원 단계·귀환 계획.</li>
+<li>처리 구조: 같은 goals를 주문/대여/수동 조작으로 수행한다. 현장 도움은 goals 순서대로 현재 방의 행동과 결과를 확인시키며 사건 전체를 건너뛰지 않는다.</li>
+<li>경계: 발견한 안전 거점끼리만 귀환, 무료 도구는 모든 필수 단계에 제공. 선택 조사실은 메인18방과 별도12개로 처리한다.</li>
+<li>저장/실패: 확정 거점/증거는 보존, 잘못 배치/패배/reset은 현 방만. 도구 미보유와 가방 초과가 필수 목표를 막지 않는다.</li>
+<li>완료 조건: 도입 두 주문·재산0·낮은 전투 숙련 프로필에서 대표 방 통과, 지원 보상 감점0, 미발견 거점 이동 거부.</li>
+</ul>
+<h4>Task 8-4 — 행사·모임·부탁·지정 지점 동행</h4>
+<ul>
+<li>현 기반 연결: Core/Activities.cs와 Game.Npcs에 동행 규칙을 추가한다. 예약은 기존 Appointments를 사용하며 기한/자동 소멸을 추가하지 않는다. EventStart는 Game의 단일 요청 경로다.</li>
+</ul>
+<ul>
+<li>직접 선행: 7-5, 7-7, 6-3, 6-2, 4-3. 원본 §8·§10을 읽는다.</li>
+<li>목적/소유: <code>Core/Activities.cs</code>, 학교 활동 시험.</li>
+<li>입력→출력: H/C/Q 정의·참여자·회차/예약·동행 요청 → 활동 결과·경험 기록·재예약·동행 편의.</li>
+<li>처리 구조: 해금과 정규 cycleDay를 분리하고 놓쳤으면 즉시 연습 예약한다. 수락 수 제한 없이 추적3개, 고유완료와 연습을 분리한다. 학생 동행은 지정 거점/도움 지점만 구현한다.</li>
+<li>경계: 자유 전투 동료 AI는 만들지 않는다. 행사/모임/부탁/식사의 실제 작업 결과가 있어야 참가자 기록을 만든다.</li>
+<li>저장/실패: 수락/고유완료/하루 동행은 영속, 반복 회차 보상 복제0. 취소·NPC 부재는 초대 유지/예약 합류로 복구한다.</li>
+<li>완료 조건: H4/C8/Q24를 수용하는 공통 흐름, 놓친 행사 본문 잠금0, 동행 없이 모든 필수 경로 가능, 연습 참여와 보상 분리.</li>
+</ul>
+<h4>Task 8-5 — 상태 기반 대사·인물 소개·후일담</h4>
+<ul>
+<li>현 기반 연결: Core/DialogueRules.cs는 GameState의 완료/증거/관계와 Content 문안을 조회한다. Game.Dialogue와 DialogueBox로 표시하며 인물별 전용 실행 스크립트를 만들지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 7-6, 7-7, 6-3, 3-4. 원본 §8·§9, D3 대화 우선순위를 읽는다.</li>
+<li>목적/소유: <code>Core/DialogueRules.cs</code>, <code>Game/DialogueBox.cs</code>, 대사 선택 시험.</li>
+<li>입력→출력: NPC·위치/시기·증거·완료·관계·직전 대사 → 선택 문안/초상/호칭과 읽음 계획.</li>
+<li>처리 구조: 특별 반응→관계 후일담→장소/시기→기본 인사. 첫 등장 소개와 완료 가드를 적용하고 동일 대사 연속 선택을 억제한다.</li>
+<li>경계: 순서별 전체 대본을 720개 만들지 않고 증거별 연결 문장을 조합한다. 공공정보 조회에는 관계 문턱을 두지 않는다.</li>
+<li>저장/실패: 인물 소개/읽음·최근 선택 기록은 저장, UI 캐시는 미저장. 조건이 거짓이면 해당 반응을 선택하지 않는다.</li>
+<li>완료 조건: 정/역/혼합 순서·첫 만남·미완료 후일담에서 미래 사실 누출0, 유효 문안 없을 때 기본 응답과 진단 제공.</li>
+</ul>
+<h4>Task 8-6 — 일 경계·02시·복구 조율</h4>
+<ul>
+<li>현 기반 연결: Game.EndDay와 Core/DayRules.cs에 하루 정산을 모은다. 24시는 계속 진행한다. 02시에 현 방 미확정 상태를 정리한 뒤 EndDay(PassedOut), 침대는 EndDay(Slept)로 합류한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 7-1, 7-2, 7-4, 4-1, 4-2, 4-3. 원본 §3·§13, D2 경계 순서를 읽는다.</li>
+<li>목적/소유: <code>Core/DayRules.cs</code>, 경계 통합 시험.</li>
+<li>입력→출력: Day/Minute·EndDay 요청·현 방 임시 상태 → 정렬된 성장/급수/재입고/일정 처리와 기숙사 귀환.</li>
+<li>처리 구조: 일 작업키 확인 → 이전날 정산 → 새날 초기화 → 새날 급수/재고 → 일정 재계산. 24시는 계속 진행하고 02시에 새 행동을 막아 현 방 미확정 상태를 정리한 뒤 EndDay로 합류한다.</li>
+<li>경계: 전투·성장·시계 모듈을 직접 고치지 않고 구체 규칙 메서드를 조율한다. 다음날07시로 이동하며 건너뛴 날짜도 처리한다.</li>
+<li>저장/실패: 일 작업 원장과 영속 결과를 일치시킨다. 귀환은 현 방 overlay만 폐기하고 다른 확정 상태/초대/단서를 보존한다.</li>
+<li>완료 조건: 장면 비용으로 02시 통과·교전중 02시·연속 여러 날 수면·저장후 경계 재처리에서 성장/재입고/보상 중복0, 정지 교착0.</li>
+</ul>
+<h3>단계 9 — 실제 도메인 조립 장벽</h3>
+<h4>Task 9-1 — Core 규칙 연결·핵심 체험 번들 연결</h4>
+<ul>
+<li>현 기반 연결: Game.cs/Event.cs/Content.cs/GameState.cs/GameRoot.cs를 순차 통합한다. build-fixtures.cjs를 현재 DTO와 새 필드에 맞춘 뒤 재생성·StreamingAssets 비교를 수행한다. EndDay 저장 실패 재시도는 정산을 반복하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 8-1, 8-2, 8-3, 8-4, 8-5, 8-6 및 단계7 전체. 원본 §12·§15, 기존 M2–M5를 읽는다.</li>
+<li>목적/소유: <code>Game/GameRoot.cs</code>, 공통 DTO/지원 호출/사전 검사의 확장, <code>Content/Fixtures/CoreExperience/</code>, 도메인 통합 시험.</li>
+<li>입력→출력: 6–8단계 모듈/등록 명세 → 기숙사·교실·식당·저수로, NPC3·주문4·A사건 양경로·관계1·프로젝트1의 실제 체험.</li>
+<li>처리 구조: 구체 도메인 명령/조건/효과와 EndDay 정산 호출을 연결한다. 지원하지 않는 호출을 배포 전 검사한다. 새 필드는 DTO/기본값/로드 정규화/현재 저장 예제를 함께 갱신한다.</li>
+<li>경계: 각 콘텐츠는 담당 함수와 도메인을 호출한다. A3 전투/장치는 outcome.a_stopped, 후속 수리는 node.a3/증거/case.reward로 합류한다. 중복 시간/보상을 금지한다.</li>
+<li>저장/실패: 활동 중 종료 시 마지막 하루 저장 복귀, 성공 후 수면 저장·재로드, 돈0·선물0·대여/우편·현장 지원을 연결해 검증한다. 최소 연결 A01–A10도 유지한다.</li>
+<li>완료 조건: T01–T17/T19의 대표 연결 통과, 실행 대역이 실제 구현으로 교체됨, 남은 placeholder/미제작 콘텐츠 목록 명시. 사용자 재미 합격은 다음 단계에서 별도 측정한다.</li>
+</ul></article>
+<article id="doc-4"><div class="source">implementation-tasks/03-통합과콘텐츠검증.md</div><h2>Task 10–18: 검증·전체 골격·콘텐츠 확장</h2>
+<p>2026-11-06 현 Core 기반 개정. 아래 작업은 미착수 계획이다. <a href="#doc-1">현재 구조</a>와 <a href="systems/full-design/02-contracts.md">확장 계약</a>을 따른다. 경로는 Assets/MagicCampus 기준이며 새 규칙은 Core, 입력/표시는 Game에 둔다. 전경은 EventRun 최대1, 상태는 GameState, 저장은 수면/02시 EndDay다. 공통 Content.cs/GameState.cs/Game.cs/Event.cs/GameRoot.cs 편집은 같은 단계에서도 순차 진행한다. 별도 규칙/시험 파일만 독립 수행할 수 있다.</p>
+<p>새 명령/DTO/영속 필드는 해당 Task가 구현·기본값·로드 정규화·사전 검사·현재 저장 호환까지 함께 추가한다. perform/완료키/loan/방 상태 등은 현재 미구현 확장이며 기존 v2 스키마에 있다는 이유로 지원된 것으로 보지 않는다.</p>
+<h3>단계 10 — 핵심 체험의 병렬 검증</h3>
+<h4>Task 10-1 — 60–90분 사용자 체험 검증</h4>
+<ul>
+<li>현 기반 연결: 현재 GameRoot 빌드에서 수면/02시·하루 저장 안내까지 사용자 경험으로 확인한다. 일지 중 시간 진행과 미저장 하루 손실을 관찰 기록에 포함한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 9-1. 원본 §1·§12·§16과 기존 M5를 읽는다.</li>
+<li>목적/소유: <code>Validation/CoreExperience/User/</code>의 절차·관찰·결과 보고서. 게임 소스와 공통 콘텐츠를 수정하지 않는다.</li>
+<li>입력→출력: 고정된 체험 빌드/콘텐츠 해시·타깃8명 → 활동별 시간/행동/다음 계획·개선 후보.</li>
+<li>처리 구조: 별도 설명 없이 플레이 → 새 주문 후10분 관찰 → 하루 관리 시간 분류 → 다음 할 일2개/만날 인물1명 질문.</li>
+<li>경계: 양 경로는 전투/생활 선호에 따라 관찰한다. 60–90분 핵심 체험과 원본의 첫2시간 도입 검증을 구분한다.</li>
+<li>저장/실패: 사용한 초기 프로필/지원 요청/포기 위치를 보존한다. 관찰자가 진행을 대신하면 해당 구간을 보조로 기록한다.</li>
+<li>완료 조건: 6/8명의 자발적 계획/응용, 필수 반복20% 이하 목표와 실제값을 비교한다. 미달이어도 수치를 숨기지 않고 11-1 수정 입력으로 넘긴다.</li>
+</ul>
+<h4>Task 10-2 — 시스템 경계·복구·양경로 통합 검증</h4>
+<ul>
+<li>현 기반 연결: 현재 Core와 실제 Player를 검사한다. Event1개·RoomRun·02시 정리·하루 저장·tmp/bak·공유 보상키를 재현하고 옛 임대/Handle 로그를 요구하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 9-1. <a href="#doc-5">인수기준</a> T02–T17·T19를 읽는다.</li>
+<li>목적/소유: <code>Tests/Integration/CoreSystems/</code>, <code>Validation/CoreExperience/Technical/</code>. 사용자 관찰 데이터와 별도 영역이다.</li>
+<li>입력→출력: 동일 고정 빌드·실패 프로필 → 재현 입력/trace/초기·결과 상태와 결함 목록.</li>
+<li>처리 구조: 돈0·선물0·출석0·가방초과·NPC 경합·02시·전투3패·각 커밋 전후 종료를 조합한다. A3 두 경로 공통 수리/보상을 확인한다.</li>
+<li>경계: 합격할 때까지 테스트 코드를 구현과 똑같이 바꾸지 않는다. 소유 모듈 수정은 11-1에서 진행한다.</li>
+<li>저장/실패: 실행별 저장/해시를 분리하고 필수품 유실·부분소비·완료키 중복·임시 실행 상태 잔존를 검사한다.</li>
+<li>완료 조건: 대표 회귀의 기대/실제/실패 위치가 모두 기록되고 진행 차단·데이터 손상 결함이 식별된다. 이후 장벽은 중대 결함0일 때만 닫는다.</li>
+</ul>
+<h3>단계 11 — 핵심 체험 수정 장벽</h3>
+<h4>Task 11-1 — 검증 결과 반영·기준 계약 재확정</h4>
+<ul>
+<li>현 기반 연결: 수정은 Core/Game의 실제 파일에 적용한다. GameState/Content 변경 시 현재 저장 기본값/정규화·사전 검사·UI를 함께 갱신하고 Core/Player 회귀를 나누어 기록한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 10-1, 10-2. 결과 보고서와 해당 원본 요구를 읽는다.</li>
+<li>목적/소유: 결함에 해당하는 모듈/콘텐츠·공통 계약·회귀 보고서. 단독 작업으로 공유 파일 충돌을 막는다.</li>
+<li>입력→출력: 재현 가능한 결함/재미 미달 → 원인 수정·재시험·고정된 차기 기준 빌드.</li>
+<li>처리 구조: 차단/유실/중복을 우선 수정 → 수업 밖 활용/동선/관리 부담 조정 → 영향 항목 회귀 → 계약/스키마/예제/Task의 변경점 동기화.</li>
+<li>경계: 새로운 기능을 계속 추가해 미달을 덮지 않는다. API가 바뀌면 다음 단계가 사용할 포트를 다시 확정한다.</li>
+<li>저장/실패: 버전 변경 시 migration fixture를 추가하고 기존 하루 저장을 보존한다. 미해결 중대 결함은 다음 단계 진입을 막는다.</li>
+<li>완료 조건: 기술 차단0·A01–A10 유지, 사용자 미달의 재검증 결과/남은 위험 명시. 이후 전체 콘텐츠 제작을 시작할 근거가 기록된다.</li>
+</ul>
+<h3>단계 12 — 자유 진행과 전체 골격</h3>
+<h4>Task 12-1 — 독립 사건·최종 실습·엔딩 후 생활 골격</h4>
+<ul>
+<li>현 기반 연결: Core/Story.cs와 GameState.FinalState를 확장한다. 최종 실습 전 별도 보관 파일은 이 Task에서 명시적으로 추가하는 예외다. 일반 저장은 계속 EndDay만 수행한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 11-1, 7-6, 8-3, 8-5. 원본 §9·§15, 기존 M6를 읽는다.</li>
+<li>목적/소유: <code>Core/Story.cs</code>, <code>Content/Fixtures/FullSkeleton/</code>, 골격 통합 씬/시험. 공유 GameRoot 변경도 이 Task만 소유한다.</li>
+<li>입력→출력: 독립2사건 실제 경로 + 나머지 사건 임시 노드 → 정/역순4–6시간 검증 경로와 6해결/최종/엔딩후 연결.</li>
+<li>처리 구조: 2/4정리 초대 → 6완료 ready → 플레이어 수동 시작 → 미완료 목록/별도 보관 저장 → 세 구간 조정 → 전투/안정화 합류 → 선택3표현 → 생활 복귀.</li>
+<li>경계: 최종담당 친구 stage≥2면 친구, 아니면 교직원 대체. 날짜/재산/친밀도/성적은 입장 조건이 아니다. 임시 노드를 완성 콘텐츠로 세지 않는다.</li>
+<li>저장/실패: 보관 저장 실패 시 원본을 유지하고 최종 시작을 보류한다. 재로드/다른 표현 선택에서 고유 보상 중복0, 엔딩후 기존 진행 유지.</li>
+<li>완료 조건: 2사건 정·역순 실제 플레이와 전체6사건 상태 골격, 두 최종 경로/3표현/보관저장/미완료 생활이 연결된다.</li>
+</ul>
+<h4>Task 12-2 — 콘텐츠 제작 규약·검수표·분할 소유권</h4>
+<ul>
+<li>현 기반 연결: 제작 양식은 현재 Content DTO와 구현된 명령 목록에서 만든다. 오래된 functions.json/full-catalog를 런타임 계약으로 배포하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 11-1, 3-1. 원본 §11·§15와 현재 카탈로그·원본 추적표를 읽는다.</li>
+<li>목적/소유: <code>Docs/ContentProduction/</code>, <code>Content/ProductionManifest/</code>. 12-1의 골격 데이터/소스를 편집하지 않는다.</li>
+<li>입력→출력: 검증된 콘텐츠 스키마/함수 사전 → 영역별 작성 양식·ID 예약·수량/대사/에셋 검수 규약.</li>
+<li>처리 구조: 원본ID→Row→행동/대안→힌트→저장/보상→자산→인수항목을 하나의 체크리스트로 만든다. 양 경로는 제작량2개·플레이시간1개로 센다.</li>
+<li>경계: 단계15 팩은 기존 배열 형식의 조각이며 런타임 문법을 새로 만들지 않는다. 각 팩 ID/경로를 분리하고 공통 카탈로그·런타임 자산 manifest는 단계16만 편집한다.</li>
+<li>저장/실패: 콘텐츠 버전/ID 재사용 금지/삭제 치환 정책을 기록한다. 본문/맵/자산이 미완성인 Row는 placeholder 상태로 표시한다.</li>
+<li>완료 조건: 15-1–15-7의 저작 소유권·원본 수량·필수 대체경로·완료 판정표가 확정되어 같은 파일 동시 수정이 필요하지 않는다.</li>
+</ul>
+<h3>단계 13 — 골격의 병렬 검증</h3>
+<h4>Task 13-1 — 자유 순서 모델·대표 실플레이·복구 프로필</h4>
+<ul>
+<li>현 기반 연결: Core의 실제 Story 완료 메서드를 720순열 모델에 사용하고 GameRoot 대표 플레이로 보완한다. Day/Minute와 무상 경로가 외부 사건 순서를 잠그지 않는지 검사한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 12-1, 12-2. 원본 §13·§16과 T18을 읽는다.</li>
+<li>목적/소유: <code>Tests/StoryOrder/</code>, <code>Validation/FullSkeleton/Order/</code>, 재현용 프로필.</li>
+<li>입력→출력: 고정 골격·A–F 정의 → 720순열 상태 검사와 대표 정/역/혼합 플레이 결과.</li>
+<li>처리 구조: 외부독립/내부선행/2·4정리/6최종을 모델로 확인한 뒤 실제 경로·첫소개·증거 연결·관계/행사 경합을 대표 순서로 검사한다.</li>
+<li>경계: 720모델 통과를 720회 Unity 플레이로 보고하지 않는다. 돈0/출석0/선물0/낮은 전투 숙련도 별도 프로필로 검사한다.</li>
+<li>저장/실패: 각 순서의 최초 실패 상태/입력/완료키/힌트 경로를 보존한다. 자동 완료로 막힘을 숨기지 않는다.</li>
+<li>완료 조건: 필수 경로 존재·외부 장벽0·중복 보상0·미완료 후일담0. 결함은 단계14 수정 입력으로 반환한다.</li>
+</ul>
+<h4>Task 13-2 — 저장 장애·호환·강제 종료 검증</h4>
+<ul>
+<li>현 기반 연결: SaveFile의 tmp/Replace/Move/bak와 현재 무버전 GameState부터의 필드 추가 호환을 검사한다. 일반 장면 중 종료는 마지막 하루 저장 복귀가 기대값이다.</li>
+</ul>
+<ul>
+<li>직접 선행: 12-1, 4-2. T20과 최종 영속 스키마를 읽는다.</li>
+<li>목적/소유: <code>Tests/SaveFaults/</code>, <code>Validation/FullSkeleton/Storage/</code>, 손상/구버전 fixture.</li>
+<li>입력→출력: 고정 빌드·저장 세대·중단 지점 → 복구 세대/상태 diff/호환 진단.</li>
+<li>처리 구조: 각 노드 전후, 파일 임시쓰기/검증/백업/교체 각 시점 종료 → 정상 세대 로드. 현재 무버전 저장→추가 필드 버전·ID/보상키 치환·해시 불일치·디스크 실패를 검사한다.</li>
+<li>경계: 13-1의 플레이 저장을 수정하지 않는다. fixture는 읽기 원본과 작업 복사본을 구분한다.</li>
+<li>저장/실패: 정상본 보존, loan/실행 포인터 미저장, Accepted 유지, 보상과 완료 동일 세대 보장.</li>
+<li>완료 조건: 유실/부분 보상/세대 혼합0, 복구 불가 시 원인과 원본 보존. 지원 플랫폼별 파일 교체 보장 범위를 기록한다.</li>
+</ul>
+<h4>Task 13-3 — 기기·한국어·접근성·자산 검증</h4>
+<ul>
+<li>현 기반 연결: WorldView/DialogueBox/GameRoot, 32×32 실제 아트, Settings 재로드를 검사한다. 새 입력 장치 지원은 구현된 경우에만 통과 대상으로 표시한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 12-1, 6-6, 12-2. 원본 §14와 T21/T22를 읽는다.</li>
+<li>목적/소유: <code>Validation/FullSkeleton/Game/</code>, 화면/기기 증거. 공통 UI·폰트·런타임 자산 manifest를 수정하지 않는다.</li>
+<li>입력→출력: 고정 빌드·설정·타깃 화면/입력 장치 → 가독성/초점/예고/음향·자산 결함.</li>
+<li>처리 구조: 한국어200%·가장 긴 대사/선택지·작은 화면·패드 재연결·무음/색각·섬광 축소·중첩 효과·pixel 떨림을 실제 확인한다.</li>
+<li>경계: 화면 시안이나 정적 HTML을 실제 게임 증거로 사용하지 않는다. 기본 해상도·폰트 결정은 측정에 근거해 제안한다.</li>
+<li>저장/실패: 설정 재로드와 초점 복원 확인, missing asset/placeholder를 별도로 집계한다.</li>
+<li>완료 조건: 기능 인지 실패와 단순 외관 차이를 재현 가능하게 기록하고 최종 제작에 필요한 자산/가독성 기준을 제시한다.</li>
+</ul>
+<h3>단계 14 — 전체 골격 확정 장벽</h3>
+<h4>Task 14-1 — 진행·저장·표시 결함 수정과 제작 기준 동결</h4>
+<ul>
+<li>현 기반 연결: 현재 Core 타입·Content 정의·지원 호출·GameState 기본값/호환·GameRoot 표시를 제작 기준으로 동결한다. 구형 서비스/스키마를 복원하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 13-1, 13-2, 13-3. 결과와 원본 요구를 읽는다.</li>
+<li>목적/소유: 영향 모듈·공통 Core 호출·스키마·조립·제작 규약의 단독 수정, 회귀 결과.</li>
+<li>입력→출력: 골격 결함/결정 후보 → 검증된 런타임 기준과 단계15 저작 계약.</li>
+<li>처리 구조: 진행 막힘·저장 손상·입력/가독성 실패 수정 → 영향 회귀 → 데이터 계약/자산 규약 확정. 변경된 인터페이스를 모든 Task에 반영한다.</li>
+<li>경계: 다른 단계의 미완성 기능을 가정해 장벽을 닫지 않는다. content-only 추가가 가능한 범위와 새 알고리즘 개발 범위를 구분한다.</li>
+<li>저장/실패: ID/스키마 변화의 migration을 검증한다. 중대 결함이 남으면 병렬 콘텐츠 확장 보류.</li>
+<li>완료 조건: 720모델/대표경로/저장/입력 기준 통과, 첫연결 회귀 유지, 제작자가 같은 틀로 추가할 수 있는 ID/경로/검수 기준 확정.</li>
+</ul>
+<h3>단계 15 — 독립 콘텐츠 팩 병렬 제작</h3>
+<p>다음 일곱 작업은 앞선 스키마/함수만 사용한다. <code>Content/Authoring/&lt;팩&gt;/</code>와 <code>Validation/Content/&lt;팩&gt;/</code>만 각자 편집하며 공유 카탈로그·GameRoot·함수 사전·저장 스키마·런타임 자산 manifest는 편집하지 않는다. 외부 팩 참조는 12-2/14-1에서 예약한 ID로 작성하고, 대상이 아직 미제작이면 예약 참조와 실제 검증을 구분해 단계16에서 닫는다. 공유 DTO/호출을 바꾸는 작업은 앞 작업의 변경을 확인한 뒤 순차 진행한다.</p>
+<h4>Task 15-1 — 주문·수업·적·교전 정의 팩</h4>
+<ul>
+<li>현 기반 연결: Content의 실제 주문/수업/적 DTO와 Core/Magic·Classes·Combat이 지원하는 명령으로 작성한다. 32×32 논리 타일 좌표와 실제 교전 결과를 검사한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 7-4, 7-5, 6-4. 원본 M01–M12/수업24/적8+4를 읽는다.</li>
+<li>목적/소유: <code>Content/Authoring/MagicSchoolCombat/</code>. 정의와 수업 내부 실습 fixture를 작성한다.</li>
+<li>입력→출력: 고정 함수/스키마·ID 예약 → 주문12·조합6·수업24·적12·큰교전7의 정의/정상·부정 사례.</li>
+<li>처리 구조: 주문별 교실 밖 활용과 비전투 context3개, 3발동 틀, 행동 변형1개 이상, 양경로 합류 포트를 채운다.</li>
+<li>경계: 주요 사건 방 배치는 15-2, 실제 아트/음향은 15-7 소유다. 전투 코드 새 알고리즘이 필요하면 확장으로 분리해 재계획한다.</li>
+<li>저장/실패: 지원 지급키·연습0보상·시간단일소유·공유 완료키를 검사한다.</li>
+<li>완료 조건: 수량/참조/호출 lint, 각 주문 실제 활용·적 예고/대응·교전 결과의 실행 검수 기록. 최종 자산 검수는 단계16/17에서 닫는다.</li>
+</ul>
+<h4>Task 15-2 — 주요 사건·최종 실습·필수 맵 팩</h4>
+<ul>
+<li>현 기반 연결: Story/Rooms의 실제 정의에 18노드와 공유 완료키를 채운다. perform 등 호출은 구현된 구체 명령일 때만 쓰고 JSON만으로 새 알고리즘을 추가하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 12-1, 8-3. 원본 A–F/18노드/최종3선택을 읽는다.</li>
+<li>목적/소유: <code>Content/Authoring/MainStory/</code>. 메인 동선·노드 Row·사건 본문·공공 대사·해결방을 소유한다.</li>
+<li>입력→출력: 고정 이야기 규칙·외부 주문/교전 ID → 6×3 실제 노드, 6해결방 양경로, 증거/2·4정리/최종/엔딩 표현.</li>
+<li>처리 구조: 각 방의 관찰·목표·힌트·무료 도구·안전점·공통 후속을 작성한다. 각 사건은 다른 사건 경험을 가정하지 않는 질문/증거로 끝난다.</li>
+<li>경계: 관계/일상 대사432묶음은 15-4, 선택 조사실은 15-6이다. 메인방과 별도 조사실을 중복 집계하지 않는다.</li>
+<li>저장/실패: node3/증거/case.reward 공유키, 선취 증거·단계 지원·현방reset·엔딩후 미완료 생활을 연결한다.</li>
+<li>완료 조건: 18노드의 임시 목표/본문 제거, 모든 필수 단계의 무료 경로, 양경로 동일 보상, 증거/후일담/최종 조건 검수.</li>
+</ul>
+<h4>Task 15-3 — 생활·경제·프로젝트 팩</h4>
+<ul>
+<li>현 기반 연결: Inventory/Economy/Growing/Crafting/Projects가 읽는 Content 배열에 저작한다. Day 기반 성장/재입고와 EndDay 저장 왕복을 실행 검수한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 7-1, 7-2, 7-3, 8-1, 8-2. 원본 §6/P01–P12를 읽는다.</li>
+<li>목적/소유: <code>Content/Authoring/LifeEconomy/</code>. 아이템·식물·레시피·시설·가구·상점·프로젝트 정의를 소유한다.</li>
+<li>입력→출력: 고정 생활 서비스·도구 ID → 식물12/레시피48/프로젝트12·공급 경로·가격/출처/배치 데이터.</li>
+<li>처리 구조: 연금12+요리8+마도구8+가구20, 프로젝트의 실험/준비/설치/생활 변화와 수업OR발견 해금을 채운다.</li>
+<li>경계: 개별 식물명/배합은 원본 미확정 제안임을 명시해 기획 검수한다. 프로젝트에서 발생하는 NPC 경험은 예약된 활동 ID로 연결한다.</li>
+<li>저장/실패: 공급0/돈0/지급 소진/대여 혼합/수확 출처/시설 회수와 품질을 검증한다. 모든 구매 재료·대체조합의 차익≤0.</li>
+<li>완료 조건: 수량과 공급/손익 lint, 12설치 기능·P07 fine요리/연금·P11 이전대여·필수가구 출구 보호 실행 검수.</li>
+</ul>
+<h4>Task 15-4 — NPC·관계 사건·일상 대사 팩</h4>
+<ul>
+<li>현 기반 연결: 현재 NpcDef/ScheduleDef를 확장한 확정 DTO로 12명을 작성한다. Schedule과 World.WalkTo 이동, Appointments 유지, 관계 성공 기록을 검수한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 7-7, 8-5, 4-3. 원본 N01–N12/R01–R36/대화432를 읽는다.</li>
+<li>목적/소유: <code>Content/Authoring/Relationships/</code>. 주요 NPC 일정·소개·관계 본문·일상 대사·후일담을 소유한다.</li>
+<li>입력→출력: 고정 경험/관계/대사 규칙 → NPC12·행동 포함 관계36·기본288/상황144묶음.</li>
+<li>처리 구조: 각 사건에 공동 행동·선택·반응·남는 변화와 대여/수동 대안을 넣는다. 학생6 우정/연애는 최종 표현을 변형한다.</li>
+<li>경계: 주요 사건의 공공 대사는 15-2가 소유한다. 일상/관계 반응에서 사건 증거를 독점하거나 미완료 사실을 가정하지 않는다.</li>
+<li>저장/실패: R1 이후 기존 유형 재참여 인정, 선물/수치 문턱 없음, 초대 유지·예약 합류·최종 projection을 검수한다.</li>
+<li>완료 조건: 36개 실제 행동·432묶음 검수, 선물0 관계경로, 정/역순/첫소개 문안 가드, 교직원/주민 우정 완결.</li>
+</ul>
+<h4>Task 15-5 — 행사·모임·부탁 팩</h4>
+<ul>
+<li>현 기반 연결: Activities의 실제 정의와 현재 단일 EventRun/RoomRun 경계를 따른다. 행사 회차의 임시 장식은 저장하지 않고 고유 완료/참여만 GameState에 기록한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 8-4. 원본 H01–H04/C01–C08/Q01–Q24를 읽는다.</li>
+<li>목적/소유: <code>Content/Authoring/Activities/</code>. 활동 본문·장면 전용 배치·예약 회차를 소유한다.</li>
+<li>입력→출력: 고정 활동 서비스·참가자 ID → 행사4·모임8·작은부탁24개 실제 콘텐츠.</li>
+<li>처리 구조: 준비/실제 조작/결과/공동 경험을 정의한다. 정규 행사일9/29/49/69는 시험 프로파일이며 해금 후 연습 예약은 상시 제공한다.</li>
+<li>경계: 기존 프로젝트·관계의 준비를 새 부탁으로 중복 집계하지 않는다. 파괴적 영구 월드 배치 대신 장면 배치/허용 projection을 쓴다.</li>
+<li>저장/실패: 기한 없음, 수락/연습/완료/보상 분리, 필요한 도구 무료 경로·NPC 예약을 제공한다.</li>
+<li>완료 조건: 36개 고유 활동의 실제 행동/본문/보상, 놓친 행사/미보유 프로젝트 대안, 반복회차 중복집계0.</li>
+</ul>
+<h4>Task 15-6 — 선택 조사실·권역 확장 팩</h4>
+<ul>
+<li>현 기반 연결: 현재 MapDef/PortalDef와 Rooms 정의로 권역/방을 작성한다. 포털 진입·BFS 도달·침대/귀환 경로를 콘텐츠 사전 검사에 포함한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 8-3. 원본 X01–X12/4권역/45초 동선 목표를 읽는다.</li>
+<li>목적/소유: <code>Content/Authoring/OptionalExploration/</code>. 별도12조사실과 그 진입/귀환 연결 조각을 소유한다.</li>
+<li>입력→출력: 고정 방/태그 반응·권역 경계 ID → 숲/저수로/관측소/서고 각3조사실의 실제 맵/목표/힌트.</li>
+<li>처리 구조: 원리 학습→변형 적용으로 구성하고 권역마다 생물/수위/빛공명/기록의 문제 구조를 구분한다. 보상은 표현/편의 중심이다.</li>
+<li>경계: 15-2 필수 맵을 덮어쓰지 않고 예약된 출입구 ID에 연결 조각을 납품한다. 미완료가 엔딩 필수 능력을 잠그지 않는다.</li>
+<li>저장/실패: 입장 체크포인트·거점 등록·무료도구·현장도움·우편·미확정전리품 정책을 각 방에 적용한다.</li>
+<li>완료 조건: 별도12개 확인, 주문 부족/재산0/방reset/역방문 경로, 필수 동선45초 목표와 빈 왕복을 실제 측정한다.</li>
+</ul>
+<h4>Task 15-7 — 픽셀 자산·UI·초상·음향 팩</h4>
+<ul>
+<li>현 기반 연결: 기존 Art/Stage5-v1와 Game/WorldView 표시 계약을 확장한다. 타일은 32×32, 원본 이미지→지정 로컬 파이프라인 도트화→원본/결과 함께 보관한다. 이미지 작업은 프로젝트 지침의 gpt-6.1-sol medium 서브 에이전트가 수행한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 14-1, 6-6, 12-2. 원본 §14/16화면 시안과 확정 자산 목록을 읽는다.</li>
+<li>목적/소유: <code>Art/</code>, <code>Audio/</code>, <code>Game/ProductionSkins/</code>, <code>Content/Authoring/AssetDelivery/</code>.</li>
+<li>입력→출력: 예약 assetKey·해상도/밀도/시각언어·표시 포트 → 실제 타일/스프라이트/초상/UI/효과음/환경음과 바인딩 제안표.</li>
+<li>처리 구조: 인물 실루엣·행동 외곽·색/형태/소리 일치·예고 가독성·텍스트 별도층을 제작한다. 공통 입력/동작/규칙을 바꾸지 않는다.</li>
+<li>경계: 다른 팩의 맵/Row와 공유 런타임 자산 manifest는 수정하지 않는다. 사전에 예약한 크기/anchor/clip 계약으로 만들어 완성 팩 납품을 기다리지 않는다.</li>
+<li>저장/실패: 자산 참조는 논리 key로 유지한다. 저작권/출처·미수신/placeholder·누락을 목록에 표시하고 임의 대체를 완성으로 보고하지 않는다.</li>
+<li>완료 조건: 목록에 필요한 실제 자산/키/주소/표시검수와 누락 목록 납품. 각 콘텐츠와의 최종 결합은 단계16에서 검사한다.</li>
+</ul>
+<h3>단계 16 — 전체 콘텐츠 조립 장벽</h3>
+<h4>Task 16-1 — 전체 팩 병합·원본 대응·버전 확정</h4>
+<ul>
+<li>현 기반 연결: Content DTO 기반 번들·런타임 manifest·GameBuild 복사를 한 후보로 묶는다. 구형 카탈로그 해시를 현 저장의 필수 필드로 요구하지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 15-1, 15-2, 15-3, 15-4, 15-5, 15-6, 15-7. 제작 manifest와 원본343항목 추적표를 읽는다.</li>
+<li>목적/소유: <code>Content/ReleaseCandidate/</code>, 공유 카탈로그/등록표/런타임 자산 manifest·버전, 전체 조립 씬과 보고서.</li>
+<li>입력→출력: 독립 팩/자산/검수 결과 → 단일 검증 Content·실제 바인딩·콘텐츠 후보 빌드.</li>
+<li>처리 구조: ID중복/예약 미실현/교차참조/문-맵 연결 → 수량/호출/손익/무료 경로 → 원본 요구 대응 → 실제 자산 해석 → 통합 실행 순서로 검사한다.</li>
+<li>경계: stage15의 로컬 검수 통과를 전체 합격으로 간주하지 않는다. 함수 신규 구현 필요 발견 시 선행 단계로 되돌려 계약/구현/검증을 추가한다.</li>
+<li>저장/실패: 빌드 콘텐츠 해시(증거용)·버전·ID 치환·보상키 migration을 같이 확정하며 오류 팩 부분 로드0, 기존 정상본 보존.</li>
+<li>완료 조건: 원본ID에 실제 정의/맵/본문/힌트/도구/자산/인수항목 연결, placeholder·누락·중복집계0 또는 출시 차단 항목으로 명시, 전체 로드/저장/엔딩 실행 가능.</li>
+</ul>
+<h3>단계 17 — 전체 게임 병렬 검증</h3>
+<h4>Task 17-1 — 전구간 플레이·시간 예산·재미 검증</h4>
+<ul>
+<li>현 기반 연결: 동일 Core/Game 후보에서 활동별 시간을 측정한다. 수면/02시와 하루 저장에 의한 재진행 시간을 구별하고 강제 대기로 분량을 늘리지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 16-1. 원본 §11·§12·§16을 읽는다.</li>
+<li>목적/소유: <code>Validation/FullGame/User/</code>. 게임/밸런스 파일을 편집하지 않는다.</li>
+<li>입력→출력: 동일 후보 빌드·12명 이상 타깃 → 첫2시간 성공률·양경로 경험·전체 활동별 시간·인터뷰.</li>
+<li>처리 구조: 첫2시간 10/12 도입/다음선택 목표, 폭넓은 체험의 중앙값36–44시간, 반복20% 이하를 측정한다. 필수 서사630분/기획총2402분과 실측을 구분한다.</li>
+<li>경계: 메인 집중12–18시간은 가설이다. 도입 수업/사건내전투/관계준비/재등장활동은 이중 집계하지 않는다.</li>
+<li>저장/실패: 지원/포기/막힘 프로필과 관찰 범위를 기록한다. 전체를 소진하지 않은 참여자를 같은 중앙값으로 섞지 않는다.</li>
+<li>완료 조건: 목표 대비 실제값·분포·누락/빈동선/실패 반복 원인과 조정 제안. 짧으면 강제대기 대신 콘텐츠 누락부터, 길면 정리/왕복/실패부터 분석한다.</li>
+</ul>
+<h4>Task 17-2 — 전구간 기술 회귀·플랫폼·저장·순서 검증</h4>
+<ul>
+<li>현 기반 연결: 현재 Core 검사와 실제 GameBuild Player에 A/T 기준을 실행한다. 무버전 현재 저장부터 지원하는 로드, tmp/bak, EndDay 저장, 별도 최종 보관 예외를 확인한다.</li>
+</ul>
+<ul>
+<li>직접 선행: 16-1. 전체 A01–A10/T01–T22를 읽는다.</li>
+<li>목적/소유: <code>Tests/Regression/FullGame/</code>, <code>Validation/FullGame/Technical/</code>. 17-1 관찰 저장과 분리한다.</li>
+<li>입력→출력: 고정 후보·최종 Content/에셋·지원 플랫폼 → 자동/수동 회귀 결과와 차단 결함.</li>
+<li>처리 구조: 콘텐츠 추가 후720모델/대표실플레이, 모든 주요노드 전후 저장, 양경로, 대사, 무료복구, 디스크장애·입력/가독성·성능을 확인한다.</li>
+<li>경계: 성능 예산은 1-1 플랫폼 ADR과 측정 결과를 따르며 임의 FPS/메모리 보장값을 발명하지 않는다. 정적 사례는 실제 조작 시험과 분리한다.</li>
+<li>저장/실패: 최종 후보의 migration/파일 내용 검증(도입 시)/미저장표시/보관저장/엔딩후생활을 반복 검증한다.</li>
+<li>완료 조건: 진행차단/저장손상/중복보상/필수품유실0, 원본대응과 실제검증 연결, 실패 재현과 영향 Task 목록 완비.</li>
+</ul>
+<h3>단계 18 — 최종 수정과 구현 결과 보고</h3>
+<h4>Task 18-1 — 결함·분량 조정·회귀·최종 보고</h4>
+<ul>
+<li>현 기반 연결: 최종 보고는 실제 Core/Game/Content/GameState 변경과 검증 범위를 연결한다. 남은 32px 자산/미구현 호출/저장 호환/플레이 미달을 완료로 숨기지 않는다.</li>
+</ul>
+<ul>
+<li>직접 선행: 17-1, 17-2. 전체 검증 결과와 원본 조정 규칙을 읽는다.</li>
+<li>목적/소유: 영향 모듈·프로파일·콘텐츠·공통 버전/문서의 단독 수정과 최종 결과 보고.</li>
+<li>입력→출력: 기술/체험 결함 → 수정한 후보·회귀 증거·완료/잔여 항목 보고.</li>
+<li>처리 구조: 저장/진행 차단 우선 → 빈동선/관리/연속실패 조정 → 필요한 기존 콘텐츠 수정 → 영향 시험 재실행. 수량이 바뀌면 원본대응/manifest/시간예산을 함께 갱신한다.</li>
+<li>경계: 자동 배포/상점 출시는 이 Task의 범위가 아니다. 모든 검증이 끝나기 전 완성/재미 보장이라고 보고하지 않는다.</li>
+<li>저장/실패: 최종 migration과 기존 저장 회귀, 버전/해시/변경기록을 보존한다. 남은 위험은 재현·영향·후속 Task로 명시한다.</li>
+<li>완료 조건: 중대결함0, 요구별 실제 결과와 잔여 제한을 구분한 보고서, 재현 가능한 빌드/검증 자료. 재미/분량 미달이 남으면 완료 대신 해당 검증 장벽을 유지한다.</li>
+</ul></article>
+<article id="doc-5"><div class="source">implementation-tasks/인수기준.md</div><h2>현재 기반 인수 기준</h2>
+<p>2026-11-06. 이 문서는 현재 Core 기준의 시험 계획이며 통과 보고서가 아니다. <a href="systems/07-validation-results.md">실제 결과</a>를 별도로 읽는다. 기존 A/T 번호는 추적용으로 유지하되 기대값을 새 구조에 맞췄다.</p>
+<h3>Task5까지 A01–A10</h3>
+<div class="table-wrap"><table><tbody>
+<tr><th>기준</th><th>조작</th><th>현재 기대값과 증거</th></tr>
+<tr><td>A01</td><td>배포 3번들과 invalid 6종 사전 검사</td><td>지원 DTO/호출/참조/경로를 Tests/Core에서 확인. 런타임 타입 컴파일·Pointer/offset을 요구하지 않음</td></tr>
+<tr><td>A02</td><td>intro_done=false에서 StartEvent</td><td>false, Event/Hidden/효과/시각 변화0</td></tr>
+<tr><td>A03</td><td>가까운 NPC 초대 수락·시작</td><td>Offered→Accepted, Event 하나, 숨김 recipe 배치. 수락 직후 파일 없음</td></tr>
+<tr><td>A04</td><td>dest-moved JSON으로 실행</td><td>C# 변경 없이 해당 위치/반경 도착</td></tr>
+<tr><td>A05</td><td>이동 중 확인 입력</td><td>실제 도착 전에 다음 say 표시0</td></tr>
+<tr><td>A06</td><td>두 선택 각각 실행</td><td>고른 fork만, 지갑+20/완료/비용+10/약속 제거1회</td></tr>
+<tr><td>A07</td><td>성공 후 수면 저장·재로드</td><td>Day+1/07시/침대/보상/완료 일치, NPC는 일정 배치, 재보상0</td></tr>
+<tr><td>A08</td><td>이동/대사/선택 취소, 저장 전 종료</td><td>취소는 Actor 복원·효과0·약속 유지. 종료/로드는 마지막 하루 저장으로 복귀</td></tr>
+<tr><td>A09</td><td>경로 불가·JSON 손상·중복 취소</td><td>경로 불가 사전 검출/null·예외를 관측, JSON 손상 bak 복구, 중복 취소 무효. timeout/동적 문 복구를 구현 완료로 요구하지 않음</td></tr>
+<tr><td>A10</td><td>a10-mira 번들로 추가 NPC/이벤트</td><td>전용 실행 코드 없이 이동/선택/하루 저장 경로. 실제 Unity 증거 별도</td></tr>
+</tbody></table></div>
+<p>추가 필수 관측: 24시 계속 진행, 02시 기절, 이벤트 중 EndDay 거부, 메뉴 정지/일지 시간 진행, 저장 전 완료가 파일을 쓰지 않음. 현재 아트 16px와 제작 기준32px 불일치는 미해결 표시한다.</p>
+<h3>후속 Task6–18 T01–T22</h3>
+<div class="table-wrap"><table><tbody>
+<tr><th>번호</th><th>대상</th><th>기대값</th></tr>
+<tr><td>T01</td><td>호출·데이터</td><td>구현된 명령만 사전 검사. 새 문법은 구현/정상·부정 사례와 같이 추가</td></tr>
+<tr><td>T02</td><td>전경 독점</td><td>Event1개, 다른 시작 거부, 약속 유지. 자원 임대 큐 없음</td></tr>
+<tr><td>T03</td><td>취소·실패</td><td>Actor/RoomRun 임시 상태 정리, 미확정 효과0, 중복 취소 무효</td></tr>
+<tr><td>T04</td><td>정지·입력</td><td>메뉴 전체 정지, 현재 일지/초대는 입력만 차단, 전경 이동은 진행</td></tr>
+<tr><td>T05</td><td>이동</td><td>대각 정규화·포털 진입·BFS 도착·불가 경로. sweep/패드는 도입 후 별도 시험</td></tr>
+<tr><td>T06</td><td>시간·일정</td><td>Day/Minute 단일 원천, 비용 성공1회, 이벤트 후 현시각 일정 복귀</td></tr>
+<tr><td>T07</td><td>하루 종료</td><td>24시 진행, 02시 방 미확정 정리 후 EndDay, 다음날07시 침대</td></tr>
+<tr><td>T08</td><td>출처·대여</td><td>grant 전파, loan 임시만, 판매/선물/설치/저장 반출 차단</td></tr>
+<tr><td>T09</td><td>거래·우편</td><td>적용 전 잔액/공간/출처 검사, 부분 차감0·중복수령0, 단서 별도 기록</td></tr>
+<tr><td>T10</td><td>성장·돌봄</td><td>끝난 날 물 기록 성장 후 새날 급수, 죽음0, 동일 Day 중복 정산0</td></tr>
+<tr><td>T11</td><td>제작·배치</td><td>batch 전체 소비/산출, P07 fine, 출구/침대 보호, grant 회수 유지</td></tr>
+<tr><td>T12</td><td>주문</td><td>고유 context, 등록6조합, impact 중복 반응0·무제한 연쇄0</td></tr>
+<tr><td>T13</td><td>수업</td><td>출석0 복습 경로, 서로 다른2과목, 비용/지급1회</td></tr>
+<tr><td>T14</td><td>전투</td><td>무료 공격/회피, HP0 현 방 reset, 공격권 min(교전,프리셋,3)</td></tr>
+<tr><td>T15</td><td>양 해결 경로</td><td>같은 outcome·공통 수리·공유 보상키로 증거/노드/보상1회</td></tr>
+<tr><td>T16</td><td>관계</td><td>선물0, R1 후 다른2유형 재참여 인정, 평생 첫 유형+8 분리</td></tr>
+<tr><td>T17</td><td>대사·동행</td><td>미래 사실 누출0, 동행 없이 메인 가능, 일정 이동·좁은 문</td></tr>
+<tr><td>T18</td><td>사건·엔딩</td><td>720순열 모델+대표 실제 플레이, 내부선행만, 6해결 후 수동 최종</td></tr>
+<tr><td>T19</td><td>활동</td><td>행사 놓침 연습, 기한 없는 약속, 추적3, 반복 고유집계0</td></tr>
+<tr><td>T20</td><td>저장·호환</td><td>EndDay tmp/bak 단일 상태, JSON 손상 복구, 현재 무버전 저장부터 추가 필드 로드. 내용 검증/버전은 도입한 범위로 시험</td></tr>
+<tr><td>T21</td><td>표시·설정</td><td>한국어200%, 작은 화면, 설정 왕복, 색/형태/자막. 새 장치 지원 범위 명시</td></tr>
+<tr><td>T22</td><td>자산·수량</td><td>32×32 타일 실제 자산, 원본/도트화 비교, 실제 정의/도구/대사/에셋 수량, placeholder 구분</td></tr>
+</tbody></table></div>
+<h3>검증 구분과 사용자 장벽</h3>
+<p>Core 시험은 dotnet run --project Tests/Core/MagicCampus.Core.Tests.csproj다. Unity 빌드 진입은 MagicCampus.Game.Editor.GameBuild.Build이며 씬을 다시 생성하므로 기존 씬 수정 보존을 먼저 확인한다. 이 문서 개정에서는 씬을 재생성하지 않는다.</p>
+<p>60–90분 6/8명 다음 행동2개·인물1명/자발적 주문 응용, 첫2시간10/12명 도입과 다음 선택, 필수 반복20% 이하, 폭넓은 체험 중앙값36–44시간은 후속 실측 목표다. 2402분 기획 합계를 실측으로 보고하지 않는다.</p>
+<p>기록은 코드 revision, 실제 입력 콘텐츠 해시, Unity/플랫폼, 시작 fixture, Day/Minute/이벤트, 조작, 전후 GameState, 저장 파일 유무/내용, 기대/실제/미실행으로 남긴다. 없는 tick sequence/revision/Handle 로그를 요구하지 않는다. 모델 검사·Core·Windows 플레이·사용자 결과를 구분한다.</p></article><footer>Markdown 원문에서 생성 · node design/build-current-plans.cjs · Unity 전체 인수 결과와 문서 검사는 별도입니다.</footer></main></div></body></html>

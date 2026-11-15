@@ -1,0 +1,50 @@
+[
+  {
+    "id": "autumn-tree",
+    "size": [4, 5],
+    "frames": [
+      {"source": "source/garden-original.png", "crop": [14, 15, 603, 551], "fit": "contain", "colors": 84}
+    ],
+    "blocked": [[1, 0], [2, 0]]
+  },
+  {
+    "id": "garden-lamp",
+    "size": [1, 3],
+    "frames": [
+      {"source": "source/garden-original.png", "crop": [719, 24, 120, 533], "fit": "contain", "colors": 72}
+    ],
+    "blocked": [[0, 0]]
+  },
+  {
+    "id": "flower-border",
+    "size": [3, 2],
+    "frames": [
+      {"source": "source/garden-original.png", "crop": [984, 178, 540, 295], "fit": "contain", "colors": 88}
+    ],
+    "blocked": [[0, 0], [1, 0], [2, 0]]
+  },
+  {
+    "id": "garden-planter",
+    "size": [2, 2],
+    "frames": [
+      {"source": "source/garden-original.png", "crop": [670, 626, 382, 313], "fit": "contain", "colors": 80}
+    ],
+    "blocked": [[0, 0], [1, 0]]
+  },
+  {
+    "id": "ivy-balustrade",
+    "size": [4, 2],
+    "frames": [
+      {"source": "source/garden-original.png", "crop": [37, 645, 559, 315], "fit": "contain", "colors": 88}
+    ],
+    "blocked": [[0, 0], [1, 0], [2, 0], [3, 0]]
+  },
+  {
+    "id": "flower-bank",
+    "size": [2, 2],
+    "frames": [
+      {"source": "source/garden-original.png", "crop": [1103, 681, 401, 246], "fit": "contain", "colors": 72}
+    ],
+    "blocked": [[0, 0], [1, 0]]
+  }
+]

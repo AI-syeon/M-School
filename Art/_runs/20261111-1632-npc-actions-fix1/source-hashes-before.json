@@ -1,0 +1,66 @@
+﻿[
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-actions-prompt.json",
+        "Hash":  "C56380D886CBCDAD8AB2435202D03C96418094CF1D9727C9DD804CFF421D4E5D"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-chat-original.png",
+        "Hash":  "CE003510CDED9BE1376A6F245F27CEE2A9849BBE07375A9AF135B84C44691F28"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-eat-original.png",
+        "Hash":  "856E5E52E1EB969BEA49C0D6228BEA7A8AAFCE476A7867DEC3A7C56AA555CA5E"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-original.png",
+        "Hash":  "88A96B9F31CA01EEAC3F7B699FDE456119AF2A12710762F9CD28A46C91FF9FEE"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-prompt.json",
+        "Hash":  "681F7CEEF48E09570B1FB902D1D68154A4884E31F790807604BBA3C63770937D"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-read-original.png",
+        "Hash":  "088F25555A2C4BD5BEEE5416FB32BC45E2D5C9C387D859A5F60635181C45628F"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-mira-write-original.png",
+        "Hash":  "A0ABBCEA0D9B034D4EC39EF114FB793E6C353F6041E0C238857E63A8BB51AD58"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-actions-prompt.json",
+        "Hash":  "6EBA5017784FB5D5A927EBE2A0FFEFCBD8788DC429618BAF8FEDE0954BA7B37D"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-chat-original.png",
+        "Hash":  "C4444117FE604DD52A2363983570FC0EB31CC3DEC9199180E608D562C92501E2"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-eat-original.png",
+        "Hash":  "239A551E607817D5035442B2F8949AF69D6ECFF209013030A3F2F5E2A78BBEF9"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-original.png",
+        "Hash":  "960AF3D5CB3239CAD9F82C6C394F1C51B79A95A385FC7578E470667FAA36B23B"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-prompt.json",
+        "Hash":  "E8E7D46F00D85F3B3295921579F4901AA16BCCE3197E56FA518D81A24C977FB0"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-read-original.png",
+        "Hash":  "9D92F5FB6E05508129C624EF41010685A43AACF7D25BAD41AE4B97DACDD37B6C"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\npc-serin-write-original.png",
+        "Hash":  "5F086FE76728CAC220FD083931F9E13D98B0FEFE226726A7CF4E878870C3D2C2"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\player-original.png",
+        "Hash":  "6E801D00791F1BED4EF9AA7F5A85CB1FE41D66D7A74EBD83B25E098FD4437363"
+    },
+    {
+        "Path":  "C:\\Users\\syeon\\Workspace\\MagicCampus\\Art\\Characters\\source\\player-prompt.json",
+        "Hash":  "2D059E12C6B8F315B89ECDD054C7D48FC106EF0C97F25DD5321386C29592B79F"
+    }
+]

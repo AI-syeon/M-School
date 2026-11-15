@@ -1,0 +1,37 @@
+[
+  {
+    "id": "quest.first_light",
+    "title": "안뜰 안내판에 불 켜기",
+    "giver": "npc.serin",
+    "description": "중앙 안뜰의 안내판이 꺼져 있어서 신입생들이 길을 헤매고 있어. 등불 주문으로 불을 켜 줄래?",
+    "availableFromDay": 0,
+    "steps": [
+      { "check": "tag target.signboard lit", "label": "등불 주문으로 안내판에 불 켜기" }
+    ],
+    "reward": { "crowns": 10, "items": [] }
+  },
+  {
+    "id": "quest.lounge_snack",
+    "title": "휴게실에서 간식 모임",
+    "giver": "npc.serin",
+    "description": "학생 휴게실에 한 번 들러 봐. 서린이 같이 실습 노트를 정리하자고 했어.",
+    "availableFromDay": 0,
+    "steps": [
+      { "check": "visited map.lounge", "label": "학생 휴게실에 가 보기" },
+      { "check": "done event.snack", "label": "서린과 간식 모임 하기" }
+    ],
+    "reward": { "crowns": 15, "items": [] }
+  },
+  {
+    "id": "quest.dry_seedpot",
+    "title": "마른 화분 되살리기",
+    "giver": null,
+    "description": "안뜰 구석의 씨앗 화분이 바싹 말라 있다. 싹틔움으로 씨앗을 깨우고, 불씨로 껍질을 열어 보자.",
+    "availableFromDay": 1,
+    "steps": [
+      { "check": "tag target.seedpot germinating", "label": "싹틔움 주문으로 씨앗 깨우기" },
+      { "check": "tag target.seedpot husk_open", "label": "불씨 주문으로 껍질 열기" }
+    ],
+    "reward": { "crowns": 25, "items": [ { "itemId": "item.crystal_dust", "count": 2 } ] }
+  }
+]

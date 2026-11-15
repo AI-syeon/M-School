@@ -1,0 +1,10 @@
+{
+  "file": "ui-kit-original.png",
+  "tool": "image_gen.imagegen",
+  "reference": [
+    "design/screens/06-room.png",
+    "design/screens/16-journal.png",
+    "Art/CampusGrid/review/courtyard-unity.png"
+  ],
+  "prompt": "Use case: ui-mockup. Create a single production concept sheet for a 32px-tile magical campus pixel-art RPG UI kit. Reference image 1 is bedroom style and navy/gold fabric, reference image 2 is journal room style, reference image 3 is the actual courtyard whose UI must fit. Build a restrained elegant deep navy and warm two-tone antique gold visual language. Sheet on neutral dark grey with neatly separated empty UI components: one rectangular 48x48 nine-slice dialogue panel with tiny geometric corner ornaments contained within 16px corners, three 48x24 buttons normal selected disabled, two 40x40 inventory slots normal selected with a clear empty 32x32 interior, two 40x40 quickslots normal selected with small empty digit area top-left, one 48x20 namebox. Show large nearest-neighbor pixel-art renderings, flat navy bodies, crisp 1px dark outside edge, 1-2px two-tone gold lines. Selected is a brighter gold ring, disabled muted. Include a row of 14 solid palette swatches sampled from these components. No text, no letters, no numerals, no icons, no gradients, no glowing blur. Components must have untextured flat center areas and clear small-scale pixel readability. Nine total components. This is the original source concept for deterministic pixel production."
+}

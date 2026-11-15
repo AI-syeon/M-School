@@ -1,0 +1,16 @@
+9종 아이콘 제작을 완료했습니다.
+
+파일
+- Assets/MagicCampus/Art/Items/ — 최종 PNG 9개와 manifest.json
+- Art/Items/source/ — 변경 없이 보관한 원본과 프롬프트·크롭 좌표
+- Art/Items/build_items.py — 결정론적 빌드
+- Art/Items/review/ — 배경별 미리보기와 원본 비교
+- Art/_runs/20261111-0922-items/ — 검증 기록
+
+검증 통과
+- 전부 32×32 RGBA, 가장자리 완전 투명, 알파 0/255
+- 아이콘 점유 최대 길이 24–28px, 공통 불투명 색상 32개
+- 1배·확대, UI 슬롯·포장 타일에서 시각 확인
+- 재빌드한 13개 산출물과 검증 기록의 바이트 일치
+
+남은 문제는 발견하지 못했습니다.

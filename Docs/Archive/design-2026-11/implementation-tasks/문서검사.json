@@ -1,0 +1,674 @@
+{
+  "date": "2026-11-06",
+  "scope": "current Core planning edition; Core test results recorded separately; Unity not rerun",
+  "taskCount": 56,
+  "stageCount": 18,
+  "checks": {
+    "uniqueTaskIds": true,
+    "requiredTaskFields": true,
+    "allFutureTasksBoundToCore": true,
+    "dependencies": "prior stage, except explicit sequential 4-1 → 4-2",
+    "localLinksChecked": 79,
+    "htmlAnchors": true
+  },
+  "coreEvidence": "../../Tests/Results/current-core-planning/core-tests.log",
+  "html": [
+    {
+      "file": "프로그래머_구현계획서.html",
+      "documents": 6,
+      "anchors": 6
+    },
+    {
+      "file": "systems/시스템_기획서.html",
+      "documents": 8,
+      "anchors": 8
+    },
+    {
+      "file": "마법학교_전체시스템기획서.html",
+      "documents": 26,
+      "anchors": 26
+    }
+  ],
+  "sourceHashes": {
+    "implementation-tasks/README.md": "d4c546cf99f45c4a41642aecd5adf1aabce11da61124312fa7e7514615369a8f",
+    "implementation-tasks/구현구조.md": "283e58dc8f9710371f1aff7a677d626ead225886a760120012aeee8d3e927589",
+    "implementation-tasks/01-기반과최소연결.md": "e12c83b00b662d1a798847eed72322c9e38ab29732b48fc69766c491998d3bfb",
+    "implementation-tasks/02-게임시스템.md": "4f9b52c0f27205da1729bd227ef1fccdfc873ee143287c0cfb88d5dfb6a31e9c",
+    "implementation-tasks/03-통합과콘텐츠검증.md": "5f6eda624f09747b071235f9462c167ce66693b188cf119f6cd02a897da498fe",
+    "implementation-tasks/인수기준.md": "3613244e08b5a9e16e909972c73b12f05eedf9bb692f8bb29e9fa32d053c9822",
+    "systems/README.md": "65efe967b32d4ac6925ceb391c57e27fdc30d9b8c5ef483fbe5fdc6c57d28169",
+    "systems/01-requirements.md": "3d7b06ef5a8bbd069f1bde0988ace6733b1294e574e1a646d330f24e3e8fcdab",
+    "systems/02-architecture.md": "20d16203d276a6bfac025272b79f67c4cfdd3677f835676e2a274a2e32f8a57c",
+    "systems/03-systems.md": "6bb758279e509b7a97c90116f0029f76ec2b6c2693c90325dbdc5bd00bbda4c8",
+    "systems/04-data-authoring.md": "6d0a7a18676d7daeb98c2d5b95e1173d0c380be53ca0db486440563e2eae9e7c",
+    "systems/05-implementation.md": "e96d3599eccac17d92932be688731f4d70465a1df4e779e09636bb5ed674e0fd",
+    "systems/06-verification.md": "81500848c157ad68742d25b3a5c37bdb82a1f61828f510649cf49893d6ff9776",
+    "systems/07-validation-results.md": "c8dbef0e7ff743d42b438eb7ce41d608db76c033bf5e9861f863de70c9997334",
+    "systems/full-design/README.md": "42e57e02ff9f052fef1431d043513aa921cb59590760028785d548e2dc492d49",
+    "systems/full-design/02-contracts.md": "e9f1c8b670209d46326801fc6a5b2079bd294ab4f198c2139a959b9ac68b796e",
+    "systems/full-design/03-integration.md": "e71c12b439140e9c1ebdea76d53d2785e4773d608bbdc9b7899fbc420f28ab52",
+    "systems/full-design/04-data-contracts.md": "6d0a7a18676d7daeb98c2d5b95e1173d0c380be53ca0db486440563e2eae9e7c",
+    "systems/full-design/05-implementation.md": "35e743b437983968a290307d3dfbc100900cdad660d09de9db66c145b424c55e",
+    "systems/full-design/08-field-dictionary.md": "e30273c61f2390530b1d4116397727c54ce6bfa6d793e999bd1575505b941602",
+    "systems/full-design/09-adoption.md": "b119ab1caf3c5ab374ec6793c10bd35ec12049761ab27735f6877180aa5a5aca",
+    "systems/full-design/10-review-resolution.md": "0d75d119e267517f59bb0bd1d65792414668ddf8a630f4b352c383bb4e4781bc",
+    "systems/full-design/11-function-syntax.md": "89884af77ef47b8eeda9eb3d561015f271ff081c6ab8552a5637f72a4a1bd060",
+    "systems/full-design/domains/domain-01.md": "7e6279aa1a536e37785c21ef71e8ebd91ee6def0e7329d23d363eeb319103b9b",
+    "systems/full-design/domains/domain-02.md": "d0263bb82ab57e2f153b8307b4101e09545c25e603aafe296098d97040675eac",
+    "systems/full-design/domains/domain-03.md": "76931e15f3024a4795b8c9e9633fc9ae077e51cdce2edaec4708c3fd6f03aff4"
+  },
+  "errors": [],
+  "tasks": [
+    {
+      "id": "1-1",
+      "stage": 1,
+      "title": "기반 기술·실제 코드 경계 확정",
+      "dependencies": [],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "2-1",
+      "stage": 2,
+      "title": "콘텐츠 DTO와 단순 호출 파싱",
+      "dependencies": [
+        "1-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "2-2",
+      "stage": 2,
+      "title": "가변 GameState와 임시 Actor 경계",
+      "dependencies": [
+        "1-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "2-3",
+      "stage": 2,
+      "title": "단일 Game 루프·전경 독점·메뉴 정지",
+      "dependencies": [
+        "1-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "2-4",
+      "stage": 2,
+      "title": "격자·충돌·포털·입력 연결",
+      "dependencies": [
+        "1-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "2-5",
+      "stage": 2,
+      "title": "GameState JSON 파일 교체",
+      "dependencies": [
+        "1-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "3-1",
+      "stage": 3,
+      "title": "배포 콘텐츠 사전 규칙 검사",
+      "dependencies": [
+        "2-1",
+        "2-2"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "3-2",
+      "stage": 3,
+      "title": "공통 BFS 경로와 이벤트 도착",
+      "dependencies": [
+        "2-2",
+        "2-4"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "3-3",
+      "stage": 3,
+      "title": "조건·성공 효과·eventId 완료 방지",
+      "dependencies": [
+        "2-1",
+        "2-2"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "3-4",
+      "stage": 3,
+      "title": "대화·선택 UI와 확인 입력",
+      "dependencies": [
+        "2-2",
+        "2-3"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "3-5",
+      "stage": 3,
+      "title": "생활일 시계와 02시 종료 판정",
+      "dependencies": [
+        "2-2",
+        "2-3"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "4-1",
+      "stage": 4,
+      "title": "EventRun 순차 실행과 취소",
+      "dependencies": [
+        "3-1",
+        "3-2",
+        "3-3",
+        "3-4",
+        "3-5"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "4-2",
+      "stage": 4,
+      "title": "하루 저장·불러오기·세션 손실 경계",
+      "dependencies": [
+        "2-5",
+        "3-5",
+        "4-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "4-3",
+      "stage": 4,
+      "title": "NPC 일정·초대 수락·현시각 복귀",
+      "dependencies": [
+        "3-1",
+        "3-2",
+        "3-5"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "4-4",
+      "stage": 4,
+      "title": "현재 시작 fixture와 변형 콘텐츠",
+      "dependencies": [
+        "3-1"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "5-1",
+      "stage": 5,
+      "title": "현재 기반 통합 검증·남은 차이 확인",
+      "dependencies": [
+        "4-1",
+        "4-2",
+        "4-3",
+        "4-4"
+      ],
+      "file": "implementation-tasks/01-기반과최소연결.md"
+    },
+    {
+      "id": "6-1",
+      "stage": 6,
+      "title": "방 체크포인트·overlay·공통 목표 실행",
+      "dependencies": [
+        "5-1",
+        "4-2",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "6-2",
+      "stage": 6,
+      "title": "인벤토리·출처·대여·우편",
+      "dependencies": [
+        "5-1",
+        "2-2",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "6-3",
+      "stage": 6,
+      "title": "공동 경험·참여·친밀도 원장",
+      "dependencies": [
+        "5-1",
+        "2-2",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "6-4",
+      "stage": 6,
+      "title": "주문 시전·태그 반응·제한 조합",
+      "dependencies": [
+        "5-1",
+        "3-1",
+        "3-2",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "6-5",
+      "stage": 6,
+      "title": "수첩 조회·힌트 기록·다음 행동",
+      "dependencies": [
+        "5-1",
+        "3-1",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "6-6",
+      "stage": 6,
+      "title": "접근성·설정·자산 표시 기반",
+      "dependencies": [
+        "5-1",
+        "3-4"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-1",
+      "stage": 7,
+      "title": "상점·거래·재입고·경제 lint",
+      "dependencies": [
+        "6-2",
+        "3-5",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-2",
+      "stage": 7,
+      "title": "재배·자동 급수·생물 돌봄",
+      "dependencies": [
+        "6-2",
+        "3-5",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-3",
+      "stage": 7,
+      "title": "성질 제작·요리·일괄 제작",
+      "dependencies": [
+        "6-2",
+        "3-1",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-4",
+      "stage": 7,
+      "title": "전투·AI·공격권·회피",
+      "dependencies": [
+        "6-1",
+        "6-4",
+        "6-6",
+        "3-2"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-5",
+      "stage": 7,
+      "title": "수업·복습·학습 성장",
+      "dependencies": [
+        "6-2",
+        "6-3",
+        "6-4",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-6",
+      "stage": 7,
+      "title": "사건·선취 증거·해결 파생·중간 정리",
+      "dependencies": [
+        "6-1",
+        "6-3",
+        "6-5",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "7-7",
+      "stage": 7,
+      "title": "관계 단계·초대·최종 표현",
+      "dependencies": [
+        "6-3",
+        "6-2",
+        "4-3",
+        "3-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "8-1",
+      "stage": 8,
+      "title": "배치·되돌리기·회수·영구 투영",
+      "dependencies": [
+        "6-2",
+        "6-1",
+        "3-2",
+        "6-6"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "8-2",
+      "stage": 8,
+      "title": "생활 프로젝트·공용 시설·편의 해금",
+      "dependencies": [
+        "7-2",
+        "7-3",
+        "7-6",
+        "7-5",
+        "6-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "8-3",
+      "stage": 8,
+      "title": "탐험·환경 퍼즐·현장 지원·귀환문",
+      "dependencies": [
+        "6-1",
+        "6-4",
+        "7-6",
+        "6-2",
+        "6-5"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "8-4",
+      "stage": 8,
+      "title": "행사·모임·부탁·지정 지점 동행",
+      "dependencies": [
+        "7-5",
+        "7-7",
+        "6-3",
+        "6-2",
+        "4-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "8-5",
+      "stage": 8,
+      "title": "상태 기반 대사·인물 소개·후일담",
+      "dependencies": [
+        "7-6",
+        "7-7",
+        "6-3",
+        "3-4"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "8-6",
+      "stage": 8,
+      "title": "일 경계·02시·복구 조율",
+      "dependencies": [
+        "7-1",
+        "7-2",
+        "7-4",
+        "4-1",
+        "4-2",
+        "4-3"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "9-1",
+      "stage": 9,
+      "title": "Core 규칙 연결·핵심 체험 번들 연결",
+      "dependencies": [
+        "8-1",
+        "8-2",
+        "8-3",
+        "8-4",
+        "8-5",
+        "8-6"
+      ],
+      "file": "implementation-tasks/02-게임시스템.md"
+    },
+    {
+      "id": "10-1",
+      "stage": 10,
+      "title": "60–90분 사용자 체험 검증",
+      "dependencies": [
+        "9-1"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "10-2",
+      "stage": 10,
+      "title": "시스템 경계·복구·양경로 통합 검증",
+      "dependencies": [
+        "9-1"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "11-1",
+      "stage": 11,
+      "title": "검증 결과 반영·기준 계약 재확정",
+      "dependencies": [
+        "10-1",
+        "10-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "12-1",
+      "stage": 12,
+      "title": "독립 사건·최종 실습·엔딩 후 생활 골격",
+      "dependencies": [
+        "11-1",
+        "7-6",
+        "8-3",
+        "8-5"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "12-2",
+      "stage": 12,
+      "title": "콘텐츠 제작 규약·검수표·분할 소유권",
+      "dependencies": [
+        "11-1",
+        "3-1"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "13-1",
+      "stage": 13,
+      "title": "자유 순서 모델·대표 실플레이·복구 프로필",
+      "dependencies": [
+        "12-1",
+        "12-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "13-2",
+      "stage": 13,
+      "title": "저장 장애·호환·강제 종료 검증",
+      "dependencies": [
+        "12-1",
+        "4-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "13-3",
+      "stage": 13,
+      "title": "기기·한국어·접근성·자산 검증",
+      "dependencies": [
+        "12-1",
+        "6-6",
+        "12-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "14-1",
+      "stage": 14,
+      "title": "진행·저장·표시 결함 수정과 제작 기준 동결",
+      "dependencies": [
+        "13-1",
+        "13-2",
+        "13-3"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-1",
+      "stage": 15,
+      "title": "주문·수업·적·교전 정의 팩",
+      "dependencies": [
+        "14-1",
+        "7-4",
+        "7-5",
+        "6-4"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-2",
+      "stage": 15,
+      "title": "주요 사건·최종 실습·필수 맵 팩",
+      "dependencies": [
+        "14-1",
+        "12-1",
+        "8-3"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-3",
+      "stage": 15,
+      "title": "생활·경제·프로젝트 팩",
+      "dependencies": [
+        "14-1",
+        "7-1",
+        "7-2",
+        "7-3",
+        "8-1",
+        "8-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-4",
+      "stage": 15,
+      "title": "NPC·관계 사건·일상 대사 팩",
+      "dependencies": [
+        "14-1",
+        "7-7",
+        "8-5",
+        "4-3"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-5",
+      "stage": 15,
+      "title": "행사·모임·부탁 팩",
+      "dependencies": [
+        "14-1",
+        "8-4"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-6",
+      "stage": 15,
+      "title": "선택 조사실·권역 확장 팩",
+      "dependencies": [
+        "14-1",
+        "8-3"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "15-7",
+      "stage": 15,
+      "title": "픽셀 자산·UI·초상·음향 팩",
+      "dependencies": [
+        "14-1",
+        "6-6",
+        "12-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "16-1",
+      "stage": 16,
+      "title": "전체 팩 병합·원본 대응·버전 확정",
+      "dependencies": [
+        "15-1",
+        "15-2",
+        "15-3",
+        "15-4",
+        "15-5",
+        "15-6",
+        "15-7"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "17-1",
+      "stage": 17,
+      "title": "전구간 플레이·시간 예산·재미 검증",
+      "dependencies": [
+        "16-1"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "17-2",
+      "stage": 17,
+      "title": "전구간 기술 회귀·플랫폼·저장·순서 검증",
+      "dependencies": [
+        "16-1"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    },
+    {
+      "id": "18-1",
+      "stage": 18,
+      "title": "결함·분량 조정·회귀·최종 보고",
+      "dependencies": [
+        "17-1",
+        "17-2"
+      ],
+      "file": "implementation-tasks/03-통합과콘텐츠검증.md"
+    }
+  ]
+}

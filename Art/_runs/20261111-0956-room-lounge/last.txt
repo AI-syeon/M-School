@@ -1,0 +1,11 @@
+room-lounge 제작 완료.
+
+생성 파일은 source/room-lounge-*-original.png와 프롬프트 JSON, room-lounge-art.json, room-lounge-map.json, build_lounge.py, prepared/lounge/, 런타임 Rooms/room-lounge/입니다. rebuild-rooms.ps1과 check_room.py도 확장했습니다.
+
+검증 통과. 맵 320×256, 셀 32×32, 알파 0/255, 셀당 14–63색입니다. 문 (4,0) 개방, 테이블 충돌은 정확히 (4,3)이며, 주변 네 칸과 벽난로·게시판 앞까지 연결됩니다. 이동 가능 35칸 모두 도달 가능합니다.
+
+벽난로는 6프레임·8fps입니다. 두 번 빌드 결과가 바이트 단위로 동일했고, 기숙사 출력 7개 파일도 기존과 일치했습니다. 1배·3배 시각 검수를 마쳤습니다.
+
+리뷰는 Art/CampusGrid/review/room-lounge/의 room-lounge-vs-keyart.png, room-lounge-grid.png, fireplace.apng에 있습니다. 분해 계획과 검사 기록은 지정된 런 폴더에 보관했습니다.
+
+키아트의 무대 구성을 소형 휴게실 배치로 바꿨으며, 버건디·네이비·황동·별 장식을 반영했습니다. Unity 런타임 확인은 미실행입니다.

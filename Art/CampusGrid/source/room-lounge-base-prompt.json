@@ -1,0 +1,10 @@
+{
+  "file": "room-lounge-base-original.png",
+  "tool": "image_gen.imagegen (built-in)",
+  "reference": [
+    "design/screens/12-club.png",
+    "design/screens/02-classroom.png",
+    "Art/CampusGrid/source/room-dorm-base-original.png"
+  ],
+  "prompt": "Use case: stylized-concept. Asset type: source architecture for a 32x32 tiled cozy magic academy lounge. Input reference images: club screen establishes burgundy/navy brass celestial academy style; classroom establishes honey wood furniture and paneling; dorm base establishes the exact orthogonal RPG oblique top-down camera. Create ONLY an empty room base with no furnishings or decorations. Landscape 5:4 image. Rear wall occupies upper 24 percent, honey oak wainscot and cream plaster with timber posts. Two narrow timber side walls at edges, low front rail at bottom with one open doorway at 45 percent horizontal position. Large uninterrupted honey oak plank floor. Straight aligned horizontal plank courses with staggered joints. Pixel-art-like hard clustered material edges with warm detailed restrained texture. No perspective convergence, orthogonal straight edges. Upper-left material shading ONLY. Even ambient lighting, no cast shadows, no sunlight, no gradients, no characters, no furniture, no text, no signs, no loose props. Entire canvas opaque, edge to edge room architecture."
+}

@@ -43,10 +43,10 @@ namespace MagicCampus.Core
         public const int MaxRunes = 5, MinRune = 1, MaxRune = 4, QuickSlotCount = 4, AppliedContexts = 3;
         public static readonly string[] RequirementKinds = { "statAtLeast", "levelAtLeast", "itemCountAtLeast" };
         /// <summary>
-        /// Requirement kinds some game system can read today. Empty until stat, level and inventory exist; the bundle check rejects a
+        /// Requirement kinds some game system can read today. Only the inventory exists so far; stat and level wait for their systems; the bundle check rejects a
         /// shipped spell that asks for any other kind.
         /// </summary>
-        public static readonly string[] ProvidedKinds = new string[0];
+        public static readonly string[] ProvidedKinds = { "itemCountAtLeast" };
 
         readonly Game game;
         readonly Dictionary<string, Dictionary<string, double>> live = new Dictionary<string, Dictionary<string, double>>();

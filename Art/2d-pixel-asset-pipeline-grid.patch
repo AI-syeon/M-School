@@ -1,0 +1,330 @@
+diff --git a/AGENTS.md b/AGENTS.md
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -7,7 +7,7 @@
+ - Use the local environment at `.venv/Scripts/python.exe` on Windows. If it is missing, run `powershell -ExecutionPolicy Bypass -File scripts/setup.ps1` from the project root. Do not rely on a globally installed `python` command.
+ - For bulk procedural assets, edit `recipes/starter.json` or add a recipe, then run `.venv/Scripts/pixel-assets.exe <recipe> --out <build-directory>`. Keep separate output directories for distinct recipes.
+ - Keep shipped/source artwork under `assets/`; `build/` is generated and ignored. Never overwrite an existing art asset unless the user requests replacement; use a new name or version.
+-- For hand-authored or generated character animation, keep individual transparent PNG frames, an atlas, and a JSON manifest with absolute frame rectangles and FPS. The witch example is `assets/characters/witch-attack/` and is rebuilt with `.venv/Scripts/python.exe scripts/build_witch_attack.py`.
++- For hand-authored or generated character animation, export one fixed-cell RGBA sprite sheet and a JSON manifest with top-left frame rectangles and FPS. Keep authored input frames as source art. Use a complete object as the cell for multi-tile props. Export an aligned normal sheet by default. The witch example is `assets/characters/witch-attack/` and is rebuilt with `.venv/Scripts/python.exe scripts/build_witch_attack.py`.
+ - Prefer 16x16 or 32x32 tiles, 32x64 or 64x128 character cells, RGBA PNG, a consistent palette, and nearest-neighbor scaling. Match any different dimensions explicitly requested by the user.
+ - The default procedural generator has no per-call API cost. Use an image generation provider only when the requested art needs it; do not introduce billed API calls silently. `sprite-gen` is an optional reference workflow, not a dependency of the local generator.
+ - When changing generator code, run `.venv/Scripts/python.exe -m unittest discover -s tests -q`. For an asset change, verify image dimensions, alpha, and animation frame counts; inspect the visual result.
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -27,17 +27,30 @@
+ python -m pixel_pipeline.cli recipes/starter.json --out build
+ ```
+ 
+-`--only tiles`, `--only characters`, `--only screens`로 한 종류만 생성합니다. 기본 레시피는 **144개 타일, 28개 캐릭터 프레임, 36개 전체 화면 프레임**, 합계 **208개 PNG 프레임**과 아틀라스·미리보기를 만듭니다. 출력은 `build/catalog.json`에서 탐색합니다.
++`--only tiles`, `--only characters`, `--only props`, `--only screens`로 출력 범위를 선택합니다. 결과 목록은 `build/catalog.json`에 있습니다.
+ 
+ ## 출력 규격
+ 
+-| 종류 | 크기 | 출력 |
++| 종류 | 슬라이스 크기 | 출력 |
+ | --- | --- | --- |
+-| 타일 | 16×16 또는 32×32 | 개별 RGBA PNG, `atlas.png`, 절대 좌표 `manifest.json` |
+-| 캐릭터 | 기본 32×64 | 상태별 RGBA PNG, `sprite-sheet-alpha.png`, `animation.rows`와 `frame_layout.rows` |
+-| 전체 화면 효과 | 레시피 지정, 예시 320×180 | 투명 PNG 시퀀스, `preview.gif`, 순서·fps·반복 정보 |
++| 지형 타일 | 16×16 또는 32×32 | 개별 PNG와 `atlas.png` |
++| 캐릭터 | 기본 32×64 | `sprite-sheet-alpha.png` 한 장과 상태별 프레임 좌표 |
++| 가구·기물 | 가로 칸 수 × 세로 칸 수에 타일 크기를 곱한 값 | 정적 기물은 전체 PNG 한 장, 애니메이션은 전체 기물 프레임 시트 한 장 |
++| 화면 효과 | 레시피의 해상도 | 프레임 시트 한 장과 미리보기 GIF |
+ 
+-전체 화면 이펙트는 화면 위에 알파 합성합니다. GIF는 검토용이며 게임에는 PNG 프레임을 사용합니다. 화면 크기가 큰 경우 모든 프레임을 한 아틀라스에 넣으면 텍스처 한도를 쉽게 넘으므로 프레임 시퀀스로 출력합니다. 타일과 캐릭터의 아틀라스는 셀의 여백까지 포함한 절대 사각형을 제공하므로 런타임에서 알파 영역을 다시 추정할 필요가 없습니다.
++Unity에서 애니메이션 PNG의 Sprite Mode를 Multiple로 지정하고 Grid by Cell Size에서 매니페스트의 `frame_layout.cellWidth`와 `cellHeight`를 사용합니다. 셀은 왼쪽 위부터 가로 방향으로 진행합니다. 마지막 줄의 빈 셀은 매니페스트의 프레임 목록에서 제외됩니다. 프레임의 FPS와 반복 여부도 매니페스트에 있습니다. 색상과 노멀 시트는 크기와 배치가 같습니다.
++
++```json
++{
++  "schema": 1,
++  "props": [
++    {"id": "wardrobe", "sizeTiles": [3, 4], "frames": ["wardrobe.png"]},
++    {"id": "fireplace", "sizeTiles": [3, 4], "frames": ["fire-0.png", "fire-1.png"], "fps": 8, "columns": 2}
++  ]
++}
++```
++
++기물 입력은 레시피 위치를 기준으로 한 전체 RGBA 프레임입니다. 위 예제에서는 모든 입력 PNG가 96×128이어야 합니다. `tileSize`의 기본값은 32입니다. `columns`를 생략하면 텍스처 크기에 맞춰 그리드 열 수를 정합니다. 큰 화면 효과가 한 장의 8192px 텍스처에 들어가지 않거나 기존 도구가 개별 프레임을 요구하면 레시피 최상단의 `"looseFrames": true`로 개별 프레임 출력을 사용할 수 있습니다.
+ 
+ ## 대량 생산
+ 
+@@ -88,6 +101,4 @@
+ .venv/Scripts/python.exe -m pixel_pipeline.normal art/stone.png --out build/stone-normal.png --strength 3
+ ```
+ 
+-기본값은 색상 이미지의 명암에서 높이를 추정합니다. 색과 높이가 다른 재질에는 같은 크기의 회색조 높이 이미지(흰색이 높은 곳)를 `--height-map`으로 지정합니다. 반복 텍스처는 `--wrap`으로 반대편 가장자리까지 샘플링합니다. 아틀라스에 넣을 여러 타일이 하나의 지형으로 이어지면, 전체 이미지를 변환한 후 색상과 노멀맵을 같은 위치에서 자릅니다.
+-
+-레시피 빌드는 기본으로 타일, 캐릭터, 화면 효과의 각 PNG 프레임에 대응하는 `normals/` PNG를 생성합니다. 타일과 캐릭터는 원본과 같은 프레임 좌표를 쓰는 노멀 아틀라스도 생성합니다. 파일 위치는 각 매니페스트의 `normal`에 있습니다. 예외적으로 생성하지 않으려면 레시피 최상단에 `"normalMaps": false`를 지정합니다.
++레시피 빌드는 색상 시트와 같은 크기·알파의 노멀 시트를 `normals/atlas.png`에 저장합니다. 기물 노멀은 전체 프레임마다 계산합니다. `"normalMaps": false`를 지정하면 노멀을 생략합니다.
+diff --git a/src/pixel_pipeline/cli.py b/src/pixel_pipeline/cli.py
+--- a/src/pixel_pipeline/cli.py
++++ b/src/pixel_pipeline/cli.py
+@@ -10,6 +10,7 @@
+ 
+ from PIL import Image, ImageDraw
+ from .normal import save_normal_frames
++from .sprite_grid import pack_frames
+ 
+ VERSION = "0.1.0"
+ RGBA = tuple[int, int, int, int]
+@@ -174,6 +175,24 @@
+         raise ValueError("Transparent asset must contain both visible and empty pixels")
+ 
+ 
++def save_sprite_grid(folder, frames, columns, normals):
++    sheet, normal, rects = pack_frames(frames, columns, normals)
++    sheet.save(folder / "sprite-sheet-alpha.png")
++    metadata = {"sheetWidth": sheet.width, "sheetHeight": sheet.height,
++                "cellWidth": frames[0].width, "cellHeight": frames[0].height,
++                "columns": sheet.width // frames[0].width}
++    if normal is not None:
++        (folder / "normals").mkdir(exist_ok=True)
++        normal.save(folder / "normals/atlas.png")
++    return metadata, rects
++
++
++def clean_loose_frames(folder, names):
++    for name in names:
++        (folder / name).unlink(missing_ok=True)
++        (folder / "normals" / name).unlink(missing_ok=True)
++
++
+ def build(recipe_path: Path, out: Path, only: str | None = None) -> dict:
+     recipe = json.loads(recipe_path.read_text(encoding="utf-8"))
+     if recipe.get("schema") != 1:
+@@ -183,6 +202,9 @@
+     normals = recipe.get("normalMaps", True)
+     if type(normals) is not bool:
+         raise ValueError("normalMaps must be true or false")
++    loose = recipe.get("looseFrames", False)
++    if type(loose) is not bool:
++        raise ValueError("looseFrames must be true or false")
+     catalog = {"schema": 1, "generator": VERSION, "recipe": str(recipe_path.resolve()), "assets": []}
+     for spec in recipe.get("tiles", []) if only in (None, "tiles") else []:
+         name, size, count = asset_id(spec["id"]), int(spec["size"]), int(spec["count"])
+@@ -224,20 +246,26 @@
+                         im = original.convert("RGBA")
+                 check_image(im, size, True)
+                 frame_name = f"{state}_{i:03d}.png"
+-                im.save(folder / frame_name)
++                if loose:
++                    im.save(folder / frame_name)
+                 frame_names.append(frame_name)
+                 images.append(im)
+             fps = int(spec.get("fps", {}).get(state, 8))
+             if fps <= 0:
+                 raise ValueError(f"Character {name}/{state}: fps must be positive")
+             rows[state] = {"frames": count, "fps": fps, "loop": state != "attack", "indices": list(range(first, len(images)))}
+-        atlas, rects = grid_atlas(images, min(16, len(images)))
+-        atlas.save(folder / "sprite-sheet-alpha.png")
+-        frame_rows = {state: [rects[i] for i in info["indices"]] for state, info in rows.items()}
++        columns = spec.get("columns", min(16, len(images)) if loose else None)
++        layout, rects = save_sprite_grid(folder, images, columns, normals)
++        layout["rows"] = {state: [rects[i] for i in info["indices"]] for state, info in rows.items()}
+         animation = {state: {k: v for k, v in info.items() if k != "indices"} for state, info in rows.items()}
+-        manifest = {"id": name, "type": "character", "game_input": "sprite-sheet-alpha.png", "animation": {"rows": animation}, "frame_layout": {"sheetWidth": atlas.width, "sheetHeight": atlas.height, "cellWidth": size[0], "cellHeight": size[1], "rows": frame_rows}}
++        manifest = {"id": name, "type": "character", "game_input": "sprite-sheet-alpha.png",
++                    "animation": {"rows": animation}, "frame_layout": layout}
+         if normals:
+-            manifest["normal"] = save_normal_frames(folder, zip(frame_names, images), atlas_size=atlas.size, rects=rects)
++            manifest["normal"] = {"image": "normals/atlas.png"}
++            if loose:
++                manifest["normal"].update(save_normal_frames(folder, zip(frame_names, images)))
++        if not loose and source != folder.resolve():
++            clean_loose_frames(folder, frame_names)
+         save_json(folder / "manifest.json", manifest)
+         catalog["assets"].append({"id": name, "type": "character", "manifest": f"characters/{name}/manifest.json", "count": len(images)})
+     for spec in recipe.get("screens", []) if only in (None, "screens") else []:
+@@ -254,14 +282,55 @@
+         for i in range(frames):
+             im = screen_frame(size, spec["effect"], i, frames, particles, color(spec["color"], int(spec.get("alpha", 180))))
+             check_image(im, size, False)
+-            im.save(folder / f"frame_{i:03d}.png")
++            if loose:
++                im.save(folder / f"frame_{i:03d}.png")
+             images.append(im)
+         images[0].save(folder / "preview.gif", save_all=True, append_images=images[1:], duration=round(1000 / fps), loop=0, disposal=2, optimize=False)
+-        manifest = {"id": name, "type": "screen", "size": list(size), "fps": fps, "loop": True, "frames": [f"frame_{i:03d}.png" for i in range(frames)], "preview": "preview.gif"}
+-        if normals:
+-            manifest["normal"] = save_normal_frames(folder, zip(manifest["frames"], images))
++        names = [f"frame_{i:03d}.png" for i in range(frames)]
++        manifest = {"id": name, "type": "screen", "size": list(size), "fps": fps, "loop": True,
++                    "preview": "preview.gif"}
++        if loose:
++            manifest["frames"] = names
++            if normals:
++                manifest["normal"] = save_normal_frames(folder, zip(names, images))
++        else:
++            layout, rects = save_sprite_grid(folder, images, spec.get("columns"), normals)
++            manifest.update(game_input="sprite-sheet-alpha.png", frame_layout=layout, frames=rects)
++            if normals:
++                manifest["normal"] = {"image": "normals/atlas.png"}
++            clean_loose_frames(folder, names)
+         save_json(folder / "manifest.json", manifest)
+         catalog["assets"].append({"id": name, "type": "screen", "manifest": f"screens/{name}/manifest.json", "count": frames})
++    for spec in recipe.get("props", []) if only in (None, "props") else []:
++        name = asset_id(spec["id"])
++        footprint = spec["sizeTiles"]
++        tile_size = spec.get("tileSize", 32)
++        if (not isinstance(footprint, list) or len(footprint) != 2
++                or any(type(n) is not int or n <= 0 for n in footprint) or tile_size not in (16, 32)):
++            raise ValueError(f"Prop {name}: expected positive [width, height] in tiles and a 16 or 32 px tile size")
++        size = tuple(n * tile_size for n in footprint)
++        sources = [(recipe_path.parent / filename).resolve() for filename in spec["frames"]]
++        fps = spec.get("fps", 8 if len(sources) > 1 else 0)
++        if not sources or type(fps) not in (int, float) or (len(sources) > 1 and not 0 < fps <= 60):
++            raise ValueError(f"Prop {name}: frames required and animated props need 0 < fps <= 60")
++        images = []
++        for filename in sources:
++            with Image.open(filename) as source:
++                image = source.convert("RGBA")
++            check_image(image, size, False)
++            images.append(image)
++        folder = out / "props" / name
++        if (folder / "sprite-sheet-alpha.png").resolve() in sources:
++            raise ValueError(f"Prop {name}: the output sheet cannot also be a source frame")
++        folder.mkdir(parents=True, exist_ok=True)
++        layout, rects = save_sprite_grid(folder, images, spec.get("columns"), normals)
++        manifest = {"id": name, "type": "prop", "sizeTiles": footprint, "pixelsPerUnit": tile_size,
++                    "game_input": "sprite-sheet-alpha.png", "frame_layout": layout, "frames": rects,
++                    "fps": fps, "loop": spec.get("loop", len(images) > 1)}
++        if normals:
++            manifest["normal"] = {"image": "normals/atlas.png"}
++        save_json(folder / "manifest.json", manifest)
++        catalog["assets"].append({"id": name, "type": "prop", "manifest": f"props/{name}/manifest.json", "count": len(images)})
+     save_json(out / "catalog.json", catalog)
+     return catalog
+ 
+@@ -270,7 +339,7 @@
+     parser = argparse.ArgumentParser(description="Deterministic batch pixel art assets")
+     parser.add_argument("recipe", type=Path, help="JSON recipe")
+     parser.add_argument("--out", type=Path, default=Path("build"))
+-    parser.add_argument("--only", choices=("tiles", "characters", "screens"))
++    parser.add_argument("--only", choices=("tiles", "characters", "props", "screens"))
+     args = parser.parse_args()
+     result = build(args.recipe, args.out, args.only)
+     print(f"Built {len(result['assets'])} asset sets and {sum(a['count'] for a in result['assets'])} frames in {args.out}")
+diff --git a/src/pixel_pipeline/sprite_grid.py b/src/pixel_pipeline/sprite_grid.py
+new file mode 100644
+--- /dev/null
++++ b/src/pixel_pipeline/sprite_grid.py
+@@ -0,0 +1,36 @@
++"""Pack complete equal-sized RGBA frames and their normals in row-major order."""
++
++from math import ceil, isqrt
++
++from PIL import Image
++from pixel_pipeline.normal import normal_map
++
++
++def pack_frames(frames, columns=None, normals=True, max_size=8192):
++    if not frames:
++        raise ValueError("A sprite sheet needs at least one frame")
++    width, height = frames[0].size
++    if not (0 < width <= max_size and 0 < height <= max_size):
++        raise ValueError("Frame exceeds the texture size limit")
++    if any(frame.mode != "RGBA" or frame.size != (width, height) for frame in frames):
++        raise ValueError("All sprite frames must be RGBA and the same size")
++    if columns is None:
++        # Keep rectangular frames in a compact texture as their count grows.
++        preferred = 1 + isqrt((len(frames) * height - 1) // width)
++        minimum = ceil(len(frames) / (max_size // height))
++        columns = min(len(frames), max_size // width, max(minimum, preferred))
++    if type(columns) is not int or not 1 <= columns <= len(frames):
++        raise ValueError("columns must be between 1 and the number of frames")
++    size = (width * columns, height * ceil(len(frames) / columns))
++    if max(size) > max_size:
++        raise ValueError("Sprite grid exceeds the texture size limit")
++    sheet = Image.new("RGBA", size)
++    normal_sheet = Image.new("RGBA", size) if normals else None
++    rects = []
++    for i, frame in enumerate(frames):
++        x, y = (i % columns) * width, (i // columns) * height
++        sheet.paste(frame, (x, y))
++        if normal_sheet is not None:
++            normal_sheet.paste(normal_map(frame), (x, y))
++        rects.append({"x": x, "y": y, "w": width, "h": height})
++    return sheet, normal_sheet, rects
+diff --git a/tests/test_pipeline.py b/tests/test_pipeline.py
+--- a/tests/test_pipeline.py
++++ b/tests/test_pipeline.py
+@@ -29,15 +29,22 @@
+             with Image.open(tile_atlas) as im:
+                 self.assertEqual(im.size, (48, 16))
+             with Image.open(char_atlas) as im:
+-                self.assertEqual(im.size, (192, 64))
++                self.assertEqual(im.size, (128, 128))
+                 self.assertEqual(im.mode, "RGBA")
+             manifest = json.loads((root / "first/characters/guard/manifest.json").read_text())
+-            self.assertEqual(manifest["frame_layout"]["rows"]["attack"][-1], {"x": 160, "y": 0, "w": 32, "h": 64})
++            self.assertEqual(manifest["frame_layout"]["rows"]["attack"][-1], {"x": 32, "y": 64, "w": 32, "h": 64})
+             self.assertFalse(manifest["animation"]["rows"]["attack"]["loop"])
+             screen = json.loads((root / "first/screens/rain/manifest.json").read_text())
+             self.assertEqual(len(screen["frames"]), 3)
+             self.assertTrue((root / "first/screens/rain/preview.gif").exists())
+-            for relative in ("tiles/grass", "characters/guard", "screens/rain"):
++            for relative in ("characters/guard", "screens/rain"):
++                folder = root / "first" / relative
++                metadata = json.loads((folder / "manifest.json").read_text())
++                self.assertEqual(list(folder.glob("*.png")), [folder / metadata["game_input"]])
++                with Image.open(folder / metadata["normal"]["image"]) as normal, Image.open(folder / metadata["game_input"]) as color:
++                    self.assertEqual(normal.size, color.size)
++                    self.assertEqual(normal.getchannel("A").tobytes(), color.getchannel("A").tobytes())
++            for relative in ("tiles/grass",):
+                 folder = root / "first" / relative
+                 metadata = json.loads((folder / "manifest.json").read_text())["normal"]
+                 for filename in metadata["frames"]:
+@@ -48,13 +55,41 @@
+                     with Image.open(folder / metadata["image"]) as atlas, Image.open(folder / metadata["frames"][0]) as normal:
+                         self.assertEqual(atlas.crop((0, 0, normal.width, normal.height)).tobytes(), normal.tobytes())
+             build(path, root / "second")
+-            for relative in ("tiles/grass/atlas.png", "characters/guard/sprite-sheet-alpha.png", "screens/rain/frame_000.png", "characters/guard/normals/atlas.png"):
++            for relative in ("tiles/grass/atlas.png", "characters/guard/sprite-sheet-alpha.png", "screens/rain/sprite-sheet-alpha.png", "characters/guard/normals/atlas.png"):
+                 first = hashlib.sha256((root / "first" / relative).read_bytes()).digest()
+                 second = hashlib.sha256((root / "second" / relative).read_bytes()).digest()
+                 self.assertEqual(first, second)
+             path.write_text(json.dumps({**recipe, "normalMaps": False}), encoding="utf-8")
+             build(path, root / "off")
+             self.assertEqual(list((root / "off").rglob("normals")), [])
++
++    def test_props_use_whole_frames(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            for index in range(3):
++                frame = Image.new("RGBA", (96, 128))
++                frame.putpixel((32, 64), (0, index + 100, 0, 192))
++                frame.save(root / f"frame-{index}.png")
++            recipe = {"schema": 1, "props": [
++                {"id": "chair", "sizeTiles": [3, 4], "frames": ["frame-0.png"]},
++                {"id": "fireplace", "sizeTiles": [3, 4], "columns": 2,
++                 "frames": [f"frame-{index}.png" for index in range(3)]},
++            ]}
++            path = root / "recipe.json"
++            path.write_text(json.dumps(recipe))
++            build(path, root / "out", "props")
++            with Image.open(root / "out/props/chair/sprite-sheet-alpha.png") as chair:
++                self.assertEqual(chair.size, (96, 128))
++            folder = root / "out/props/fireplace"
++            manifest = json.loads((folder / "manifest.json").read_text())
++            with Image.open(folder / manifest["game_input"]) as sheet, Image.open(folder / manifest["normal"]["image"]) as normal:
++                self.assertEqual(sheet.size, (192, 256))
++                self.assertEqual(normal.getchannel("A").tobytes(), sheet.getchannel("A").tobytes())
++                for index, rect in enumerate(manifest["frames"]):
++                    x, y, w, h = (rect[key] for key in ("x", "y", "w", "h"))
++                    self.assertEqual((w, h), (96, 128))
++                    with Image.open(root / f"frame-{index}.png") as frame:
++                        self.assertEqual(sheet.crop((x, y, x + w, y + h)).tobytes(), frame.tobytes())
+ 
+     def test_rejects_unsafe_asset_id(self):
+         with tempfile.TemporaryDirectory() as tmp:
+@@ -76,7 +111,7 @@
+             path = root / "recipe.json"
+             path.write_text(json.dumps(recipe))
+             build(path, root / "out")
+-            with Image.open(root / "out/characters/hero/idle_000.png") as actual:
++            with Image.open(root / "out/characters/hero/sprite-sheet-alpha.png") as actual:
+                 self.assertEqual(actual.getpixel((10, 10)), (255, 0, 0, 255))
+ 
+ 

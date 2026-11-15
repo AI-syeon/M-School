@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from PIL import Image
 from pixel_pipeline.cli import grid_atlas, check_image, save_json
+from pixel_pipeline.normal import save_normal_frames
 
 root = Path(__file__).resolve().parent
 recipe = json.loads((root / 'symbols.recipe.json').read_text('utf-8'))
@@ -23,6 +24,8 @@ for spec in recipe['symbols']:
     frames.append(im)
 atlas, rectangles = grid_atlas(frames, 2)
 atlas.save(out / 'atlas.png')
-save_json(out / 'manifest.json', {'quality':'prototype-only','image':'atlas.png','size':[16,16],'frames':[{'id':s['id'],**r} for s,r in zip(recipe['symbols'],rectangles)]})
+normal = save_normal_frames(out, ((s['id'] + '.png', frame) for s, frame in zip(recipe['symbols'], frames)),
+                            atlas_size=atlas.size, rects=rectangles)
+save_json(out / 'manifest.json', {'quality':'prototype-only','image':'atlas.png','size':[16,16],'frames':[{'id':s['id'],**r} for s,r in zip(recipe['symbols'],rectangles)], 'normal':normal})
 atlas.resize((256, 128), Image.Resampling.NEAREST).save(out / 'preview.png')
 print('PASS: door and notice RGBA 16x16; absolute atlas rectangles')

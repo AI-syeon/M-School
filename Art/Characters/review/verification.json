@@ -1,0 +1,1458 @@
+{
+  "source_sha256": {
+    "Art/Characters/source/player-original.png": "6e801d00791f1bed4ef9aa7f5a85cb1fe41d66d7a74ebd83b25e098fd4437363",
+    "Art/Characters/source/npc-serin-original.png": "960af3d5cb3239cad9f82c6c394f1c51b79a95a385fc7578e470667faa36b23b",
+    "Art/Characters/source/npc-serin-read-original.png": "9d92f5fb6e05508129c624ef41010685a43aacf7d25bad41ae4b97dacdd37b6c",
+    "Art/Characters/source/npc-serin-eat-original.png": "239a551e607817d5035442b2f8949af69d6ecff209013030a3f2f5e2a78bbef9",
+    "Art/Characters/source/npc-serin-write-original.png": "5f086fe76728cac220fd083931f9e13d98b0fefe226726a7cf4e878870c3d2c2",
+    "Art/Characters/source/npc-serin-chat-original.png": "c4444117fe604dd52a2363983570fc0eb31cc3dec9199180e608d562c92501e2",
+    "Art/Characters/source/npc-mira-original.png": "88a96b9f31ca01eeac3f7b699fde456119af2a12710762f9cd28a46c91ff9fee",
+    "Art/Characters/source/npc-mira-read-original.png": "088f25555a2c4bd5beee5416fb32bc45e2d5c9c387d859a5f60635181c45628f",
+    "Art/Characters/source/npc-mira-eat-original.png": "856e5e52e1eb969bea49c0d6228bea7a8aafce476a7867dec3a7c56aa555ca5e",
+    "Art/Characters/source/npc-mira-write-original.png": "a0abbcea0d9b034d4ec39ef114fb793e6c353f6041e0c238857e63a8bb51ad58",
+    "Art/Characters/source/npc-mira-chat-original.png": "ce003510cded9be1376a6f245f27cee2a9849bbe07375a9af135b84c44691f28"
+  },
+  "recipe_sha256": "6473342e376cc6f2306b2fff94a7d25b7ffb1467f17a187095b6b5a9425b2d1d",
+  "output_sha256": {
+    "Assets/MagicCampus/Art/Characters/npc-mira/manifest.json": "26ff44d577c0c3b4133805e3eee7bb4fa4711cbeedd6dec2c98df687767faff5",
+    "Assets/MagicCampus/Art/Characters/npc-mira/normals/atlas.png": "2c2c3c69253f9774968424bfb2a9b8c95f3d125d83af7dcedf137102d4c7d22a",
+    "Assets/MagicCampus/Art/Characters/npc-mira/sprite-sheet-alpha.png": "6fba3545eb1c97467eb7c1de2e9601c2520fa0429b9e951b4f547b36667c8942",
+    "Assets/MagicCampus/Art/Characters/npc-serin/manifest.json": "0976a59ba6739358c4c73892594bf7eab616c30a991d0a30ac30f22f76d751d1",
+    "Assets/MagicCampus/Art/Characters/npc-serin/normals/atlas.png": "71ec1de20ca77474a34d47664ed9792d0f3e759a6489332e9527c81c0adf1066",
+    "Assets/MagicCampus/Art/Characters/npc-serin/sprite-sheet-alpha.png": "05df5113f1ccbd68eed54b91bcd5d7eb71105f7ae3f99a196fd98a5cb2ba5b45",
+    "Assets/MagicCampus/Art/Characters/player/manifest.json": "ab1e614e66977e3315dd675f64d0697d652d886713d5179c0868a9252ea68903",
+    "Assets/MagicCampus/Art/Characters/player/normals/atlas.png": "660d2cdec1b7c11db97c8b23156ea9940fc8c5a886054d3c02e302630bab172a",
+    "Assets/MagicCampus/Art/Characters/player/sprite-sheet-alpha.png": "e45904dc342900a6f5ea0522fc691eb0054a8d9dd1fad9c1625802193946a6b3",
+    "Assets/StreamingAssets/UiArt/Characters/npc-mira/manifest.json": "26ff44d577c0c3b4133805e3eee7bb4fa4711cbeedd6dec2c98df687767faff5",
+    "Assets/StreamingAssets/UiArt/Characters/npc-mira/normals/atlas.png": "2c2c3c69253f9774968424bfb2a9b8c95f3d125d83af7dcedf137102d4c7d22a",
+    "Assets/StreamingAssets/UiArt/Characters/npc-mira/sprite-sheet-alpha.png": "6fba3545eb1c97467eb7c1de2e9601c2520fa0429b9e951b4f547b36667c8942",
+    "Assets/StreamingAssets/UiArt/Characters/npc-serin/manifest.json": "0976a59ba6739358c4c73892594bf7eab616c30a991d0a30ac30f22f76d751d1",
+    "Assets/StreamingAssets/UiArt/Characters/npc-serin/normals/atlas.png": "71ec1de20ca77474a34d47664ed9792d0f3e759a6489332e9527c81c0adf1066",
+    "Assets/StreamingAssets/UiArt/Characters/npc-serin/sprite-sheet-alpha.png": "05df5113f1ccbd68eed54b91bcd5d7eb71105f7ae3f99a196fd98a5cb2ba5b45",
+    "Assets/StreamingAssets/UiArt/Characters/player/manifest.json": "ab1e614e66977e3315dd675f64d0697d652d886713d5179c0868a9252ea68903",
+    "Assets/StreamingAssets/UiArt/Characters/player/normals/atlas.png": "660d2cdec1b7c11db97c8b23156ea9940fc8c5a886054d3c02e302630bab172a",
+    "Assets/StreamingAssets/UiArt/Characters/player/sprite-sheet-alpha.png": "e45904dc342900a6f5ea0522fc691eb0054a8d9dd1fad9c1625802193946a6b3",
+    "Art/Characters/review/characters-sheet-1x.png": "c16fac02ac0add6b7ced9d1ed65701bbace96876e8c11d3112efac4c99b8bc6f",
+    "Art/Characters/review/characters-sheet.png": "06b21ed59c19672767036a76942c22ceb1fa4e0e2867eec6ca18f7be5c576c45",
+    "Art/Characters/review/in-courtyard.png": "524e4e48406fa1fa5394d4ad979145467d3556b3649ce912e4966dbd799bb98e",
+    "Art/Characters/review/npc-actions-1x.png": "0513e576cf9ef7cf889f2aaf2abf85731e6a748eaf0148270fdf861573ef5d1c",
+    "Art/Characters/review/npc-actions-compare-idle.png": "c689dc2ad5968fb3a350824411f639e631df86580529fb47fe2e4fa7fd9c862f",
+    "Art/Characters/review/npc-actions-sheet.png": "b7c13a6784405fe59ced4bc1d13239eec2c488cc1491c205c7dd6db4320eb422",
+    "Art/Characters/review/npc-actions-source-vs-pixel.png": "7523ce3d1a7dc3779a7ba955813ac4024137203545cc9b8c9631b448b4712b2e",
+    "Art/Characters/review/npc-mira-chat-south.apng": "331033e14589d6d48b7779b3881878f24da0985daba86a0953047755413cabc8",
+    "Art/Characters/review/npc-mira-chat-south.gif": "4b4854e986504f11844d76ee0d5da053bb798cb4a19e42f84e8109b0fc7b82cb",
+    "Art/Characters/review/npc-mira-eat-south.apng": "18c416eb3be991e592899912562606b77c76764b7c440af90687a6b321e425d8",
+    "Art/Characters/review/npc-mira-eat-south.gif": "98535d4f947ef55ed3dfe36313cf3985f2c4586519febdf1e726d3c52628d57e",
+    "Art/Characters/review/npc-mira-read-south.apng": "0ec6aa70266b33e0a350b6fb2826df545d0bc651371a5eb9b85449fdadffd650",
+    "Art/Characters/review/npc-mira-read-south.gif": "939882a17c5523f3e9c95bd2df91aab15474ac6baed9f2983184adb5791fa660",
+    "Art/Characters/review/npc-mira-walk-east.apng": "84d4fd2765e2c4ea0721c431ad283b713e337f5e7d47bc6c7fc66fcb35e2fb4e",
+    "Art/Characters/review/npc-mira-walk-east.gif": "28614f0c88c037c6ac5be359c83e8b02e85fdae95b029a69b56860eab7290480",
+    "Art/Characters/review/npc-mira-walk-north.apng": "766aca78aedf2777131cfce41cdf68a82f8afd66ed022280c26b241a4601c0d7",
+    "Art/Characters/review/npc-mira-walk-north.gif": "ef5f63b82a4887f68829c756f4b1f5dfe692c528a8257739b9cfb27480aeb3eb",
+    "Art/Characters/review/npc-mira-walk-south.apng": "b58b4e8b87b2966a549ad42ccc477c496b7bf5bd07f53e01656222c7099705e7",
+    "Art/Characters/review/npc-mira-walk-south.gif": "f421c978d179941e080e3de73fdfe945575298f6230f083daf28dd9ffed996f4",
+    "Art/Characters/review/npc-mira-walk-west.apng": "5a3dd382bee70029300192a833553df77638dedcabb705e0a3590381015cd2a4",
+    "Art/Characters/review/npc-mira-walk-west.gif": "784556075e9f03c3035d44f7d50ae13fd13b9626eef9fd076cc3f0fee3029a93",
+    "Art/Characters/review/npc-mira-write-south.apng": "f72f2b2420c9923f37dace349185cc287a0e72e510e63c7563c17780c86972fe",
+    "Art/Characters/review/npc-mira-write-south.gif": "bb336ca212b87f056e2e8ecbd0ccd8a9fd95eee36306dfcc73f64fdce2f42242",
+    "Art/Characters/review/npc-serin-chat-south.apng": "c7d8c15cb55facc1ad421d110e7ddfc08601d7e00b8717071f7e9d0e7105663a",
+    "Art/Characters/review/npc-serin-chat-south.gif": "425a03ea03e42ebd69ae7b054a0fa336ad61e290b88d7732f447dcf6901e0007",
+    "Art/Characters/review/npc-serin-eat-south.apng": "56d31119c790841c9b2177c3212cbf3519ae04ff8acdd285bba2bc8683656c6e",
+    "Art/Characters/review/npc-serin-eat-south.gif": "e94d0b21c472b8e57c6b00e3e552e69f4828d214876e040ba0db4cc538d2f8bd",
+    "Art/Characters/review/npc-serin-read-south.apng": "3168967873aeaf48f155ccefe742758eaca1e3b93743e3b2a649670b9c25d16e",
+    "Art/Characters/review/npc-serin-read-south.gif": "2cab4ceeb4e4e21e8e655eb7fe28c89f5444ff4b2af149d327b91ad696017bc1",
+    "Art/Characters/review/npc-serin-walk-east.apng": "3a0fa586d2d12252931ab6d799c24c5c47d9a5a0ce5c04c41a5124ca3d35c8c0",
+    "Art/Characters/review/npc-serin-walk-east.gif": "cd495a0aa744450949644fb003d9b27bdc4d11a921af6273f918c3a8d8e67cdc",
+    "Art/Characters/review/npc-serin-walk-north.apng": "1f726b1b6c67c9f46243304d28bcc17e53076f4070cd7fd73d6ba87ffcb91907",
+    "Art/Characters/review/npc-serin-walk-north.gif": "c604acc8eebefb43056a81f8266050d5ac73911ffc92e39aeffd7d8672a9d557",
+    "Art/Characters/review/npc-serin-walk-south.apng": "6e95efbb9aa941fc77bdf81189d7ec77e4bf799581de01f76d1300596ba42c92",
+    "Art/Characters/review/npc-serin-walk-south.gif": "a9a4d39f8e2496a98643ca4f52f728ab2f1af5e4b00fba026ca06045ec678c0c",
+    "Art/Characters/review/npc-serin-walk-west.apng": "96a370523c3bfa6ccf35d9af7e4a9f199e469983562a3c94590f89cb65b9df09",
+    "Art/Characters/review/npc-serin-walk-west.gif": "682c3c5acd3eccc8008343d9ad411d64bdd325128b9c6aef68f4d9ec692a4231",
+    "Art/Characters/review/npc-serin-write-south.apng": "b59793ca72f1b9f40c1a3210711ff265081a67f055ca7b1dc0fa8d1dc33bec2b",
+    "Art/Characters/review/npc-serin-write-south.gif": "33518e5977f09e79b4b190cd8d07da7d5c89b4e82f33cb925cbaf509d3ec8824",
+    "Art/Characters/review/old-vs-new.png": "4327a37dd0188b9224ad731dd9ade434bee37bc84b9be97ae44d9b92fdcbba18",
+    "Art/Characters/review/player-walk-east.apng": "d628d49b045b89ea8fb1fbdb1c64b8949468d2e12beaab93e1c8b13de6021d9e",
+    "Art/Characters/review/player-walk-east.gif": "3e8106fe3662b771c66807161a1178c2b39e86da695433ea52b273342f2ea349",
+    "Art/Characters/review/player-walk-north.apng": "0f90de4f3614fa43706aaec228a5840e5a3b7e440646ecb53ee15083a1208768",
+    "Art/Characters/review/player-walk-north.gif": "a7f6630f2d45f42c4489eb75ac21eced856835802a4b1839329b409cc88758a3",
+    "Art/Characters/review/player-walk-south.apng": "3153adafdd1ea1cac33d5b626ea13d2f2f411d0d366fe627f26c1618d255210b",
+    "Art/Characters/review/player-walk-south.gif": "9e59141ba60a7f0d4ccbc70bb7c7230abbfe6a5b29d237f498ff584eba5026f1",
+    "Art/Characters/review/player-walk-west.apng": "0f8e0535dc3e401eabe0515db15a137e346c254f6abbab0421d3708b69d3fb8d",
+    "Art/Characters/review/player-walk-west.gif": "bd557550653b08f2eb2efcd76712a0e62f36fd309ba93af80c040c5de247db64",
+    "Art/Characters/review/source-vs-pixel.png": "86d7d20ac734a6d87ce5c60bda7d9634f43dd31f5c9c8be9877731ab56e06c3b"
+  },
+  "characters": {
+    "player": {
+      "logical_id": "player",
+      "palette_colors": 32,
+      "frames": [
+        {
+          "file": "south_idle_000.png",
+          "bbox": [
+            5,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_000.png",
+          "bbox": [
+            5,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_001.png",
+          "bbox": [
+            5,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_002.png",
+          "bbox": [
+            5,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_003.png",
+          "bbox": [
+            5,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "north_idle_000.png",
+          "bbox": [
+            5,
+            13,
+            26,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_000.png",
+          "bbox": [
+            5,
+            13,
+            26,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "north_walk_001.png",
+          "bbox": [
+            5,
+            12,
+            26,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_002.png",
+          "bbox": [
+            5,
+            13,
+            26,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_003.png",
+          "bbox": [
+            5,
+            12,
+            26,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "east_idle_000.png",
+          "bbox": [
+            5,
+            13,
+            26,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_001.png",
+          "bbox": [
+            5,
+            12,
+            26,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_002.png",
+          "bbox": [
+            5,
+            13,
+            26,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_003.png",
+          "bbox": [
+            5,
+            12,
+            26,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_idle_000.png",
+          "bbox": [
+            6,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_000.png",
+          "bbox": [
+            5,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_001.png",
+          "bbox": [
+            6,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_002.png",
+          "bbox": [
+            6,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_003.png",
+          "bbox": [
+            6,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        }
+      ]
+    },
+    "npc-serin": {
+      "logical_id": "npc.serin",
+      "palette_colors": 30,
+      "frames": [
+        {
+          "file": "south_idle_000.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_000.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_001.png",
+          "bbox": [
+            3,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_002.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_walk_003.png",
+          "bbox": [
+            3,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "north_idle_000.png",
+          "bbox": [
+            4,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 27
+        },
+        {
+          "file": "north_walk_000.png",
+          "bbox": [
+            4,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 27
+        },
+        {
+          "file": "north_walk_001.png",
+          "bbox": [
+            4,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 27
+        },
+        {
+          "file": "north_walk_002.png",
+          "bbox": [
+            4,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 27
+        },
+        {
+          "file": "north_walk_003.png",
+          "bbox": [
+            4,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 27
+        },
+        {
+          "file": "east_idle_000.png",
+          "bbox": [
+            5,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "east_walk_000.png",
+          "bbox": [
+            5,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "east_walk_001.png",
+          "bbox": [
+            5,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "east_walk_002.png",
+          "bbox": [
+            5,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "east_walk_003.png",
+          "bbox": [
+            5,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "west_idle_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "west_walk_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "west_walk_001.png",
+          "bbox": [
+            4,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "west_walk_002.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "west_walk_003.png",
+          "bbox": [
+            4,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 30
+        },
+        {
+          "file": "south_read_000.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 87,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_read_001.png",
+          "bbox": [
+            3,
+            14,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 88,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_read_002.png",
+          "bbox": [
+            3,
+            14,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 95,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_read_003.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 87,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_000.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 33,
+          "prop_mask_pixels": 30,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_001.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 33,
+          "prop_mask_pixels": 30,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_002.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 33,
+          "prop_mask_pixels": 29,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_003.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 33,
+          "prop_mask_pixels": 28,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_000.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 74,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_001.png",
+          "bbox": [
+            3,
+            14,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 73,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_002.png",
+          "bbox": [
+            3,
+            14,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 74,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_003.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 73,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_000.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_001.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_002.png",
+          "bbox": [
+            3,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 30,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_003.png",
+          "bbox": [
+            3,
+            14,
+            28,
+            63
+          ],
+          "opaque_colors": 30,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        }
+      ],
+      "action_palette_colors": 37,
+      "additional_action_colors": [
+        [
+          42,
+          73,
+          75
+        ],
+        [
+          58,
+          106,
+          105
+        ],
+        [
+          151,
+          113,
+          68
+        ],
+        [
+          193,
+          154,
+          97
+        ],
+        [
+          204,
+          181,
+          132
+        ],
+        [
+          215,
+          154,
+          67
+        ],
+        [
+          242,
+          223,
+          177
+        ]
+      ],
+      "action_frame_counts": {
+        "read": 4,
+        "eat": 4,
+        "write": 4,
+        "chat": 4
+      },
+      "action_source_scales": {
+        "read": 0.07735697018533441,
+        "eat": 0.07729468599033816,
+        "write": 0.07729468599033816,
+        "chat": 0.07741935483870968
+      }
+    },
+    "npc-mira": {
+      "logical_id": "npc.mira",
+      "palette_colors": 32,
+      "frames": [
+        {
+          "file": "south_idle_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "south_walk_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "south_walk_001.png",
+          "bbox": [
+            4,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "south_walk_002.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "south_walk_003.png",
+          "bbox": [
+            4,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "north_idle_000.png",
+          "bbox": [
+            5,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_000.png",
+          "bbox": [
+            5,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_001.png",
+          "bbox": [
+            5,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_002.png",
+          "bbox": [
+            5,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "north_walk_003.png",
+          "bbox": [
+            5,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 31
+        },
+        {
+          "file": "east_idle_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_000.png",
+          "bbox": [
+            4,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_001.png",
+          "bbox": [
+            4,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_002.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "east_walk_003.png",
+          "bbox": [
+            4,
+            12,
+            27,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_idle_000.png",
+          "bbox": [
+            5,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_000.png",
+          "bbox": [
+            4,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_001.png",
+          "bbox": [
+            5,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_002.png",
+          "bbox": [
+            5,
+            13,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "west_walk_003.png",
+          "bbox": [
+            5,
+            12,
+            28,
+            63
+          ],
+          "opaque_colors": 32
+        },
+        {
+          "file": "south_read_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 87,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_read_001.png",
+          "bbox": [
+            4,
+            14,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 88,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_read_002.png",
+          "bbox": [
+            4,
+            14,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 95,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_read_003.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 87,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 30,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_001.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 30,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_002.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 29,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_eat_003.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 34,
+          "prop_mask_pixels": 28,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 74,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_001.png",
+          "bbox": [
+            4,
+            14,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 73,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_002.png",
+          "bbox": [
+            4,
+            14,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 74,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_write_003.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 35,
+          "prop_mask_pixels": 73,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_000.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 31,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_001.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 32,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_002.png",
+          "bbox": [
+            4,
+            13,
+            27,
+            63
+          ],
+          "opaque_colors": 31,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        },
+        {
+          "file": "south_chat_003.png",
+          "bbox": [
+            4,
+            14,
+            27,
+            63
+          ],
+          "opaque_colors": 31,
+          "prop_mask_pixels": 0,
+          "non_prop_palette_violations": 0
+        }
+      ],
+      "action_palette_colors": 39,
+      "additional_action_colors": [
+        [
+          42,
+          73,
+          75
+        ],
+        [
+          58,
+          106,
+          105
+        ],
+        [
+          151,
+          113,
+          68
+        ],
+        [
+          193,
+          154,
+          97
+        ],
+        [
+          204,
+          181,
+          132
+        ],
+        [
+          215,
+          154,
+          67
+        ],
+        [
+          242,
+          223,
+          177
+        ]
+      ],
+      "action_frame_counts": {
+        "read": 4,
+        "eat": 4,
+        "write": 4,
+        "chat": 4
+      },
+      "action_source_scales": {
+        "read": 0.07798537774167345,
+        "eat": 0.07792207792207793,
+        "write": 0.07792207792207793,
+        "chat": 0.07792207792207793
+      }
+    }
+  },
+  "action_review_loops": {
+    "npc-serin-read-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        250,
+        250,
+        250,
+        250
+      ],
+      "loop": true
+    },
+    "npc-serin-read-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        250.0,
+        250.0,
+        250.0,
+        250.0
+      ],
+      "loop": true
+    },
+    "npc-serin-eat-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loop": true
+    },
+    "npc-serin-eat-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        200.0,
+        200.0,
+        200.0,
+        200.0
+      ],
+      "loop": true
+    },
+    "npc-serin-write-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        160,
+        160,
+        160,
+        160
+      ],
+      "loop": true
+    },
+    "npc-serin-write-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        167.0,
+        167.0,
+        167.0,
+        167.0
+      ],
+      "loop": true
+    },
+    "npc-serin-chat-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loop": true
+    },
+    "npc-serin-chat-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        200.0,
+        200.0,
+        200.0,
+        200.0
+      ],
+      "loop": true
+    },
+    "npc-mira-read-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        250,
+        250,
+        250,
+        250
+      ],
+      "loop": true
+    },
+    "npc-mira-read-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        250.0,
+        250.0,
+        250.0,
+        250.0
+      ],
+      "loop": true
+    },
+    "npc-mira-eat-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loop": true
+    },
+    "npc-mira-eat-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        200.0,
+        200.0,
+        200.0,
+        200.0
+      ],
+      "loop": true
+    },
+    "npc-mira-write-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        160,
+        160,
+        160,
+        160
+      ],
+      "loop": true
+    },
+    "npc-mira-write-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        167.0,
+        167.0,
+        167.0,
+        167.0
+      ],
+      "loop": true
+    },
+    "npc-mira-chat-south.gif": {
+      "frames": 4,
+      "size": [
+        160,
+        320
+      ],
+      "duration_ms": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "loop": true
+    },
+    "npc-mira-chat-south.apng": {
+      "frames": 4,
+      "size": [
+        32,
+        64
+      ],
+      "duration_ms": [
+        200.0,
+        200.0,
+        200.0,
+        200.0
+      ],
+      "loop": true
+    }
+  },
+  "baseline_comparison": {
+    "available": true,
+    "all_identical": true,
+    "sheet_regions": 6,
+    "clips": 48
+  },
+  "checks": {
+    "dimensions": true,
+    "binary_alpha": true,
+    "transparent_edges": true,
+    "lowest_opaque_row": 62,
+    "figure_height_range": [
+      44,
+      52
+    ],
+    "sheet_rectangles_match": true,
+    "existing_sheet_regions_unchanged": true,
+    "action_frames": 32,
+    "action_frame_counts": true,
+    "action_poses_distinct": true,
+    "idle_lower_pixels_preserved": true,
+    "action_extra_colors_at_most_8": true,
+    "head_pixels_equal_bobbed_idle_except_recipe_face_edits": true,
+    "final_head_hair_equal_bobbed_idle_outside_face_and_bread_masks": true,
+    "source_arm_masks_exclude_head_and_hem": true,
+    "idle_hem_and_lower_preserved_from_y47": true,
+    "idle_torso_preserved_outside_limb_cleanup_prop_masks": true,
+    "mirrored_png_and_manifests_identical": true,
+    "non_prop_pixels_use_existing_palette_only": true,
+    "extra_colors_confined_to_actual_painted_prop_masks": true,
+    "identical_rebuild": true
+  },
+  "notes": [
+    "NPC logical manifest IDs retain npc.serin / npc.mira; output folder IDs use hyphens.",
+    "Existing frames retain their original independent 32-color quantization.",
+    "Generated actions use nearest-neighbor sampling at fixed per-sheet scales for masked arms/hands only.",
+    "Action heads and bodies derive from south idle; head-only bob and explicit facial edits preserve hair identity.",
+    "Source limbs map only to the idle/walk palette; extra colors are confined to exact painted book/notebook/pen/roll masks.",
+    "Bread is a recipe pixel sprite with muted tan crust, one highlight, visible skin hand and cuff; idle hem/lower body from y47 remain unchanged.",
+    "West mirrors east with gentle material relight before shared palette quantization.",
+    "Walk uses source-derived cutout articulation, with generated walking lower legs on east/west contacts.",
+    "Courtyard review is a composited scale review, not a Unity runtime capture."
+  ]
+}

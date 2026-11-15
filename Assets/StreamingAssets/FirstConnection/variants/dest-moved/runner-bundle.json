@@ -33,289 +33,50 @@
       "initial": false
     }
   ],
-  "bed": { "mapId": "map.courtyard", "x": 0.5, "y": 0.5 },
+  "bed": {"mapId":"map.dorm","x":2.5,"y":5.5},
+  "arrangeable": [
+    {"mapId":"map.dorm","area":[1,1,10,7],"keep":[[2,5],[5,0]],"pieces":[{"id":"bookshelf","name":"책장","at":[3,5],"cells":[[0,0],[1,0]],"bounds":[0,0,2,3]},{"id":"desk","name":"책상","at":[6,3],"cells":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]],"bounds":[0,0,3,3],"surface":[[0,1],[1,1],[2,1]],"lift":12},{"id":"wardrobe","name":"옷장","at":[9,5],"cells":[[0,0],[1,0]],"bounds":[0,0,2,3]},{"id":"nightstand","name":"협탁","at":[1,4],"cells":[[0,0]],"bounds":[0,0,1,1]},{"id":"mirror","name":"거울","at":[10,2],"cells":[[0,0]],"bounds":[0,0,1,2]},{"id":"chest","name":"상자","at":[2,3],"cells":[[0,0],[1,0]],"bounds":[0,0,2,1],"surface":[[1,0]],"lift":18},{"id":"stool","name":"별 의자","at":[8,1],"cells":[[0,0]],"bounds":[0,0,1,1]},{"id":"books","name":"책 더미","at":[2,1],"cells":[[0,0]],"bounds":[0,0,1,1],"stackable":true},{"id":"plant-a","name":"화분 1","at":[1,1],"cells":[[0,0]],"bounds":[0,0,1,2],"stackable":true},{"id":"plant-b","name":"화분 2","at":[9,1],"cells":[[0,0]],"bounds":[0,0,1,2],"stackable":true},{"id":"flowers","name":"꽃 화분","at":[10,1],"cells":[[0,0]],"bounds":[0,0,1,2],"stackable":true},{"id":"rug","name":"러그","at":[2,1],"cells":[],"bounds":[0,0,3,3]}]}
+  ],
   "maps": [
-    {
-      "id": "map.courtyard",
-      "width": 8,
-      "height": 6,
-      "blocked": [
-        [
-          3,
-          1
-        ],
-        [
-          3,
-          2
-        ],
-        [
-          3,
-          3
-        ]
-      ],
-      "portals": [
-        {
-          "id": "portal.to_lounge",
-          "x": 7.5,
-          "y": 2.5,
-          "to": {
-            "mapId": "map.lounge",
-            "x": 0.5,
-            "y": 2.5
-          },
-          "open": true
-        }
-      ]
-    },
-    {
-      "id": "map.lounge",
-      "width": 6,
-      "height": 5,
-      "blocked": [
-        [
-          2,
-          1
-        ],
-        [
-          2,
-          2
-        ]
-      ],
-      "portals": [
-        {
-          "id": "portal.to_courtyard",
-          "x": 0.5,
-          "y": 2.5,
-          "to": {
-            "mapId": "map.courtyard",
-            "x": 7.5,
-            "y": 2.5
-          },
-          "open": true
-        }
-      ]
-    },
-    {
-      "id": "map.region_1",
-      "width": 20,
-      "height": 20,
-      "blocked": [],
-      "portals": []
-    },
-    {
-      "id": "map.region_2",
-      "width": 20,
-      "height": 20,
-      "blocked": [],
-      "portals": []
-    },
-    {
-      "id": "map.region_3",
-      "width": 20,
-      "height": 20,
-      "blocked": [],
-      "portals": []
-    },
-    {
-      "id": "map.region_4",
-      "width": 20,
-      "height": 20,
-      "blocked": [],
-      "portals": []
-    }
+    {"id":"map.courtyard","name":"중앙 안뜰","width":20,"height":14,"blocked":[[0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[12,1],[13,1],[14,1],[15,1],[16,1],[17,1],[18,1],[19,1],[1,2],[2,2],[3,2],[4,2],[6,2],[7,2],[11,2],[12,2],[13,2],[14,2],[15,2],[16,2],[17,2],[18,2],[6,3],[14,3],[17,4],[3,5],[4,5],[6,5],[7,5],[9,5],[12,5],[13,5],[1,6],[5,6],[6,6],[7,6],[9,6],[10,6],[11,6],[12,6],[13,6],[15,6],[16,6],[18,6],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],[13,7],[14,7],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8],[16,8],[0,9],[1,9],[3,9],[4,9],[5,9],[6,9],[7,9],[8,9],[9,9],[10,9],[11,9],[12,9],[13,9],[14,9],[15,9],[16,9],[18,9],[19,9],[0,10],[1,10],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[10,10],[11,10],[12,10],[13,10],[14,10],[15,10],[16,10],[17,10],[18,10],[19,10],[0,11],[1,11],[2,11],[3,11],[4,11],[5,11],[6,11],[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[14,11],[15,11],[16,11],[17,11],[18,11],[19,11],[0,12],[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[16,12],[17,12],[18,12],[19,12],[0,13],[1,13],[2,13],[3,13],[4,13],[5,13],[6,13],[7,13],[8,13],[9,13],[10,13],[11,13],[12,13],[13,13],[14,13],[15,13],[16,13],[17,13],[18,13],[19,13]],"portals":[{"id":"portal.to_dorm","x":2.5,"y":9.5,"to":{"mapId":"map.dorm","x":5.5,"y":0.5},"open":true},{"id":"portal.to_lounge","x":17.5,"y":9.5,"to":{"mapId":"map.lounge","x":4.5,"y":0.5},"open":true},{"id":"portal.to_hall","x":10.5,"y":0.5,"to":{"mapId":"map.hall","x":7.5,"y":0.5},"open":true}]},
+    {"id":"map.lounge","name":"학생 휴게실","width":10,"height":8,"blocked":[[0,0],[1,0],[2,0],[3,0],[5,0],[6,0],[7,0],[8,0],[9,0],[0,1],[1,1],[2,1],[3,1],[6,1],[7,1],[8,1],[9,1],[0,2],[7,2],[9,2],[0,3],[1,3],[4,3],[9,3],[0,4],[9,4],[0,5],[1,5],[2,5],[6,5],[7,5],[8,5],[9,5],[0,6],[9,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7]],"portals":[{"id":"portal.to_courtyard","x":4.5,"y":0.5,"to":{"mapId":"map.courtyard","x":17.5,"y":9.5},"open":true}]},
+    {"id":"map.dorm","name":"기숙사 방","width":12,"height":9,"blocked":[[0,0],[1,0],[2,0],[3,0],[4,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[0,1],[11,1],[0,2],[11,2],[0,3],[11,3],[0,4],[11,4],[0,5],[1,5],[11,5],[0,6],[1,6],[5,6],[6,6],[7,6],[8,6],[11,6],[0,7],[11,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8]],"portals":[{"id":"portal.dorm_to_courtyard","x":5.5,"y":0.5,"to":{"mapId":"map.courtyard","x":2.5,"y":9.5},"open":true}]},
+    {"id":"map.hall","name":"본관 복도","width":16,"height":6,"blocked":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[0,1],[1,1],[5,1],[6,1],[9,1],[10,1],[14,1],[15,1],[0,2],[0,3],[15,3],[0,4],[1,4],[3,4],[4,4],[5,4],[6,4],[8,4],[9,4],[10,4],[11,4],[13,4],[14,4],[15,4],[0,5],[1,5],[3,5],[4,5],[5,5],[6,5],[8,5],[9,5],[10,5],[11,5],[13,5],[14,5],[15,5]],"portals":[{"id":"portal.hall_to_courtyard","x":7.5,"y":0.5,"to":{"mapId":"map.courtyard","x":10.5,"y":0.5},"open":true},{"id":"portal.hall_to_library","x":2.5,"y":5.5,"to":{"mapId":"map.library","x":5.5,"y":0.5},"open":true},{"id":"portal.hall_to_classroom","x":7.5,"y":5.5,"to":{"mapId":"map.classroom","x":3.5,"y":0.5},"open":true},{"id":"portal.hall_to_cafeteria","x":12.5,"y":5.5,"to":{"mapId":"map.cafeteria","x":7.5,"y":0.5},"open":true},{"id":"portal.hall_to_greenhouse","x":15.5,"y":2.5,"to":{"mapId":"map.greenhouse","x":0.5,"y":3.5},"open":true}]},
+    {"id":"map.library","name":"도서관","width":12,"height":9,"blocked":[[0,0],[1,0],[2,0],[3,0],[4,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[0,1],[1,1],[10,1],[11,1],[0,2],[11,2],[0,3],[1,3],[3,3],[4,3],[7,3],[8,3],[10,3],[11,3],[0,4],[11,4],[0,5],[1,5],[3,5],[4,5],[7,5],[8,5],[10,5],[11,5],[0,6],[11,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8]],"portals":[{"id":"portal.library_to_hall","x":5.5,"y":0.5,"to":{"mapId":"map.hall","x":2.5,"y":5.5},"open":true}]},
+    {"id":"map.classroom","name":"강의실","width":12,"height":9,"blocked":[[0,0],[1,0],[2,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[0,1],[11,1],[0,2],[2,2],[3,2],[5,2],[6,2],[8,2],[9,2],[11,2],[0,3],[11,3],[0,4],[2,4],[3,4],[5,4],[6,4],[8,4],[9,4],[11,4],[0,5],[11,5],[0,6],[5,6],[11,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8]],"portals":[{"id":"portal.classroom_to_hall","x":3.5,"y":0.5,"to":{"mapId":"map.hall","x":7.5,"y":5.5},"open":true}]},
+    {"id":"map.cafeteria","name":"학생 식당","width":14,"height":9,"blocked":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[0,1],[1,1],[12,1],[13,1],[0,2],[2,2],[3,2],[6,2],[7,2],[10,2],[11,2],[13,2],[0,3],[13,3],[0,4],[2,4],[3,4],[6,4],[7,4],[10,4],[11,4],[13,4],[0,5],[13,5],[0,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],[13,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],[13,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8]],"portals":[{"id":"portal.cafeteria_to_hall","x":7.5,"y":0.5,"to":{"mapId":"map.hall","x":12.5,"y":5.5},"open":true}]},
+    {"id":"map.greenhouse","name":"온실","width":12,"height":8,"blocked":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[0,1],[2,1],[3,1],[4,1],[7,1],[8,1],[9,1],[11,1],[0,2],[11,2],[3,3],[4,3],[7,3],[8,3],[11,3],[0,4],[11,4],[0,5],[1,5],[3,5],[4,5],[7,5],[8,5],[10,5],[11,5],[0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7]],"portals":[{"id":"portal.greenhouse_to_hall","x":0.5,"y":3.5,"to":{"mapId":"map.hall","x":15.5,"y":2.5},"open":true}]},
+    {"id":"map.region_1","width":20,"height":20,"blocked":[],"portals":[]},
+    {"id":"map.region_2","width":20,"height":20,"blocked":[],"portals":[]},
+    {"id":"map.region_3","width":20,"height":20,"blocked":[],"portals":[]},
+    {"id":"map.region_4","width":20,"height":20,"blocked":[],"portals":[]}
   ],
   "destinations": [
-    {
-      "id": "dest.courtyard_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 1.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.lounge_entry",
-      "position": {
-        "mapId": "map.lounge",
-        "x": 0.5,
-        "y": 3.5
-      },
-      "radius": 0.2,
-      "facing": "east"
-    },
-    {
-      "id": "dest.snack",
-      "position": {
-        "mapId": "map.lounge",
-        "x": 4.5,
-        "y": 0.5
-      },
-      "radius": 0.2,
-      "facing": "north"
-    },
-    {
-      "id": "dest.stage",
-      "position": {
-        "mapId": "map.lounge",
-        "x": 4.5,
-        "y": 1.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.notice",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 5.5,
-        "y": 1.5
-      },
-      "radius": 0.2,
-      "facing": "west"
-    },
-    {
-      "id": "dest.serin_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.ruon_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.mira_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.doyun_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.eve_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.narin_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.haeon_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.isol_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.or_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.rume_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.bello_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    },
-    {
-      "id": "dest.yuna_home",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "radius": 0.2,
-      "facing": "south"
-    }
+    {"id":"dest.courtyard_home","position":{"mapId":"map.courtyard","x":8.5,"y":2.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.lounge_entry","position":{"mapId":"map.lounge","x":4.5,"y":1.5},"radius":0.2,"facing":"north"},
+    {"id":"dest.snack","position":{"mapId":"map.lounge","x":7.5,"y":3.5},"radius":0.2,"facing":"east"},
+    {"id":"dest.stage","position":{"mapId":"map.lounge","x":7.5,"y":4.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.notice","position":{"mapId":"map.courtyard","x":10.5,"y":5.5},"radius":0.2,"facing":"north"},
+    {"id":"dest.serin_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.ruon_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.mira_home","position":{"mapId":"map.courtyard","x":14.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.doyun_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.eve_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.narin_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.haeon_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.isol_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.or_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.rume_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.bello_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.yuna_home","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"radius":0.2,"facing":"south"},
+    {"id":"dest.hall_board","position":{"mapId":"map.hall","x":6.5,"y":3.5},"radius":0.2,"facing":"north"},
+    {"id":"dest.library_desk","position":{"mapId":"map.library","x":3.5,"y":4.5},"radius":0.2,"facing":"north"},
+    {"id":"dest.classroom_seat","position":{"mapId":"map.classroom","x":3.5,"y":3.5},"radius":0.2,"facing":"north"},
+    {"id":"dest.cafeteria_table","position":{"mapId":"map.cafeteria","x":3.5,"y":3.5},"radius":0.2,"facing":"north"},
+    {"id":"dest.greenhouse_bed","position":{"mapId":"map.greenhouse","x":3.5,"y":2.5},"radius":0.2,"facing":"north"}
   ],
   "npcs": [
-    {
-      "id": "npc.serin",
-      "source": "N01",
-      "name": "서린",
-      "position": {
-        "mapId": "map.courtyard",
-        "x": 1.5,
-        "y": 4.5
-      },
-      "home": "dest.serin_home",
-      "speed": 3
-    }
-  ],
-  "schedules": [
-    {
-      "id": "schedule.serin",
-      "npcId": "npc.serin",
-      "script": "420 home / 720 dest.notice / 1080 home"
-    }
+    {"id":"npc.serin","source":"N01","name":"서린","position":{"mapId":"map.courtyard","x":8.5,"y":5.5},"home":"dest.serin_home","speed":3}
   ],
   "events": [
     {

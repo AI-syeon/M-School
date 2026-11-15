@@ -1,0 +1,15 @@
+{
+  "fitSize": [116, 92],
+  "offset": [6, 2],
+  "colors": 112,
+  "waterTop": 38,
+  "jets": [
+    {"x": 46, "startY": 38, "endY": 48, "phase": 0},
+    {"x": 80, "startY": 38, "endY": 48, "phase": 3},
+    {"x": 37, "startY": 47, "endY": 63, "phase": 4},
+    {"x": 89, "startY": 47, "endY": 63, "phase": 1},
+    {"x": 44, "startY": 52, "endY": 72, "phase": 2},
+    {"x": 82, "startY": 52, "endY": 72, "phase": 5},
+    {"x": 64, "startY": 59, "endY": 75, "phase": 1}
+  ]
+}

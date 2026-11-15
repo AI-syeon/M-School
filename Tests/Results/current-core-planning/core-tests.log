@@ -1,0 +1,73 @@
+PASS content rules hold for base
+PASS content rules hold for variants/a10-mira
+PASS content rules hold for variants/dest-moved
+PASS content rules catch move-ref-kind
+PASS content rules catch move-ref-not-found
+PASS content rules catch say-arg-count
+PASS content rules catch unknown-function
+PASS content rules catch wait-arg-type
+PASS content rules catch unregistered-effect
+PASS start fixture fits content: base/start-accepted-all.json
+PASS start fixture fits content: base/start-accepted.json
+PASS start fixture fits content: base/start-intro-false.json
+PASS start fixture fits content: base/start-offered.json
+PASS start fixture fits content: variants/a10-mira/start-accepted.json
+PASS start fixture fits content: variants/a10-mira/start-offered.json
+PASS fixture copy matches start-accepted-all.json
+PASS fixture copy matches start-accepted.json
+PASS fixture copy matches start-intro-false.json
+PASS fixture copy matches start-offered.json
+PASS fixture copy matches start-accepted.json
+PASS fixture copy matches start-offered.json
+PASS interact far from the NPC lists nothing
+PASS interact in range lists both invitations as Offered
+PASS accept turns Offered into Accepted
+PASS accepting twice is refused
+PASS notes: event starts and hides the screen
+PASS notes: staging places actors at the join while hidden
+PASS notes: screen shows again before the script runs
+PASS notes: says, asks, then runs only the chosen fork
+PASS notes: effects applied once (wallet +20, flag, clock +10, appointment removed, completed)
+PASS notes: actors stay where the event left them
+PASS notes: after the event the NPC walks back to its schedule spot
+PASS notes: replay is refused and pays nothing
+PASS tea: event starts and hides the screen
+PASS tea: staging places actors at the join while hidden
+PASS tea: screen shows again before the script runs
+PASS tea: says, asks, then runs only the chosen fork
+PASS tea: effects applied once (wallet +20, flag, clock +10, appointment removed, completed)
+PASS tea: actors stay where the event left them
+PASS tea: after the event the NPC walks back to its schedule spot
+PASS tea: replay is refused and pays nothing
+PASS intro-false: event refused by its condition
+PASS cancel: event reached its first line in the lounge
+PASS cancel restores actors, map and clock and applies nothing
+PASS cancel: the event can start again
+PASS schedule: load at 13:20 places the NPC at dest.notice
+PASS schedule: load at 05:00 uses the previous day's last entry (home)
+PASS schedule: before 12:00 the NPC stays home
+PASS schedule: at 12:00 the NPC starts walking
+PASS schedule: the NPC walks to dest.notice
+PASS schedule: an NPC held by an event skips its schedule
+PASS path: courtyard home to lounge snack crosses both maps
+PASS path: walking it arrives through the portal
+PASS path: an unreachable goal has no path
+PASS player: a blocked cell stops movement on that axis
+PASS player: walking into the portal cell crosses to the lounge
+PASS player: standing on the arrival cell does not bounce back
+PASS player: leaving and re-entering the arrival cell crosses back
+PASS day end: refused while an event runs (R4)
+PASS day end: finishing an event does not save (E2)
+PASS bed: the player in the lounge is not near the bed
+PASS bed: standing on the bed is near it
+PASS sleep: EndDay(Slept) ends the day
+PASS sleep: next day starts at 07:00 at the bed with the NPC home and the file saved
+PASS day end: reload gives the same state
+PASS day end: the event stays refused after reload
+PASS clock: midnight does not end the day
+PASS clock: one real second is one game minute
+PASS pass out: 02:00 ends the day at the bed and saves
+PASS save: the second write keeps the first as .bak
+PASS save: a broken file falls back to .bak
+PASS save: no file reads as null
+ALL PASS

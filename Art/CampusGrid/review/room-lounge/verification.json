@@ -1,0 +1,495 @@
+{
+  "status": "PASS",
+  "mapPixels": [
+    320,
+    256
+  ],
+  "cellPixels": [
+    32,
+    32
+  ],
+  "outerWallCells": 31,
+  "blockedCells": 45,
+  "walkableCells": 35,
+  "reachableCells": 35,
+  "door": [
+    4,
+    0
+  ],
+  "tableCollision": [
+    [
+      4,
+      3
+    ]
+  ],
+  "targets": {
+    "table_west": [
+      3,
+      3
+    ],
+    "table_east": [
+      5,
+      3
+    ],
+    "table_south": [
+      4,
+      2
+    ],
+    "table_north": [
+      4,
+      4
+    ],
+    "fireplace_front": [
+      6,
+      4
+    ],
+    "noticeboard_front": [
+      3,
+      5
+    ]
+  },
+  "alphaValues": [
+    255
+  ],
+  "cellColorCountRange": [
+    48,
+    48
+  ],
+  "uniqueCellImages": 1,
+  "fireFrames": 6,
+  "fireFrameDurationsMs": [
+    125.0,
+    125.0,
+    125.0,
+    125.0,
+    125.0,
+    125.0
+  ],
+  "collisions": [
+    {
+      "id": "lounge-wall-rear",
+      "cells": [
+        [
+          0,
+          7
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          9,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "lounge-wall-side",
+      "cells": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "lounge-wall-side",
+      "cells": [
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          9,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "lounge-wall-front-left",
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "lounge-wall-front-right",
+      "cells": [
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "lounge-sofa",
+      "cells": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "lounge-tea-table",
+      "cells": [
+        [
+          4,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "lounge-fireplace",
+      "cells": [
+        [
+          6,
+          5
+        ],
+        [
+          7,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "bookshelf",
+      "cells": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "lounge-armchair",
+      "cells": [
+        [
+          7,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "nightstand",
+      "cells": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "oak-chest",
+      "cells": [
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "plant",
+      "cells": [
+        [
+          8,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "flower-plant",
+      "cells": [
+        [
+          8,
+          1
+        ]
+      ]
+    }
+  ],
+  "outputHashes": {
+    "GroundNormal.png": "acc31ceaf9d9eb41336b1ee778a9f1a2808d9234c1b9ed84870e8caff0d66324",
+    "GroundNormal.png.meta": "c8e270568876be313a7189dcf3e90bf0cb598cc1e0e2ffbb846fb71c32adfa4c",
+    "layout.json": "f7bcfba23b04349ddc7cb443b1b9218a4ec6be5ccceaa118c484d8dc0b738031",
+    "layout.json.meta": "5e976d4a3a0b34b926e1165f063dee3b78533d791eb5793db3d817959604ab9b",
+    "Normals\\ground-room-floor-00.png": "0776832cc22f51d4dc7ca1e5a39b07ba5f73a66a2bd36389a7038a509419b9e6",
+    "Normals\\ground-room-floor-00.png.meta": "4c3d428e576a530745fd920dcd3fd3177c19c3514b1dead93d40f4490fe8f3ea",
+    "Normals\\Sprites\\bookshelf.png": "72f44b2db0723e27860c807c5306fc40f47973e1580283201dba8b6e77e70b05",
+    "Normals\\Sprites\\bookshelf.png.meta": "4b8bd8cf4b3c1e5a3a2e0d0b8d09089398b737a4f442533ede56fedb30a33e4e",
+    "Normals\\Sprites\\brass-lamp.png": "d100d7403480e787185d5edbce976d83f80326c7c075ea5bc7d774f6a60746a6",
+    "Normals\\Sprites\\brass-lamp.png.meta": "5ae6771bf798cc912e0f5ba3e0b61f7d13e80eec31cb3724d33b8d39e4509286",
+    "Normals\\Sprites\\candle.png": "05affd79b682683d867955fe9a41eb5598ed1f29ea54c0cfd7c2587621c41876",
+    "Normals\\Sprites\\candle.png.meta": "e6a7437ad992dfceccc52ed3460a9ecf71dc4c76cb3f4bd654cf6535bdfdb353",
+    "Normals\\Sprites\\canopy-bed.png": "6f1636e52302929071c866d047d216b1ecb911b6b2aa256eb5f71ff2834da36c",
+    "Normals\\Sprites\\canopy-bed.png.meta": "bea21d369d1c3151cdba39087027a9490a577c0777e07ec5903017b83d6db61b",
+    "Normals\\Sprites\\curtain-pair.png": "fefd61bf8e3667ab74f7f1ce18eb3da062a24835297f7f5f0167e7579b764a01",
+    "Normals\\Sprites\\curtain-pair.png.meta": "12b0a34846eeed6ce991ee9b018d8cf37c3022f9ce1894b766c27c79774a0ca1",
+    "Normals\\Sprites\\desk.png": "cdf4da74bfc7bc2c843db3f2ec085c43e1800713edc7740c9e0bc8143aa2619f",
+    "Normals\\Sprites\\desk.png.meta": "ce3e36dc874792e5b89c954010898d98585f09ff998a2505b82d3637e78bc175",
+    "Normals\\Sprites\\flower-plant.png": "9784e1bba017fbf32538f0a03d01f6304b231f147713cab1360534dbc90c8536",
+    "Normals\\Sprites\\flower-plant.png.meta": "9f49af5423252087b7e4fed9e8df72b3f58afe24e14d21755a6e8400124a3843",
+    "Normals\\Sprites\\green-runner.png": "b6c8c8236fc49493cdd2a4a07289b8cbd68639f76b3c6f937f32cb62c01f0384",
+    "Normals\\Sprites\\green-runner.png.meta": "87620558f9b10cd4576b4e95396f838c90d90c01d8fe89e292caa26bef4ec365",
+    "Normals\\Sprites\\lantern.png": "171890aab5667c6e19be28e8f720738eb2b7bf5c3685338a44a9b42ca1a9699a",
+    "Normals\\Sprites\\lantern.png.meta": "0c00455e798c778f02e6f586ba89bcc85c3985d1fb529a89e88c9c66f95aba2f",
+    "Normals\\Sprites\\lounge-armchair.png": "0e23281ec7e0de62a881e2a9f0f645b78c0fa00e9c9803d3c93dc706ac288bea",
+    "Normals\\Sprites\\lounge-armchair.png.meta": "382a9fc2a84e44830e18e5be7fecff1aa49bc073d0867a80f78b84d404c57a30",
+    "Normals\\Sprites\\lounge-fireplace.png": "60e86b146f1a9e85f11672ac5189eb4022916a10c159b4cb65b8a51a818d5573",
+    "Normals\\Sprites\\lounge-fireplace.png.meta": "3d69866a144cc35a10f8dd95ce213dd669e02d19101a0413f68fda1f00af4922",
+    "Normals\\Sprites\\lounge-noticeboard.png": "c1e477faa15f57904dc5d56bf7db1b7b315d54b298915f4f526f421224e2a472",
+    "Normals\\Sprites\\lounge-noticeboard.png.meta": "1402540246ff51f429f1ad107ac21a0c901a2a352fa6c08ccd86dbff83d14f75",
+    "Normals\\Sprites\\lounge-rug.png": "b6166532740b69fa097bb7f85989b8bd86dff82650b3c15552f601b15265fff7",
+    "Normals\\Sprites\\lounge-rug.png.meta": "edf19f1f9718c51a866853a500be809fcd57ceabb17dab787658ac721d4dcf3b",
+    "Normals\\Sprites\\lounge-sofa.png": "301aacdfebe02c8dd8f3d922abed4851fa420d381dbfa9a987587e51d7724949",
+    "Normals\\Sprites\\lounge-sofa.png.meta": "8c75e3b6da94011970e61a4188f4f58b4cadb0b4633d797708144bca2e1eb8f6",
+    "Normals\\Sprites\\lounge-star-banner.png": "912d3351037ba47ebd12c9370a3ebefd71908d14ff0e7a1efa13e43046c14dba",
+    "Normals\\Sprites\\lounge-star-banner.png.meta": "af6d180115eefc0b443b477b02a6cf9417dc5e38411d9dc66ad76055388ed401",
+    "Normals\\Sprites\\lounge-tea-table.png": "76b4d3b38c4c6219cb1c54d17572bf54e01e5959279e4966477cb265323506de",
+    "Normals\\Sprites\\lounge-tea-table.png.meta": "1c01fe3e196a40f1440bab8be6ac67cdacae24f45c671c99a06a1bf4f5e86daf",
+    "Normals\\Sprites\\lounge-wall-front-left.png": "1368dca8a4f4a057b1930f33589d1d6265cf6fc4d5482d2c51f26f6973e0de63",
+    "Normals\\Sprites\\lounge-wall-front-left.png.meta": "dc628f2b91d4f785587729fe4639adc0ceb815fbbe7d506554d4453068e1e7f1",
+    "Normals\\Sprites\\lounge-wall-front-right.png": "1b6e663f769ce1baf197ec03df8e99f52f52b878e30bc7e50e0673405f17e1e9",
+    "Normals\\Sprites\\lounge-wall-front-right.png.meta": "257cc2334c3fc9e62bda78e78ae8b577c6257554aad16d67f6cdc6b5910f7af0",
+    "Normals\\Sprites\\lounge-wall-rear.png": "4427aee62e36ba623a5346b4e9ab1f40d799f31af2480201069a37be19fc1a03",
+    "Normals\\Sprites\\lounge-wall-rear.png.meta": "c18c0882bd4a714e04052c5e961d9e15c42ade3ef77351f3ead0130c16a34142",
+    "Normals\\Sprites\\lounge-wall-side.png": "7a0b5662c094783c592b8a47b05816f491f652cce5c1257fd2bb4e6c0ed4d9d9",
+    "Normals\\Sprites\\lounge-wall-side.png.meta": "a9f225c9947c05db1842909e43edb9902e508e99211a49eb04f491c7bb41dde8",
+    "Normals\\Sprites\\mirror.png": "0e747cc8414c5811a13819d9beab7cbc8e4eb00c27fddfee16ce93f2633aa7a1",
+    "Normals\\Sprites\\mirror.png.meta": "95301e1040711c979626f6575ac8398b4db0d47d7510cf1cb9775878a49e2e8c",
+    "Normals\\Sprites\\moon-banner.png": "e1826a5f3106a9cb9d1ca8ba2ac4750b3dce63fd4addb030db2758662baa453d",
+    "Normals\\Sprites\\moon-banner.png.meta": "e7ff760072b2e845bb189651309e6508af409581918ea1b72c16797aed032d5b",
+    "Normals\\Sprites\\nightstand.png": "7466a5eb88f06cf568f691eeb57597439716ef905ed40b7d349de1210ee4bde2",
+    "Normals\\Sprites\\nightstand.png.meta": "f02f0a3aa0475a7aad12a5496fa30a384b831a7c387b830494ac0341bb081cfe",
+    "Normals\\Sprites\\oak-chest.png": "9f46673bc0c8301ac77285857a741a03faca3efcd4a89651ae8ccd411e0b203d",
+    "Normals\\Sprites\\oak-chest.png.meta": "8b344ac7a2da83785c3ab48a035aa348ec3a67c4bad4c7f30934ed13dbd14ec2",
+    "Normals\\Sprites\\plant.png": "ffacac9be254a4eb8a4f1fb98073b3cd6ccbb0060e7da41ad556da2ef80e96a3",
+    "Normals\\Sprites\\plant.png.meta": "ea7e5b9361fdd365278eb10ef67fa1ca39e7521b6c71a74646a3544258b107bc",
+    "Normals\\Sprites\\sleeping-cat.png": "c2294a884f44faa845847a7b29e83138a553dd51b68c5b70373031ff3347f59e",
+    "Normals\\Sprites\\sleeping-cat.png.meta": "757b8c453377c98ffa5fe11bb5d3303efe5cf0d914e0a8a363f08af90ace24b8",
+    "Normals\\Sprites\\stacked-books.png": "245a016078065f4cf12fdfc2d3502e4d094613dc1702fcf134326736c432c706",
+    "Normals\\Sprites\\stacked-books.png.meta": "54ff119cb9d3d7892ac5ee12593793ecf380e435e611ab28f9ab3dfdf9812fcf",
+    "Normals\\Sprites\\star-garland.png": "9beec953125fe7e63316ba82145d1065969a6b43659d8aa0919f01572a3bef1c",
+    "Normals\\Sprites\\star-garland.png.meta": "9c272fceb5feb3be45f24c403d1d6e5fcddd310a71bab7215260c25d60cbbff6",
+    "Normals\\Sprites\\star-rug.png": "d33b95870734af34699aa45e9932d5a8567c3ca2a06dc65981b730a5d5c7a117",
+    "Normals\\Sprites\\star-rug.png.meta": "847d027301446a4bee95423b2ed34e4c082949242ba07827dfa2ae7f5e31540b",
+    "Normals\\Sprites\\star-stool.png": "2043dca82ac37deacbb14021c506383c98a66c9412957e18b9beb336c038802d",
+    "Normals\\Sprites\\star-stool.png.meta": "8f6d0674fad6b3c34303bf32f26b049d7bc80c92351eedf678fc5b50d9e455c7",
+    "Normals\\Sprites\\trailing-ivy.png": "6588fa27c11e1c85e158cea56ef9c83fc32d79738e97d65811934c3700c25d43",
+    "Normals\\Sprites\\trailing-ivy.png.meta": "4b53a803a219a6d3d754e2f0adf8b04c534a86b7bb410e27e0b0dd33a063db10",
+    "Normals\\Sprites\\wall-front-left.png": "f8238f92e1d35d08c5631d9720c376aaa2fed0cd2ad69465193a79a25ff85bf2",
+    "Normals\\Sprites\\wall-front-left.png.meta": "bb51e1c3abaf5378f43945a1c2d14ca7f0fb213350d2a2fc9d7a49ec4a07754b",
+    "Normals\\Sprites\\wall-front-right.png": "e44f9b1317ecec633a4a260a32a6f2553dd016340bae5247b19ffa4654d2ddf5",
+    "Normals\\Sprites\\wall-front-right.png.meta": "02196db331bf2c7fb82db39c59800488acf2750fd2d54851c926917a9fa584a6",
+    "Normals\\Sprites\\wall-rear.png": "eda0fcef86b3e0e996297d97b09882825dba86dbe2092809a06fcdf5b2efc4ba",
+    "Normals\\Sprites\\wall-rear.png.meta": "c3ba28381e66cd3f1eb96935edfd33b262a8ca58991480bb3fb213538e2ebc3c",
+    "Normals\\Sprites\\wall-side.png": "1fdeb8164a72a704f1b5365ee68f567ec8d15e273bcccac62bb9cd5067683fc0",
+    "Normals\\Sprites\\wall-side.png.meta": "2de7d7b8934da060190d692c719a42c53a659f8279e1db701144ce4325c0661d",
+    "Normals\\Sprites\\wardrobe.png": "2c180bbe05ffcec06ad7c4c10457be2743c108f8d953563f8930d0294fbb350d",
+    "Normals\\Sprites\\wardrobe.png.meta": "53bf5b2015b3ef5e5833ceb2b32cee4b6a155a30f3805a91d2dd453d688dea2b",
+    "Normals\\Sprites\\window-seat.png": "48a07abff58b823c61d4e52911f7b92bc4d70d8641475a1c11fa36a580b2e21b",
+    "Normals\\Sprites\\window-seat.png.meta": "057ab824df43a10b57bd0ea3f468714de2d7b5f1c78496ac55b2374dbe8b8a25",
+    "Normals.meta": "4fc7a17e1b5e6e08e071b4f496adc982e7e88b108a3580c1b1fc16a329062172",
+    "Sprites\\bookshelf.png": "ebf7962b504e1ea34429c444a9827c4f4a739910184c7825af2a7fb9758b09fc",
+    "Sprites\\bookshelf.png.meta": "8d14f8164c4861a4ee286c514eaaaa24aa83e1d9f5ded0f3ff264f155ebecfb0",
+    "Sprites\\brass-lamp.png": "9f9b9cd62e99eba5ad2e2f862e3318f658ca9396a7b43210fc1b9f2557ebc0b5",
+    "Sprites\\brass-lamp.png.meta": "a61d48cfcf3ffd5568e1047f11cedd1b33de570fa9b97c9cf66fb1bbc962b79f",
+    "Sprites\\candle.png": "796326fe9f8667d826efff53a6784219e11b1fa0b271393aab7c787c09e4692c",
+    "Sprites\\candle.png.meta": "861c890af94df3a88c7f03778091d24c1df6b98881f427af76b40015e06fa132",
+    "Sprites\\canopy-bed.png": "28cd95b80f283253e296c64806211dcecbe77bc060d0e8c5c7a593b897b160d7",
+    "Sprites\\canopy-bed.png.meta": "a68082f2fc7b9baf82ba68f7ef5cecd5860d0b767c2664689aeff07f622eaf57",
+    "Sprites\\curtain-pair.png": "e00ab17f24b27422cd317c55406c6d0bc49740e18a3a647313f42cf77d90a3c3",
+    "Sprites\\curtain-pair.png.meta": "d7981180e4a1e114e1181a6ebcda7ce40a50ad75b773316b91d17754fab24215",
+    "Sprites\\desk.png": "0a133b9ac2e0134afadba2caf144894a9cbe2171cb5ab5d1413010839ea8ec52",
+    "Sprites\\desk.png.meta": "a0b25e5fadf3269fc227e826b4307d2fb5f58a1c3cbe081ff33ff61d63c73936",
+    "Sprites\\flower-plant.png": "1559b783faf48f500e1b2e1e365d3727278c89a0c3bc295ff2347b50dda1b839",
+    "Sprites\\flower-plant.png.meta": "3e90481a3a7b9632dfcc62166235650684ac566ce38639820815f52042193530",
+    "Sprites\\green-runner.png": "5d747bff6289339fcce1ed0335b64fe7ce4541895ca5fd02d98472f19c078910",
+    "Sprites\\green-runner.png.meta": "215e1396edc016d0bbe8e3839f6502233c489059c867f6ae6beb919cfc973db5",
+    "Sprites\\lantern.png": "cf75307d52adfe6921b8f73a855c0f4ec9e16a329ac97ec0b77a37c5e95cb2ad",
+    "Sprites\\lantern.png.meta": "bb82fa4304304328fca25518f9c6b5227dab76da870fbd4e6d4e6a3053245f34",
+    "Sprites\\lounge-armchair.png": "52f63f51b8bfc585df7ba349f2b59c74305857669564bde4c7253f8f32e039da",
+    "Sprites\\lounge-armchair.png.meta": "7028327f1a4550e8c72a81aad08906ab175f2aff41bbe489031e8a29f84ff110",
+    "Sprites\\lounge-fireplace.png": "fa18973feb36c77b69a41093603c7098b8798436e1cc9955c7fe23ab5958e52b",
+    "Sprites\\lounge-fireplace.png.meta": "7dfa35fc6806f177d653f1128ca81ada857727ef100b147d571c394a2e594820",
+    "Sprites\\lounge-noticeboard.png": "d2d92abaaa124e7d16a465085b2efeabe44be27fb917abdc3e6425ad57bbe8de",
+    "Sprites\\lounge-noticeboard.png.meta": "2c61163e06979af0bd49b837cb70d6948615479495aa51af7b954c6dcfa31cc3",
+    "Sprites\\lounge-rug.png": "08e272025446e86a7417de5f610de8552bfb148de167392dfc575422fc43ac38",
+    "Sprites\\lounge-rug.png.meta": "14333aca45dbf1c64e541637b7ffa4e560b686175c80662fea872af143dadc51",
+    "Sprites\\lounge-sofa.png": "430c954cbae418619617cbdeb0e0a46dd7d796dc9e5dd98adfd3d376c22202ac",
+    "Sprites\\lounge-sofa.png.meta": "26672dbf210bf32b18df001505f14e3f6bd6dfdcf517a7dc9b26806b0fb637b8",
+    "Sprites\\lounge-star-banner.png": "4fe6e0b432084b62c57d27116f5590c0e788c052630a90464e8e9c056d4db343",
+    "Sprites\\lounge-star-banner.png.meta": "42c8c41df89400df03ffe24f9e6c87dfc8226bad93ea521ea4030fd952cadaa1",
+    "Sprites\\lounge-tea-table.png": "fd6c8577a1c5c8ddb2a5ad3d94fe84d842ee29a8bc3feccadd730526d108c604",
+    "Sprites\\lounge-tea-table.png.meta": "ec7ab3067169ef7aac72ecb47531affa4721b0684226d289dc15dc79f92546e8",
+    "Sprites\\lounge-wall-front-left.png": "199ed0bda65735943a6ad5cb132de4cc79cdd7ce563c960f1992617c915d8950",
+    "Sprites\\lounge-wall-front-left.png.meta": "c951086b2f82ce5f55cbe4d3461a8020f29d7ad9d1f62b9434e180bb2b69d878",
+    "Sprites\\lounge-wall-front-right.png": "c68725ad41288eebb5094d3d671f092784abb43efada42504b1e894d617d42fb",
+    "Sprites\\lounge-wall-front-right.png.meta": "91a9ed02fd94071758a7b8512ee6c81d88a050f195b3cc84f2ed1387a83cf693",
+    "Sprites\\lounge-wall-rear.png": "ec9c4b3eac5837563ce83dba97a4c611011e98cba35f539b9b61acedc46bb33f",
+    "Sprites\\lounge-wall-rear.png.meta": "a88ce727c751075ea20097adbe61cbd5b4c79a357ef00161a6c39be0de96d3ac",
+    "Sprites\\lounge-wall-side.png": "bb152515a5d95e037d06f2ae3c06f16a9799f6ab16bce3d9f665d62a6aa87d15",
+    "Sprites\\lounge-wall-side.png.meta": "b3f1a983614a9f37df466b7473b30391a6afc4501c3b61beb3515804a5f7be0b",
+    "Sprites\\mirror.png": "0e0f0558a8b196530811c7b8e23d3f1b603958ed058b93cc88d97915037a6255",
+    "Sprites\\mirror.png.meta": "c6a3755ba868c0cd52a3df870bf3786cc866fcdcef70f3a592a9942290e790b2",
+    "Sprites\\moon-banner.png": "5019c887b23acbc027f0fc12d233d769b9f9cad41f67b32ac882756153a75ede",
+    "Sprites\\moon-banner.png.meta": "64556b7db76922bc5a75ed042314196f376948da647cfdc92e7235d0d07d165f",
+    "Sprites\\nightstand.png": "c56d83c12cf305005af231fe07382fc7d8a295601f79ac1dc59e1bd52ce4c22c",
+    "Sprites\\nightstand.png.meta": "0f37c3ead0105bd7e268e389e104d71e00d07481400b9ba6aa5f3e7f7e75a81b",
+    "Sprites\\oak-chest.png": "90f1033c7c0385aebff0a146a906371ade1f6020908bfcb595bf301b15ee2e88",
+    "Sprites\\oak-chest.png.meta": "83e57e1ca828993a6db8ea2f5ef0883da24039044a14b8ddb28438cd6daf9cac",
+    "Sprites\\plant.png": "3b1070a3cb0de3838946d95e6dd5186454d21d25aa3a6721f5ce52f5cefb4648",
+    "Sprites\\plant.png.meta": "f0f186f852b5b7b9f16bfe6ceff81fe2d6c437539c5df6ef617884d6b5c4b492",
+    "Sprites\\sleeping-cat.png": "4f5b22ab0630ea5e0e1f92526a91888cfb77615a52cd2ada4fc464b51efc24db",
+    "Sprites\\sleeping-cat.png.meta": "0ac87706b2761a1a92b2ff81e5945a465af704f1e5fb62a554de1123c05b0caa",
+    "Sprites\\stacked-books.png": "c4a295a9dd03963e40feb09f31b6f2d0fa193235832d1119ed5217e8fd047b82",
+    "Sprites\\stacked-books.png.meta": "81202f3f9dd99c2e1b7030994b489e5e34075f05ad5fa29570a99d9bd9c964fa",
+    "Sprites\\star-garland.png": "bef0c4f007be3f7d1780ea4d37509133ff080d2f4a8bd2ef8d1393a342a62727",
+    "Sprites\\star-garland.png.meta": "ba893d5db79298306082bd337f2f588a1f0c10dd4bc6e0752c07ec93e7f0a8da",
+    "Sprites\\star-rug.png": "39dae5b9f8e5507f100ef139cb909422eee499c947d69110531d29eca841ba20",
+    "Sprites\\star-rug.png.meta": "8e7d15b1db777b3da246b71301616662aba0882eb0c94a88452f64880b5f24e9",
+    "Sprites\\star-stool.png": "476867cbbf0d8c1a417cab9285ecacd6020dbc98842f2f99ad8ff018ab8aeb43",
+    "Sprites\\star-stool.png.meta": "ba41e476945fe87cab21b5622597b5875412676d778a7b1fa4bb0cea017e3062",
+    "Sprites\\trailing-ivy.png": "2fd18af5a444da0884a4dd656ea97e424ff256efa73dbc5a81c2104831d9cd02",
+    "Sprites\\trailing-ivy.png.meta": "4dc38f0a746ff710697920795d2b729f73f756a26f39046dccf9d7b94a98db23",
+    "Sprites\\wall-front-left.png": "99631e4a538fcd4507f8876edffcf420335c82144fa0c592c88259dec1027fa8",
+    "Sprites\\wall-front-left.png.meta": "4319dad3a518fc6dc72c78b15f532c78962461210149010645873fd8b1e943d6",
+    "Sprites\\wall-front-right.png": "34a5f7cd48cf09c8352d7fe5a5fa6a9680f81bb7941868eb5a8ddb4897f0204a",
+    "Sprites\\wall-front-right.png.meta": "361e85cadb09f4d48512e65b031a95e262e5cf80be182ad929c0023e21bf21fd",
+    "Sprites\\wall-rear.png": "6d92dd4545b3f3f8d8ce06d0d5877da4ca9f69ca8fc9669039ac956e45473a1e",
+    "Sprites\\wall-rear.png.meta": "e7513e35871eba41b89ced300bfd85c459e42d8ee21af4bb75dcc89f150760cb",
+    "Sprites\\wall-side.png": "456e7efdac7c97aa5307fa0410a9fa7f8cc0b172285098051dbb0612ec05abee",
+    "Sprites\\wall-side.png.meta": "d3b938fb60d9c4cae592c412e3422a112d74705704e9f6691b4f0566bccd8dc6",
+    "Sprites\\wardrobe.png": "7da59b95f6a36d220715590c970d2a83d958388d5457ff138c7b7dfb635faff7",
+    "Sprites\\wardrobe.png.meta": "48b656fa99c5a56fd2923a9d6ed0401e70a72e9d8d1bd3f3fd08e1b56b85b2dc",
+    "Sprites\\window-seat.png": "fa062ffbb619205d2a9c164e0f2fe9085ae0ea4404b2ed84946cd41e85439c4e",
+    "Sprites\\window-seat.png.meta": "459905dae4071101785a95a10fbea44aad710375844d4f39d8472791d10b642a",
+    "Textures\\ground-room-floor-00.png": "5dc05d9500585010999a12f49d24d8466fde9a7dc7e4bfe1b31a6f2179f5b573",
+    "Textures\\ground-room-floor-00.png.meta": "3ee28fbeb28a755bb5acf79e0f4efebf66c2f13327998bb821e99180c0367646",
+    "Textures.meta": "2e71df3bab1a81a8bea520d551d62984d80a843058fcacebe8e3a04a51111f8b"
+  },
+  "reviewHashes": {
+    "build-report.json": "fc7f5bd5f7f629b5264d374ca5919e9b6fe21102cee14b0ae82a22103308f6db",
+    "cell-atlas.png": "5dc05d9500585010999a12f49d24d8466fde9a7dc7e4bfe1b31a6f2179f5b573",
+    "courtyard.png": "6cbc26f310f3481422afe7a4f5d8474344e937cfe6dd20b79b035850344283f5",
+    "fireplace.apng": "0fb343a4950911b17984b90f5aef9918bf250b6a45d5e6905fbf122fc4155c5f",
+    "lounge-art-preparation.json": "0af45ac7cd9c2bd41f0a1276587bf6ca2f7bf0e072942e24c7e77ef463811248",
+    "lounge-fireplace.apng": "0fb343a4950911b17984b90f5aef9918bf250b6a45d5e6905fbf122fc4155c5f",
+    "lounge-source-vs-pixel.png": "7f243623a8b7518f810eec7cbce62a852df88d703c91279a7caefcbf7dfd5f4d",
+    "room-lounge-3x.png": "0d851a3deb5361e773e9ea934696ec76853bbc83063d0511dd2f1ca5603d86d0",
+    "room-lounge-grid.png": "c890046988b8c7421b9031fa71841d964e5c8513a185bf79d57acd031886f52d",
+    "room-lounge-vs-keyart.png": "0bc98d28b39d1b3e448bdd1d3f3d8d9658bf0749cc87dd39169e15320c2a22ab",
+    "room-lounge.png": "6cbc26f310f3481422afe7a4f5d8474344e937cfe6dd20b79b035850344283f5",
+    "source-vs-grid.png": "6ad46f5ac8513fd1c51857d3ab9ff3feda2ee92e4fbe20c8efe7f1cda8a057c3"
+  },
+  "runtimeUnityCheck": "not run"
+}

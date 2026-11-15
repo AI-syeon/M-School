@@ -1,0 +1,28 @@
+12개 상태 자산을 targets.json에 등록했습니다. map.json 배치는 추가하지 않았습니다.
+
+등록 ID와 크기:
+target-signboard-dark / target-signboard-lit — 1×2셀
+target-pillar-broken / target-pillar-mended — 1×2셀
+target-seedpot-dry / target-seedpot-sprout — 1×1셀
+target-moss-plain / target-moss-bloom — 1×1셀
+target-plaque-dim / target-plaque-glow — 1×1셀
+target-rune-stone-off / target-rune-stone-on — 1×1셀
+
+모두 단일 프레임, fps 없음, 충돌 [[0,0]]입니다.
+
+작성 파일:
+Art/CampusGrid/source/targets-original.png 및 targets-prompt.json
+Art/CampusGrid/targets.json
+Art/CampusGrid/build_targets.py
+Art/CampusGrid/prepared/targets/의 12개 PNG
+Art/CampusGrid/review/targets-sheet.png
+Art/CampusGrid/review/targets-source-vs-result.png
+Art/_runs/20261111-0929-targets/의 검증 기록
+
+art.json에는 라이브러리만 추가했고, rebuild.ps1에는 준비 스크립트 호출만 추가했습니다.
+
+검증 통과: 32×64 또는 32×32px, 알파 0/255, 불투명 색상 30–39개. 모든 쌍의 캔버스와 하단 기준점이 일치합니다. 1배·4배 및 포장 바닥과 기존 벤치 비교를 열어 확인했습니다.
+
+최종 재빌드 2회 성공. layout.json과 build-report.json이 바이트 단위로 일치하며, 기존 셀 PNG 523개와 기존 원본·map.json도 그대로 유지됐습니다.
+
+남은 한계: 작은 음각 무늬는 32px에서 세부가 줄어듭니다. Unity 엔진 내 렌더 검증은 수행하지 않았습니다.

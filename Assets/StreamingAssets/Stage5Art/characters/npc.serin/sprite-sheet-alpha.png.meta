@@ -1,7 +1,680 @@
 fileFormatVersion: 2
 guid: fae93ac9bb14a8047aa4fcafd492591c
-DefaultImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2002419756881369717
+    second: south_idle_000
+  - first:
+      213: 4318233198447398760
+    second: south_idle_001
+  - first:
+      213: -523871696492231188
+    second: south_idle_002
+  - first:
+      213: 5012312278005569530
+    second: south_idle_003
+  - first:
+      213: 166114674493914616
+    second: south_walk_000
+  - first:
+      213: 2440943101813998248
+    second: south_walk_001
+  - first:
+      213: -7229973593151532280
+    second: south_walk_002
+  - first:
+      213: -8894399242556370819
+    second: south_walk_003
+  - first:
+      213: -9178375568233627140
+    second: south_walk_004
+  - first:
+      213: 3996747326646023063
+    second: south_walk_005
+  - first:
+      213: -3059038624703944946
+    second: west_idle_000
+  - first:
+      213: 8090052647308051470
+    second: west_idle_001
+  - first:
+      213: 1216515830009713456
+    second: west_idle_002
+  - first:
+      213: 3558571074689572291
+    second: west_idle_003
+  - first:
+      213: -2199376022366714710
+    second: west_walk_000
+  - first:
+      213: -7215321766819347620
+    second: west_walk_001
+  - first:
+      213: -3893160170593052633
+    second: west_walk_002
+  - first:
+      213: 5651540463395187290
+    second: west_walk_003
+  - first:
+      213: 7112909792517713444
+    second: west_walk_004
+  - first:
+      213: 9030432824456942710
+    second: west_walk_005
+  - first:
+      213: 4905011083938670915
+    second: east_idle_000
+  - first:
+      213: 6205356628382749684
+    second: east_idle_001
+  - first:
+      213: 4398060626651490757
+    second: east_idle_002
+  - first:
+      213: 108173439778007910
+    second: east_idle_003
+  - first:
+      213: 3109434754483439614
+    second: east_walk_000
+  - first:
+      213: -6243140705238686788
+    second: east_walk_001
+  - first:
+      213: 3814342361348889038
+    second: east_walk_002
+  - first:
+      213: -8681919194287414992
+    second: east_walk_003
+  - first:
+      213: -8914829494545729608
+    second: east_walk_004
+  - first:
+      213: 3227232677842042671
+    second: east_walk_005
+  - first:
+      213: 4407181018077193889
+    second: north_idle_000
+  - first:
+      213: 1667611889436022231
+    second: north_idle_001
+  - first:
+      213: 8426305620256263038
+    second: north_idle_002
+  - first:
+      213: 5442108061993228907
+    second: north_idle_003
+  - first:
+      213: 554117426425564385
+    second: north_walk_000
+  - first:
+      213: -4512162195088377970
+    second: north_walk_001
+  - first:
+      213: 1060713742565622670
+    second: north_walk_002
+  - first:
+      213: 7226149430285580634
+    second: north_walk_003
+  - first:
+      213: -1036302337958540606
+    second: north_walk_004
+  - first:
+      213: 3850186428418185542
+    second: north_walk_005
+  serializedVersion: 13
+  mipmaps:
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  maxTextureSize: 512
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  spriteMode: 2
+  spriteMeshType: 0
+  alignment: 9
+  spritePivot: {x: 0.5, y: 0.0625}
+  spritePixelsToUnits: 32
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  textureType: 8
+  textureShape: 1
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 512
+    textureFormat: -1
+    textureCompression: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: south_idle_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: e796dfbe91d972507f1f1ecd2e65a860
+      internalID: -2002419756881369717
+    - serializedVersion: 2
+      name: south_idle_001
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: e8ac13be957d5d9b13ddd4952e05bfd0
+      internalID: 4318233198447398760
+    - serializedVersion: 2
+      name: south_idle_002
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 1c4cd8220834232008ddb3cbc6f55647
+      internalID: -523871696492231188
+    - serializedVersion: 2
+      name: south_idle_003
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: dded0084d4be8e03a4174e9115a492e5
+      internalID: 5012312278005569530
+    - serializedVersion: 2
+      name: south_walk_000
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 35153f2695bd2927eb831c59ec49b373
+      internalID: 166114674493914616
+    - serializedVersion: 2
+      name: south_walk_001
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 3c44d6fa45508585b91dc66f1b35c0fd
+      internalID: 2440943101813998248
+    - serializedVersion: 2
+      name: south_walk_002
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: a890c8018a09c1f0b051b7627c2bc500
+      internalID: -7229973593151532280
+    - serializedVersion: 2
+      name: south_walk_003
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 448dad62874aa6c10cea0e22e7d4892c
+      internalID: -8894399242556370819
+    - serializedVersion: 2
+      name: south_walk_004
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 693f7c523d1212706282aa97eb6584ee
+      internalID: -9178375568233627140
+    - serializedVersion: 2
+      name: south_walk_005
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 192
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 4a616dc0c8bdc1eb231b02d79d6eab3c
+      internalID: 3996747326646023063
+    - serializedVersion: 2
+      name: west_idle_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 0f9aaaf9c1668f48124411fbca136240
+      internalID: -3059038624703944946
+    - serializedVersion: 2
+      name: west_idle_001
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: a2f434f005c939f2e99ff66ffd3858ff
+      internalID: 8090052647308051470
+    - serializedVersion: 2
+      name: west_idle_002
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: cccf20dcb1b90021a9770ba129a89d8e
+      internalID: 1216515830009713456
+    - serializedVersion: 2
+      name: west_idle_003
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: f981d1d7a0b92afc83ff36897003b288
+      internalID: 3558571074689572291
+    - serializedVersion: 2
+      name: west_walk_000
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 219f90028d7f993a4e3d4a08f22a6a7b
+      internalID: -2199376022366714710
+    - serializedVersion: 2
+      name: west_walk_001
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: be8d4be11cecf14e5265439c8fc83198
+      internalID: -7215321766819347620
+    - serializedVersion: 2
+      name: west_walk_002
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 5e3ed0b9c992e694d30ffcbedfabf5ab
+      internalID: -3893160170593052633
+    - serializedVersion: 2
+      name: west_walk_003
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 0bf0d41670c44f2af932d1c663df218f
+      internalID: 5651540463395187290
+    - serializedVersion: 2
+      name: west_walk_004
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 079aba77818d7df971bc99d6ee798acf
+      internalID: 7112909792517713444
+    - serializedVersion: 2
+      name: west_walk_005
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 128
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 64c18e0d0060368742affcc8b4cca68f
+      internalID: 9030432824456942710
+    - serializedVersion: 2
+      name: east_idle_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: dad0b1689e49b0ff4dc6ad4ea0706393
+      internalID: 4905011083938670915
+    - serializedVersion: 2
+      name: east_idle_001
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: a6ecee6808fddc1454ebe2ea5e9d9a93
+      internalID: 6205356628382749684
+    - serializedVersion: 2
+      name: east_idle_002
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 185abf112d4a0790499b3956c4714e83
+      internalID: 4398060626651490757
+    - serializedVersion: 2
+      name: east_idle_003
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: ac123220830bd1953e5a95ffcc51cd8c
+      internalID: 108173439778007910
+    - serializedVersion: 2
+      name: east_walk_000
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 6427dd8d010017d75da036cd531b1aa3
+      internalID: 3109434754483439614
+    - serializedVersion: 2
+      name: east_walk_001
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 64bbf9645fea184db8e9b3ca43cf9765
+      internalID: -6243140705238686788
+    - serializedVersion: 2
+      name: east_walk_002
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: a16c997b7becdbe6d0205bb3a0f7832a
+      internalID: 3814342361348889038
+    - serializedVersion: 2
+      name: east_walk_003
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: f9c16efecb3947e29b62d199907bd4d3
+      internalID: -8681919194287414992
+    - serializedVersion: 2
+      name: east_walk_004
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: c22f13ce4773fb2586c6ff93fdf33747
+      internalID: -8914829494545729608
+    - serializedVersion: 2
+      name: east_walk_005
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 64
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 9b2099fd39f9c9df0e3311ce54be03c9
+      internalID: 3227232677842042671
+    - serializedVersion: 2
+      name: north_idle_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: f54cd840447d4ce001a001db7bcd9b2d
+      internalID: 4407181018077193889
+    - serializedVersion: 2
+      name: north_idle_001
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 2bf2ec3f4e7a7fb8b4ca72d79a21ea92
+      internalID: 1667611889436022231
+    - serializedVersion: 2
+      name: north_idle_002
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: d16411017cfbae5ff8bc70101891ca6d
+      internalID: 8426305620256263038
+    - serializedVersion: 2
+      name: north_idle_003
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 3c168908764201968c626cb0fa16f88c
+      internalID: 5442108061993228907
+    - serializedVersion: 2
+      name: north_walk_000
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: e48ad38a91d96d6396f2e926f8518215
+      internalID: 554117426425564385
+    - serializedVersion: 2
+      name: north_walk_001
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: c0359101eb2be069ff631736cc03eea4
+      internalID: -4512162195088377970
+    - serializedVersion: 2
+      name: north_walk_002
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 56b39f0db9def5941a7175b7475e133d
+      internalID: 1060713742565622670
+    - serializedVersion: 2
+      name: north_walk_003
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: b6ee72d232d4b549e20e8d911b81cb0e
+      internalID: 7226149430285580634
+    - serializedVersion: 2
+      name: north_walk_004
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: f32b3a00347ddebf82e2803ad500253f
+      internalID: -1036302337958540606
+    - serializedVersion: 2
+      name: north_walk_005
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 32
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0625}
+      spriteID: 1d8e55b3080b447f6a0d603526a12533
+      internalID: 3850186428418185542
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: c21cd8e3180643fd988191135c1cd3ef, type: 3}
+      name: _NormalMap
+    nameFileIdTable:
+      south_idle_000: -2002419756881369717
+      south_idle_001: 4318233198447398760
+      south_idle_002: -523871696492231188
+      south_idle_003: 5012312278005569530
+      south_walk_000: 166114674493914616
+      south_walk_001: 2440943101813998248
+      south_walk_002: -7229973593151532280
+      south_walk_003: -8894399242556370819
+      south_walk_004: -9178375568233627140
+      south_walk_005: 3996747326646023063
+      west_idle_000: -3059038624703944946
+      west_idle_001: 8090052647308051470
+      west_idle_002: 1216515830009713456
+      west_idle_003: 3558571074689572291
+      west_walk_000: -2199376022366714710
+      west_walk_001: -7215321766819347620
+      west_walk_002: -3893160170593052633
+      west_walk_003: 5651540463395187290
+      west_walk_004: 7112909792517713444
+      west_walk_005: 9030432824456942710
+      east_idle_000: 4905011083938670915
+      east_idle_001: 6205356628382749684
+      east_idle_002: 4398060626651490757
+      east_idle_003: 108173439778007910
+      east_walk_000: 3109434754483439614
+      east_walk_001: -6243140705238686788
+      east_walk_002: 3814342361348889038
+      east_walk_003: -8681919194287414992
+      east_walk_004: -8914829494545729608
+      east_walk_005: 3227232677842042671
+      north_idle_000: 4407181018077193889
+      north_idle_001: 1667611889436022231
+      north_idle_002: 8426305620256263038
+      north_idle_003: 5442108061993228907
+      north_walk_000: 554117426425564385
+      north_walk_001: -4512162195088377970
+      north_walk_002: 1060713742565622670
+      north_walk_003: 7226149430285580634
+      north_walk_004: -1036302337958540606
+      north_walk_005: 3850186428418185542

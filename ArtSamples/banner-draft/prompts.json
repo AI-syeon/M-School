@@ -1,0 +1,40 @@
+[
+  {
+    "file": "original-01.png",
+    "tool": "image_gen.imagegen",
+    "reference": [
+      "design/screens/01-campus.png"
+    ],
+    "review_references_inspected": [
+      "Art/CampusGrid/review/daylight-times.png",
+      "Art/CampusGrid/review/courtyard-unity.png"
+    ],
+    "prompt": "Use case: stylized-concept. Create ONE isolated game prop for MagicCampus, a cozy fantasy academy, using the attached campus key art ONLY as visual style and banner motif reference. A freestanding courtyard banner, tall narrow silhouette, dark iron pole, deep navy cloth bearing ONE large simple GOLD EIGHT-POINT STAR (four cardinal rays and four diagonal rays), small gold finial, small base. Orthographic elevated front-facing three-quarter view about 30 degrees, verticals perfectly vertical, visible top/front faces. Refined hard-edged clustered illustrated source artwork, restrained details designed to remain legible when reduced to 32x96 pixels. Upper-left neutral material highlights. Transparent background, absolutely no cast shadow, no glow, no scenery, no text, no checkerboard. Full object uncropped, nearly filling a portrait 1:3 bounding shape with transparent gutters. Navy cloth and muted gold matching reference banners, dark cool iron and warm stone. Avoid extra stars, lamps, foliage, ground, embellishment clutter. DIRECTION 01: Classical academy standard. Single pole just left of cloth, short straight horizontal crossbar with tiny gold end caps. Broad navy hanging cloth, simple shield-shaped pointed lower hem, thin muted gold border, prominent eight-point gold compass star centered. Tapered dark iron pole rising from a low stepped octagonal dark iron base. Small round gold finial. Slight cloth fold at left edge. Silhouette mostly straight and dignified."
+  },
+  {
+    "file": "original-02.png",
+    "tool": "image_gen.imagegen",
+    "reference": [
+      "design/screens/01-campus.png"
+    ],
+    "review_references_inspected": [
+      "Art/CampusGrid/review/daylight-times.png",
+      "Art/CampusGrid/review/courtyard-unity.png"
+    ],
+    "prompt": "Use case: stylized-concept. Create ONE isolated game prop for MagicCampus, a cozy fantasy academy, using the attached campus key art ONLY as visual style and banner motif reference. A freestanding courtyard banner, tall narrow silhouette, dark iron pole, deep navy cloth bearing ONE large simple GOLD EIGHT-POINT STAR (four cardinal rays and four diagonal rays), small gold finial, small base. Orthographic elevated front-facing three-quarter view about 30 degrees, verticals perfectly vertical, visible top/front faces. Refined hard-edged clustered illustrated source artwork, restrained details designed to remain legible when reduced to 32x96 pixels. Upper-left neutral material highlights. Transparent background, absolutely no cast shadow, no glow, no scenery, no text, no checkerboard. Full object uncropped, nearly filling a portrait 1:3 bounding shape with transparent gutters. Navy cloth and muted gold matching reference banners, dark cool iron and warm stone. Avoid extra stars, lamps, foliage, ground, embellishment clutter. DIRECTION 02: Wind-shaped forked pennon. Dark iron pole stands at left, crooked gooseneck bracket and simple angled top bar supporting a navy cloth visibly swept to the RIGHT in a gentle breeze, with a deep swallowtail split into two clearly separate long points. Gold border along lower tips, ONE large gold eight-point compass star. Small spear-shaped muted gold finial. Compact square warm taupe stone plinth with dark iron socket. Asymmetric silhouette, clean and readable, not a shield-shaped hanging standard. Keep cloth entirely visible within narrow portrait bounding box."
+  },
+  {
+    "file": "original-03.png",
+    "tool": "image_gen.imagegen",
+    "reference": [
+      "Art/_runs/20261111-0024-banner-draft/original-03-first-generation.png"
+    ],
+    "review_references_inspected": [
+      "Art/CampusGrid/review/daylight-times.png",
+      "Art/CampusGrid/review/courtyard-unity.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Edit the attached single isolated standing navy academy banner source. Preserve its silhouette, dark iron centered pole, small gold acorn finial, curved crossbar, rings, scalloped hem with 3 tassels, stone drum base, orthographic elevated front 3/4 camera, material light and genuine transparent background. Change ONLY the gold star emblem. Make it a noticeably larger, chunky EIGHT POINT compass star whose four DIAGONAL RAYS are nearly as long and thick as its four cardinal rays, a broad eight-ray gold silhouette that remains unmistakably eight-pointed at 32x96 total prop size. All eight points should be clearly separated by deep notches. Gold emblem occupies most of the navy cloth width. No additional symbols, no cast shadow, no background.",
+    "first_generation_file": "Art/_runs/20261111-0024-banner-draft/original-03-first-generation.png",
+    "first_generation_prompt": "Use case: stylized-concept. Create ONE isolated game prop for MagicCampus, a cozy fantasy academy, using the attached campus key art ONLY as visual style and banner motif reference. A freestanding courtyard banner, tall narrow silhouette, dark iron pole, deep navy cloth bearing ONE large simple GOLD EIGHT-POINT STAR (four cardinal rays and four diagonal rays), small gold finial, small base. Orthographic elevated front-facing three-quarter view about 30 degrees, verticals perfectly vertical, visible top/front faces. Refined hard-edged clustered illustrated source artwork, restrained details designed to remain legible when reduced to 32x96 pixels. Upper-left neutral material highlights. Transparent background, absolutely no cast shadow, no glow, no scenery, no text, no checkerboard. Full object uncropped, nearly filling a portrait 1:3 bounding shape with transparent gutters. Navy cloth and muted gold matching reference banners, dark cool iron and warm stone. Avoid extra stars, lamps, foliage, ground, embellishment clutter. DIRECTION 03: Compact centered ceremonial gonfalon. Dark iron upright pole is CENTERED behind the navy cloth, a curved arch-like crossbar supports the cloth from two visible small gold suspension rings. Broad short navy cloth with a rounded scalloped lower hem and three tiny muted-gold tassels. ONE large simple eight-point gold star centered. Cloth has gold upper corner accents with otherwise mostly plain navy area. Small acorn-shaped gold finial above arch. Pole extends visibly below cloth into a heavy two-tier ROUND warm stone drum base with visible elliptical top and dark iron collar. Rounded silhouette and centered support distinguish it from side-mounted pointed and swallowtail banners. No extra poles."
+  }
+]

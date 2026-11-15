@@ -1,0 +1,372 @@
+{
+  "status": "PASS",
+  "mapPixels": [
+    384,
+    288
+  ],
+  "cellPixels": [
+    32,
+    32
+  ],
+  "outerWallCells": 37,
+  "blockedCells": 57,
+  "walkableCells": 51,
+  "reachableCells": 51,
+  "targets": {
+    "sleep": [
+      2,
+      5
+    ],
+    "desk_front": [
+      7,
+      2
+    ],
+    "wardrobe_front": [
+      9,
+      4
+    ]
+  },
+  "door": [
+    5,
+    0
+  ],
+  "bedCollision": [
+    [
+      1,
+      5
+    ],
+    [
+      1,
+      6
+    ]
+  ],
+  "alphaValues": [
+    0,
+    255
+  ],
+  "cellColorCountRange": [
+    14,
+    63
+  ],
+  "uniqueCellImages": 193,
+  "collisions": [
+    {
+      "id": "wall-rear",
+      "cells": [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "wall-side",
+      "cells": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "wall-side",
+      "cells": [
+        [
+          11,
+          1
+        ],
+        [
+          11,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "wall-front-left",
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "wall-front-right",
+      "cells": [
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "canopy-bed",
+      "cells": [
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "bookshelf",
+      "cells": [
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "desk",
+      "cells": [
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "window-seat",
+      "cells": [
+        [
+          5,
+          6
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "wardrobe",
+      "cells": [
+        [
+          9,
+          5
+        ],
+        [
+          10,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "nightstand",
+      "cells": [
+        [
+          1,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "mirror",
+      "cells": [
+        [
+          10,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "plant",
+      "cells": [
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "flower-plant",
+      "cells": [
+        [
+          10,
+          1
+        ]
+      ]
+    }
+  ],
+  "outputHashes": {
+    "layout.json": "87e6968c809ce76b3b0e62fe9df459f0f4c682daa0479c81f4cacda261660a71",
+    "layout.json.meta": "d608449fb20ce7d329ec9c8c00b0228b9ce32104952f4cd3376b411b8ad3b7bd",
+    "scenic.campusatlas": "ba273916631098236203c953dea1017c89f655f26fee43700123843438242515",
+    "scenic.campusatlas.meta": "486c30d6b9e836b7e92c97d42c359c91b6223391801b373baf78dfbcf1327e6d",
+    "Textures\\ground-room-floor-00.png": "607062c2e3d66e95d8edcc0b00b4860227e63b70f56c8847d56e0fffe00f771c",
+    "Textures\\ground-room-floor-00.png.meta": "61e631864810418c2fe9647ad4fe3adcf169c756d4cb36d7c3693a7d58a4b187",
+    "Textures.meta": "180c1aac2a11f782df823f76e692da5738a961ff0518259945c6594b2d7297b5"
+  },
+  "reviewHashes": {
+    "build-report.json": "9ca5085a07d0a8748df0e37df25492eb14c2579390bb0700c26a72d006985ed9",
+    "cell-atlas.png": "2547ab4063ff75ff1b9e2fb1cb394e74874cc61bfc3d273a9f7b3bfa341ba939",
+    "courtyard.png": "a05dc192aaaeb42e3f03aa0e4cf446827d2d9982091c5f6e0671a988f62704e2",
+    "room-dorm-3x.png": "dc53238be16e8231c1325221287a31547f31f6f02b1b0fdc6c911cfe2b85e21b",
+    "room-dorm-grid.png": "0c4399f0de38b2f819c91b57e6e4ba5eb8d9dd5a6854be94c2d39a1332fcb679",
+    "room-dorm-vs-keyart.png": "20b116c73e6054c8d2670d9b57bcbe465920dff1bc85b52bfccca8f96f77b175",
+    "room-dorm.png": "a05dc192aaaeb42e3f03aa0e4cf446827d2d9982091c5f6e0671a988f62704e2",
+    "source-vs-grid.png": "5f85384ee818622ba6eb6f3af93681d4df424324da792cf0ba66000c84cfb8b4"
+  },
+  "runtimeUnityCheck": "not run"
+}

@@ -1,0 +1,14 @@
+{
+  "npc.serin": [
+    { "at": "07:00", "place": "home",                   "action": "idle",  "note": "아침 마당. 초대는 이때 받는다" },
+    { "at": "09:00", "place": "dest.library_desk",      "action": "read",  "note": "도서관에서 책 읽기" },
+    { "at": "11:00", "place": "dest.classroom_seat",    "action": "write", "note": "수업 필기" },
+    { "at": "12:30", "place": "dest.cafeteria_table",   "action": "eat",   "note": "점심" },
+    { "at": "13:30", "place": "dest.notice",            "action": "read",  "note": "마당 공지판 확인" },
+    { "at": "15:00", "place": "dest.greenhouse_bed",    "action": "write", "note": "온실 관찰 기록" },
+    { "at": "16:30", "place": "dest.hall_board",        "action": "chat",  "note": "본관 게시판 앞 수다" },
+    { "at": "18:00", "place": "dest.cafeteria_table",   "action": "eat",   "note": "저녁" },
+    { "at": "19:30", "place": "home",                   "action": "write", "note": "마당에서 일기" },
+    { "at": "22:00", "place": "home",                   "action": "idle" }
+  ]
+}

@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace MagicCampus.Core
 {
+    /// <summary>What a map cell is, for drawing: the world tilemap and the map screen read the same answer.</summary>
+    public enum MapCell { Floor, Wall, Door, Bed }
+
     /// <summary>
     /// Tile rules (R7). A cell is (floor x, floor y). Stepping into a portal cell moves the actor to the portal's arrival;
     /// standing on an arrival cell does nothing because only a cell change triggers a portal.
@@ -14,7 +17,14 @@ namespace MagicCampus.Core
 
         public static bool Passable(MapDef map, int cx, int cy)
         {
-            return cx >= 0 && cy >= 0 && cx < map.Width && cy < map.Height && !map.Blocked.Any(b => b[0] == cx && b[1] == cy);
+            return cx >= 0 && cy >= 0 && cx < map.Width && cy < map.Height && !map.Blocked.Any(b => b[0] == cx && b[1] == cy) && !map.Furnished.Contains((cx, cy));
+        }
+
+        public static MapCell CellAt(MapDef map, Spot bed, int cx, int cy)
+        {
+            if (!Passable(map, cx, cy)) return MapCell.Wall;
+            if (PortalAt(map, cx, cy) != null) return MapCell.Door;
+            return bed != null && bed.MapId == map.Id && Floor(bed.X) == cx && Floor(bed.Y) == cy ? MapCell.Bed : MapCell.Floor;
         }
 
         public static PortalDef PortalAt(MapDef map, int cx, int cy)
@@ -27,6 +37,8 @@ namespace MagicCampus.Core
             actor.MapId = at.MapId; actor.X = at.X; actor.Y = at.Y;
             actor.Path.Clear();
             actor.Moving = false;
+            actor.Action = Actor.Idle;
+            actor.Goal = null;
             if (facing != null) actor.Facing = facing;
         }
 
@@ -66,10 +78,13 @@ namespace MagicCampus.Core
 
         static (string, int, int) Cell(string mapId, double x, double y) => (mapId, Floor(x), Floor(y));
 
+        /// <summary>Sends the actor walking; whatever it was doing stops.</summary>
         public static void WalkTo(Content content, Actor actor, DestinationDef destination)
         {
             actor.Path = FindPath(content, actor, destination.Position)
                 ?? throw new InvalidOperationException(actor.Id + " has no path to " + destination.Id);
+            actor.Action = Actor.Idle;
+            actor.Goal = null;
         }
 
         /// <summary>Walks the actor along its path at its speed for dt seconds.</summary>

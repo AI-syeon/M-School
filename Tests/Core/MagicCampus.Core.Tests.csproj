@@ -9,6 +9,10 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="MagicTests.cs" />
+    <Compile Include="InventoryTests.cs" />
+    <Compile Include="QuestTests.cs" />
+    <Compile Include="FurnitureTests.cs" />
+    <Compile Include="RoutineTests.cs" />
     <Compile Include="../../Assets/MagicCampus/Core/**/*.cs" />
     <Reference Include="../../Library/PackageCache/com.unity.nuget.newtonsoft-json@*/Runtime/Newtonsoft.Json.dll" />
   </ItemGroup>

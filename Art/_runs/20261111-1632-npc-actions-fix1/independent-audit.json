@@ -1,0 +1,27 @@
+{
+  "existing_frames": 120,
+  "sheet_regions": 6,
+  "player_files": 88,
+  "source_files": 16,
+  "action_frames": 32,
+  "mirrored_files": 98,
+  "npc-serin": {
+    "base_palette": 30,
+    "action_palette": 36,
+    "additional_colors": 6,
+    "frame_color_range": [
+      32,
+      34
+    ]
+  },
+  "npc-mira": {
+    "base_palette": 32,
+    "action_palette": 38,
+    "additional_colors": 6,
+    "frame_color_range": [
+      33,
+      35
+    ]
+  },
+  "passed": true
+}

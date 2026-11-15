@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-06",
+  "scope": "generated structure and local links; visual/Unity interaction not executed",
+  "html": [
+    {
+      "file": "프로그래머_구현계획서.html",
+      "documents": 6,
+      "anchors": 6
+    },
+    {
+      "file": "systems/시스템_기획서.html",
+      "documents": 8,
+      "anchors": 8
+    },
+    {
+      "file": "마법학교_전체시스템기획서.html",
+      "documents": 26,
+      "anchors": 26
+    }
+  ],
+  "errors": []
+}

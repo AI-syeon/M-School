@@ -1,0 +1,372 @@
+{
+  "schema": 1,
+  "libraries": [
+    "interior.json"
+  ],
+  "tiles": [
+    {
+      "id": "room-floor",
+      "source": "prepared/lounge/lounge-floor.png"
+    }
+  ],
+  "props": [
+    {
+      "id": "lounge-sofa",
+      "size": [
+        3,
+        2
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-sofa.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          45,
+          40,
+          465,
+          300
+        ]
+      }
+    },
+    {
+      "id": "lounge-tea-table",
+      "size": [
+        1,
+        1
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-tea-table.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          600,
+          45,
+          270,
+          285
+        ]
+      }
+    },
+    {
+      "id": "lounge-fireplace",
+      "size": [
+        2,
+        2
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-fireplace-00.png"
+        },
+        {
+          "source": "prepared/lounge/lounge-fireplace-01.png"
+        },
+        {
+          "source": "prepared/lounge/lounge-fireplace-02.png"
+        },
+        {
+          "source": "prepared/lounge/lounge-fireplace-03.png"
+        },
+        {
+          "source": "prepared/lounge/lounge-fireplace-04.png"
+        },
+        {
+          "source": "prepared/lounge/lounge-fireplace-05.png"
+        }
+      ],
+      "fps": 8,
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          1010,
+          25,
+          350,
+          320
+        ]
+      }
+    },
+    {
+      "id": "lounge-noticeboard",
+      "size": [
+        2,
+        2
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-noticeboard.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          115,
+          365,
+          325,
+          345
+        ]
+      }
+    },
+    {
+      "id": "lounge-armchair",
+      "size": [
+        1,
+        2
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-armchair.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          600,
+          365,
+          270,
+          350
+        ]
+      }
+    },
+    {
+      "id": "lounge-rug",
+      "size": [
+        3,
+        3
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-rug.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          1010,
+          375,
+          350,
+          340
+        ]
+      }
+    },
+    {
+      "id": "lounge-star-banner",
+      "size": [
+        1,
+        2
+      ],
+      "blocked": [],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-star-banner.png"
+        }
+      ],
+      "comparisonSource": {
+        "source": "source/room-lounge-furniture-original.png",
+        "crop": [
+          175,
+          730,
+          210,
+          345
+        ]
+      }
+    },
+    {
+      "id": "lounge-wall-rear",
+      "size": [
+        10,
+        2
+      ],
+      "blocked": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          9,
+          1
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-wall-rear.png"
+        }
+      ]
+    },
+    {
+      "id": "lounge-wall-side",
+      "size": [
+        1,
+        6
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-wall-side.png"
+        }
+      ]
+    },
+    {
+      "id": "lounge-wall-front-left",
+      "size": [
+        4,
+        1
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-wall-front-left.png"
+        }
+      ]
+    },
+    {
+      "id": "lounge-wall-front-right",
+      "size": [
+        5,
+        1
+      ],
+      "blocked": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "source": "prepared/lounge/lounge-wall-front-right.png"
+        }
+      ]
+    }
+  ]
+}

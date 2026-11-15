@@ -1,0 +1,306 @@
+<title>MagicCampus 방향 선택</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; concept sheets stack like pages of a lab notebook, each with a 07:00–26:00 day strip. */
+:root{
+  --bg:#EDF0F3; --paper:#F8FAFB; --ink:#18202C; --muted:#5A6573; --line:#CBD3DC;
+  --chalk:#1F7468; --lamp:#B5701A; --night:#2D3A5A; --day:#D9C27A; --free:#9FC3B9; --soft:#E3E8ED;
+  --display:"Song Myung","Nanum Myeongjo",serif;
+  --body:"IBM Plex Sans KR","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11151C; --paper:#181E27; --ink:#E4E9EF; --muted:#97A2B0; --line:#2F3A48;
+  --chalk:#5DC2B2; --lamp:#E2A04A; --night:#5A6FA6; --day:#B59C52; --free:#3F7D70; --soft:#222A35; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151C; --paper:#181E27; --ink:#E4E9EF; --muted:#97A2B0; --line:#2F3A48;
+  --chalk:#5DC2B2; --lamp:#E2A04A; --night:#5A6FA6; --day:#B59C52; --free:#3F7D70; --soft:#222A35; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+main{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,46px);line-height:1.2}
+h2{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.3}
+h3{font-size:19px;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--chalk);text-transform:uppercase}
+.stack{display:flex;flex-direction:column;gap:14px}
+.lead{font-size:17px;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:18px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px}
+.scroll{overflow-x:auto}
+.have{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 24px}
+.have div{border-top:1px solid var(--line);padding-top:8px;min-width:0}
+.have b{display:block;font-size:14px}
+.have span{color:var(--muted);font-size:13.5px}
+.fun{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.fun article{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.fun .k{font-family:var(--mono);font-size:12px;color:var(--lamp)}
+.fun p{font-size:14px;color:var(--muted)}
+.dot{font-family:var(--mono);color:var(--chalk);text-align:center}
+.dot.o{color:var(--line)}
+.concept{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:14px;scroll-margin-top:20px}
+.concept.picked{border-color:var(--chalk);box-shadow:0 0 0 2px var(--chalk)}
+.chead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.chead .tag{font-family:var(--mono);font-size:13px;color:var(--chalk)}
+.chead h3{font-family:var(--display);font-weight:400;font-size:24px}
+.rec{font-family:var(--mono);font-size:11.5px;background:var(--lamp);color:var(--paper);padding:2px 8px;border-radius:3px}
+.pitch{font-size:16px}
+.strip{display:flex;height:26px;border-radius:3px;overflow:hidden;font-family:var(--mono);font-size:11px}
+.strip span{display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden;color:var(--ink)}
+.strip .d{background:var(--day)} .strip .f{background:var(--free)} .strip .n{background:var(--night);color:#F3F5F8} .strip .x{background:var(--lamp);color:#fff}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:-8px}
+dl{display:grid;grid-template-columns:110px 1fr;gap:8px 16px;margin:0;font-size:14.5px}
+dt{color:var(--muted);font-size:13px;padding-top:2px}
+dd{margin:0;min-width:0}
+dd ul{margin:0;padding-left:18px}
+@media (max-width:560px){dl{grid-template-columns:1fr;gap:2px}dd{margin-bottom:10px}}
+.pick{align-self:flex-start;font:inherit;font-size:14px;padding:8px 16px;border:1px solid var(--chalk);background:transparent;color:var(--chalk);border-radius:4px;cursor:pointer}
+.pick:hover{background:var(--soft)}
+.picked .pick{background:var(--chalk);color:var(--paper)}
+button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+.choices{display:flex;flex-direction:column;gap:20px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:22px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+legend{font-weight:700;margin-bottom:6px}
+label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+label small{display:block;color:var(--muted);font-size:13px}
+input[type=radio],input[type=checkbox]{margin-top:5px;accent-color:var(--chalk)}
+textarea{font:inherit;font-size:14px;width:100%;box-sizing:border-box;min-height:70px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:8px}
+pre#out{font-family:var(--mono);font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px;white-space:pre-wrap;margin:0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.copy{font:inherit;font-size:14px;padding:8px 16px;background:var(--chalk);color:var(--paper);border:0;border-radius:4px;cursor:pointer}
+.note{font-size:13.5px;color:var(--muted)}
+.rune{font-family:var(--mono);background:var(--soft);padding:0 5px;border-radius:3px;font-size:13px}
+</style>
+
+<main>
+<header class="stack">
+  <span class="eyebrow">기획 1단계 · 2026-11-12</span>
+  <h1>마법학교에서 무엇이 재밌을까</h1>
+  <p class="lead">기존 기획 문서는 기준으로 쓰지 않았습니다. 지금 게임에 실제로 구현된 코드만 보고, 컨셉 후보 6개를 같은 틀로 비교합니다. 하나를 고르면 그 방향으로 전투와 나머지 시스템을 상세 기획합니다.</p>
+</header>
+
+<section>
+  <span class="eyebrow">출발점</span>
+  <h2>지금 게임에 있는 것</h2>
+  <p>코드(<span class="rune">Assets/MagicCampus/Core</span>)와 콘텐츠 번들에서 확인한 내용입니다.</p>
+  <div class="have">
+    <div><b>하루 시계</b><span>07:00 시작, 침대에서 자거나 새벽 2시에 기절하면 하루가 끝남</span></div>
+    <div><b>룬 영창 마법</b><span>1~4 키로 룬 2~5개를 입력해 주문 12종 시전. 퀵슬롯 4칸</span></div>
+    <div><b>태그 반응표</b><span>대상에 붙은 태그(젖음, 마름, 부유 등)에 따라 주문 결과가 달라짐. 예: 젖음+서리</span></div>
+    <div><b>NPC 일과</b><span>13명이 시간표대로 학교를 돌아다님. 약속 초대와 수락</span></div>
+    <div><b>이벤트·퀘스트</b><span>대사, 선택지, 단계형 퀘스트와 보상</span></div>
+    <div><b>가방·품질</b><span>아이템 9종, 우편함, 핵심 아이템 수첩</span></div>
+    <div><b>방 꾸미기</b><span>기숙사 가구 배치, 층(바닥·몸체·위) 규칙</span></div>
+    <div><b>맵</b><span>학교 안 8곳, 학교 밖 지역 4곳(region_1~4)은 비어 있음</span></div>
+  </div>
+  <p><b>없는 것.</b> 체력·마나, 적, 피격, 성장(레벨·스탯), 친밀도, 돈 쓰는 곳, 학교 밖 콘텐츠. 마법 코드에는 <span class="rune">statAtLeast</span>·<span class="rune">levelAtLeast</span> 요구조건 자리가 이미 비어 있어, 성장 시스템이 들어올 자리는 설계돼 있습니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">재미의 근원</span>
+  <h2>유저는 어디서 재미를 느끼나</h2>
+  <p>이 게임이 줄 수 있는 재미를 다섯 가지로 나눴습니다. 각각 이미 있는 시스템 하나에 뿌리를 두고 있어서, 새로 만드는 것보다 키우는 쪽이 쌉니다.</p>
+  <div class="fun">
+    <article><span class="k">손맛 · 숙련</span><h3>영창을 손에 익히는 재미</h3><p>룬 순서를 외워 빠르게 치는 순간. 격투게임 커맨드 입력과 같은 종류의 쾌감입니다. 압박(적, 시간)이 있어야 살아납니다.</p></article>
+    <article><span class="k">발견</span><h3>"이걸 섞으면?"의 재미</h3><p>태그 반응표가 이미 조합 규칙입니다. 유저가 규칙을 스스로 알아낼 때 가장 큰 재미가 나옵니다.</p></article>
+    <article><span class="k">선택의 긴장</span><h3>하루를 어디에 쓸지</h3><p>시간은 한정돼 있고 할 일은 많다. 새벽 2시 기절이 그 긴장을 만드는 장치입니다.</p></article>
+    <article><span class="k">관계</span><h3>사람이 나를 알아보는 재미</h3><p>13명의 일과가 이미 돌고 있습니다. 친해진 결과가 눈에 보이는 보상이 되면 정이 붙습니다.</p></article>
+    <article><span class="k">표현</span><h3>내 것을 꾸미는 재미</h3><p>방 배치, 주문 조합, 퀵슬롯 구성. 내 플레이가 남들과 달라 보일 때 생깁니다.</p></article>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>컨셉</th><th>손맛</th><th>발견</th><th>선택의 긴장</th><th>관계</th><th>표현</th><th>제작 분량</th></tr></thead>
+    <tbody>
+      <tr><td>A 밤의 봉인층</td><td class="dot">●●●</td><td class="dot">●●</td><td class="dot">●●●</td><td class="dot">●●</td><td class="dot">●●</td><td>큼</td></tr>
+      <tr><td>B 결투 클럽</td><td class="dot">●●●</td><td class="dot">●</td><td class="dot o">○</td><td class="dot">●●</td><td class="dot">●●</td><td>중간</td></tr>
+      <tr><td>C 마법 재해 연구</td><td class="dot">●</td><td class="dot">●●●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●●</td><td>중간</td></tr>
+      <tr><td>D 반복되는 첫 주</td><td class="dot">●</td><td class="dot">●●●</td><td class="dot">●●</td><td class="dot">●●●</td><td class="dot o">○</td><td>매우 큼</td></tr>
+      <tr><td>E 친구와 원정대</td><td class="dot">●●</td><td class="dot">●●</td><td class="dot">●●</td><td class="dot">●●●</td><td class="dot">●●</td><td>큼</td></tr>
+      <tr><td>F 학기말 시험 로그라이트</td><td class="dot">●●●</td><td class="dot">●●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●●●</td><td>중간</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">점 개수는 제 판단입니다. 측정한 값이 아닙니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">컨셉 후보 6개</span>
+  <h2>같은 틀로 비교하기</h2>
+  <p>각 컨셉의 띠는 하루(07:00~26:00)를 어떻게 쓰게 되는지 보여 줍니다. 노랑은 수업, 초록은 자유 시간, 남색은 전투·탐험, 주황은 핵심 이벤트입니다.</p>
+
+  <article class="concept" id="A">
+    <div class="chead"><span class="tag">A</span><h3>밤의 봉인층</h3><span class="rec">추천</span></div>
+    <p class="pitch">낮에는 학생으로 수업 듣고 친구 만나고 방을 꾸민다. 밤 10시가 넘으면 학교 지하 봉인층으로 내려가, 새어 나온 마물을 막는다. 새벽 2시 기절이 곧 던전의 제한 시간이다.</p>
+    <div class="strip" aria-label="하루 배분"><span class="d" style="flex:2">수업</span><span class="f" style="flex:9">자유·준비</span><span class="f" style="flex:4">친구</span><span class="n" style="flex:4">봉인층</span></div>
+    <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+    <dl>
+      <dt>재미 지점</dt><dd>낮에 무엇을 준비할지 고르는 긴장, 밤에 영창을 빠르게 치는 손맛, 한 층씩 깊어지는 성장감. 두 루프가 서로 재료를 줍니다.</dd>
+      <dt>전투</dt><dd><ul><li>실시간 탑다운. 영창 중에는 이동이 느려져서, 거리를 벌리고 치는 리듬이 생깁니다.</li><li>적에게 태그를 붙이고 반응으로 터뜨립니다. <span class="rune">물결</span>로 젖게 한 뒤 <span class="rune">서리</span>로 얼리기.</li><li>퀵슬롯은 짧은 주문, 강한 주문은 긴 영창. 위험과 보상의 교환입니다.</li></ul></dd>
+      <dt>살리는 기존 시스템</dt><dd>시계·기절, 영창, 반응표, 퀵슬롯, 가방(전리품), NPC 일과(밤에 동행할 친구)</dd>
+      <dt>새로 필요</dt><dd>체력·마나, 적 행동, 피격, 층 구성, 성장</dd>
+      <dt>참고한 게임</dt><dd>스타듀 밸리 광산(하루 시간과 깊이를 맞바꾸고 기절에 벌칙). 페르소나 5(낮의 관계가 밤 던전 능력이 됨). 데이브 더 다이버(두 루프가 서로 재료를 공급).</dd>
+      <dt>위험</dt><dd>두 루프를 다 만들어야 해서 분량이 큽니다. 낮이 밤의 준비 화면으로 전락하지 않게 낮 고유의 보상이 필요합니다.</dd>
+    </dl>
+    <button class="pick" type="button" data-pick="A">이 방향 선택</button>
+  </article>
+
+  <article class="concept" id="B">
+    <div class="chead"><span class="tag">B</span><h3>결투 클럽</h3></div>
+    <p class="pitch">학생끼리 정식 마법 결투를 하는 주간 리그. 13명의 학생이 각자 결투 스타일을 가지고 있고, 일과 중에 만나 도전장을 받는다.</p>
+    <div class="strip"><span class="d" style="flex:2">수업</span><span class="f" style="flex:6">연습·정찰</span><span class="x" style="flex:3">결투</span><span class="f" style="flex:8">자유</span></div>
+    <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+    <dl>
+      <dt>재미 지점</dt><dd>상대 영창을 읽고 끊는 순간. 라이벌과의 이야기, 랭크가 오르는 성취감.</dd>
+      <dt>전투</dt><dd><ul><li>1대1 아레나. 상대가 치는 룬이 머리 위에 떠서 보입니다.</li><li>상대가 끝내기 전에 짧은 주문으로 끊거나, 반응표 상성으로 받아칩니다.</li><li>반응표가 그대로 상성표가 됩니다.</li></ul></dd>
+      <dt>살리는 기존 시스템</dt><dd>영창, 반응표, NPC 일과(연습 장소), 초대 수락(결투 신청)</dd>
+      <dt>새로 필요</dt><dd>대전 AI, 체력, 아레나, 리그 일정</dd>
+      <dt>참고한 게임</dt><dd>매지카(원소를 조합해 주문을 만드는 입력). 포켓몬 체육관(상대가 단계별로 분명함). 격투게임의 심리전.</dd>
+      <dt>위험</dt><dd>대전 AI 품질이 재미 전부를 좌우합니다. 학교를 돌아다닐 이유가 약해집니다.</dd>
+    </dl>
+    <button class="pick" type="button" data-pick="B">이 방향 선택</button>
+  </article>
+
+  <article class="concept" id="C">
+    <div class="chead"><span class="tag">C</span><h3>마법 재해 연구</h3></div>
+    <p class="pitch">학교 곳곳에 마법 재해가 번진다. 얼어붙은 복도, 폭주한 덩굴, 떠다니는 책. 주문을 조합해 실험하고, 알아낸 반응은 연구 노트에 쌓인다.</p>
+    <div class="strip"><span class="d" style="flex:2">수업</span><span class="n" style="flex:7">재해 정화</span><span class="f" style="flex:5">연구·재료</span><span class="f" style="flex:5">자유</span></div>
+    <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+    <dl>
+      <dt>재미 지점</dt><dd>규칙을 스스로 알아내는 발견. 정답이 여러 개라 내 방식으로 푸는 표현.</dd>
+      <dt>전투</dt><dd><ul><li>재해 정령은 때려서가 아니라 반응으로 무력화합니다. 서리 정령은 <span class="rune">불씨</span>로, 덩굴은 마르게 한 뒤 불로.</li><li>실시간이지만 느리고, 생각할 시간이 있습니다.</li></ul></dd>
+      <dt>살리는 기존 시스템</dt><dd>반응표, 주문별 상황 기록(이미 성공한 상황을 저장함), 퀘스트의 시전 체크</dd>
+      <dt>새로 필요</dt><dd>재해 확산 규칙, 연구 노트 화면, 재해 정령</dd>
+      <dt>참고한 게임</dt><dd>젤다 브레스 오브 더 와일드(물리·화학 규칙으로 여러 해법). 노이타(물질 반응을 실험). 아우터 와일즈(아는 것이 곧 진행).</dd>
+      <dt>위험</dt><dd>퍼즐은 한 번 풀면 끝이라 소모가 빠릅니다. 액션을 기대한 유저에겐 심심합니다.</dd>
+    </dl>
+    <button class="pick" type="button" data-pick="C">이 방향 선택</button>
+  </article>
+
+  <article class="concept" id="D">
+    <div class="chead"><span class="tag">D</span><h3>반복되는 첫 주</h3></div>
+    <p class="pitch">개강 첫 주가 계속 반복된다. 일요일 밤 무언가가 학교를 삼킨다. 학생들의 일과를 관찰하고 대화를 이어 붙여, 그 일을 막는다.</p>
+    <div class="strip"><span class="f" style="flex:12">관찰·추적</span><span class="x" style="flex:3">사건</span><span class="f" style="flex:4">추리</span></div>
+    <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+    <dl>
+      <dt>재미 지점</dt><dd>같은 하루를 다르게 보는 재미, 퍼즐 조각이 맞물리는 추리, 인물에 대한 애착.</dd>
+      <dt>전투</dt><dd><ul><li>사건마다 짧은 결전. 관찰로 알아낸 약점이 없으면 이길 수 없게 설계합니다.</li><li>전투는 양이 적고, 한 번 한 번이 무겁습니다.</li></ul></dd>
+      <dt>살리는 기존 시스템</dt><dd>NPC 일과(핵심), 약속, 플래그, 날짜</dd>
+      <dt>새로 필요</dt><dd>반복 처리, 단서 노트, 사건 연출, 대량 시나리오</dd>
+      <dt>참고한 게임</dt><dd>젤다의 전설 무쥬라의 가면(3일 반복과 주민 일정표). 아우터 와일즈(22분 반복 속 지식 축적).</dd>
+      <dt>위험</dt><dd>시나리오 작성량이 가장 큽니다. 진상을 알면 다시 할 동기가 줄어듭니다.</dd>
+    </dl>
+    <button class="pick" type="button" data-pick="D">이 방향 선택</button>
+  </article>
+
+  <article class="concept" id="E">
+    <div class="chead"><span class="tag">E</span><h3>친구와 원정대</h3></div>
+    <p class="pitch">주말마다 친구 두 명과 학교 밖 지역으로 원정을 떠난다. 친한 친구일수록 둘이 함께 외우는 합동 영창이 열린다.</p>
+    <div class="strip"><span class="d" style="flex:2">수업</span><span class="f" style="flex:8">친구와 시간</span><span class="f" style="flex:5">훈련</span><span class="f" style="flex:4">자유</span></div>
+    <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+    <p class="note">평일 띠입니다. 주말은 하루 전체가 원정입니다.</p>
+    <dl>
+      <dt>재미 지점</dt><dd>친해진 결과가 전투력으로 보이는 보상. 누구를 데려갈지 고르는 조합.</dd>
+      <dt>전투</dt><dd><ul><li>실시간 파티. 내가 <span class="rune">물결</span>로 적을 적시면 세린이 <span class="rune">서리</span>로 이어받습니다.</li><li>동료는 친밀도가 높을수록 내 주문에 맞춰 움직입니다.</li></ul></dd>
+      <dt>살리는 기존 시스템</dt><dd>NPC, 초대 수락, 비어 있는 지역 맵 4곳, 반응표</dd>
+      <dt>새로 필요</dt><dd>친밀도, 동료 AI, 지역 콘텐츠, 합동 영창</dd>
+      <dt>참고한 게임</dt><dd>파이어 엠블렘 풍화설월(학교생활과 전투, 지원 대화). 페르소나 커뮤(관계가 능력으로). 테일즈 시리즈 합동 기술.</dd>
+      <dt>위험</dt><dd>동료 AI가 멍청하면 재미가 무너집니다. 지역 제작량이 큽니다.</dd>
+    </dl>
+    <button class="pick" type="button" data-pick="E">이 방향 선택</button>
+  </article>
+
+  <article class="concept" id="F">
+    <div class="chead"><span class="tag">F</span><h3>학기말 시험 로그라이트</h3></div>
+    <p class="pitch">매달 마지막 날은 실기시험. 시험장은 매번 다르게 짜인다. 한 달 동안 생활하며 주문과 도구를 준비하고, 시험장에서 방마다 강화를 골라 빌드를 만든다.</p>
+    <div class="strip"><span class="d" style="flex:2">수업</span><span class="f" style="flex:10">준비·생활</span><span class="f" style="flex:7">자유</span></div>
+    <div class="ticks"><span>07</span><span>12</span><span>18</span><span>22</span><span>26</span></div>
+    <p class="note">평일 띠입니다. 시험일은 하루 전체가 전투입니다.</p>
+    <dl>
+      <dt>재미 지점</dt><dd>매번 다른 판, 내 빌드를 만드는 표현, 실패해도 다음 달 준비로 이어지는 성장.</dd>
+      <dt>전투</dt><dd><ul><li>빠른 액션. 방을 깰 때마다 주문 강화 셋 중 하나를 고릅니다.</li><li>룬 길이를 줄이는 강화, 반응을 연쇄시키는 강화 등.</li></ul></dd>
+      <dt>살리는 기존 시스템</dt><dd>영창, 퀵슬롯, 반응표, 가방</dd>
+      <dt>새로 필요</dt><dd>방 생성, 강화 목록, 적, 체력</dd>
+      <dt>참고한 게임</dt><dd>하데스(실패 사이에 관계 대화가 쌓임). 위자드 오브 레전드(주문 조합 액션). 슬레이 더 스파이어(빌드 선택).</dd>
+      <dt>위험</dt><dd>생활 파트와 전투 파트가 따로 노는 두 게임이 되기 쉽습니다.</dd>
+    </dl>
+    <button class="pick" type="button" data-pick="F">이 방향 선택</button>
+  </article>
+</section>
+
+<section>
+  <span class="eyebrow">제 판단</span>
+  <h2>A를 추천하는 이유</h2>
+  <p>이미 있는 시스템을 가장 많이 살립니다. 새벽 2시 기절은 지금은 하루를 끝내는 규칙일 뿐인데, A에서는 던전 제한 시간이 되어 긴장을 만듭니다. 반응표는 C처럼 전투의 핵심 규칙이 되고, E의 동행 친구는 나중에 밤 순찰에 붙일 수 있습니다. 다섯 가지 재미 중 네 가지를 중간 이상으로 줍니다.</p>
+  <p>약점은 분량입니다. 그래서 상세 기획에서는 봉인층 1~3층과 적 5종 정도의 작은 판부터 실제로 돌려 보고 넓히는 순서를 제안할 생각입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">고를 것</span>
+  <h2>방향을 골라 주세요</h2>
+  <form class="choices" id="f">
+    <fieldset>
+      <legend>1. 컨셉</legend>
+      <label><input type="radio" name="c" value="A" id="cA"><span>A 밤의 봉인층</span></label>
+      <label><input type="radio" name="c" value="B" id="cB"><span>B 결투 클럽</span></label>
+      <label><input type="radio" name="c" value="C" id="cC"><span>C 마법 재해 연구</span></label>
+      <label><input type="radio" name="c" value="D" id="cD"><span>D 반복되는 첫 주</span></label>
+      <label><input type="radio" name="c" value="E" id="cE"><span>E 친구와 원정대</span></label>
+      <label><input type="radio" name="c" value="F" id="cF"><span>F 학기말 시험 로그라이트</span></label>
+    </fieldset>
+    <fieldset>
+      <legend>2. 섞고 싶은 다른 컨셉의 요소 (여러 개 가능)</legend>
+      <label><input type="checkbox" name="m" value="결투 클럽의 상대 영창 읽기" id="mB"><span>B의 상대 영창 읽기와 끊기</span></label>
+      <label><input type="checkbox" name="m" value="재해 연구의 반응 발견 노트" id="mC"><span>C의 반응 발견 노트</span></label>
+      <label><input type="checkbox" name="m" value="원정대의 친구 동행과 합동 영창" id="mE"><span>E의 친구 동행과 합동 영창</span></label>
+      <label><input type="checkbox" name="m" value="로그라이트의 판마다 고르는 강화" id="mF"><span>F의 판마다 고르는 강화</span></label>
+    </fieldset>
+    <fieldset>
+      <legend>3. 전투 손맛</legend>
+      <label><input type="radio" name="t" value="실시간 액션" id="t1"><span>실시간 액션<small>영창하면서 피하고 움직인다. 손이 바쁘다.</small></span></label>
+      <label><input type="radio" name="t" value="영창 중 시간 감속" id="t2"><span>영창 중 시간 감속<small>룬을 치는 동안 세상이 느려진다. 생각할 틈과 긴장이 같이 있다.</small></span></label>
+      <label><input type="radio" name="t" value="턴제" id="t3"><span>턴제<small>한 턴씩 주문을 고른다. 전략 위주.</small></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>4. 더 하고 싶은 말</legend>
+      <textarea id="memo" placeholder="예: 연애 요소는 빼 줘, 귀여운 분위기 유지"></textarea>
+    </fieldset>
+    <pre id="out">위에서 고르면 여기에 답장 문장이 만들어집니다.</pre>
+    <div class="row"><button class="copy" type="button" id="cp">답장 문장 복사</button><span class="note" id="msg">복사해서 대화창에 붙여 넣어 주세요. 그냥 말로 답해도 됩니다.</span></div>
+  </form>
+</section>
+</main>
+
+<script>
+(function(){
+  var f=document.getElementById('f'),out=document.getElementById('out');
+  var names={A:'A 밤의 봉인층',B:'B 결투 클럽',C:'C 마법 재해 연구',D:'D 반복되는 첫 주',E:'E 친구와 원정대',F:'F 학기말 시험 로그라이트'};
+  function render(){
+    var c=f.querySelector('input[name=c]:checked'),t=f.querySelector('input[name=t]:checked');
+    var m=[].map.call(f.querySelectorAll('input[name=m]:checked'),function(x){return x.value});
+    var memo=document.getElementById('memo').value.trim();
+    document.querySelectorAll('.concept').forEach(function(a){a.classList.toggle('picked',!!c&&a.id===c.value)});
+    if(!c&&!t&&!m.length&&!memo){out.textContent='위에서 고르면 여기에 답장 문장이 만들어집니다.';return}
+    var s=['컨셉: '+(c?names[c.value]:'(미선택)')];
+    if(m.length)s.push('섞을 요소: '+m.join(', '));
+    s.push('전투 손맛: '+(t?t.value:'(미선택)'));
+    if(memo)s.push('추가: '+memo);
+    out.textContent=s.join('\n');
+  }
+  f.addEventListener('input',render);
+  document.querySelectorAll('[data-pick]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var r=document.getElementById('c'+b.dataset.pick);r.checked=true;render();
+      f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    });
+  });
+  document.getElementById('cp').addEventListener('click',function(){
+    var msg=document.getElementById('msg'),text=out.textContent;
+    function sel(){var r=document.createRange();r.selectNodeContents(out);var s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent='선택했습니다. Ctrl+C로 복사해 주세요.'}
+    try{navigator.clipboard.writeText(text).then(function(){msg.textContent='복사했습니다. 대화창에 붙여 넣어 주세요.'},sel)}catch(e){sel()}
+  });
+})();
+</script>

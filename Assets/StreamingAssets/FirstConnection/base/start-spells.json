@@ -4,9 +4,9 @@
   "player": {
     "id": "player",
     "mapId": "map.courtyard",
-    "x": 1.5,
-    "y": 1.5,
-    "facing": "south"
+    "x": 11.5,
+    "y": 4.5,
+    "facing": "north"
   },
   "wallet": 200,
   "flags": {

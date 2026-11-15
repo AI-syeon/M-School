@@ -40,7 +40,7 @@ powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scrip
 ```
 powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scripts\run-probe.ps1 -Cases success-notes,cancel -Build Stage5-verify -Run <run-id>
 ```
-- 케이스: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save` `pass-out` `ui-long` `ui-200` `spell-lantern` `spell-context` `spell-quick`. 케이스별 `--variant`, `--initial`은 스크립트가 붙인다.
+- 케이스: `success-notes` `success-tea` `moved` `a10` `intro-false` `cancel` `day-save` `pass-out` `ui-long` `ui-200` `spell-lantern` `spell-context` `spell-quick` `map` `inventory` `ui-tour` `furniture` `stacking` `routine` `routine-mira`. 케이스별 `--variant`, `--initial`은 스크립트가 붙인다.
 - 출력은 케이스마다 `pass=True exit=0 checks=N failedChecks=0` 한 줄이다. 실패한 검사는 `FAIL 이름: 상세`, 예외는 `ERROR`로 나온다. 하나라도 실패하면 종료 코드 1이다.
 - 케이스 하나가 90초 안에 끝나지 않으면 스크립트가 띄운 그 PID만 종료하고 `TIMEOUT`을 보고한다.
 - 기능별 검사 이름과 절차는 [features/README.md](features/README.md)에 있다.
@@ -62,7 +62,8 @@ powershell -ExecutionPolicy Bypass -File .claude\skills\verify-magiccampus\scrip
 - 증명 기준:
   - 동작과 결과 상태를 함께 남긴다. 선택지 스크린샷(`choose.png`)과 그 뒤 소지금·시계·완료 검사를 같이 둔다.
   - 저장은 하루를 마칠 때(침대 취침 또는 새벽 2시 기절)만 일어난다. `day-save`가 `save\save.json`을 실제로 쓰고, 그 파일로 새 `Core.Game`을 만들어 다시 읽는다. 다른 프로세스에서 다시 읽는 검사는 없다.
-  - `ui-long`·`ui-200`의 글자 잘림·겹침은 사람이 PNG를 보고 따로 판단한다. `pass=True`만으로 "UI 품질 통과"라고 쓰지 않는다.
+  - `ui-tour`는 화면마다 스크린샷을 남긴다(HUD, 조준 대상 이름표, 영창 입력, 의뢰 완료 알림, 수첩 탭 4개, 초대 선택지, 대사, 잠자기 확인, 하루 결산, 메뉴 조작법). 글자 선명도·겹침은 PNG를 확대해 사람이 따로 판단한다.
+- `ui-long`·`ui-200`의 글자 잘림·겹침은 사람이 PNG를 보고 따로 판단한다. `pass=True`만으로 "UI 품질 통과"라고 쓰지 않는다.
   - `result.json`이 `pass=true`이고 종료 코드가 0일 때만 "통과"라고 쓴다.
 
 ## Cleanup

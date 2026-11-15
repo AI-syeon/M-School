@@ -1,0 +1,14 @@
+﻿PRODUCTION TARGETS JOB
+Generate originals as source/targets-original.png and prompt JSON. Each pair same canvas, pixel-aligned base, obvious at 1x. 32px cells, 32 PPU point filtered.
+Pairs:
+- target-signboard-dark / target-signboard-lit [1,2]: wooden direction signboard on post, small lantern unlit dull / same lantern warm lit and abstract sign glyphs faint glowing gold (no letters).
+- target-pillar-broken / target-pillar-mended [1,2]: short cream limestone pillar cracked, missing chunk and rubble / same whole mended faint gold seam.
+- target-seedpot-dry / target-seedpot-sprout [1,1]: terracotta pot dry cracked soil / same pot dark moist soil fresh green sprout.
+- target-moss-plain / target-moss-bloom [1,1]: low mossy boulder / same moss with tiny white lavender flowers.
+- target-plaque-dim / target-plaque-glow [1,1]: small stone record tablet on low base worn faint engraving / same lines cyan blue glowing no readable letters.
+- target-rune-stone-off / target-rune-stone-on [1,1]: standing dark grey carved rune stone dull / same violet-blue resonating rune small halo INSIDE cell.
+All blocked [[0,0]], single frame, no fps. targets.json library in art.json. No map placement.
+Boundaries: only allowed writes new source files, targets.json, art.json library addition only, review/, rebuild outputs under Assets/MagicCampus/CampusGrid/, optional build_targets.py and prepared/targets plus rebuild.ps1 hook matching fountain; notes/decomposition in Art/_runs/. Never overwrite existing source art. No git, no paid external APIs, no C# or scene edits beyond allowed rebuild outputs, no design docs. Stop if cannot meet.
+Refine clusters hard color edges, no muddy gradients/airbrush/noise dithering/mixed scale/perspective/random details/soft edges/halos/fake letters. Upper-left material light; NO directional cast shadows, rays or timeofday color baked. Only contact occlusion. Warm cream taupe oak honey muted brass moss olive orange autumn peacock accents.
+Use originals with key art refs design/screens/01-campus.png and 03-magic.png. Inspect approved review/courtyard-unity.png and daylight-times.png. Record original unchanged prompt JSON {file,tool,reference,prompt} and crop rectangles. Whole multicell frame pixelized BEFORE cutting. Rebuild twice success; layout.json and review/build-report.json byte identical between runs, existing ids cell PNG hashes preserved vs before.
+Review targets-sheet.png pairs at1x4x and each on paving next existing bench. Preserve source-vs-result comparison. Final concise plain text files/checks sizes alpha color counts collision reproducibility existing hash checks and remaining issues; no unchecked claims.

@@ -19,6 +19,12 @@ namespace MagicCampus.Core
         public readonly List<Actor> Npcs;
         /// <summary>The session's incantation, target tags and last cast. Not saved.</summary>
         public readonly Magic Magic;
+        /// <summary>The bag, notebook key items and mailbox; its state is in State and saved with the day.</summary>
+        public readonly Inventory Inventory;
+        /// <summary>Daily requests: what is open, and the checks that complete them. Progress is in State and saved with the day.</summary>
+        public readonly Quests Quests;
+        /// <summary>The player's furniture arrangement of the rooms that allow it; the state is in State and saved with the day.</summary>
+        public readonly Furniture Furniture;
         public readonly string SavePath;
         public EventRun Event { get; private set; }
         public Dialogue Dialogue { get; internal set; }
@@ -26,16 +32,21 @@ namespace MagicCampus.Core
         public bool Hidden { get; internal set; }
         /// <summary>How the last day ended in this session; null until a day ends.</summary>
         public DayEnd? LastDayEnd { get; private set; }
+        /// <summary>What the day that just ended brought (quests done, crowns); null until a day ends in this session. Not saved.</summary>
+        public DayReport LastDayReport { get; private set; }
+        /// <summary>Player-facing notices in the order they happened, waiting for the UI. Not saved.</summary>
+        public IReadOnlyList<Notice> Notices => notices;
         /// <summary>
-        /// Reads the current value of a spell requirement, or null when no system provides that kind. Nothing is wired yet
-        /// (see Magic.ProvidedKinds); tests set it to prove the thresholds.
+        /// Reads the current value of a spell requirement, or null when no system provides that kind. By default it reads the bag for
+        /// itemCountAtLeast and nothing else (see Magic.ProvidedKinds); tests replace it to prove the thresholds.
         /// </summary>
         public Func<RequirementDef, int?> RequirementProvider { get; set; }
         /// <summary>World seconds that have run in this session; the clock for tag windows. Paused while an event or a menu holds the world.</summary>
         public double MagicSeconds { get; private set; }
 
         double inputX, inputY, seconds;
-        int scheduledThrough;
+        int scheduledThrough, walletAtDayStart;
+        readonly List<Notice> notices = new List<Notice>();
 
         public Game(Content content, GameState state, string savePath)
         {
@@ -43,10 +54,18 @@ namespace MagicCampus.Core
             State = state;
             SavePath = savePath;
             State.NormalizeMagic(content);
+            State.NormalizeInventory(content);
+            State.NormalizeQuests();
+            walletAtDayStart = state.Wallet;
             Magic = new Magic(this);
+            Inventory = new Inventory(this);
+            Quests = new Quests(this);
+            RequirementProvider = r => r.Kind == "itemCountAtLeast" ? Inventory.Count(r.Id) : (int?)null;
+            MarkVisited();
             Npcs = content.Npcs.Select(n => new Actor { Id = n.Id, Speed = n.Speed }).ToList();
             Schedule.PlaceAll(content, Npcs, state.Minute);
             scheduledThrough = state.Minute;
+            Furniture = new Furniture(this);
         }
 
         /// <summary>Continues from the save when one exists, otherwise from the start fixture.</summary>
@@ -56,7 +75,25 @@ namespace MagicCampus.Core
         }
 
         /// <summary>Casts a spell by id: the one rule behind both the incantation and the quick slots.</summary>
-        public CastResult TryCastSpell(string spellId) => Magic.Cast(spellId);
+        public CastResult TryCastSpell(string spellId)
+        {
+            var result = Magic.Cast(spellId);
+            Quests.Evaluate();
+            return result;
+        }
+
+        /// <summary>Takes every waiting notice, oldest first. The UI calls it once per frame and turns them into toasts.</summary>
+        public List<Notice> DrainNotices()
+        {
+            var taken = notices.ToList();
+            notices.Clear();
+            return taken;
+        }
+
+        internal void Notify(NoticeKind kind, string text, string questId = null, string itemId = null)
+        {
+            notices.Add(new Notice { Kind = kind, Text = text, QuestId = questId, ItemId = itemId });
+        }
 
         /// <summary>Puts every magic target back to its starting tags. Task 6-1's room reset will call this.</summary>
         public void ResetMagicTargets() => Magic.ResetTargets();
@@ -79,6 +116,13 @@ namespace MagicCampus.Core
 
         public void Update(double dt)
         {
+            Step(dt);
+            Quests.Evaluate();
+        }
+
+        void Step(double dt)
+        {
+            MarkVisited();
             if (Event != null)
             {
                 if (Event.Update(this, dt)) EndEvent();
@@ -87,7 +131,12 @@ namespace MagicCampus.Core
             var mapBefore = Player.MapId;
             World.MovePlayer(Content, Player, inputX, inputY, dt);
             if (Player.MapId != mapBefore) Magic.Cancel();
-            foreach (var npc in Npcs) World.Walk(Content, npc, dt);
+            MarkVisited();
+            foreach (var npc in Npcs)
+            {
+                World.Walk(Content, npc, dt);
+                Schedule.Arrive(Content, npc);
+            }
             MagicSeconds += dt;
             seconds += dt;
             var minutes = (int)(seconds / SecondsPerMinute);
@@ -155,11 +204,30 @@ namespace MagicCampus.Core
             EndEvent();
         }
 
-        /// <summary>After an event every NPC heads back to where its schedule says it should be now.</summary>
+        /// <summary>After an event every NPC heads back to the routine step in force now, and its action starts again on arrival.</summary>
         void EndEvent()
         {
             Event = null;
-            foreach (var npc in Npcs) World.WalkTo(Content, npc, Content.Destination(Schedule.DestinationAt(Content, npc.Id, State.Minute)));
+            Schedule.Resume(Content, Npcs, State.Minute);
+            scheduledThrough = State.Minute;
+        }
+
+        /// <summary>
+        /// Moves the clock to the minute and puts every NPC where its routine has it then, action on, like a load at that time.
+        /// For the probe and tests; play only ever advances the clock a minute at a time.
+        /// </summary>
+        public void SetClock(int minute)
+        {
+            State.Minute = minute;
+            seconds = 0;
+            Schedule.PlaceAll(Content, Npcs, minute);
+            scheduledThrough = minute;
+        }
+
+        /// <summary>Adds the player's current map to the visited list the map screen reads.</summary>
+        void MarkVisited()
+        {
+            if (Player.MapId != null && !State.VisitedMaps.Contains(Player.MapId)) State.VisitedMaps.Add(Player.MapId);
         }
 
         public bool NearBed => Player.MapId == Content.Bed.MapId && World.Distance(Player, Content.Bed) <= BedReach;
@@ -171,12 +239,16 @@ namespace MagicCampus.Core
         public bool EndDay(DayEnd how)
         {
             if (Event != null) return false;
+            Quests.Evaluate();
+            LastDayReport = new DayReport { Day = State.Day, How = how, Quests = Quests.TakeCompletedToday(), CrownsEarned = State.Wallet - walletAtDayStart };
+            walletAtDayStart = State.Wallet;
             State.Day++;
             State.Minute = Clock.DayStart;
             seconds = 0;
             Magic.Cancel();
             Magic.ResetTargets();
             World.Place(Player, Content.Bed, "south");
+            MarkVisited();
             Schedule.PlaceAll(Content, Npcs, State.Minute);
             scheduledThrough = State.Minute;
             LastDayEnd = how;

@@ -1,0 +1,498 @@
+{
+  "tileSize": 32,
+  "sourceSha256": {
+    "prepared/lounge/lounge-floor.png": "5dc05d9500585010999a12f49d24d8466fde9a7dc7e4bfe1b31a6f2179f5b573",
+    "prepared/lounge/lounge-sofa.png": "430c954cbae418619617cbdeb0e0a46dd7d796dc9e5dd98adfd3d376c22202ac",
+    "source/room-lounge-furniture-original.png": "8d8f415177b88932bb830c423d02f0c0fed1d8caf73903df4efd10cd8ad98cbc",
+    "prepared/lounge/lounge-tea-table.png": "fd6c8577a1c5c8ddb2a5ad3d94fe84d842ee29a8bc3feccadd730526d108c604",
+    "prepared/lounge/lounge-fireplace-00.png": "9ebc59e780a2c23a85d4f2bf3e053d312c104876a43ce4227284ae51eec51f0d",
+    "prepared/lounge/lounge-fireplace-01.png": "379823389cfb127214f59316eeb5b75a214d4274b6c592c19d270f3f68e04a11",
+    "prepared/lounge/lounge-fireplace-02.png": "d6738720af97de488ef87debe01a4d0db8b1c9146b9cb962538914bf07fc0f31",
+    "prepared/lounge/lounge-fireplace-03.png": "cb9e3e9dfcdfb57c824ec8bc3a04c71e570a311c8fd2458abb1bf9f066b92f43",
+    "prepared/lounge/lounge-fireplace-04.png": "3b94b8027b7593a913ef3d8aaee56764ac23d2e049bcf6020e22a6880c68070c",
+    "prepared/lounge/lounge-fireplace-05.png": "b656e48f72dabc5cb13f3eb1003bd23b76aa171c2bfa9dffb8c93b1d7ea308ce",
+    "prepared/lounge/lounge-noticeboard.png": "d2d92abaaa124e7d16a465085b2efeabe44be27fb917abdc3e6425ad57bbe8de",
+    "prepared/lounge/lounge-armchair.png": "52f63f51b8bfc585df7ba349f2b59c74305857669564bde4c7253f8f32e039da",
+    "prepared/lounge/lounge-rug.png": "08e272025446e86a7417de5f610de8552bfb148de167392dfc575422fc43ac38",
+    "prepared/lounge/lounge-star-banner.png": "4fe6e0b432084b62c57d27116f5590c0e788c052630a90464e8e9c056d4db343",
+    "prepared/lounge/lounge-wall-rear.png": "ec9c4b3eac5837563ce83dba97a4c611011e98cba35f539b9b61acedc46bb33f",
+    "prepared/lounge/lounge-wall-side.png": "bb152515a5d95e037d06f2ae3c06f16a9799f6ab16bce3d9f665d62a6aa87d15",
+    "prepared/lounge/lounge-wall-front-left.png": "199ed0bda65735943a6ad5cb132de4cc79cdd7ce563c960f1992617c915d8950",
+    "prepared/lounge/lounge-wall-front-right.png": "c68725ad41288eebb5094d3d671f092784abb43efada42504b1e894d617d42fb",
+    "prepared/room-dorm/canopy-bed-rich.png": "28cd95b80f283253e296c64806211dcecbe77bc060d0e8c5c7a593b897b160d7",
+    "source\\room-dorm-fix-decor-original.png": "721df60802161827bd329595e7dc3a29baacb35538da0acd74cbde9048685653",
+    "source/room-dorm-furniture-original.png": "60658991fc3fa2e2090d68f1a8340bcfa18ee49d918a0238e0f91df6784bdac1",
+    "prepared/room-dorm/wall-rear.png": "6d92dd4545b3f3f8d8ce06d0d5877da4ca9f69ca8fc9669039ac956e45473a1e",
+    "prepared/room-dorm/wall-side.png": "456e7efdac7c97aa5307fa0410a9fa7f8cc0b172285098051dbb0612ec05abee",
+    "prepared/room-dorm/wall-front-left.png": "99631e4a538fcd4507f8876edffcf420335c82144fa0c592c88259dec1027fa8",
+    "prepared/room-dorm/wall-front-right.png": "34a5f7cd48cf09c8352d7fe5a5fa6a9680f81bb7941868eb5a8ddb4897f0204a",
+    "prepared/room-dorm/moon-banner.png": "5019c887b23acbc027f0fc12d233d769b9f9cad41f67b32ac882756153a75ede",
+    "prepared/room-dorm/trailing-ivy.png": "2fd18af5a444da0884a4dd656ea97e424ff256efa73dbc5a81c2104831d9cd02",
+    "prepared/room-dorm/star-garland.png": "bef0c4f007be3f7d1780ea4d37509133ff080d2f4a8bd2ef8d1393a342a62727",
+    "prepared/room-dorm/curtain-pair.png": "e00ab17f24b27422cd317c55406c6d0bc49740e18a3a647313f42cf77d90a3c3",
+    "prepared/room-dorm/green-runner.png": "5d747bff6289339fcce1ed0335b64fe7ce4541895ca5fd02d98472f19c078910",
+    "prepared/room-dorm/oak-chest.png": "90f1033c7c0385aebff0a146a906371ade1f6020908bfcb595bf301b15ee2e88",
+    "prepared/room-dorm/star-stool.png": "476867cbbf0d8c1a417cab9285ecacd6020dbc98842f2f99ad8ff018ab8aeb43",
+    "prepared/room-dorm/stacked-books.png": "c4a295a9dd03963e40feb09f31b6f2d0fa193235832d1119ed5217e8fd047b82",
+    "prepared/room-dorm/brass-lamp.png": "9f9b9cd62e99eba5ad2e2f862e3318f658ca9396a7b43210fc1b9f2557ebc0b5",
+    "prepared/room-dorm/sleeping-cat.png": "4f5b22ab0630ea5e0e1f92526a91888cfb77615a52cd2ada4fc464b51efc24db"
+  },
+  "uniqueCellPngs": 1,
+  "atlas": [
+    {
+      "image": "ground-room-floor-00.png",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    }
+  ],
+  "mapCells": 80,
+  "propCount": 28,
+  "props": {
+    "lounge-sofa": {
+      "size": [
+        3,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        64
+      ]
+    },
+    "lounge-tea-table": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "lounge-fireplace": {
+      "size": [
+        2,
+        2
+      ],
+      "frames": 6,
+      "fps": 8,
+      "sheetSize": [
+        192,
+        128
+      ]
+    },
+    "lounge-noticeboard": {
+      "size": [
+        2,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        64
+      ]
+    },
+    "lounge-armchair": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "lounge-rug": {
+      "size": [
+        3,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        96
+      ]
+    },
+    "lounge-star-banner": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "lounge-wall-rear": {
+      "size": [
+        10,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        320,
+        64
+      ]
+    },
+    "lounge-wall-side": {
+      "size": [
+        1,
+        6
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        192
+      ]
+    },
+    "lounge-wall-front-left": {
+      "size": [
+        4,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        128,
+        32
+      ]
+    },
+    "lounge-wall-front-right": {
+      "size": [
+        5,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        160,
+        32
+      ]
+    },
+    "canopy-bed": {
+      "size": [
+        2,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        96
+      ]
+    },
+    "bookshelf": {
+      "size": [
+        2,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        96
+      ]
+    },
+    "desk": {
+      "size": [
+        3,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        96
+      ]
+    },
+    "window-seat": {
+      "size": [
+        4,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        128,
+        96
+      ]
+    },
+    "wardrobe": {
+      "size": [
+        2,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        96
+      ]
+    },
+    "star-rug": {
+      "size": [
+        3,
+        3
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        96
+      ]
+    },
+    "nightstand": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "mirror": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "plant": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "lantern": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "candle": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "flower-plant": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "wall-rear": {
+      "size": [
+        12,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        384,
+        64
+      ]
+    },
+    "wall-side": {
+      "size": [
+        1,
+        7
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        224
+      ]
+    },
+    "wall-front-left": {
+      "size": [
+        5,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        160,
+        32
+      ]
+    },
+    "wall-front-right": {
+      "size": [
+        6,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        192,
+        32
+      ]
+    },
+    "moon-banner": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "trailing-ivy": {
+      "size": [
+        1,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        64
+      ]
+    },
+    "star-garland": {
+      "size": [
+        2,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        32
+      ]
+    },
+    "curtain-pair": {
+      "size": [
+        3,
+        2
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        96,
+        64
+      ]
+    },
+    "green-runner": {
+      "size": [
+        1,
+        4
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        128
+      ]
+    },
+    "oak-chest": {
+      "size": [
+        2,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        64,
+        32
+      ]
+    },
+    "star-stool": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "stacked-books": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "brass-lamp": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    },
+    "sleeping-cat": {
+      "size": [
+        1,
+        1
+      ],
+      "frames": 1,
+      "fps": 0,
+      "sheetSize": [
+        32,
+        32
+      ]
+    }
+  }
+}

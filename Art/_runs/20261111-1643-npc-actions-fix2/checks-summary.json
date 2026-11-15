@@ -1,0 +1,18 @@
+{
+  "identical_verify_invocations": true,
+  "hashes_compared": 245,
+  "current_png_checks": 196,
+  "current_png_all_pass": true,
+  "source_files_unchanged": 16,
+  "baseline": {
+    "available": true,
+    "all_identical": true,
+    "existing_frames": 120,
+    "sheet_regions": 6,
+    "player_files": 88,
+    "meta_files": 94
+  },
+  "all_generated_png_total": 199,
+  "all_generated_png_pass": 194,
+  "legacy_review_size_failures": 5
+}

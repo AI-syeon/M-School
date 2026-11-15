@@ -1,0 +1,18 @@
+{
+  "png_checks": {
+    "files": 79,
+    "all_passed": true
+  },
+  "baseline_comparison": {
+    "available": true,
+    "all_identical": true,
+    "existing_frames": 120,
+    "sheet_regions": 6,
+    "player_files": 88,
+    "meta_files": 94
+  },
+  "identical_rebuild": true,
+  "action_loop_files": 16,
+  "review": "Inspected original vs pixel, 1x, 2x and enlarged sheets. Writing pen details subtle at 1x. No visible seam or border problem.",
+  "originals_identical_to_imagegen_outputs": 8
+}

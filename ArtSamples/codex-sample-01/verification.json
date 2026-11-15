@@ -1,0 +1,38 @@
+{
+  "original_size": [
+    1312,
+    1199
+  ],
+  "source_sha256": "25c570d4b9adb98b3284d54a0693be6aa2b1de687ffc14e09cbf729a47a863b0",
+  "source_alpha_crop": [
+    278,
+    244,
+    1006,
+    1037
+  ],
+  "sampled_size": [
+    27,
+    29
+  ],
+  "final_size": [
+    32,
+    32
+  ],
+  "mode": "RGBA",
+  "opaque_colors": 15,
+  "total_rgba_colors": 16,
+  "corner_alpha": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "alpha_values": [
+    0,
+    255
+  ],
+  "pipeline_helper": "C:\\Users\\syeon\\Workspace\\2D-pixel-asset-pipeline\\scripts\\build_godot_style_studies_static_32x64.py",
+  "pipeline_function": "quantize_shared",
+  "resampling": "NEAREST only",
+  "dithering": "NONE"
+}

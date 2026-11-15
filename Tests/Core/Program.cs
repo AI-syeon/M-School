@@ -22,12 +22,16 @@ static partial class Program
         EventSuccess(1, "좋아, 따뜻한 차가 필요했어.");
         IntroFalseRefused();
         CancelRestores();
-        SchedulePicks();
+        RoutineTests();
         PathAcrossMaps();
+        CampusWalk();
         PlayerMovement();
         DayEndSaves();
         SaveFallsBackToBak();
         MagicTests();
+        InventoryTests();
+        QuestTests();
+        FurnitureTests();
         Directory.Delete(Temp, true);
         Console.WriteLine(failures == 0 ? "ALL PASS" : failures + " FAILED");
         return failures == 0 ? 0 : 1;
@@ -77,23 +81,8 @@ static partial class Program
         {
             Rule(Dest(npc.Home), npc.Id + " home exists");
             Rule(npc.Speed > 0, npc.Id + " speed > 0");
-            Rule(c.Schedules.Count(s => s.NpcId == npc.Id) == 1, npc.Id + " has one schedule");
         }
-        foreach (var s in c.Schedules)
-        {
-            Rule(Npc(s.NpcId), s.Id + " npc exists");
-            var entries = Command.Parse(s.Script);
-            var targets = new List<string>();
-            foreach (var e in entries)
-            {
-                Rule(int.TryParse(e.Name, out var minute) && minute >= 0 && minute < Clock.MinutesPerDay, s.Id + " entry minute " + e.Name);
-                Rule(e.Args.Count == 1 && (e.Args[0] == "home" || Dest(e.Args[0])), s.Id + " entry destination " + string.Join(" ", e.Args));
-                if (e.Args.Count == 1 && Npc(s.NpcId)) targets.Add(e.Args[0] == "home" ? c.Npc(s.NpcId).Home : e.Args[0]);
-            }
-            foreach (var a in targets.Where(Dest))
-                foreach (var b in targets.Where(Dest))
-                    Rule(Reachable(c.Destination(a).Position, c.Destination(b).Position), s.Id + " walks " + a + " -> " + b);
-        }
+        p.AddRange(RoutineProblems(c));
         foreach (var e in c.Events)
         {
             Rule(e.RepeatPolicy == "once", e.Id + " is once");
@@ -133,10 +122,16 @@ static partial class Program
                     Rule(a.Count == 2 && Var(a[0]) && ValueFits(c.Variable(a[0]), a[1]), e.Id + " set variable value");
                 else if (fx.Name == "currency.add")
                     Rule(a.Count == 1 && int.TryParse(a[0], out var n) && n > 0, e.Id + " currency.add amount");
+                else if (fx.Name == "item.add")
+                    Rule(a.Count >= 2 && a.Count <= 3 && c.Item(a[0]) != null && int.TryParse(a[1], out var n) && n > 0
+                        && (a.Count == 2 || a[2] == Inventory.Standard || a[2] == Inventory.Fine), e.Id + " item.add known item, positive count, known quality");
                 else Rule(false, e.Id + " effect " + fx.Name + " is handled");
             }
         }
+        p.AddRange(ItemProblems(c));
         p.AddRange(MagicProblems(c));
+        p.AddRange(Quests.Problems(c));
+        p.AddRange(FurnitureProblems(c));
         return p;
     }
 
@@ -155,8 +150,9 @@ static partial class Program
         }
         var broken = Directory.GetDirectories(Path.Combine(Fc, "variants", "invalid")).Append(Path.Combine(Fc, "variants", "unregistered-effect"));
         var recipes = File.ReadAllText(Path.Combine(Base, "staging-recipes.json"));
+        var routines = File.ReadAllText(Path.Combine(Base, "routines.json"));
         foreach (var dir in broken)
-            Check("content rules catch " + Path.GetFileName(dir), Problems(Content.Parse(File.ReadAllText(Path.Combine(dir, "runner-bundle.json")), recipes)).Count > 0);
+            Check("content rules catch " + Path.GetFileName(dir), Problems(Content.Parse(File.ReadAllText(Path.Combine(dir, "runner-bundle.json")), recipes, null, null, routines)).Count > 0);
     }
 
     static void StartFixtures()
@@ -172,7 +168,11 @@ static partial class Program
                     && s.Flags.All(f => c.Variables.Any(v => v.Id == f.Key && ValueFits(v, f.Value.ToString(Newtonsoft.Json.Formatting.None))))
                     && s.Appointments.Keys.All(id => c.Events.Any(e => e.Id == id))
                     && s.Completed.All(id => c.Events.Any(e => e.Id == id))
-                    && s.KnownSpells.All(id => c.Spell(id) != null);
+                    && s.KnownSpells.All(id => c.Spell(id) != null)
+                    && (s.Bag ?? new Lot[0]).Where(l => l != null).All(l => c.Item(l.ItemId) is ItemDef d && !d.IsKey && l.Count > 0 && l.Count <= d.StackMax)
+                    && (s.Mailbox ?? new List<Lot>()).All(l => c.Item(l.ItemId) is ItemDef d && !d.IsKey && l.Count > 0)
+                    && (s.KeyItems ?? new List<string>()).All(id => c.Item(id)?.IsKey == true)
+                    && (s.VisitedMaps ?? new List<string>()).All(id => c.Maps.Any(m => m.Id == id));
                 Check("start fixture fits content: " + dir + "/" + Path.GetFileName(file), ok);
             }
         }
@@ -185,12 +185,15 @@ static partial class Program
 
     // ------------------------------------------------------------------ play helpers
 
-    static Game NewGame(string fixture, string variant = "base", int? minute = null)
+    /// <summary>Quests are cleared unless asked for, so the event and magic tests do not depend on what the shipped requests pay.</summary>
+    static Game NewGame(string fixture, string variant = "base", int? minute = null, bool withQuests = false)
     {
         var dir = Path.Combine(Fc, variant);
         var state = SaveFile.Read(Path.Combine(dir, fixture));
         if (minute.HasValue) state.Minute = minute.Value;
-        return new Game(Content.Load(dir), state, Path.Combine(Temp, Guid.NewGuid().ToString("N"), "save.json"));
+        var content = Content.Load(dir);
+        if (!withQuests) content.Quests.Clear();
+        return new Game(content, state, Path.Combine(Temp, Guid.NewGuid().ToString("N"), "save.json"));
     }
 
     static void Run(Game g, double seconds, Func<bool> until = null)
@@ -221,7 +224,7 @@ static partial class Program
         var g = NewGame("start-offered.json");
         Check("interact far from the NPC lists nothing", g.Interact().Count == 0);
         g.SetPlayerInput(0, 1);
-        Run(g, 5, () => g.Player.Y >= 3.2);
+        Run(g, 5, () => g.Player.Y >= 4.1);
         g.SetPlayerInput(0, 0);
         var invites = g.Interact();
         Check("interact in range lists both invitations as Offered",
@@ -238,7 +241,7 @@ static partial class Program
         Check(name + ": event starts and hides the screen", g.StartEvent("event.snack") && g.Hidden);
         g.Update(1 / 30.0);
         Check(name + ": staging places actors at the join while hidden",
-            g.Hidden && At(g.Actor("npc.serin"), "map.lounge", 0.5, 2.5) && At(g.Player, "map.lounge", 0.5, 2.5) && g.MapId == "map.lounge");
+            g.Hidden && At(g.Actor("npc.serin"), "map.lounge", 4.5, 0.5) && At(g.Player, "map.lounge", 4.5, 0.5) && g.MapId == "map.lounge");
         g.Update(1 / 30.0);
         Check(name + ": screen shows again before the script runs", !g.Hidden && g.Actor("npc.serin").Moving);
         var shown = Play(g, choice);
@@ -250,7 +253,7 @@ static partial class Program
             s.Wallet == 220 && g.Flag("memory.snack_done") == "true" && s.Minute == 430 && !s.Appointments.ContainsKey("event.snack")
             && s.Appointments.ContainsKey("event.snack_later") && s.Completed.SequenceEqual(new[] { "event.snack" }));
         Check(name + ": actors stay where the event left them",
-            At(g.Actor("npc.serin"), "map.lounge", 4.5, 3.5) && g.Actor("npc.serin").Facing == "north" && g.MapId == "map.lounge");
+            At(g.Actor("npc.serin"), "map.lounge", 5.5, 3.5) && g.Actor("npc.serin").Facing == "west" && g.MapId == "map.lounge");
         g.Update(1 / 30.0);
         Check(name + ": after the event the NPC walks back to its schedule spot", g.Actor("npc.serin").Moving && g.Actor("npc.serin").Path.Last().MapId == "map.courtyard");
         Check(name + ": replay is refused and pays nothing", !g.StartEvent("event.snack") && g.Event == null && s.Wallet == 220);
@@ -272,61 +275,64 @@ static partial class Program
         g.CancelEvent();
         var s = g.State;
         Check("cancel restores actors, map and clock and applies nothing",
-            At(g.Actor("npc.serin"), "map.courtyard", 1.5, 4.5) && At(g.Player, "map.courtyard", 1.5, 1.5) && g.MapId == "map.courtyard"
+            At(g.Actor("npc.serin"), "map.courtyard", 8.5, 5.5) && At(g.Player, "map.courtyard", 8.5, 2.5) && g.MapId == "map.courtyard"
             && s.Minute == 420 && s.Wallet == 200 && s.Completed.Count == 0 && s.Appointments["event.snack"] == Appointment.Accepted
             && g.Event == null && g.Dialogue == null && !g.Hidden);
         Check("cancel: the event can start again", g.StartEvent("event.snack"));
     }
 
-    static void SchedulePicks()
-    {
-        Check("schedule: load at 13:20 places the NPC at dest.notice", At(NewGame("start-offered.json", minute: 800).Actor("npc.serin"), "map.courtyard", 5.5, 1.5));
-        Check("schedule: load at 05:00 uses the previous day's last entry (home)", At(NewGame("start-offered.json", minute: 300).Actor("npc.serin"), "map.courtyard", 1.5, 4.5));
-        var g = NewGame("start-offered.json", minute: 715);
-        var serin = g.Actor("npc.serin");
-        Run(g, 4.5);
-        Check("schedule: before 12:00 the NPC stays home", At(serin, "map.courtyard", 1.5, 4.5) && !serin.Moving);
-        Run(g, 1);
-        Check("schedule: at 12:00 the NPC starts walking", serin.Moving && g.State.Minute == 720);
-        Run(g, 10, () => !serin.Moving);
-        Check("schedule: the NPC walks to dest.notice", At(serin, "map.courtyard", 5.5, 1.5));
-        var held = NewGame("start-accepted.json", minute: 719);
-        held.StartEvent("event.snack");
-        Run(held, 5, () => held.Dialogue != null);
-        Check("schedule: an NPC held by an event skips its schedule", held.State.Minute == 719 && At(held.Actor("npc.serin"), "map.lounge", 4.5, 3.5));
-    }
-
     static void PathAcrossMaps()
     {
         var c = Content.Load(Base);
-        var walker = new Actor { Id = "walker", MapId = "map.courtyard", X = 1.5, Y = 4.5, Speed = 3 };
+        var walker = new Actor { Id = "walker", MapId = "map.courtyard", X = 8.5, Y = 5.5, Speed = 3 };
         walker.Path = World.FindPath(c, walker, c.Destination("dest.snack").Position);
         var maps = new HashSet<string>(walker.Path.Select(s => s.MapId));
         Check("path: courtyard home to lounge snack crosses both maps", maps.SetEquals(new[] { "map.courtyard", "map.lounge" }));
         for (var i = 0; i < 30 * 20 && walker.Path.Count > 0; i++) World.Walk(c, walker, 1 / 30.0);
-        Check("path: walking it arrives through the portal", At(walker, "map.lounge", 4.5, 3.5));
-        var boxed = new Actor { MapId = "map.courtyard", X = 1.5, Y = 1.5 };
+        Check("path: walking it arrives through the portal", At(walker, "map.lounge", 5.5, 3.5));
+        var boxed = new Actor { MapId = "map.courtyard", X = 8.5, Y = 2.5 };
         Check("path: an unreachable goal has no path", World.FindPath(c, boxed, new Spot { MapId = "map.region_1", X = 1.5, Y = 1.5 }) == null);
+    }
+
+    /// <summary>The new campus areas hang together: every area is a named map with a portal pair, and every destination can be walked to from the courtyard and back.</summary>
+    static void CampusWalk()
+    {
+        foreach (var dir in new[] { "base", "variants/a10-mira", "variants/dest-moved" })
+        {
+            var c = Content.Load(Path.Combine(Fc, dir));
+            var home = new Actor { MapId = "map.courtyard", X = 8.5, Y = 2.5, Speed = 3 };
+            var areas = c.Maps.Where(m => m.Portals.Count > 0).ToList();
+            Check("campus " + dir + ": " + areas.Count + " walkable areas, all named", areas.Count == 8 && areas.All(m => !string.IsNullOrEmpty(m.Name)));
+            Check("campus " + dir + ": every portal arrives on a portal that leads back", areas.All(m => m.Portals.All(p =>
+                c.Map(p.To.MapId).Portals.Count(q => (int)Math.Floor(q.X) == (int)Math.Floor(p.To.X) && (int)Math.Floor(q.Y) == (int)Math.Floor(p.To.Y) && q.To.MapId == m.Id) == 1)));
+            var unreachable = c.Destinations.Where(d => World.FindPath(c, home, d.Position) == null || World.FindPath(c, new Actor { MapId = d.Position.MapId, X = d.Position.X, Y = d.Position.Y }, new Spot { MapId = "map.courtyard", X = 8.5, Y = 2.5 }) == null)
+                .Select(d => d.Id).ToList();
+            Check("campus " + dir + ": every destination can be walked to from the courtyard and back" + (unreachable.Count > 0 ? ": " + string.Join(",", unreachable) : ""), unreachable.Count == 0);
+        }
+        var b = Content.Load(Base);
+        foreach (var (id, map) in new[] { ("dest.hall_board", "map.hall"), ("dest.library_desk", "map.library"), ("dest.classroom_seat", "map.classroom"), ("dest.cafeteria_table", "map.cafeteria"), ("dest.greenhouse_bed", "map.greenhouse") })
+            Check("campus: " + id + " stands in " + map + " facing a direction", b.Destination(id).Position.MapId == map && !string.IsNullOrEmpty(b.Destination(id).Facing));
     }
 
     static void PlayerMovement()
     {
         var g = NewGame("start-offered.json");
-        World.Place(g.Player, new Spot { MapId = "map.courtyard", X = 2.5, Y = 1.5 });
+        World.Place(g.Player, new Spot { MapId = "map.courtyard", X = 5.5, Y = 2.5 });
         g.SetPlayerInput(1, 0);
         Run(g, 1);
-        Check("player: a blocked cell stops movement on that axis", g.Player.X <= 2.8 + 1e-9 && g.Player.X > 2.6 && g.Player.Facing == "east");
-        World.Place(g.Player, new Spot { MapId = "map.courtyard", X = 6.5, Y = 2.5 });
+        Check("player: a blocked cell stops movement on that axis", g.Player.X <= 5.8 + 1e-9 && g.Player.X > 5.6 && g.Player.Facing == "east");
+        World.Place(g.Player, new Spot { MapId = "map.courtyard", X = 17.5, Y = 7.5 });
+        g.SetPlayerInput(0, 1);
         Run(g, 1, () => g.MapId == "map.lounge");
-        Check("player: walking into the portal cell crosses to the lounge", At(g.Player, "map.lounge", 0.5, 2.5));
+        Check("player: walking into the portal cell crosses to the lounge", At(g.Player, "map.lounge", 4.5, 0.5));
         g.SetPlayerInput(0, 0);
         Run(g, 0.5);
         Check("player: standing on the arrival cell does not bounce back", g.MapId == "map.lounge");
-        g.SetPlayerInput(1, 0);
+        g.SetPlayerInput(0, 1);
         Run(g, 0.4);
-        g.SetPlayerInput(-1, 0);
+        g.SetPlayerInput(0, -1);
         Run(g, 1, () => g.MapId == "map.courtyard");
-        Check("player: leaving and re-entering the arrival cell crosses back", At(g.Player, "map.courtyard", 7.5, 2.5));
+        Check("player: leaving and re-entering the arrival cell crosses back", At(g.Player, "map.courtyard", 17.5, 9.5));
     }
 
     static void DayEndSaves()
@@ -341,11 +347,11 @@ static partial class Program
         Check("bed: standing on the bed is near it", g.NearBed);
         Check("sleep: EndDay(Slept) ends the day", g.EndDay(DayEnd.Slept) && g.LastDayEnd == DayEnd.Slept);
         Check("sleep: next day starts at 07:00 at the bed with the NPC home and the file saved",
-            g.State.Day == 1 && g.State.Minute == 420 && At(g.Player, "map.courtyard", 0.5, 0.5)
-            && At(g.Actor("npc.serin"), "map.courtyard", 1.5, 4.5) && File.Exists(g.SavePath));
+            g.State.Day == 1 && g.State.Minute == 420 && At(g.Player, "map.dorm", 2.5, 5.5)
+            && At(g.Actor("npc.serin"), "map.courtyard", 8.5, 5.5) && File.Exists(g.SavePath));
         var reloaded = Game.Open(Base, Path.Combine(Base, "start-offered.json"), g.SavePath);
         Check("day end: reload gives the same state", SaveFile.ToJson(reloaded.State) == SaveFile.ToJson(g.State)
-            && reloaded.State.Wallet == 220 && At(reloaded.Player, "map.courtyard", 0.5, 0.5));
+            && reloaded.State.Wallet == 220 && At(reloaded.Player, "map.dorm", 2.5, 5.5));
         Check("day end: the event stays refused after reload", !reloaded.StartEvent("event.snack"));
 
         var night = NewGame("start-offered.json", minute: Clock.MinutesPerDay - 2);
@@ -357,7 +363,7 @@ static partial class Program
         Run(night, 1);
         Check("pass out: 02:00 ends the day at the bed and saves",
             night.State.Day == 1 && night.State.Minute == 420 && night.LastDayEnd == DayEnd.PassedOut
-            && At(night.Player, "map.courtyard", 0.5, 0.5) && File.Exists(night.SavePath));
+            && At(night.Player, "map.dorm", 2.5, 5.5) && File.Exists(night.SavePath));
     }
 
     static void SaveFallsBackToBak()
