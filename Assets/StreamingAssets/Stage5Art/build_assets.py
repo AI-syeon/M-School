@@ -2,10 +2,17 @@
 from pathlib import Path
 import hashlib
 import json
+import re
+import shutil
+import sys
 from PIL import Image, ImageDraw
 from pixel_pipeline.cli import check_image, grid_atlas, save_json
+from pixel_pipeline.normal import save_normal_frames
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent))
+from sprite_grid import pack_frames
+from unity_sprite_sheet import write_sprite_meta
 NEAREST = Image.Resampling.NEAREST
 DIRS = ['south', 'west', 'east', 'north']
 ACTORS = ['player', 'npc.serin', 'npc.mira']
@@ -53,6 +60,8 @@ def main():
         check_image(tile,(16,16),False)
         tile.save(out/(key+'.png')); tiles.append(tile)
     atlas, rects = grid_atlas(tiles,4); atlas.save(out/'atlas.png')
+    save_normal_frames(out, ((key + '.png', frame) for key, frame in zip(TILES, tiles)),
+                       atlas_size=atlas.size, rects=rects)
     for frame,r in zip(tiles,rects):
         assert atlas.crop((r['x'],r['y'],r['x']+16,r['y']+16)).tobytes()==frame.tobytes()
     for key,rect in zip(TILES,rects):
@@ -87,27 +96,44 @@ def main():
                 for i in range(count):
                     frame=animation(base,state,i);check_image(frame,(16,32),True)
                     assert set(frame.getchannel('A').get_flattened_data()) == {0,255}
-                    frame.save(folder/f'{direction}_{state}_{i:03d}.png');frames.append(frame)
+                    frames.append(frame.resize((32, 64), NEAREST))
                 direction_animations[direction][state]={'frames':count,'fps':fps,'loop':True,'indices':list(range(start,len(frames)))}
-        sheet,rectangles=grid_atlas(frames,10); sheet.save(folder/'sprite-sheet-alpha.png')
-        for anims in direction_animations.values():
+        sheet, normals, rectangles = pack_frames(frames, columns=10)
+        sheet.save(folder/'sprite-sheet-alpha.png')
+        (folder/'normals').mkdir(exist_ok=True)
+        normals.save(folder/'normals/atlas.png')
+        named = []
+        for direction, anims in direction_animations.items():
             for state,spec in anims.items():
                 spec['rectangles']=[rectangles[i] for i in spec.pop('indices')]
+                for i, rect in enumerate(spec['rectangles']):
+                    named.append((f'{direction}_{state}_{i:03d}', rect['x'], rect['y'], rect['w'], rect['h']))
         for frame,r in zip(frames,rectangles):
-            assert sheet.crop((r['x'],r['y'],r['x']+16,r['y']+32)).tobytes()==frame.tobytes()
+            assert sheet.crop((r['x'],r['y'],r['x']+32,r['y']+64)).tobytes()==frame.tobytes()
         actor_spec={'image':f'characters/{actor}/sprite-sheet-alpha.png','pivot':[0.5,0.0625],
+                    'normal':f'characters/{actor}/normals/atlas.png','pixelsPerUnit':32,
                     'animations':direction_animations['south'],'directionAnimations':direction_animations,
                     'defaultDirection':'south','sha256':sha(folder/'sprite-sheet-alpha.png')}
         runtime['actors'][actor]=actor_spec
         save_json(folder/'manifest.json',{'id':actor,'type':'character','game_input':'sprite-sheet-alpha.png',
-            'size':[16,32],'sheetSize':list(sheet.size),'origin':'top-left','animations':direction_animations})
+            'size':[32,64],'sheetSize':list(sheet.size),'origin':'top-left','animations':direction_animations})
+        mirror = ROOT.parents[1]/'Assets/StreamingAssets/Stage5Art/characters'/actor
+        (mirror/'normals').mkdir(parents=True, exist_ok=True)
+        for name in ('sprite-sheet-alpha.png', 'normals/atlas.png', 'manifest.json'):
+            shutil.copyfile(folder/name, mirror/name)
+        write_sprite_meta(mirror/'sprite-sheet-alpha.png', sheet.size, 32, named, (0.5, 0.0625), mirror/'normals/atlas.png')
+        for directory in (folder, mirror):
+            for file in directory.glob('*.png'):
+                if re.fullmatch(r'(north|south|east|west)_(idle|walk)_\d{3}\.png', file.name):
+                    file.unlink()
+                    file.with_suffix('.png.meta').unlink(missing_ok=True)
         sheet.resize((640,512),NEAREST).save(folder/'review.png')
         preview=[frame.resize((96,192),NEAREST) for frame in frames[4:10]]
         preview[0].save(folder/'walk-south.gif',save_all=True,append_images=preview[1:],duration=111,loop=0,disposal=2)
         for col in range(4):
             contact.alpha_composite(frames[col*10].resize((64,128),NEAREST),(col*160,row*128))
         qa['actors'][actor]={'frames':40,'directions':4,'idleFramesPerDirection':4,'walkFramesPerDirection':6,
-                            'size':[16,32],'alpha':'binary 0/255','paletteMaxPerBasePose':24}
+                            'size':[32,64],'alpha':'binary 0/255','paletteMaxPerBasePose':24}
     contact.save(ROOT/'character-review.png')
     atlas.resize((512,512),NEAREST).save(ROOT/'tile-review.png')
     # Side-by-side source versus local pixel result, with both panels the same scale.
@@ -151,6 +177,7 @@ def main():
                     'Walk is a simple locally rigged leg-shift/bob loop, not independently generated poses.',
                     'Map images match existing fixture dimensions and blocked cells; not a large designed campus.']}
     save_json(ROOT/'runtime-manifest.json',runtime)
+    shutil.copyfile(ROOT/'runtime-manifest.json', ROOT.parents[1]/'Assets/StreamingAssets/Stage5Art/runtime-manifest.json')
     save_json(ROOT/'qa.json',qa)
     print('PASS: 16 tiles, 120 directional animation frames, binary alpha, absolute rectangles, atlas equality; 2 fixture-aligned map images.')
 

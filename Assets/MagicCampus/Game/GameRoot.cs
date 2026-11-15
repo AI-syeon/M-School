@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -80,28 +81,47 @@ namespace MagicCampus.Game
         public IReadOnlyList<string> PanelEvents => panelEvents;
         public float TextScale { get => skin.TextScale; set => skin.TextScale = value; }
 
-        void Start()
+        /// <summary>WebGL: the StreamingAssets files are still being fetched; OnGUI shows the loading card instead of the game.</summary>
+        bool loading;
+        int loadDone, loadTotal;
+
+        IEnumerator Start()
+        {
+            if (GamePaths.NeedsDownload)
+            {
+                loading = true;
+                string failure = null;
+                yield return GamePaths.Download((done, total) => { loadDone = done; loadTotal = total; }, why => failure = why);
+                loading = false;
+                if (failure != null) Fail("파일 내려받기 실패", new IOException(failure));
+            }
+            if (Error == null) StartGame();
+            if (ProbeCase != null) gameObject.AddComponent<Probe>();
+        }
+
+        void StartGame()
         {
             try
             {
                 ParseArgs();
-                var fixtures = Path.Combine(UnityEngine.Application.streamingAssetsPath, "FirstConnection");
+                var fixtures = Path.Combine(GamePaths.StreamingAssets, "FirstConnection");
                 contentDir = Path.Combine(fixtures, variant);
                 fixture = File.Exists(Path.Combine(contentDir, initial)) ? Path.Combine(contentDir, initial) : Path.Combine(fixtures, "base", initial);
                 SavePath = Path.Combine(saveDir ?? Path.Combine(UnityEngine.Application.persistentDataPath, "Stage5"), "save.json");
                 Game = fresh ? new Core.Game(Content.Load(contentDir), SaveFile.Read(fixture), SavePath) : Core.Game.Open(contentDir, fixture, SavePath);
                 watchedDay = Game.State.Day;
-                View = new WorldView(Path.Combine(UnityEngine.Application.streamingAssetsPath, "Stage5Art"), Camera.main);
+                View = new WorldView(Path.Combine(GamePaths.StreamingAssets, "Stage5Art"), Camera.main);
                 skin.ItemIcon = id => skin.Icon(Game, id);
                 SetStatus("친구에게 다가가 E키로 말을 걸어 보세요.", null);
             }
             catch (Exception e) { Fail("초기화 실패", e); }
-            if (ProbeCase != null) gameObject.AddComponent<Probe>();
         }
 
         void ParseArgs()
         {
-            var a = Environment.GetCommandLineArgs();
+            string[] a;
+            try { a = Environment.GetCommandLineArgs(); }
+            catch (Exception) { return; }
             string Next(ref int i) => i + 1 < a.Length && !a[i + 1].StartsWith("--", StringComparison.Ordinal) ? a[++i] : null;
             for (var i = 1; i < a.Length; i++)
             {
@@ -133,6 +153,7 @@ namespace MagicCampus.Game
                 View.FocusOverride = panel == Panel.Arrange ? ArrangePanel.Focus(Game) : null;
                 View.Draw(Game, MenuOpen || report != null ? 0f : Time.unscaledDeltaTime);
                 if (!initialWritten) initialWritten = WriteState("initial-state.json");
+                if (GamePaths.IsWeb) FlushSavesWhenChanged();
                 if (Time.unscaledTime >= stateAt)
                 {
                     stateAt = Time.unscaledTime + 1f;
@@ -140,6 +161,20 @@ namespace MagicCampus.Game
                 }
             }
             catch (Exception e) { Fail("프레임 오류", e); }
+        }
+
+        float flushAt;
+        DateTime saveWrittenAt;
+
+        /// <summary>WebGL: when the save file changed, push persistentDataPath to IndexedDB (once a second at most).</summary>
+        void FlushSavesWhenChanged()
+        {
+            if (Time.unscaledTime < flushAt) return;
+            flushAt = Time.unscaledTime + 1f;
+            var at = File.Exists(SavePath) ? File.GetLastWriteTimeUtc(SavePath) : DateTime.MinValue;
+            if (at == saveWrittenAt) return;
+            saveWrittenAt = at;
+            GamePaths.FlushSaves();
         }
 
         // ------------------------------------------------------------------ input

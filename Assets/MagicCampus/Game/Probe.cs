@@ -1032,7 +1032,7 @@ namespace MagicCampus.Game
             Step("place the player in the middle of the plaza");
             World.Place(G.Player, new Spot { MapId = "map.courtyard", X = 10.5, Y = 3.5 }, "north");
             yield return Seconds(0.5f);
-            var looks = WorldArt.Load(Path.Combine(UnityEngine.Application.streamingAssetsPath, "FirstConnection", "world-art.json")).Targets;
+            var looks = WorldArt.Load(Path.Combine(GamePaths.StreamingAssets, "FirstConnection", "world-art.json")).Targets;
             Expect("tour.targets-default-sprites", G.Content.MagicTargets.Count == 6 && G.Content.MagicTargets.All(t => looks.TryGetValue(t.Id, out var l) && root.View.TargetSprite(t.Id) == l.Default),
                 string.Join(",", G.Content.MagicTargets.Select(t => t.Id + "=" + root.View.TargetSprite(t.Id))));
             yield return Shot("01b-targets-default");

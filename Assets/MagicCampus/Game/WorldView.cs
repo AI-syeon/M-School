@@ -135,10 +135,10 @@ namespace MagicCampus.Game
                         foreach (var c in (JObject)d.Value) set[d.Key + "." + c.Key] = ReadClip(c.Value);
                 clips[a.Key] = set;
             }
-            var characters = Path.Combine(UnityEngine.Application.streamingAssetsPath, "UiArt", "Characters");
+            var characters = Path.Combine(GamePaths.StreamingAssets, "UiArt", "Characters");
             if (Directory.Exists(characters))
                 foreach (var manifestPath in Directory.GetFiles(characters, "manifest.json", SearchOption.AllDirectories)) LoadCharacter(manifestPath);
-            art = WorldArt.Load(Path.Combine(UnityEngine.Application.streamingAssetsPath, "FirstConnection", "world-art.json"));
+            art = WorldArt.Load(Path.Combine(GamePaths.StreamingAssets, "FirstConnection", "world-art.json"));
 
             this.camera = camera;
             camera.orthographic = true;
@@ -222,7 +222,7 @@ namespace MagicCampus.Game
             doorCues.Clear();
             if (!art.Maps.TryGetValue(map.Id, out var look)) shown = WorldMap.Plain(map, game.Content.Bed, stage5Tiles, stage5GroundMaterial);
             else if (look.Layout != null)
-                shown = WorldMap.FromLayout(map, Layout(Path.Combine(UnityEngine.Application.streamingAssetsPath, look.Layout)), assets, look,
+                shown = WorldMap.FromLayout(map, Layout(Path.Combine(GamePaths.StreamingAssets, look.Layout)), assets, look,
                     game.Furniture.IsArrangeable(map.Id) ? game.Furniture.Placed(map.Id) : null, game.Furniture.Room(map.Id));
             else shown = WorldMap.FromRows(map, look.Stage5, stage5Tiles, stage5GroundMaterial);
             shownId = map.Id;

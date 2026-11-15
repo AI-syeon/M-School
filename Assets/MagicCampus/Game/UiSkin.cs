@@ -488,7 +488,7 @@ namespace MagicCampus.Game
         /// </summary>
         void LoadKit()
         {
-            var root = Path.Combine(UnityEngine.Application.streamingAssetsPath, "UiArt");
+            var root = Path.Combine(GamePaths.StreamingAssets, "UiArt");
             try
             {
                 var ui = Path.Combine(root, "UI");

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -23,8 +24,16 @@ namespace MagicCampus.Core
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path)));
             var temp = path + ".tmp";
             File.WriteAllText(temp, ToJson(state), new UTF8Encoding(false));
-            if (File.Exists(path)) File.Replace(temp, path, path + ".bak");
-            else File.Move(temp, path);
+            if (!File.Exists(path)) File.Move(temp, path);
+            else
+                try { File.Replace(temp, path, path + ".bak"); }
+                catch (Exception e) when (e is NotSupportedException || e is NotImplementedException || e is IOException)
+                {
+                    // Some file systems (WebGL's in-memory one) have no File.Replace: keep the .bak and swap the content by copy.
+                    File.Copy(path, path + ".bak", true);
+                    File.Copy(temp, path, true);
+                    File.Delete(temp);
+                }
         }
 
         /// <summary>The saved state, or null when neither the file nor its .bak can be read.</summary>

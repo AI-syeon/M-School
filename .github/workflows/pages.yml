@@ -1,0 +1,40 @@
+# Deploys the web build attached to the latest GitHub Release to GitHub Pages.
+# Unity is built locally (.claude/skills/release-web/scripts/release-web.ps1); this job only publishes the zip.
+name: Deploy latest release to Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Download web build of the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo "$GITHUB_REPOSITORY" --pattern 'MagicCampus-web-*.zip' --dir dl
+          mkdir site
+          unzip -q dl/*.zip -d site
+          touch site/.nojekyll
+          test -f site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

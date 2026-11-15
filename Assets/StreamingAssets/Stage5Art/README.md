@@ -7,7 +7,7 @@
 - `source/students-original.png`: imagegen 생성 원본, 4열(남/서/동/북) × 3행(player/Serin/Mira), 실제 RGBA 투명 배경.
 - `source/academy-tiles-original.png`: imagegen 생성 원본, 4×4 타일 16종.
 - `source/prompts.json`: 원본 생성 프롬프트와 도구/출처 기록.
-- `characters/{player,npc.serin,npc.mira}/`: 16×32 개별 RGBA PNG 40프레임/명, 정지 방향 포즈 4개, `sprite-sheet-alpha.png`(160×128), `manifest.json`, 확대 `review.png`, 남향 `walk-south.gif`.
+- `characters/{player,npc.serin,npc.mira}/`: 32×64 셀 40개/명의 `sprite-sheet-alpha.png`(320×256), 같은 크기의 `normals/atlas.png`, 원본 비교용 정지 방향 포즈 4개, `manifest.json`, 확대 `review.png`, 남향 `walk-south.gif`.
 - `tiles/`: 개별 16×16 RGBA PNG 16종, `atlas.png`(64×64), 절대 좌표 `manifest.json`.
 - `comparison-students.png`, `comparison-tiles.png`: 원본/도트 결과 나란히 비교.
 - `character-review.png`, `tile-review.png`: 최근접 확대 검수.
@@ -35,7 +35,7 @@ $env:PYTHONDONTWRITEBYTECODE='1'
 & C:/Users/syeon/Workspace/2D-pixel-asset-pipeline/.venv/Scripts/python.exe Art/Stage5-v1/build_assets.py
 ```
 
-생성 후 16타일/120프레임/알파0·255/절대 atlas 사각형/개별프레임 바이트 일치 검사가 통과했다. 확대 이미지에서 학생 셋의 색 정체성, 남서동북 실루엣, 문/게시판/환경 오브젝트 가독성을 직접 확인했다. 이것은 자산 검수이며 Unity 실제 화면 검증 완료를 뜻하지 않는다.
+생성 후 16타일/120프레임/알파0·255/절대 atlas 사각형/시트 슬라이스와 입력 프레임 바이트 일치 검사가 통과했다. 확대 이미지에서 학생 셋의 색 정체성, 남서동북 실루엣, 문/게시판/환경 오브젝트 가독성을 직접 확인했다. 이것은 자산 검수이며 Unity 실제 화면 검증 완료를 뜻하지 않는다.
 
 ## 품질 범위와 한계
 

@@ -1,0 +1,5 @@
+<linker>
+  <!-- IL2CPP/WebGL: Newtonsoft.Json fills these types by reflection, so keep them whole. -->
+  <assembly fullname="MagicCampus.Core" preserve="all"/>
+  <assembly fullname="MagicCampus.Game" preserve="all"/>
+</linker>

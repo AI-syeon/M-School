@@ -12,8 +12,38 @@ namespace MagicCampus.Game
         float journalScroll, journalHeight, bookScroll, bookHeight;
         int scrolledTo = -1;
 
+        GUIStyle loadingStyle;
+
+        /// <summary>WebGL start-up card while the StreamingAssets files download; plain GUI so no game file is needed yet.</summary>
+        void DrawLoading()
+        {
+            if (loadingStyle == null)
+                loadingStyle = new GUIStyle(GUI.skin.label)
+                {
+                    font = Resources.Load<Font>("Fonts/Galmuri11"), fontSize = 24, alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = new Color(0.93f, 0.9f, 0.8f) }
+                };
+            var screen = new Rect(0, 0, Screen.width, Screen.height);
+            GUI.color = new Color(0.02f, 0.03f, 0.07f, 1f);
+            GUI.DrawTexture(screen, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            var fraction = loadTotal > 0 ? (float)loadDone / loadTotal : 0f;
+            GUI.Label(new Rect(0, screen.height / 2f - 48f, screen.width, 40f), "불러오는 중... " + Mathf.RoundToInt(fraction * 100f) + "%", loadingStyle);
+            var bar = new Rect(screen.width / 2f - 160f, screen.height / 2f, 320f, 12f);
+            GUI.color = new Color(1f, 1f, 1f, 0.2f);
+            GUI.DrawTexture(bar, Texture2D.whiteTexture);
+            GUI.color = new Color(0.95f, 0.78f, 0.35f);
+            GUI.DrawTexture(new Rect(bar.x, bar.y, bar.width * fraction, bar.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
+
         void OnGUI()
         {
+            if (loading)
+            {
+                DrawLoading();
+                return;
+            }
             skin.Ensure();
             if (View != null)
             {

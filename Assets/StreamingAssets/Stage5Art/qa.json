@@ -25,8 +25,8 @@
       "idleFramesPerDirection": 4,
       "walkFramesPerDirection": 6,
       "size": [
-        16,
-        32
+        32,
+        64
       ],
       "alpha": "binary 0/255",
       "paletteMaxPerBasePose": 24
@@ -37,8 +37,8 @@
       "idleFramesPerDirection": 4,
       "walkFramesPerDirection": 6,
       "size": [
-        16,
-        32
+        32,
+        64
       ],
       "alpha": "binary 0/255",
       "paletteMaxPerBasePose": 24
@@ -49,8 +49,8 @@
       "idleFramesPerDirection": 4,
       "walkFramesPerDirection": 6,
       "size": [
-        16,
-        32
+        32,
+        64
       ],
       "alpha": "binary 0/255",
       "paletteMaxPerBasePose": 24
@@ -72,12 +72,5 @@
       "Walk is a simple locally rigged leg-shift/bob loop, not independently generated poses.",
       "Map images match existing fixture dimensions and blocked cells; not a large designed campus."
     ]
-  },
-  "runtimeManifestCompatibility": {
-    "status": "passed",
-    "oldRuntimeTileKeysPreserved": true,
-    "oldRuntimeActorKeysPreserved": true,
-    "sha256AndPaths": "passed",
-    "savedFrameAtlasEquality": 120
   }
 }
